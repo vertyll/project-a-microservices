@@ -1,0 +1,119 @@
+package com.vertyll.projecta.user.domain.service
+
+import com.vertyll.projecta.common.event.user.UserRegisteredEvent
+import com.vertyll.projecta.common.exception.ApiException
+import com.vertyll.projecta.user.domain.dto.UserCreateDto
+import com.vertyll.projecta.user.domain.dto.UserResponseDto
+import com.vertyll.projecta.user.domain.dto.UserUpdateDto
+import com.vertyll.projecta.user.domain.model.User
+import com.vertyll.projecta.user.domain.repository.UserRepository
+import com.vertyll.projecta.user.infrastructure.kafka.UserEventProducer
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.format.DateTimeFormatter
+
+@Service
+class UserService(
+    private val userRepository: UserRepository,
+    private val userEventProducer: UserEventProducer
+) {
+    private val dateFormatter = DateTimeFormatter.ISO_INSTANT
+
+    @Transactional
+    fun createUser(dto: UserCreateDto): UserResponseDto {
+        if (userRepository.existsByEmail(dto.email)) {
+            throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
+        }
+
+        val user = User.create(
+            firstName = dto.firstName,
+            lastName = dto.lastName,
+            email = dto.email,
+            roles = dto.roles.ifEmpty { setOf("USER") },
+            profilePicture = dto.profilePicture,
+            phoneNumber = dto.phoneNumber,
+            address = dto.address
+        )
+
+        val savedUser = userRepository.save(user)
+        
+        // Publish user created event
+        userEventProducer.send(
+            UserRegisteredEvent(
+                userId = savedUser.id!!,
+                email = savedUser.getEmail(),
+                firstName = savedUser.firstName,
+                lastName = savedUser.lastName,
+                roles = savedUser.getCachedRoles()
+            )
+        )
+        
+        return mapToDto(savedUser)
+    }
+
+    @Transactional
+    fun updateUser(id: Long, dto: UserUpdateDto): UserResponseDto {
+        val user = userRepository.findById(id)
+            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+
+        // Update user fields
+        user.firstName = dto.firstName
+        user.lastName = dto.lastName
+        user.setEmail(dto.email)
+        user.profilePicture = dto.profilePicture
+        user.phoneNumber = dto.phoneNumber
+        user.address = dto.address
+        
+        // If roles are being updated, update the cached roles
+        if (dto.roles.isNotEmpty()) {
+            user.setCachedRoles(dto.roles)
+        }
+        
+        val savedUser = userRepository.save(user)
+        return mapToDto(savedUser)
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserById(id: Long): UserResponseDto {
+        val user = userRepository.findById(id)
+            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+        return mapToDto(user)
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserByEmail(email: String): UserResponseDto {
+        val user = userRepository.findByEmail(email)
+            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+        return mapToDto(user)
+    }
+    
+    @Transactional
+    fun updateEmail(currentEmail: String, newEmail: String): UserResponseDto {
+        if (userRepository.existsByEmail(newEmail)) {
+            throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
+        }
+        
+        val user = userRepository.findByEmail(currentEmail)
+            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            
+        user.setEmail(newEmail)
+        val savedUser = userRepository.save(user)
+        return mapToDto(savedUser)
+    }
+
+    private fun mapToDto(user: User): UserResponseDto {
+        return UserResponseDto(
+            id = user.id!!,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            email = user.getEmail(),
+            roles = user.getCachedRoles(),
+            profilePicture = user.profilePicture,
+            phoneNumber = user.phoneNumber,
+            address = user.address,
+            createdAt = user.createdAt.toString(),
+            updatedAt = user.updatedAt.toString()
+        )
+    }
+} 

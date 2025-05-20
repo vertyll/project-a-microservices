@@ -1,0 +1,104 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /api/mail
+
+spring:
+  application:
+    name: mail-service
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://localhost:5434/mail_service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+  mail:
+    host: localhost
+    port: 1025
+    username: vertyll
+    password: vertyll
+    from: noreply@projecta.com
+    properties:
+      mail:
+        smtp:
+          trust: "*"
+        auth: true
+        starttls:
+          enabled: true
+        connection-timeout: 5000
+        timeout: 3000
+        write-timeout: 5000
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: true
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent
+    consumer:
+      group-id: mail-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.json.trusted.packages: "com.vertyll.projecta.*"
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent
+        spring.json.value.default.type: "com.vertyll.projecta.common.event.mail.MailRequestedEvent"
+        spring.json.use.type.headers: true
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+    service-registry:
+      auto-registration:
+        enabled: false
+    eureka:
+      client:
+        enabled: false
+        register-with-eureka: false
+        fetch-registry: false
+
+# Kafka topics configuration
+kafka:
+  topic:
+    mail-requested: mail-requested
+    mail-sent: mail-sent
+    mail-failed: mail-failed
+
+# OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    url: /api-docs
+    config-url: /api-docs/swagger-config
+
+# Actuator endpoints configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true 

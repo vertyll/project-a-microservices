@@ -1,0 +1,81 @@
+package com.vertyll.projecta.user.application.controller
+
+import com.vertyll.projecta.common.response.ApiResponse
+import com.vertyll.projecta.user.domain.dto.UserCreateDto
+import com.vertyll.projecta.user.domain.dto.UserResponseDto
+import com.vertyll.projecta.user.domain.dto.UserUpdateDto
+import com.vertyll.projecta.user.domain.service.UserService
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+
+@RestController
+@RequestMapping("/api/users")
+@Tag(name = "Users", description = "User management API")
+class UserController(
+    private val userService: UserService
+) {
+    @PostMapping
+    @Operation(summary = "Create a new user")
+    fun createUser(@RequestBody @Valid request: UserCreateDto): ResponseEntity<ApiResponse<UserResponseDto>> {
+        val user = userService.createUser(request)
+        return ApiResponse.buildResponse(
+            user,
+            "User created successfully",
+            HttpStatus.CREATED
+        )
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an existing user")
+    fun updateUser(
+        @PathVariable id: Long,
+        @RequestBody @Valid request: UserUpdateDto
+    ): ResponseEntity<ApiResponse<UserResponseDto>> {
+        val user = userService.updateUser(id, request)
+        return ApiResponse.buildResponse(
+            user,
+            "User updated successfully",
+            HttpStatus.OK
+        )
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get user by ID")
+    fun getUserById(@PathVariable id: Long): ResponseEntity<ApiResponse<UserResponseDto>> {
+        val user = userService.getUserById(id)
+        return ApiResponse.buildResponse(
+            user,
+            "User retrieved successfully",
+            HttpStatus.OK
+        )
+    }
+
+    @GetMapping("/email/{email}")
+    @Operation(summary = "Get user by email")
+    fun getUserByEmail(@PathVariable email: String): ResponseEntity<ApiResponse<UserResponseDto>> {
+        val user = userService.getUserByEmail(email)
+        return ApiResponse.buildResponse(
+            user,
+            "User retrieved successfully",
+            HttpStatus.OK
+        )
+    }
+    
+    @PostMapping("/email")
+    @Operation(summary = "Update user email")
+    fun updateEmail(
+        @RequestParam currentEmail: String,
+        @RequestParam newEmail: String
+    ): ResponseEntity<ApiResponse<UserResponseDto>> {
+        val user = userService.updateEmail(currentEmail, newEmail)
+        return ApiResponse.buildResponse(
+            user,
+            "Email updated successfully",
+            HttpStatus.OK
+        )
+    }
+} 

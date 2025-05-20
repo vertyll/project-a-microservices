@@ -1,0 +1,330 @@
+services:
+  # PostgreSQL databases for each service
+  auth-db:
+    image: postgres:17-alpine
+    container_name: auth-db
+    restart: always
+    volumes:
+      - auth-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_service
+    ports:
+      - "5431:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-db:
+    image: postgres:17-alpine
+    container_name: user-db
+    restart: always
+    volumes:
+      - user-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_service
+    ports:
+      - "5432:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  role-db:
+    image: postgres:17-alpine
+    container_name: role-db
+    restart: always
+    volumes:
+      - role-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: role_service
+    ports:
+      - "5433:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mail-db:
+    image: postgres:17-alpine
+    container_name: mail-db
+    restart: always
+    volumes:
+      - mail-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mail_service
+    ports:
+      - "5434:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Kafka and Zookeeper for event-driven communication
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.4.0
+    container_name: schema-registry
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Web service for mail testing
+  mail-dev:
+    image: maildev/maildev:latest
+    container_name: mail-dev
+    restart: always
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    networks:
+      - microservices-network
+
+  # Kafka UI tool
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+      - schema-registry
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
+    networks:
+      - microservices-network
+
+  # Microservices
+  # auth-service:
+  #   build:
+  #     context: .
+  #     dockerfile: auth-service/Dockerfile
+  #   container_name: auth-service
+  #   restart: always
+  #   depends_on:
+  #     - auth-db
+  #     - kafka
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_service
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: postgres
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  #     SPRING_PROFILES_ACTIVE: docker
+  #   networks:
+  #     - microservices-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8081/api/auth/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 40s
+
+  # user-service:
+  #   build:
+  #     context: .
+  #     dockerfile: user-service/Dockerfile
+  #   container_name: user-service
+  #   restart: always
+  #   depends_on:
+  #     - user-db
+  #     - kafka
+  #   ports:
+  #     - "8082:8082"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user_service
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: postgres
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  #     SPRING_PROFILES_ACTIVE: docker
+  #   networks:
+  #     - microservices-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8082/api/users/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 40s
+
+  # role-service:
+  #   build:
+  #     context: .
+  #     dockerfile: role-service/Dockerfile
+  #   container_name: role-service
+  #   restart: always
+  #   depends_on:
+  #     - role-db
+  #     - kafka
+  #   ports:
+  #     - "8083:8083"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://role-db:5432/role_service
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: postgres
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  #     SPRING_PROFILES_ACTIVE: docker
+  #   networks:
+  #     - microservices-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8083/api/roles/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 40s
+
+  # mail-service:
+  #   build:
+  #     context: .
+  #     dockerfile: mail-service/Dockerfile
+  #   container_name: mail-service
+  #   restart: always
+  #   depends_on:
+  #     - mail-db
+  #     - kafka
+  #     - mail-dev
+  #   ports:
+  #     - "8084:8084"
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://mail-db:5432/mail_service
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: postgres
+  #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  #     SPRING_MAIL_HOST: mail-dev
+  #     SPRING_MAIL_PORT: 1025
+  #     SPRING_PROFILES_ACTIVE: docker
+  #   networks:
+  #     - microservices-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8084/api/mail/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 40s
+
+  # api-gateway:
+  #   build:
+  #     context: .
+  #     dockerfile: api-gateway/Dockerfile
+  #   container_name: api-gateway
+  #   restart: always
+  #   depends_on:
+  #     - auth-service
+  #     - user-service
+  #     - role-service
+  #     - mail-service
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     SERVER_PORT: 8080
+  #     SPRING_CLOUD_GATEWAY_ROUTES_0_ID: auth-service
+  #     SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8085
+  #     SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/v1/auth/**
+  #     SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: RewritePath=/api/v1/auth/(?<segment>.*), /api/auth/$\{segment}
+  #     SPRING_CLOUD_GATEWAY_ROUTES_1_ID: user-service
+  #     SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://user-service:8082
+  #     SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/v1/users/**
+  #     SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: RewritePath=/api/v1/users/(?<segment>.*), /api/users/$\{segment}
+  #     SPRING_CLOUD_GATEWAY_ROUTES_2_ID: role-service
+  #     SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://role-service:8083
+  #     SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/api/v1/roles/**
+  #     SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0: RewritePath=/api/v1/roles/(?<segment>.*), /api/roles/$\{segment}
+  #     SPRING_CLOUD_GATEWAY_ROUTES_3_ID: mail-service
+  #     SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://mail-service:8084
+  #     SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: Path=/api/v1/mail/**
+  #     SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0: RewritePath=/api/v1/mail/(?<segment>.*), /api/mail/$\{segment}
+  #     SPRING_PROFILES_ACTIVE: docker
+  #   networks:
+  #     - microservices-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 40s
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  auth-postgres-data:
+  user-postgres-data:
+  role-postgres-data:
+  mail-postgres-data:
