@@ -20,7 +20,7 @@ import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.common.exception.ApiException
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.saga.SagaManager
 import com.vertyll.projecta.common.saga.SagaStepStatus
 import jakarta.servlet.http.Cookie
@@ -49,7 +49,8 @@ class AuthService(
     private val passwordEncoder: PasswordEncoder,
     private val credentialVerificationService: CredentialVerificationService,
     private val sagaManager: SagaManager,
-    private val kafkaOutboxProcessor: KafkaOutboxProcessor
+    private val kafkaOutboxProcessor: KafkaOutboxProcessor,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AuthService::class.java)
 
@@ -117,7 +118,7 @@ class AuthService(
 
                 // Save the event to the outbox table
                 kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = KafkaTopics.USER_REGISTERED,
+                    topic = kafkaTopicsConfig.getUserRegisteredTopic(),
                     key = event.eventId,
                     payload = event,
                     sagaId = saga.id
@@ -178,7 +179,7 @@ class AuthService(
 
                 // Save the event to the outbox table
                 kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = KafkaTopics.MAIL_REQUESTED,
+                    topic = kafkaTopicsConfig.getMailRequestedTopic(),
                     key = mailEvent.eventId,
                     payload = mailEvent,
                     sagaId = saga.id

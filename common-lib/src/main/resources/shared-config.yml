@@ -15,3 +15,8 @@ projecta:
         url: http://localhost:8084
       mail-service:
         url: http://localhost:8085
+
+# Import the Kafka topics configuration
+spring:
+  config:
+    import: classpath:kafka-topics.yml

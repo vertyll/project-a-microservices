@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component
 @Component
 class UserEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger: Logger = LoggerFactory.getLogger(UserEventProducer::class.java)
 
@@ -23,7 +24,7 @@ class UserEventProducer(
             val modifiedEvent = event.copy(eventSource = "USER_SERVICE")
 
             val eventJson = objectMapper.writeValueAsString(modifiedEvent)
-            kafkaTemplate.send(KafkaTopics.USER_REGISTERED, modifiedEvent.eventId, eventJson)
+            kafkaTemplate.send(kafkaTopicsConfig.getUserRegisteredTopic(), modifiedEvent.eventId, eventJson)
 
             logger.info("Sent user registered event for: ${modifiedEvent.email}")
             return true
@@ -37,7 +38,7 @@ class UserEventProducer(
         try {
             val eventJson = objectMapper.writeValueAsString(event)
             logger.info("Sending credentials verification result: $eventJson")
-            kafkaTemplate.send(KafkaTopics.CREDENTIALS_VERIFICATION_RESULT, event.requestId, eventJson)
+            kafkaTemplate.send(kafkaTopicsConfig.getCredentialsVerificationResultTopic(), event.requestId, eventJson)
             logger.info("Sent credentials verification result for requestId: ${event.requestId}")
         } catch (e: Exception) {
             logger.error("Error sending credentials verification result: ${e.message}", e)
@@ -47,7 +48,7 @@ class UserEventProducer(
     fun send(event: UserProfileUpdatedEvent): Boolean {
         try {
             val eventJson = objectMapper.writeValueAsString(event)
-            kafkaTemplate.send(KafkaTopics.USER_UPDATED, event.eventId, eventJson)
+            kafkaTemplate.send(kafkaTopicsConfig.getUserUpdatedTopic(), event.eventId, eventJson)
 
             logger.info("Sent user profile updated event for: ${event.email}")
             return true

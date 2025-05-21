@@ -2,7 +2,7 @@ package com.vertyll.projecta.role.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.role.domain.service.RoleService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -13,11 +13,12 @@ import org.springframework.transaction.annotation.Transactional
 @Component
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
-    private val roleService: RoleService
+    private val roleService: RoleService,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @KafkaListener(topics = [KafkaTopics.USER_REGISTERED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getUserRegisteredTopic()}"])
     @Transactional
     fun consume(record: ConsumerRecord<String, String>) {
         try {

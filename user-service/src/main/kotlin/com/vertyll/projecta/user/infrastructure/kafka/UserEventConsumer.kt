@@ -1,10 +1,11 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.saga.SagaManager
 import com.vertyll.projecta.common.saga.SagaStepStatus
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
@@ -23,11 +24,12 @@ class UserEventConsumer(
     private val userService: UserService,
     private val userRepository: UserRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
-    private val sagaManager: SagaManager
+    private val sagaManager: SagaManager,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @KafkaListener(topics = [KafkaTopics.USER_REGISTERED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getUserRegisteredTopic()}"])
     @Transactional
     fun consume(record: ConsumerRecord<String, String>) {
         try {
@@ -98,7 +100,7 @@ class UserEventConsumer(
         }
     }
 
-    @KafkaListener(topics = [KafkaTopics.USER_UPDATED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getUserUpdatedTopic()}"])
     @Transactional
     fun consumeProfileUpdates(record: ConsumerRecord<String, String>) {
         try {

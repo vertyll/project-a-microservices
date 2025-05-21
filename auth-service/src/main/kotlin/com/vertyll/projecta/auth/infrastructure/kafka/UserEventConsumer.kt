@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.AuthUserRoleRepository
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
@@ -15,14 +15,15 @@ import org.springframework.transaction.annotation.Transactional
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
     private val authUserRepository: AuthUserRepository,
-    private val authUserRoleRepository: AuthUserRoleRepository
+    private val authUserRoleRepository: AuthUserRoleRepository,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
      * Listens for user creation events from User Service to update the userId in Auth Service
      */
-    @KafkaListener(topics = [KafkaTopics.USER_REGISTERED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getUserRegisteredTopic()}"])
     @Transactional
     fun consumeUserRegisteredEvent(record: ConsumerRecord<String, String>) {
         try {
@@ -46,7 +47,7 @@ class UserEventConsumer(
     /**
      * Listens for role assignment events
      */
-    @KafkaListener(topics = [KafkaTopics.ROLE_ASSIGNED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getRoleAssignedTopic()}"])
     @Transactional
     fun consumeRoleAssignedEvent(record: ConsumerRecord<String, String>) {
         try {
@@ -86,7 +87,7 @@ class UserEventConsumer(
     /**
      * Listens for role revocation events
      */
-    @KafkaListener(topics = [KafkaTopics.ROLE_REVOKED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getRoleRevokedTopic()}"])
     @Transactional
     fun consumeRoleRevokedEvent(record: ConsumerRecord<String, String>) {
         try {

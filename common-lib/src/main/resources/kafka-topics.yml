@@ -1,0 +1,60 @@
+# Kafka Topics Configuration for Project A Microservices
+# This configuration defines all Kafka topics used across the microservices
+
+kafka:
+  topics:
+    # Auth Service Events
+    auth:
+      user-registered: "user-registered"
+      user-activated: "user-activated"
+      user-password-reset: "user-password-reset"
+      credentials-verification: "credentials-verification"
+      credentials-verification-result: "credentials-verification-result"
+
+    # User Service Events
+    user:
+      user-updated: "user-updated"
+      user-email-updated: "user-email-updated"
+      user-password-updated: "user-password-updated"
+      user-deleted: "user-deleted"
+      user-deletion: "user-deletion"  # Used for compensation transactions
+
+    # Role Service Events
+    role:
+      role-created: "role-created"
+      role-updated: "role-updated"
+      role-deleted: "role-deleted"
+      role-assigned: "role-assigned"
+      role-revoked: "role-revoked"
+
+    # Mail Service Events
+    mail:
+      mail-requested: "mail-requested"
+      mail-sent: "mail-sent"
+      mail-failed: "mail-failed"
+
+    # Saga Pattern Events
+    saga:
+      saga-compensation: "saga-compensation"
+
+  # Type mappings for JSON serialization/deserialization
+  type-mappings:
+    auth:
+      - "userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent"
+      - "userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent"
+      - "credentialsVerification:com.vertyll.projecta.common.event.user.CredentialsVerificationEvent"
+      - "credentialsVerificationResult:com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent"
+      - "mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent"
+
+    user:
+      - "userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent"
+      - "userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent"
+      - "credentialsVerificationResult:com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent"
+
+    role:
+      - "userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent"
+      - "roleCreated:com.vertyll.projecta.role.infrastructure.kafka.RoleCreatedEvent"
+      - "roleUpdated:com.vertyll.projecta.role.infrastructure.kafka.RoleUpdatedEvent"
+
+    mail:
+      - "mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent"

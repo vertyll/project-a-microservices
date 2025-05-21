@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.KafkaHeaders
@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component
 @Component
 class AuthEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -23,7 +24,7 @@ class AuthEventProducer(
      */
     fun sendUserRegisteredEvent(event: UserRegisteredEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
-        kafkaTemplate.send(KafkaTopics.USER_REGISTERED, event.eventId, eventJson)
+        kafkaTemplate.send(kafkaTopicsConfig.getUserRegisteredTopic(), event.eventId, eventJson)
         logger.info("Sent user registration event for: ${event.email}")
     }
 
@@ -35,7 +36,7 @@ class AuthEventProducer(
         val message = MessageBuilder
             .withPayload(eventJson)
             .setHeader(KafkaHeaders.KEY, event.eventId)
-            .setHeader(KafkaHeaders.TOPIC, KafkaTopics.MAIL_REQUESTED)
+            .setHeader(KafkaHeaders.TOPIC, kafkaTopicsConfig.getMailRequestedTopic())
             .setHeader("__TypeId__", "mailRequested")
             .build()
         kafkaTemplate.send(message)
@@ -47,7 +48,7 @@ class AuthEventProducer(
      */
     fun sendUserProfileUpdatedEvent(event: UserProfileUpdatedEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
-        kafkaTemplate.send(KafkaTopics.USER_UPDATED, event.eventId, eventJson)
+        kafkaTemplate.send(kafkaTopicsConfig.getUserUpdatedTopic(), event.eventId, eventJson)
         logger.info("Sent user profile updated event for user: ${event.email}")
     }
 }

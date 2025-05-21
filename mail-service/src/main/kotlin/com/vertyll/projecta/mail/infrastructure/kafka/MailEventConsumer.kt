@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
-import com.vertyll.projecta.common.kafka.KafkaTopics
+import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.mail.domain.service.EmailService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -17,7 +17,8 @@ import java.time.Instant
 @Component
 class MailEventConsumer(
     private val objectMapper: ObjectMapper,
-    private val emailService: EmailService
+    private val emailService: EmailService,
+    private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     
@@ -50,7 +51,7 @@ class MailEventConsumer(
         private const val LOG_SUCCESS = "Successfully processed mail request: {}"
     }
 
-    @KafkaListener(topics = [KafkaTopics.MAIL_REQUESTED])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getMailRequestedTopic()}"])
     fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
         try {
             logger.info(LOG_RECEIVED_MESSAGE, record.key())
