@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: role-service
+  config:
+    import: classpath:shared-config.yml
   datasource:
     url: jdbc:postgresql://localhost:5434/role_service
     username: postgres
@@ -39,13 +41,6 @@ spring:
         spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
         spring.json.use.type.headers: true
         spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,roleCreated:com.vertyll.projecta.role.infrastructure.kafka.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.role.infrastructure.kafka.RoleUpdatedEvent
-
-# Kafka topics configuration
-kafka:
-  topic:
-    role-created: role-created
-    role-updated: role-updated
-    role-deleted: role-deleted
 
 # OpenAPI configuration
 springdoc:

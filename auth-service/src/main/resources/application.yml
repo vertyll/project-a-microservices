@@ -20,9 +20,6 @@ spring:
         format_sql: true
     database: postgresql
     open-in-view: false
-    # Ensure JPA properly scans our auth domain models
-    entity-scan:
-      packages: com.vertyll.projecta.auth.domain.model
   kafka:
     bootstrap-servers: localhost:29092
     producer:
@@ -45,49 +42,11 @@ spring:
         spring.json.use.type.headers: true
         spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
   cloud:
-    config:
-      enabled: false
     discovery:
       enabled: false
     service-registry:
       auto-registration:
         enabled: false
-    eureka:
-      client:
-        enabled: false
-        register-with-eureka: false
-        fetch-registry: false
-
-# Feign client configuration
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-        loggerLevel: basic
-  httpclient:
-    enabled: true
-
-# Service URLs
-service:
-  user-service:
-    url: http://localhost:8083
-
-# Kafka topics configuration
-kafka:
-  topic:
-    user-registered: user-registered
-    user-activated: user-activated
-    user-updated: user-updated
-    user-password-changed: user-password-changed
-    user-email-changed: user-email-changed
-    mail-requested: mail-requested
-
-# JWT configuration
-security:
-  jwt:
-    secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
 
 # OpenAPI configuration
 springdoc:

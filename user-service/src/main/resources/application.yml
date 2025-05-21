@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: user-service
+  config:
+    import: classpath:shared-config.yml
   datasource:
     url: jdbc:postgresql://localhost:5433/user_service
     username: postgres
@@ -40,20 +42,6 @@ spring:
         spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
         spring.json.use.type.headers: true
         spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,credentialsVerification:com.vertyll.projecta.common.event.user.CredentialsVerificationEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-
-# Kafka topics configuration
-kafka:
-  topic:
-    user-created: user-created
-    user-updated: user-updated
-    user-deleted: user-deleted
-    user-registered: user-registered
-    user-activated: user-activated
-    user-password-changed: user-password-changed
-    user-email-changed: user-email-changed
-    role-created: role-created
-    credentials-verification: credentials-verification
-    credentials-verification-result: credentials-verification-result
 
 # OpenAPI configuration
 springdoc:

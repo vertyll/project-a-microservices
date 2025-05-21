@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: mail-service
+  config:
+    import: classpath:shared-config.yml
   main:
     allow-bean-definition-overriding: true
     
@@ -64,28 +66,6 @@ spring:
         spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent
         spring.json.value.default.type: "com.vertyll.projecta.common.event.mail.MailRequestedEvent"
         spring.json.use.type.headers: true
-        
-  # Spring Cloud configuration - disabled in this service
-  cloud:
-    config:
-      enabled: false
-    discovery:
-      enabled: false
-    service-registry:
-      auto-registration:
-        enabled: false
-    eureka:
-      client:
-        enabled: false
-        register-with-eureka: false
-        fetch-registry: false
-
-# Kafka topics configuration
-kafka:
-  topic:
-    mail-requested: mail-requested
-    mail-sent: mail-sent
-    mail-failed: mail-failed
 
 # OpenAPI documentation configuration
 springdoc:

@@ -47,22 +47,6 @@ spring:
         spring.json.trusted.packages: "com.vertyll.projecta.*"
         spring.json.value.default.type: "java.util.Map"
 
-# Service URLs configuration
-service:
-  auth-service:
-    url: http://localhost:8082
-  user-service:
-    url: http://localhost:8083
-  role-service:
-    url: http://localhost:8084
-  mail-service:
-    url: http://localhost:8085
-
-# JWT configuration
-security:
-  jwt:
-    secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-
 # OpenAPI configuration
 springdoc:
   api-docs:
