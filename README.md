@@ -7,7 +7,7 @@
 
 # Project A Microservices
 
-A microservices-based architecture for Project A, following Domain-Driven Design (DDD) principles, Separation of Concerns (SoC), SOLID principles, and the Saga pattern for distributed transactions.
+A microservices-based architecture for Project A, following Domain-Driven Design (DDD) principles, Separation of Concerns (SoC), SOLID principles, Choreography pattern for service coordination, and the Saga pattern for distributed transactions.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ The project is split into the following components:
 5. **Mail Service** - Handles email sending operations and templates
 6. **Common Library** - Shared code, contracts, and utilities used across all microservices
 
-Each microservice has its own PostgreSQL database and communicates with other services via Apache Kafka for event-driven architecture.
+Each microservice has its own PostgreSQL database and communicates with other services via Apache Kafka for event-driven architecture, implementing the Choreography pattern.
 
 ### Detailed Description of Components
 
@@ -29,6 +29,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
 - Implements common patterns like the Saga pattern and Outbox pattern
 - Contains reusable components for Kafka integration, exception handling, and API responses
 - Ensures consistency in how services communicate and process events
+- Includes base classes for implementing event choreography
 
 #### Auth Service
 - Responsible for user authentication and authorization using JWT and refresh tokens
@@ -39,6 +40,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
   - Verification tokens (for account activation, password reset, etc.)
   - User roles (mirrored from Role Service)
 - Provides endpoints for registration, login, logout, account activation, password reset, and email change
+- Publishes authentication events that trigger workflows in other services
 
 #### Role Service
 - Manages the roles and permissions throughout the system
@@ -48,6 +50,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
   - User-role assignments
 - Provides APIs for creating, updating, and assigning roles
 - Publishes role-related events to Kafka for other services to consume
+- Reacts to user events to assign default roles automatically
 
 #### User Service
 - Manages user profiles and user-related information not needed for authentication
@@ -57,6 +60,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
   - Other user-specific data not required for authentication
 - Consumes user-related events from other services
 - Provides APIs for managing user profiles
+- Publishes user profile events when changes occur
 
 #### Mail Service
 - Responsible for sending emails based on templates
@@ -66,6 +70,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
   - Email templates
 - Consumes mail request events from other services
 - Supports various email templates (welcome, password reset, account activation, etc.)
+- Acts as a reactive service in the choreography flow
 
 ## Technology Stack
 
@@ -145,6 +150,21 @@ The codebase adheres to:
 - **Interface Segregation Principle**: Specific interfaces rather than general ones
 - **Dependency Inversion Principle**: Depends on abstractions, not concretions
 
+### Choreography Pattern for Service Coordination
+
+The system uses a choreography-based approach for service coordination:
+
+- Services react to events published by other services without central coordination
+- Each service knows which events to listen for and what actions to take
+- No central orchestrator is needed, making the system more decentralized and resilient
+- Services maintain autonomy and can evolve independently
+
+Benefits of this approach:
+- Reduced coupling between services
+- More flexible and scalable architecture
+- Easier to add new services or modify existing ones
+- Better resilience as there's no single point of failure
+
 ### Saga Pattern for Distributed Transactions
 
 For distributed transactions that span multiple services, we use the Saga pattern:
@@ -183,3 +203,4 @@ Each service provides its own Swagger UI for API documentation:
 
 - Each service exposes health and metrics endpoints through Spring Boot Actuator
 - Health checks can be accessed at `/actuator/health` on each service
+- Metrics can be collected for observability and monitoring service health
