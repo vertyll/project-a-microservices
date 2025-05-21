@@ -46,6 +46,17 @@ class AuthController(private val authService: AuthService) {
         return ApiResponse.buildResponse(null, "Account activated successfully", HttpStatus.OK)
     }
 
+    @PostMapping("/resend-activation")
+    @Operation(summary = "Resend activation email")
+    fun resendActivationEmail(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
+        authService.resendActivationEmail(email)
+        return ApiResponse.buildResponse(
+            null,
+            "Activation email sent. Please check your inbox.",
+            HttpStatus.OK
+        )
+    }
+
     @PostMapping("/authenticate")
     @Operation(summary = "Authenticate user and get token")
     fun authenticate(
@@ -162,17 +173,6 @@ class AuthController(private val authService: AuthService) {
     ): ResponseEntity<ApiResponse<Any>> {
         authService.setNewPassword(tokenId, request.newPassword)
         return ApiResponse.buildResponse(null, "Password changed successfully", HttpStatus.OK)
-    }
-
-    @PostMapping("/resend-activation")
-    @Operation(summary = "Resend activation email")
-    fun resendActivationEmail(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
-        authService.resendActivationEmail(email)
-        return ApiResponse.buildResponse(
-            null,
-            "Activation email sent. Please check your inbox.",
-            HttpStatus.OK
-        )
     }
 
     @GetMapping("/me")
