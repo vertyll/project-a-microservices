@@ -55,11 +55,9 @@ class AuthService(
 
     @Transactional
     fun register(request: RegisterRequestDto) {
-        // Check if user already exists
         val existingUser = authUserRepository.findByEmail(request.email).orElse(null)
 
         if (existingUser != null) {
-            // Check if account exists but not activated
             if (!existingUser.isEnabled()) {
                 logger.warn("Registration attempted for existing unactivated account: {}", request.email)
                 throw ApiException(
@@ -78,7 +76,6 @@ class AuthService(
 
         logger.info("Creating new user with email: {}", request.email)
 
-        // Start a new registration saga
         val saga = sagaManager.startSaga(
             sagaType = "UserRegistration",
             payload = mapOf(
@@ -89,18 +86,15 @@ class AuthService(
         )
 
         try {
-            // Create auth user with encoded password
             val authUser = AuthUser.create(
                 email = request.email,
                 password = passwordEncoder.encode(request.password),
                 enabled = false // Will be enabled after verification
             )
 
-            // Save auth user
             val savedAuthUser = authUserRepository.save(authUser)
             logger.info("Created auth user with ID: {}", savedAuthUser.id)
 
-            // Record successful auth user creation step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
                 stepName = "CreateAuthUser",
@@ -151,10 +145,8 @@ class AuthService(
                 throw e
             }
 
-            // Create verification token
             val verificationToken = generateVerificationToken()
 
-            // Save the verification token
             val savedToken = saveVerificationToken(
                 request.email,
                 verificationToken,
@@ -247,7 +239,6 @@ class AuthService(
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
-        // Find and enable the user
         val user = authUserRepository.findByEmail(verificationToken.username).orElseThrow {
             ApiException("User not found", HttpStatus.NOT_FOUND)
         }
@@ -274,11 +265,9 @@ class AuthService(
     @Transactional
     fun authenticate(request: AuthRequestDto, response: HttpServletResponse): AuthResponseDto {
         try {
-            // Use credential verification service to verify credentials
             val credentialsResult = credentialVerificationService.verifyCredentials(request.email, request.password)
 
             if (!credentialsResult.valid) {
-                // Check if this is an unactivated account error
                 val errorMessage = credentialsResult.message
                 if (errorMessage != null && errorMessage.contains("not been activated")) {
                     throw ApiException(errorMessage, HttpStatus.FORBIDDEN)
@@ -286,7 +275,6 @@ class AuthService(
                 throw ApiException(errorMessage ?: "Invalid credentials", HttpStatus.UNAUTHORIZED)
             }
 
-            // Get the user
             val user = authUserRepository.findByEmail(request.email).orElseThrow {
                 ApiException("User not found", HttpStatus.NOT_FOUND)
             }
@@ -305,16 +293,12 @@ class AuthService(
                 UsernamePasswordAuthenticationToken(user.username, null, user.authorities)
             SecurityContextHolder.getContext().authentication = authentication
 
-            // Generate JWT token
             val jwtToken = jwtService.generateToken(user)
 
-            // Process device info - use provided deviceInfo or extract from request if available
             val deviceInfo = request.deviceInfo ?: extractDeviceInfo(request.userAgent)
 
-            // Create refresh token
             val refreshToken = createRefreshToken(user, deviceInfo)
 
-            // Add refresh token to cookie
             addRefreshTokenCookie(response, refreshToken)
 
             return AuthResponseDto(token = jwtToken)
@@ -328,14 +312,12 @@ class AuthService(
 
     @Transactional
     fun changePassword(email: String, request: ChangePasswordRequestDto) {
-        // Verify current password
         val credentialsResult = credentialVerificationService.verifyCredentials(email, request.currentPassword)
 
         if (!credentialsResult.valid) {
             throw ApiException("Current password is incorrect", HttpStatus.BAD_REQUEST)
         }
 
-        // Generate change password token
         val token = generateVerificationToken()
 
         // First stage - save the token
@@ -375,7 +357,6 @@ class AuthService(
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
-        // Mark token as used
         verificationToken.used = true
         verificationTokenRepository.save(verificationToken)
 
@@ -398,9 +379,6 @@ class AuthService(
         } ?: throw ApiException("Invalid token", HttpStatus.BAD_REQUEST)
     }
 
-    /**
-     * Stage 2 of password change - set new password
-     */
     @Transactional
     fun setNewPassword(tokenId: Long, newPassword: String) {
         val verificationToken = verificationTokenRepository.findById(tokenId).orElseThrow {
@@ -430,7 +408,7 @@ class AuthService(
             MailRequestedEvent(
                 to = verificationToken.username,
                 subject = "Password Changed Successfully",
-                templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                templateName = "WELCOME_EMAIL",
                 variables = mapOf(
                     "username" to verificationToken.username.substringBefore('@'),
                     "message" to "Your password has been changed successfully."
@@ -455,16 +433,12 @@ class AuthService(
 
     @Transactional
     fun sendPasswordResetRequest(email: String) {
-        // Verify user exists
         if (!authUserRepository.existsByEmail(email)) {
-            // Don't reveal user existence, just return silently
             return
         }
 
-        // Generate reset token
         val resetToken = generateVerificationToken()
 
-        // Save token
         saveVerificationToken(email, resetToken, TokenType.PASSWORD_RESET.value)
 
         // Send password reset email
@@ -501,7 +475,6 @@ class AuthService(
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
-        // Find the user
         val user = authUserRepository.findByEmail(verificationToken.username).orElseThrow {
             ApiException("User not found", HttpStatus.NOT_FOUND)
         }
@@ -511,7 +484,6 @@ class AuthService(
         user.setPassword(passwordEncoder.encode(request.newPassword))
         authUserRepository.save(user)
 
-        // Mark token as used
         verificationToken.used = true
         verificationTokenRepository.save(verificationToken)
 
@@ -532,7 +504,6 @@ class AuthService(
     }
 
     private fun createRefreshToken(userDetails: UserDetails, deviceInfo: String?): String {
-        // Generate JWT-based refresh token instead of UUID
         val jwtRefreshToken = jwtService.generateRefreshToken(userDetails)
 
         val refreshToken =
@@ -573,21 +544,13 @@ class AuthService(
         return verificationTokenRepository.save(verificationToken)
     }
 
-    /**
-     * Extracts basic device information from User-Agent header
-     *
-     * @param userAgent The User-Agent header from the request
-     * @return A string containing basic device information
-     */
     private fun extractDeviceInfo(userAgent: String?): String? {
         if (userAgent.isNullOrBlank()) {
             return "Unknown device"
         }
 
-        // Extract basic information from User-Agent
         val deviceInfo = StringBuilder()
 
-        // Check for common browsers
         when {
             userAgent.contains("Firefox", ignoreCase = true) -> deviceInfo.append("Firefox")
             userAgent.contains("Chrome", ignoreCase = true) && !userAgent.contains("Edg", ignoreCase = true) ->
@@ -606,7 +569,6 @@ class AuthService(
             else -> deviceInfo.append("Unknown browser")
         }
 
-        // Check for operating system
         deviceInfo.append(" on ")
         when {
             userAgent.contains("Windows", ignoreCase = true) -> deviceInfo.append("Windows")
@@ -619,7 +581,6 @@ class AuthService(
             else -> deviceInfo.append("Unknown OS")
         }
 
-        // Add the login time
         deviceInfo.append(" at ${java.time.format.DateTimeFormatter.ISO_INSTANT.format(Instant.now())}")
 
         return deviceInfo.toString()
@@ -631,12 +592,9 @@ class AuthService(
             extractRefreshTokenFromCookies(request)
                 ?: throw ApiException("Refresh token not found", HttpStatus.UNAUTHORIZED)
 
-        // Verify that the refresh token is a valid JWT
         try {
-            // First verify the token signature and expiration
             val username = jwtService.extractUsername(refreshTokenString)
 
-            // Find the stored token
             val storedToken =
                 refreshTokenRepository.findByToken(refreshTokenString).orElseThrow {
                     ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
@@ -646,24 +604,20 @@ class AuthService(
                 throw ApiException("Refresh token is revoked or expired", HttpStatus.UNAUTHORIZED)
             }
 
-            // Verify username matches
             if (username != storedToken.username) {
                 throw ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED)
             }
 
-            // Get the user
             val user = authUserRepository.findByEmail(username).orElseThrow {
                 ApiException("User not found", HttpStatus.NOT_FOUND)
             }
 
-            // Generate new access token
             val accessToken = jwtService.generateToken(user)
 
             // Rotate refresh token for security
             storedToken.revoked = true
             refreshTokenRepository.save(storedToken)
 
-            // Create new refresh token
             val newRefreshToken = createRefreshToken(user, storedToken.deviceInfo)
             addRefreshTokenCookie(response, newRefreshToken)
 
@@ -690,19 +644,11 @@ class AuthService(
             }
         }
 
-        // Clear the refresh token cookie
         deleteRefreshTokenCookie(response)
     }
 
-    /**
-     * Gets all active sessions for a user by username
-     *
-     * @param username The user's email address
-     * @return A list of active sessions for the user
-     */
     @Transactional(readOnly = true)
     fun getActiveSessions(username: String): List<SessionDto> {
-        // Get all non-revoked refresh tokens for the user
         val refreshTokens = refreshTokenRepository.findByUsername(username)
             .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
@@ -720,18 +666,10 @@ class AuthService(
         }
     }
 
-    /**
-     * Revokes a specific session by ID
-     *
-     * @param sessionId The ID of the session (refresh token) to revoke
-     * @param username The username of the currently authenticated user
-     * @return true if session was successfully revoked, false otherwise
-     */
     @Transactional
     fun revokeSession(sessionId: Long, username: String): Boolean {
         val refreshToken = refreshTokenRepository.findById(sessionId).orElse(null) ?: return false
 
-        // Security check - only allow users to revoke their own sessions
         if (refreshToken.username != username) {
             logger.warn(
                 "Attempted to revoke session belonging to another user: {} tried to revoke session of {}",
@@ -740,7 +678,6 @@ class AuthService(
             return false
         }
 
-        // Don't allow revoking the current session via this method
         val currentToken = SecurityContextHolder.getContext()?.authentication?.credentials as? String
         if (currentToken != null && refreshToken.token == currentToken) {
             logger.warn("Attempted to revoke current session via revokeSession method: {}", username)
@@ -779,17 +716,14 @@ class AuthService(
 
     @Transactional
     fun requestEmailChange(email: String, request: ChangeEmailRequestDto) {
-        // Verify the current password
         val credentialsResult = credentialVerificationService.verifyCredentials(email, request.password)
 
         if (!credentialsResult.valid) {
             throw ApiException("Invalid password", HttpStatus.BAD_REQUEST)
         }
 
-        // Generate change email token
         val token = generateVerificationToken()
 
-        // Save token
         saveVerificationToken(email, token, TokenType.EMAIL_CHANGE.value, request.newEmail)
 
         // Send email change confirmation email
@@ -855,12 +789,10 @@ class AuthService(
                     HttpStatus.INTERNAL_SERVER_ERROR
                 )
 
-        // Find the user
         val user = authUserRepository.findByEmail(oldEmail).orElseThrow {
             ApiException("User not found", HttpStatus.NOT_FOUND)
         }
 
-        // Update email
         user.setEmail(newEmail)
         authUserRepository.save(user)
 
@@ -910,7 +842,6 @@ class AuthService(
 
     @Transactional
     fun resendActivationEmail(email: String) {
-        // Check if user exists
         val user = authUserRepository.findByEmail(email).orElse(null) ?: run {
             // Don't reveal user existence, just return silently
             logger.info("Activation email requested for non-existent user: {}", email)
@@ -937,10 +868,8 @@ class AuthService(
             }
         }
 
-        // Generate new verification token
         val verificationToken = generateVerificationToken()
 
-        // Save new token
         saveVerificationToken(email, verificationToken, TokenType.ACCOUNT_ACTIVATION.value)
 
         // Send activation email

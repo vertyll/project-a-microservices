@@ -14,7 +14,11 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import org.thymeleaf.templateresolver.ITemplateResolver
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = ["com.vertyll.projecta.mail.domain.repository", "com.vertyll.projecta.common.saga", "com.vertyll.projecta.common.kafka"])
+@EnableJpaRepositories(basePackages = [
+    "com.vertyll.projecta.mail.domain.repository", 
+    "com.vertyll.projecta.common.saga", 
+    "com.vertyll.projecta.common.kafka"
+])
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.mail.domain.model",
@@ -25,6 +29,17 @@ import org.thymeleaf.templateresolver.ITemplateResolver
 @EnableKafka
 @ComponentScan(basePackages = ["com.vertyll.projecta.mail", "com.vertyll.projecta.common"])
 class MailServiceApplication {
+
+    companion object {
+        // Template configuration
+        private const val TEMPLATE_PREFIX = "templates/"
+        private const val TEMPLATE_SUFFIX = ".html"
+        private const val TEMPLATE_ENCODING = "UTF-8"
+    }
+    
+    /**
+     * Configures the Thymeleaf template engine with our template resolver
+     */
     @Bean
     fun templateEngine(): TemplateEngine {
         val templateEngine = SpringTemplateEngine()
@@ -32,13 +47,16 @@ class MailServiceApplication {
         return templateEngine
     }
 
+    /**
+     * Configures the template resolver to find HTML templates in the classpath
+     */
     @Bean
     fun templateResolver(): ITemplateResolver {
         val templateResolver = ClassLoaderTemplateResolver()
-        templateResolver.prefix = "templates/"
-        templateResolver.suffix = ".html"
+        templateResolver.prefix = TEMPLATE_PREFIX
+        templateResolver.suffix = TEMPLATE_SUFFIX
         templateResolver.templateMode = TemplateMode.HTML
-        templateResolver.characterEncoding = "UTF-8"
+        templateResolver.characterEncoding = TEMPLATE_ENCODING
         templateResolver.isCacheable = false // Set to true in production
         return templateResolver
     }

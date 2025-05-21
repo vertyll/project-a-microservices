@@ -1,5 +1,6 @@
 package com.vertyll.projecta.auth.domain.service
 
+import com.vertyll.projecta.common.config.JwtConstants
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -7,23 +8,25 @@ import io.jsonwebtoken.security.Keys
 import java.security.Key
 import java.time.Instant
 import java.util.Date
+import java.util.UUID
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 
 @Service
 class JwtService {
+    
     @Value("\${security.jwt.secret-key}")
     private lateinit var secretKey: String
 
-    @Value("\${security.jwt.access-token-expiration}")
-    private var accessTokenExpiration: Long = 0
+    @Value("\${security.jwt.access-token-expiration:${JwtConstants.DEFAULT_ACCESS_TOKEN_EXPIRATION}}")
+    private var accessTokenExpiration: Long = JwtConstants.DEFAULT_ACCESS_TOKEN_EXPIRATION
 
-    @Value("\${security.jwt.refresh-token-expiration}")
-    private var refreshTokenExpiration: Long = 0
+    @Value("\${security.jwt.refresh-token-expiration:${JwtConstants.DEFAULT_REFRESH_TOKEN_EXPIRATION}}")
+    private var refreshTokenExpiration: Long = JwtConstants.DEFAULT_REFRESH_TOKEN_EXPIRATION
 
-    @Value("\${security.jwt.refresh-token-cookie-name}")
-    private lateinit var refreshTokenCookieName: String
+    @Value("\${security.jwt.refresh-token-cookie-name:${JwtConstants.DEFAULT_REFRESH_TOKEN_COOKIE_NAME}}")
+    private var refreshTokenCookieName: String = JwtConstants.DEFAULT_REFRESH_TOKEN_COOKIE_NAME
 
     fun extractUsername(token: String): String {
         return extractClaim(token) { it.subject }
@@ -34,9 +37,9 @@ class JwtService {
         val extraClaims = mutableMapOf<String, Any>()
         // Add user roles to token
         val roles = userDetails.authorities.map { it.authority }.toList()
-        extraClaims["roles"] = roles
-        extraClaims["tokenId"] = java.util.UUID.randomUUID().toString()
-        extraClaims["type"] = "access"
+        extraClaims[JwtConstants.CLAIM_ROLES] = roles
+        extraClaims[JwtConstants.CLAIM_TOKEN_ID] = UUID.randomUUID().toString()
+        extraClaims[JwtConstants.CLAIM_TYPE] = JwtConstants.TOKEN_TYPE_ACCESS
 
         return generateToken(extraClaims, userDetails)
     }
@@ -54,12 +57,12 @@ class JwtService {
 
     fun generateRefreshToken(userDetails: UserDetails): String {
         val extraClaims = mutableMapOf<String, Any>()
-        extraClaims["type"] = "refresh"
-        extraClaims["tokenId"] = java.util.UUID.randomUUID().toString()
+        extraClaims[JwtConstants.CLAIM_TYPE] = JwtConstants.TOKEN_TYPE_REFRESH
+        extraClaims[JwtConstants.CLAIM_TOKEN_ID] = UUID.randomUUID().toString()
 
         // Add user roles to token
         val roles = userDetails.authorities.map { it.authority }.toList()
-        extraClaims["roles"] = roles
+        extraClaims[JwtConstants.CLAIM_ROLES] = roles
 
         return generateRefreshToken(extraClaims, userDetails)
     }
@@ -71,7 +74,7 @@ class JwtService {
             .setSubject(userDetails.username)
             .setIssuedAt(Date.from(now))
             .setExpiration(Date.from(now.plusMillis(refreshTokenExpiration)))
-            .setId(java.util.UUID.randomUUID().toString()) // Add a unique ID to each token
+            .setId(UUID.randomUUID().toString()) // Add a unique ID to each token
             .signWith(getSigningKey())
             .compact()
     }
@@ -82,6 +85,10 @@ class JwtService {
 
     fun getRefreshTokenExpirationTime(): Long {
         return refreshTokenExpiration
+    }
+    
+    fun getAccessTokenExpirationTime(): Long {
+        return accessTokenExpiration
     }
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
@@ -97,13 +104,10 @@ class JwtService {
         return extractClaim(token) { it.expiration }
     }
 
-    /**
-     * Extracts roles from token
-     */
     fun extractRoles(token: String): List<String> {
         return extractClaim(token) { claims ->
             @Suppress("UNCHECKED_CAST")
-            claims["roles"] as? List<String> ?: emptyList()
+            claims[JwtConstants.CLAIM_ROLES] as? List<String> ?: emptyList()
         }
     }
 

@@ -15,6 +15,9 @@ abstract class AbstractEventProducer<T : DomainEvent>(
 ) {
     abstract val topic: String
 
+    /**
+     * Sends an event to the Kafka topic.
+     */
     fun send(event: T): CompletableFuture<SendResult<String, String>> {
         val eventJson = objectMapper.writeValueAsString(event)
         logger.info { "Sending event to topic $topic: $eventJson" }
@@ -32,4 +35,4 @@ abstract class AbstractEventProducer<T : DomainEvent>(
                 }
             }
     }
-} 
+}

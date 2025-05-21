@@ -85,27 +85,6 @@ class AuthController(private val authService: AuthService) {
         return ApiResponse.buildResponse(null, "Logged out successfully", HttpStatus.OK)
     }
 
-    @GetMapping("/me")
-    @Operation(summary = "Get current authenticated user details")
-    fun getCurrentUser(
-        @AuthenticationPrincipal userDetails: UserDetails?
-    ): ResponseEntity<ApiResponse<Map<String, Any>>> {
-        if (userDetails == null) {
-            return ApiResponse.buildResponse(emptyMap(), "Not authenticated", HttpStatus.UNAUTHORIZED)
-        }
-
-        val userInfo = mapOf(
-            "username" to userDetails.username,
-            "authorities" to userDetails.authorities.map { it.authority },
-            "accountNonExpired" to userDetails.isAccountNonExpired,
-            "accountNonLocked" to userDetails.isAccountNonLocked,
-            "credentialsNonExpired" to userDetails.isCredentialsNonExpired,
-            "enabled" to userDetails.isEnabled
-        )
-
-        return ApiResponse.buildResponse(userInfo, "User details retrieved successfully", HttpStatus.OK)
-    }
-
     @PostMapping("/reset-password-request")
     @Operation(summary = "Request password reset for a forgotten password")
     fun requestPasswordReset(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
@@ -194,6 +173,27 @@ class AuthController(private val authService: AuthService) {
             "Activation email sent. Please check your inbox.",
             HttpStatus.OK
         )
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "Get current authenticated user details")
+    fun getCurrentUser(
+        @AuthenticationPrincipal userDetails: UserDetails?
+    ): ResponseEntity<ApiResponse<Map<String, Any>>> {
+        if (userDetails == null) {
+            return ApiResponse.buildResponse(emptyMap(), "Not authenticated", HttpStatus.UNAUTHORIZED)
+        }
+
+        val userInfo = mapOf(
+            "username" to userDetails.username,
+            "authorities" to userDetails.authorities.map { it.authority },
+            "accountNonExpired" to userDetails.isAccountNonExpired,
+            "accountNonLocked" to userDetails.isAccountNonLocked,
+            "credentialsNonExpired" to userDetails.isCredentialsNonExpired,
+            "enabled" to userDetails.isEnabled
+        )
+
+        return ApiResponse.buildResponse(userInfo, "User details retrieved successfully", HttpStatus.OK)
     }
 
     @GetMapping("/sessions")

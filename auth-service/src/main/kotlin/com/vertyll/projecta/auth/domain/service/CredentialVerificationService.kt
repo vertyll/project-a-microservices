@@ -32,7 +32,6 @@ class CredentialVerificationService(
 
             val user = userOptional.get()
 
-            // First, check if the account is enabled
             if (!user.isEnabled()) {
                 logger.warn("Login attempt with unactivated account: {}", email)
                 return CredentialsVerificationResultEvent(
@@ -42,7 +41,6 @@ class CredentialVerificationService(
                 )
             }
 
-            // Then check the password
             val isValid = passwordEncoder.matches(password, user.password)
 
             if (!isValid) {

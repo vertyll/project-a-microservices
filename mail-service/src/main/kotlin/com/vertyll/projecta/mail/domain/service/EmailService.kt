@@ -22,6 +22,15 @@ class EmailService(
 
     @Value("\${spring.mail.from}")
     private lateinit var fromEmail: String
+    
+    companion object {
+        // Email charset
+        private const val CHARSET_UTF8 = "UTF-8"
+        
+        // Log messages
+        private const val LOG_SENDING_EMAIL = "Sending email to {} with subject: {}"
+        private const val LOG_SEND_FAILURE = "Failed to send email to {} with subject: {}"
+    }
 
     /**
      * Sends an email using a template and variables
@@ -36,17 +45,23 @@ class EmailService(
         to: String,
         subject: String,
         templateName: String,
-        variables: Map<String, String>
+        variables: Map<String, String>,
+        replyTo: String? = null
     ): Boolean {
         try {
-            logger.info("Sending email to {} with subject: {}", to, subject)
+            logger.info(LOG_SENDING_EMAIL, to, subject)
 
             val message: MimeMessage = mailSender.createMimeMessage()
-            val helper = MimeMessageHelper(message, true, "UTF-8")
+            val helper = MimeMessageHelper(message, true, CHARSET_UTF8)
 
             helper.setFrom(fromEmail)
             helper.setTo(to)
             helper.setSubject(subject)
+            
+            // Set reply-to address if provided
+            if (replyTo != null) {
+                helper.setReplyTo(replyTo)
+            }
 
             // Process template
             val context = Context()
@@ -61,16 +76,48 @@ class EmailService(
             mailSender.send(message)
 
             // Log email
-            saveEmailLog(to, subject, templateName, true)
+            saveEmailLog(
+                recipient = to,
+                subject = subject,
+                templateName = templateName,
+                variables = formatVariablesForStorage(variables),
+                replyTo = replyTo,
+                success = true
+            )
 
             return true
         } catch (e: Exception) {
-            logger.error("Failed to send email to {} with subject: {}", to, subject, e)
+            logger.error(LOG_SEND_FAILURE, to, subject, e)
 
             // Log failed email
-            saveEmailLog(to, subject, templateName, false, e.message)
+            saveEmailLog(
+                recipient = to,
+                subject = subject,
+                templateName = templateName,
+                variables = formatVariablesForStorage(variables),
+                replyTo = replyTo,
+                success = false,
+                errorMessage = e.message
+            )
 
             return false
+        }
+    }
+    
+    /**
+     * Formats variables map as a string for storage in database
+     */
+    private fun formatVariablesForStorage(variables: Map<String, String>): String? {
+        if (variables.isEmpty()) {
+            return null
+        }
+        
+        return variables.entries.joinToString(", ") { (key, value) ->
+            if (value.length > 50) {
+                "$key: ${value.take(50)}..."
+            } else {
+                "$key: $value"
+            }
         }
     }
 
@@ -78,6 +125,8 @@ class EmailService(
         recipient: String,
         subject: String,
         templateName: String,
+        variables: String? = null,
+        replyTo: String? = null,
         success: Boolean,
         errorMessage: String? = null
     ) {
@@ -85,6 +134,8 @@ class EmailService(
             recipient = recipient,
             subject = subject,
             templateName = templateName,
+            variables = variables,
+            replyTo = replyTo,
             status = if (success) EmailLog.EmailStatus.SENT else EmailLog.EmailStatus.FAILED,
             errorMessage = errorMessage,
             sentAt = if (success) Instant.now() else null

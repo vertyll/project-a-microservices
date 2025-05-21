@@ -10,6 +10,10 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
 
+/**
+ * Entity representing a log entry for an email sent by the system.
+ * This keeps track of all email communications for auditing and troubleshooting.
+ */
 @Entity
 @Table(name = "email_log")
 class EmailLog(
@@ -62,7 +66,6 @@ class EmailLog(
         updatedAt = Instant.now(),
         sentAt = null
     )
-
 
     enum class EmailStatus {
         PENDING,

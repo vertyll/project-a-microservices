@@ -15,6 +15,10 @@ abstract class AbstractEventConsumer<T : DomainEvent>(
     abstract val eventClass: Class<T>
     abstract val topicName: String
 
+    /**
+     * Consumes messages from the Kafka topic.
+     * The topic name is generated based on the class name.
+     */
     @KafkaListener(topics = ["#{@TOPIC_PREFIX}_#{T(java.util.Locale).ENGLISH.getDisplayLanguage()}"])
     protected fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
         try {
@@ -28,6 +32,9 @@ abstract class AbstractEventConsumer<T : DomainEvent>(
 
     abstract fun handleEvent(event: T)
 
+    /**
+     * Generates the topic name based on the class name.
+     */
     @Suppress("UNCHECKED_CAST")
     protected fun getGeneratedTopicName(): String {
         return this.javaClass.simpleName

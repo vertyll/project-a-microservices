@@ -1,5 +1,6 @@
 package com.vertyll.projecta.gateway
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cloud.gateway.route.RouteLocator
@@ -9,28 +10,79 @@ import org.springframework.http.HttpStatus
 
 @SpringBootApplication
 class ApiGatewayApplication {
+
+    @Value("\${server.port:8080}")
+    private lateinit var serverPort: String
+    
+    @Value("\${service.auth-service.url:http://localhost:8082}")
+    private lateinit var authServiceUrl: String
+    
+    @Value("\${service.user-service.url:http://localhost:8083}")
+    private lateinit var userServiceUrl: String
+    
+    @Value("\${service.role-service.url:http://localhost:8084}")
+    private lateinit var roleServiceUrl: String
+    
+    @Value("\${service.mail-service.url:http://localhost:8085}")
+    private lateinit var mailServiceUrl: String
+
+    companion object {
+        // Route IDs
+        private const val ROOT_REDIRECT_ROUTE = "root-redirect"
+        private const val AUTH_SERVICE_ROUTE = "auth-service"
+        private const val USER_SERVICE_ROUTE = "user-service"
+        private const val ROLE_SERVICE_ROUTE = "role-service"
+        private const val MAIL_SERVICE_ROUTE = "mail-service"
+        
+        // API Path Prefixes
+        private const val AUTH_API_PATH = "/api/v1/auth/**"
+        private const val USER_API_PATH = "/api/v1/users/**"
+        private const val ROLE_API_PATH = "/api/v1/roles/**"
+        private const val MAIL_API_PATH = "/api/v1/mail/**"
+        
+        // Rewrite path patterns
+        private const val AUTH_REWRITE_PATTERN = "/api/v1/auth/(?<segment>.*)"
+        private const val USER_REWRITE_PATTERN = "/api/v1/users/(?<segment>.*)"
+        private const val ROLE_REWRITE_PATTERN = "/api/v1/roles/(?<segment>.*)"
+        private const val MAIL_REWRITE_PATTERN = "/api/v1/mail/(?<segment>.*)"
+        
+        // Rewrite replacement patterns
+        private const val AUTH_REPLACEMENT = "/api/auth/\${segment}"
+        private const val USER_REPLACEMENT = "/api/users/\${segment}"
+        private const val ROLE_REPLACEMENT = "/api/roles/\${segment}"
+        private const val MAIL_REPLACEMENT = "/api/mail/\${segment}"
+    }
+    
     @Bean
     fun customRouteLocator(builder: RouteLocatorBuilder): RouteLocator {
-        return builder.routes().route("root-redirect") { r ->
+        val gatewayUrl = "http://localhost:$serverPort"
+        
+        return builder.routes()
+            .route(ROOT_REDIRECT_ROUTE) { r ->
                 r.path("/").filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health") }
-                    .uri("http://localhost:8080")
-            }.route("auth-service") { r ->
-                r.path("/api/v1/auth/**")
-                    .filters { f -> f.rewritePath("/api/v1/auth/(?<segment>.*)", "/api/auth/$\\{segment}") }
-                    .uri("http://localhost:8082")
-            }.route("user-service") { r ->
-                r.path("/api/v1/users/**")
-                    .filters { f -> f.rewritePath("/api/v1/users/(?<segment>.*)", "/api/users/$\\{segment}") }
-                    .uri("http://localhost:8083")
-            }.route("role-service") { r ->
-                r.path("/api/v1/roles/**")
-                    .filters { f -> f.rewritePath("/api/v1/roles/(?<segment>.*)", "/api/roles/$\\{segment}") }
-                    .uri("http://localhost:8084")
-            }.route("mail-service") { r ->
-                r.path("/api/v1/mail/**")
-                    .filters { f -> f.rewritePath("/api/v1/mail/(?<segment>.*)", "/api/mail/$\\{segment}") }
-                    .uri("http://localhost:8085")
-            }.build()
+                    .uri(gatewayUrl)
+            }
+            .route(AUTH_SERVICE_ROUTE) { r ->
+                r.path(AUTH_API_PATH)
+                    .filters { f -> f.rewritePath(AUTH_REWRITE_PATTERN, AUTH_REPLACEMENT) }
+                    .uri(authServiceUrl)
+            }
+            .route(USER_SERVICE_ROUTE) { r ->
+                r.path(USER_API_PATH)
+                    .filters { f -> f.rewritePath(USER_REWRITE_PATTERN, USER_REPLACEMENT) }
+                    .uri(userServiceUrl)
+            }
+            .route(ROLE_SERVICE_ROUTE) { r ->
+                r.path(ROLE_API_PATH)
+                    .filters { f -> f.rewritePath(ROLE_REWRITE_PATTERN, ROLE_REPLACEMENT) }
+                    .uri(roleServiceUrl)
+            }
+            .route(MAIL_SERVICE_ROUTE) { r ->
+                r.path(MAIL_API_PATH)
+                    .filters { f -> f.rewritePath(MAIL_REWRITE_PATTERN, MAIL_REPLACEMENT) }
+                    .uri(mailServiceUrl)
+            }
+            .build()
     }
 }
 

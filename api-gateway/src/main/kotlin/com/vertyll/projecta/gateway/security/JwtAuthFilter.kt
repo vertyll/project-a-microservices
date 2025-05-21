@@ -1,5 +1,6 @@
 package com.vertyll.projecta.gateway.security
 
+import com.vertyll.projecta.common.config.JwtConstants
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
@@ -39,7 +40,7 @@ class JwtAuthFilter(
             
             // Extract roles from token
             @Suppress("UNCHECKED_CAST")
-            val roles = claims["roles"] as? List<String> ?: emptyList()
+            val roles = claims[JwtConstants.CLAIM_ROLES] as? List<String> ?: emptyList()
             
             // Create authorities from roles
             val authorities = roles.map { SimpleGrantedAuthority(it) }
@@ -66,11 +67,11 @@ class JwtAuthFilter(
     private fun extractTokenFromRequest(request: ServerHttpRequest): String? {
         val authHeader = request.headers.getFirst(HttpHeaders.AUTHORIZATION) ?: return null
         
-        if (!authHeader.startsWith("Bearer ")) {
+        if (!authHeader.startsWith(JwtConstants.BEARER_PREFIX)) {
             return null
         }
         
-        return authHeader.substring(7)
+        return authHeader.substring(JwtConstants.BEARER_PREFIX.length)
     }
     
     private fun extractAllClaims(token: String): Claims {
