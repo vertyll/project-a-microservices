@@ -1,5 +1,7 @@
 package com.vertyll.projecta.gateway
 
+import com.vertyll.projecta.common.config.SharedConfigProperties
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -9,22 +11,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpStatus
 
 @SpringBootApplication
-class ApiGatewayApplication {
-
+class ApiGatewayApplication(
+    @Qualifier("projecta.shared-com.vertyll.projecta.common.config.SharedConfigProperties")
+    private val sharedConfig: SharedConfigProperties
+) {
     @Value("\${server.port:8080}")
     private lateinit var serverPort: String
-    
-    @Value("\${service.auth-service.url:http://localhost:8082}")
-    private lateinit var authServiceUrl: String
-    
-    @Value("\${service.user-service.url:http://localhost:8083}")
-    private lateinit var userServiceUrl: String
-    
-    @Value("\${service.role-service.url:http://localhost:8084}")
-    private lateinit var roleServiceUrl: String
-    
-    @Value("\${service.mail-service.url:http://localhost:8085}")
-    private lateinit var mailServiceUrl: String
 
     companion object {
         // Route IDs
@@ -56,6 +48,11 @@ class ApiGatewayApplication {
     @Bean
     fun customRouteLocator(builder: RouteLocatorBuilder): RouteLocator {
         val gatewayUrl = "http://localhost:$serverPort"
+        
+        val authServiceUrl = sharedConfig.services.authService.url
+        val userServiceUrl = sharedConfig.services.userService.url
+        val roleServiceUrl = sharedConfig.services.roleService.url
+        val mailServiceUrl = sharedConfig.services.mailService.url
         
         return builder.routes()
             .route(ROOT_REDIRECT_ROUTE) { r ->

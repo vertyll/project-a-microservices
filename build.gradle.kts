@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.23" apply false
     kotlin("plugin.spring") version "1.9.23" apply false
     kotlin("plugin.jpa") version "1.9.23" apply false
+    kotlin("kapt") version "1.9.23" apply false
 }
 
 allprojects {
@@ -24,7 +25,7 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("io.spring.dependency-management")
     }
-    
+
     // Add Spring Cloud dependency management
     the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {
         imports {
@@ -37,6 +38,10 @@ subprojects {
             freeCompilerArgs += "-Xjsr305=strict"
             jvmTarget = "21"
         }
+    }
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
     }
 
     tasks.withType<Test> {
@@ -54,7 +59,7 @@ subprojects {
                 add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin")
                 add("implementation", "org.springframework.kafka:spring-kafka")
                 add("implementation", "io.github.microutils:kotlin-logging:3.0.5")
-                
+
                 // Test dependencies
                 add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
                 add("testImplementation", "org.springframework.kafka:spring-kafka-test")
@@ -64,4 +69,4 @@ subprojects {
             }
         }
     }
-} 
+}

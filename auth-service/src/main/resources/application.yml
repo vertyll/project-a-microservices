@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: auth-service
+  config:
+    import: classpath:shared-config.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/auth_service
     username: postgres

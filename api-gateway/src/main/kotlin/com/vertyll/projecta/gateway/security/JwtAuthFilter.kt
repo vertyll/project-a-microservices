@@ -1,13 +1,13 @@
 package com.vertyll.projecta.gateway.security
 
 import com.vertyll.projecta.common.config.JwtConstants
+import com.vertyll.projecta.common.config.SharedConfigProperties
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -22,7 +22,7 @@ import java.security.Key
 
 @Component
 class JwtAuthFilter(
-    @Value("\${security.jwt.secret-key}") private val secretKey: String
+    private val sharedConfig: SharedConfigProperties
 ) : WebFilter {
     
     private val logger = LoggerFactory.getLogger(JwtAuthFilter::class.java)
@@ -83,7 +83,7 @@ class JwtAuthFilter(
     }
     
     private fun getSigningKey(): Key {
-        val keyBytes = Decoders.BASE64.decode(secretKey)
+        val keyBytes = Decoders.BASE64.decode(sharedConfig.security.jwt.secretKey)
         return Keys.hmacShaKeyFor(keyBytes)
     }
 }

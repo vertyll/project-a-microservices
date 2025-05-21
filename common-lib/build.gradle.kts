@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
     kotlin("plugin.jpa")
+    kotlin("kapt")
     id("org.springframework.boot") apply false
     id("io.spring.dependency-management")
 }
@@ -19,6 +20,10 @@ dependencies {
     // Web dependencies
     api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
+
+    // Configuration processor
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
+    api("org.springframework.boot:spring-boot-autoconfigure")
 
     // Event bus
     api("org.springframework.kafka:spring-kafka")

@@ -1,0 +1,17 @@
+projecta:
+  shared:
+    security:
+      jwt:
+        secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+        access-token-expiration: 900000  # 15 minutes in milliseconds
+        refresh-token-expiration: 604800000  # 7 days in milliseconds
+        refresh-token-cookie-name: refresh_token
+    services:
+      auth-service:
+        url: http://localhost:8082
+      user-service:
+        url: http://localhost:8083
+      role-service:
+        url: http://localhost:8084
+      mail-service:
+        url: http://localhost:8085

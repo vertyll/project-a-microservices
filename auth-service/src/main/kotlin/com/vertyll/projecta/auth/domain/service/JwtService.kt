@@ -1,6 +1,7 @@
 package com.vertyll.projecta.auth.domain.service
 
 import com.vertyll.projecta.common.config.JwtConstants
+import com.vertyll.projecta.common.config.SharedConfigProperties
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -9,24 +10,24 @@ import java.security.Key
 import java.time.Instant
 import java.util.Date
 import java.util.UUID
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 
 @Service
-class JwtService {
-    
-    @Value("\${security.jwt.secret-key}")
-    private lateinit var secretKey: String
+class JwtService(
+    private val sharedConfig: SharedConfigProperties
+) {
+    private val secretKey: String
+        get() = sharedConfig.security.jwt.secretKey
 
-    @Value("\${security.jwt.access-token-expiration:${JwtConstants.DEFAULT_ACCESS_TOKEN_EXPIRATION}}")
-    private var accessTokenExpiration: Long = JwtConstants.DEFAULT_ACCESS_TOKEN_EXPIRATION
+    private val accessTokenExpiration: Long
+        get() = sharedConfig.security.jwt.accessTokenExpiration
 
-    @Value("\${security.jwt.refresh-token-expiration:${JwtConstants.DEFAULT_REFRESH_TOKEN_EXPIRATION}}")
-    private var refreshTokenExpiration: Long = JwtConstants.DEFAULT_REFRESH_TOKEN_EXPIRATION
+    private val refreshTokenExpiration: Long
+        get() = sharedConfig.security.jwt.refreshTokenExpiration
 
-    @Value("\${security.jwt.refresh-token-cookie-name:${JwtConstants.DEFAULT_REFRESH_TOKEN_COOKIE_NAME}}")
-    private var refreshTokenCookieName: String = JwtConstants.DEFAULT_REFRESH_TOKEN_COOKIE_NAME
+    private val refreshTokenCookieName: String
+        get() = sharedConfig.security.jwt.refreshTokenCookieName
 
     fun extractUsername(token: String): String {
         return extractClaim(token) { it.subject }
@@ -79,14 +80,14 @@ class JwtService {
             .compact()
     }
 
-    fun getRefreshTokenCookieName(): String {
+    fun getRefreshTokenCookieNameFromConfig(): String {
         return refreshTokenCookieName
     }
 
     fun getRefreshTokenExpirationTime(): Long {
         return refreshTokenExpiration
     }
-    
+
     fun getAccessTokenExpirationTime(): Long {
         return accessTokenExpiration
     }

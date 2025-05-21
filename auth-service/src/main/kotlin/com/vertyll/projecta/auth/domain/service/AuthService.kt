@@ -691,7 +691,7 @@ class AuthService(
     }
 
     private fun addRefreshTokenCookie(response: HttpServletResponse, token: String) {
-        val cookie = Cookie(jwtService.getRefreshTokenCookieName(), token)
+        val cookie = Cookie(jwtService.getRefreshTokenCookieNameFromConfig(), token)
         cookie.isHttpOnly = true
         cookie.secure = true
         cookie.path = "/"
@@ -700,7 +700,7 @@ class AuthService(
     }
 
     private fun deleteRefreshTokenCookie(response: HttpServletResponse) {
-        val cookie = Cookie(jwtService.getRefreshTokenCookieName(), "")
+        val cookie = Cookie(jwtService.getRefreshTokenCookieNameFromConfig(), "")
         cookie.isHttpOnly = true
         cookie.secure = true
         cookie.path = "/"
@@ -711,7 +711,7 @@ class AuthService(
     private fun extractRefreshTokenFromCookies(request: HttpServletRequest): String? {
         val cookies = request.cookies ?: return null
 
-        return cookies.firstOrNull { it.name == jwtService.getRefreshTokenCookieName() }?.value
+        return cookies.firstOrNull { it.name == jwtService.getRefreshTokenCookieNameFromConfig() }?.value
     }
 
     @Transactional
