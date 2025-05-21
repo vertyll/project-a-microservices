@@ -1,6 +1,7 @@
 package com.vertyll.projecta.user.application.controller
 
 import com.vertyll.projecta.common.response.ApiResponse
+import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
 import com.vertyll.projecta.user.domain.dto.UserUpdateDto
@@ -10,7 +11,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/users")
@@ -64,18 +72,17 @@ class UserController(
             HttpStatus.OK
         )
     }
-    
+
     @PostMapping("/email")
     @Operation(summary = "Update user email")
     fun updateEmail(
-        @RequestParam currentEmail: String,
-        @RequestParam newEmail: String
+        @RequestParam @Valid request: EmailUpdateDto
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
-        val user = userService.updateEmail(currentEmail, newEmail)
+        val user = userService.updateEmail(request)
         return ApiResponse.buildResponse(
             user,
             "Email updated successfully",
             HttpStatus.OK
         )
     }
-} 
+}

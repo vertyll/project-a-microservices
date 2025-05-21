@@ -14,11 +14,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = ["com.vertyll.projecta.auth.domain.repository", "com.vertyll.projecta.common.saga", "com.vertyll.projecta.common.kafka"])
-@EntityScan(basePackages = [
-    "com.vertyll.projecta.auth.domain.model", 
-    "com.vertyll.projecta.common.saga", 
-    "com.vertyll.projecta.common.kafka"
-])
+@EntityScan(
+    basePackages = [
+        "com.vertyll.projecta.auth.domain.model",
+        "com.vertyll.projecta.common.saga",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
 @EnableKafka
 @ComponentScan(basePackages = ["com.vertyll.projecta.auth", "com.vertyll.projecta.common"])
 class AuthServiceApplication {

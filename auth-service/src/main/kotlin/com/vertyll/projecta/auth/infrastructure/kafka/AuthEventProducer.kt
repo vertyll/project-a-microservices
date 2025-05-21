@@ -17,13 +17,13 @@ class AuthEventProducer(
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     fun sendUserRegisteredEvent(event: UserRegisteredEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
         kafkaTemplate.send(KafkaTopics.USER_REGISTERED, event.eventId, eventJson)
         logger.info("Sent user registration event for: ${event.email}")
     }
-    
+
     fun sendMailRequestedEvent(event: MailRequestedEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
         val message = MessageBuilder
@@ -35,7 +35,7 @@ class AuthEventProducer(
         kafkaTemplate.send(message)
         logger.info("Sent mail request to: ${event.to}")
     }
-    
+
     fun sendUserProfileUpdatedEvent(event: UserProfileUpdatedEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
         kafkaTemplate.send(KafkaTopics.USER_UPDATED, event.eventId, eventJson)

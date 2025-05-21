@@ -1,5 +1,5 @@
 services:
-  # PostgreSQL databases for each service
+  # Postgres databases for each service
   auth-db:
     image: postgres:17-alpine
     container_name: auth-db
@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: auth_service
     ports:
-      - "5431:5432"
+      - "5432:5432"
     networks:
       - microservices-network
     healthcheck:
@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: user_service
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - microservices-network
     healthcheck:
@@ -51,7 +51,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: role_service
     ports:
-      - "5433:5432"
+      - "5434:5432"
     networks:
       - microservices-network
     healthcheck:
@@ -71,7 +71,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mail_service
     ports:
-      - "5434:5432"
+      - "5435:5432"
     networks:
       - microservices-network
     healthcheck:
@@ -181,7 +181,7 @@ services:
   #     - auth-db
   #     - kafka
   #   ports:
-  #     - "8081:8081"
+  #     - "8082:8082"
   #   environment:
   #     SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_service
   #     SPRING_DATASOURCE_USERNAME: postgres
@@ -191,7 +191,7 @@ services:
   #   networks:
   #     - microservices-network
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8081/api/auth/actuator/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8082/api/auth/actuator/health"]
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
@@ -207,9 +207,9 @@ services:
   #     - user-db
   #     - kafka
   #   ports:
-  #     - "8082:8082"
+  #     - "8083:8083"
   #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/user_service
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5433/user_service
   #     SPRING_DATASOURCE_USERNAME: postgres
   #     SPRING_DATASOURCE_PASSWORD: postgres
   #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
@@ -217,7 +217,7 @@ services:
   #   networks:
   #     - microservices-network
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8082/api/users/actuator/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8083/api/users/actuator/health"]
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
@@ -233,9 +233,9 @@ services:
   #     - role-db
   #     - kafka
   #   ports:
-  #     - "8083:8083"
+  #     - "8084:8084"
   #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://role-db:5432/role_service
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://role-db:5434/role_service
   #     SPRING_DATASOURCE_USERNAME: postgres
   #     SPRING_DATASOURCE_PASSWORD: postgres
   #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
@@ -243,7 +243,7 @@ services:
   #   networks:
   #     - microservices-network
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8083/api/roles/actuator/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8084/api/roles/actuator/health"]
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
@@ -260,9 +260,9 @@ services:
   #     - kafka
   #     - mail-dev
   #   ports:
-  #     - "8084:8084"
+  #     - "8085:8085"
   #   environment:
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://mail-db:5432/mail_service
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://mail-db:5435/mail_service
   #     SPRING_DATASOURCE_USERNAME: postgres
   #     SPRING_DATASOURCE_PASSWORD: postgres
   #     SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
@@ -272,7 +272,7 @@ services:
   #   networks:
   #     - microservices-network
   #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8084/api/mail/actuator/health"]
+  #     test: ["CMD", "curl", "-f", "http://localhost:8085/api/mail/actuator/health"]
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
@@ -294,19 +294,19 @@ services:
   #   environment:
   #     SERVER_PORT: 8080
   #     SPRING_CLOUD_GATEWAY_ROUTES_0_ID: auth-service
-  #     SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8085
+  #     SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://auth-service:8082
   #     SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/v1/auth/**
   #     SPRING_CLOUD_GATEWAY_ROUTES_0_FILTERS_0: RewritePath=/api/v1/auth/(?<segment>.*), /api/auth/$\{segment}
   #     SPRING_CLOUD_GATEWAY_ROUTES_1_ID: user-service
-  #     SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://user-service:8082
+  #     SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://user-service:8083
   #     SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/v1/users/**
   #     SPRING_CLOUD_GATEWAY_ROUTES_1_FILTERS_0: RewritePath=/api/v1/users/(?<segment>.*), /api/users/$\{segment}
   #     SPRING_CLOUD_GATEWAY_ROUTES_2_ID: role-service
-  #     SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://role-service:8083
+  #     SPRING_CLOUD_GATEWAY_ROUTES_2_URI: http://role-service:8084
   #     SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/api/v1/roles/**
   #     SPRING_CLOUD_GATEWAY_ROUTES_2_FILTERS_0: RewritePath=/api/v1/roles/(?<segment>.*), /api/roles/$\{segment}
   #     SPRING_CLOUD_GATEWAY_ROUTES_3_ID: mail-service
-  #     SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://mail-service:8084
+  #     SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://mail-service:8085
   #     SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: Path=/api/v1/mail/**
   #     SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0: RewritePath=/api/v1/mail/(?<segment>.*), /api/mail/$\{segment}
   #     SPRING_PROFILES_ACTIVE: docker

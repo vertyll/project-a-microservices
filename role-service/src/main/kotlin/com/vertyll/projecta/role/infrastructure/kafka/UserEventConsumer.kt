@@ -22,11 +22,11 @@ class UserEventConsumer(
     fun consume(record: ConsumerRecord<String, String>) {
         try {
             logger.info("Received user registration event with key: ${record.key()}")
-            
+
             // Deserialize the message payload
             val event = objectMapper.readValue(record.value(), UserRegisteredEvent::class.java)
             logger.info("Deserialized event for user: ${event.email} with roles: ${event.roles}")
-            
+
             handleUserRegisteredEvent(event)
         } catch (e: Exception) {
             logger.error("Error processing user registration event: ${e.message}", e)
@@ -35,7 +35,7 @@ class UserEventConsumer(
 
     private fun handleUserRegisteredEvent(event: UserRegisteredEvent) {
         logger.info("Processing user registration for roles: ${event.email} with roles: ${event.roles}")
-        
+
         try {
             // Assign each role to the user
             // This assumes that the role exists - we should have a default 'USER' role created at startup

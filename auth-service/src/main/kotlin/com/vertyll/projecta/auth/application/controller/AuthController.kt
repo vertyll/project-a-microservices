@@ -33,7 +33,7 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/register")
     @Operation(summary = "Register new user")
     fun register(
-            @RequestBody @Valid request: RegisterRequestDto
+        @RequestBody @Valid request: RegisterRequestDto
     ): ResponseEntity<ApiResponse<Any>> {
         authService.register(request)
         return ApiResponse.buildResponse(null, "User registered successfully", HttpStatus.OK)
@@ -49,14 +49,14 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/authenticate")
     @Operation(summary = "Authenticate user and get token")
     fun authenticate(
-            @RequestBody @Valid request: AuthRequestDto,
-            response: HttpServletResponse,
-            httpRequest: HttpServletRequest
+        @RequestBody @Valid request: AuthRequestDto,
+        response: HttpServletResponse,
+        httpRequest: HttpServletRequest
     ): ResponseEntity<ApiResponse<AuthResponseDto>> {
         // Extract User-Agent header and add it to the request
         val userAgent = httpRequest.getHeader("User-Agent")
         val requestWithUserAgent = request.copy(userAgent = userAgent)
-        
+
         val authResponse = authService.authenticate(requestWithUserAgent, response)
         return ApiResponse.buildResponse(authResponse, "Authentication successful", HttpStatus.OK)
     }
@@ -64,22 +64,22 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh access token using refresh token cookie")
     fun refreshToken(
-            request: HttpServletRequest,
-            response: HttpServletResponse
+        request: HttpServletRequest,
+        response: HttpServletResponse
     ): ResponseEntity<ApiResponse<AuthResponseDto>> {
         val authResponse = authService.refreshToken(request, response)
         return ApiResponse.buildResponse(
-                authResponse,
-                "Token refreshed successfully",
-                HttpStatus.OK
+            authResponse,
+            "Token refreshed successfully",
+            HttpStatus.OK
         )
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout from current session")
     fun logout(
-            request: HttpServletRequest,
-            response: HttpServletResponse
+        request: HttpServletRequest,
+        response: HttpServletResponse
     ): ResponseEntity<ApiResponse<Any>> {
         authService.logout(request, response)
         return ApiResponse.buildResponse(null, "Logged out successfully", HttpStatus.OK)
@@ -93,7 +93,7 @@ class AuthController(private val authService: AuthService) {
         if (userDetails == null) {
             return ApiResponse.buildResponse(emptyMap(), "Not authenticated", HttpStatus.UNAUTHORIZED)
         }
-        
+
         val userInfo = mapOf(
             "username" to userDetails.username,
             "authorities" to userDetails.authorities.map { it.authority },
@@ -102,7 +102,7 @@ class AuthController(private val authService: AuthService) {
             "credentialsNonExpired" to userDetails.isCredentialsNonExpired,
             "enabled" to userDetails.isEnabled
         )
-        
+
         return ApiResponse.buildResponse(userInfo, "User details retrieved successfully", HttpStatus.OK)
     }
 
@@ -111,17 +111,17 @@ class AuthController(private val authService: AuthService) {
     fun requestPasswordReset(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
         authService.sendPasswordResetRequest(email)
         return ApiResponse.buildResponse(
-                null,
-                "Password reset instructions sent to email",
-                HttpStatus.OK
+            null,
+            "Password reset instructions sent to email",
+            HttpStatus.OK
         )
     }
 
     @PostMapping("/confirm-reset-password")
     @Operation(summary = "Reset password using reset token")
     fun resetPassword(
-            @RequestParam token: String,
-            @RequestBody @Valid request: ResetPasswordRequestDto
+        @RequestParam token: String,
+        @RequestBody @Valid request: ResetPasswordRequestDto
     ): ResponseEntity<ApiResponse<Any>> {
         authService.resetPassword(token, request)
         return ApiResponse.buildResponse(null, "Password reset successfully", HttpStatus.OK)
@@ -130,14 +130,14 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/change-email-request")
     @Operation(summary = "Request email change")
     fun requestEmailChange(
-            @RequestParam email: String,
-            @RequestBody @Valid request: ChangeEmailRequestDto
+        @RequestParam email: String,
+        @RequestBody @Valid request: ChangeEmailRequestDto
     ): ResponseEntity<ApiResponse<Any>> {
         authService.requestEmailChange(email, request)
         return ApiResponse.buildResponse(
-                null,
-                "Email change instructions sent to email",
-                HttpStatus.OK
+            null,
+            "Email change instructions sent to email",
+            HttpStatus.OK
         )
     }
 
@@ -151,14 +151,14 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/change-password-request")
     @Operation(summary = "Request to change password")
     fun changePassword(
-            @RequestParam email: String,
-            @RequestBody @Valid request: ChangePasswordRequestDto
+        @RequestParam email: String,
+        @RequestBody @Valid request: ChangePasswordRequestDto
     ): ResponseEntity<ApiResponse<Any>> {
         authService.changePassword(email, request)
         return ApiResponse.buildResponse(
-                null,
-                "Password change confirmation sent to email",
-                HttpStatus.OK
+            null,
+            "Password change confirmation sent to email",
+            HttpStatus.OK
         )
     }
 
@@ -168,7 +168,11 @@ class AuthController(private val authService: AuthService) {
         @RequestParam token: String
     ): ResponseEntity<ApiResponse<Any>> {
         authService.confirmPasswordChange(token)
-        return ApiResponse.buildResponse(null, "Password change verification successful. Check your email for further instructions.", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            null,
+            "Password change verification successful. Check your email for further instructions.",
+            HttpStatus.OK
+        )
     }
 
     @PostMapping("/set-new-password")
@@ -191,7 +195,7 @@ class AuthController(private val authService: AuthService) {
             HttpStatus.OK
         )
     }
-    
+
     @GetMapping("/sessions")
     @Operation(summary = "Get all active sessions for the current user")
     fun getSessions(
@@ -200,11 +204,11 @@ class AuthController(private val authService: AuthService) {
         if (userDetails == null) {
             return ApiResponse.buildResponse(emptyList(), "Not authenticated", HttpStatus.UNAUTHORIZED)
         }
-        
+
         val sessions = authService.getActiveSessions(userDetails.username)
         return ApiResponse.buildResponse(sessions, "Active sessions retrieved successfully", HttpStatus.OK)
     }
-    
+
     @PostMapping("/sessions/{sessionId}/revoke")
     @Operation(summary = "Revoke a specific session")
     fun revokeSession(
@@ -214,7 +218,7 @@ class AuthController(private val authService: AuthService) {
         if (userDetails == null) {
             return ApiResponse.buildResponse(null, "Not authenticated", HttpStatus.UNAUTHORIZED)
         }
-        
+
         val success = authService.revokeSession(sessionId, userDetails.username)
         return if (success) {
             ApiResponse.buildResponse(null, "Session revoked successfully", HttpStatus.OK)

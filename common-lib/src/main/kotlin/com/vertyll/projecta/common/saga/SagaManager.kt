@@ -19,7 +19,7 @@ class SagaManager(
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     /**
      * Starts a new saga
      * @param sagaType The type of saga to start
@@ -29,7 +29,7 @@ class SagaManager(
     @Transactional
     fun startSaga(sagaType: String, payload: Any): Saga {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
-        
+
         val saga = Saga(
             id = UUID.randomUUID().toString(),
             type = sagaType,
@@ -37,10 +37,10 @@ class SagaManager(
             payload = payloadJson,
             startedAt = Instant.now()
         )
-        
+
         return sagaRepository.save(saga)
     }
-    
+
     /**
      * Records a step in a saga
      * @param sagaId The ID of the saga
@@ -59,11 +59,11 @@ class SagaManager(
         val payloadJson = payload?.let {
             it as? String ?: objectMapper.writeValueAsString(it)
         }
-        
+
         val saga = sagaRepository.findById(sagaId).orElseThrow {
             IllegalArgumentException("Saga with ID $sagaId not found")
         }
-        
+
         val step = SagaStep(
             sagaId = sagaId,
             stepName = stepName,
@@ -71,15 +71,15 @@ class SagaManager(
             payload = payloadJson,
             createdAt = Instant.now()
         )
-        
+
         val savedStep = sagaStepRepository.save(step)
-        
+
         // Update saga status based on step status
         if (status == SagaStepStatus.FAILED) {
             saga.status = SagaStatus.COMPENSATING
             saga.lastError = "Step $stepName failed"
             sagaRepository.save(saga)
-            
+
             // Trigger compensation
             triggerCompensation(saga)
         } else if (status == SagaStepStatus.COMPLETED) {
@@ -89,10 +89,10 @@ class SagaManager(
             saga.updatedAt = Instant.now()
             sagaRepository.save(saga)
         }
-        
+
         return savedStep
     }
-    
+
     /**
      * Marks a saga as completed
      * @param sagaId The ID of the saga to complete
@@ -103,13 +103,13 @@ class SagaManager(
         val saga = sagaRepository.findById(sagaId).orElseThrow {
             IllegalArgumentException("Saga with ID $sagaId not found")
         }
-        
+
         saga.status = SagaStatus.COMPLETED
         saga.completedAt = Instant.now()
-        
+
         return sagaRepository.save(saga)
     }
-    
+
     /**
      * Marks a saga as failed and initiates compensation
      * @param sagaId The ID of the saga that failed
@@ -121,19 +121,19 @@ class SagaManager(
         val saga = sagaRepository.findById(sagaId).orElseThrow {
             IllegalArgumentException("Saga with ID $sagaId not found")
         }
-        
+
         saga.status = SagaStatus.FAILED
         saga.lastError = error
         saga.updatedAt = Instant.now()
-        
+
         val savedSaga = sagaRepository.save(saga)
-        
+
         // Trigger compensation
         triggerCompensation(savedSaga)
-        
+
         return savedSaga
     }
-    
+
     /**
      * Triggers compensation for a failed saga
      * @param saga The saga to compensate
@@ -144,9 +144,9 @@ class SagaManager(
             saga.id,
             SagaStepStatus.COMPLETED
         ).sortedByDescending { it.createdAt }
-        
+
         logger.info("Triggering compensation for saga ${saga.id} with ${completedSteps.size} steps to compensate")
-        
+
         // For each completed step, create a compensation event
         completedSteps.forEach { step ->
             try {
@@ -157,7 +157,7 @@ class SagaManager(
                     "SendEmail" -> createEmailCompensationEvent(saga.id, step)
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
-                
+
                 // Record compensation step
                 sagaStepRepository.save(
                     SagaStep(
@@ -171,12 +171,12 @@ class SagaManager(
                 logger.error("Failed to create compensation event for step ${step.stepName}: ${e.message}", e)
             }
         }
-        
+
         // Update saga status
         saga.status = SagaStatus.COMPENSATING
         sagaRepository.save(saga)
     }
-    
+
     /**
      * Creates a compensation event for user creation
      */
@@ -184,7 +184,7 @@ class SagaManager(
         // Extract user ID from step payload
         val payload = objectMapper.readValue(step.payload, Map::class.java)
         val userId = payload["userId"] as Long
-        
+
         // Create an outbox message for user deletion
         kafkaOutboxProcessor.saveOutboxMessage(
             topic = "user-deletion",
@@ -197,7 +197,7 @@ class SagaManager(
             sagaId = sagaId
         )
     }
-    
+
     /**
      * Creates a compensation event for role assignment
      */
@@ -206,7 +206,7 @@ class SagaManager(
         val payload = objectMapper.readValue(step.payload, Map::class.java)
         val userId = payload["userId"] as Long
         val roleId = payload["roleId"] as Long
-        
+
         // Create an outbox message for role revocation
         kafkaOutboxProcessor.saveOutboxMessage(
             topic = "role-revoked",
@@ -220,18 +220,18 @@ class SagaManager(
             sagaId = sagaId
         )
     }
-    
+
     /**
      * Creates a compensation event for email sending
      */
     private fun createEmailCompensationEvent(sagaId: String, step: SagaStep) {
         // For emails, there's typically no compensation - just record that we would have sent a compensation email
         logger.info("Email compensation would be sent for step ${step.id}")
-        
+
         // Optionally, we could send a "correction" email
         val payload = objectMapper.readValue(step.payload, Map::class.java)
         val to = payload["to"] as String
-        
+
         kafkaOutboxProcessor.saveOutboxMessage(
             topic = "mail-requested",
             key = UUID.randomUUID().toString(),

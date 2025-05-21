@@ -15,11 +15,13 @@ import org.thymeleaf.templateresolver.ITemplateResolver
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = ["com.vertyll.projecta.mail.domain.repository", "com.vertyll.projecta.common.saga", "com.vertyll.projecta.common.kafka"])
-@EntityScan(basePackages = [
-    "com.vertyll.projecta.mail.domain.model",
-    "com.vertyll.projecta.common.saga", 
-    "com.vertyll.projecta.common.kafka"
-])
+@EntityScan(
+    basePackages = [
+        "com.vertyll.projecta.mail.domain.model",
+        "com.vertyll.projecta.common.saga",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
 @EnableKafka
 @ComponentScan(basePackages = ["com.vertyll.projecta.mail", "com.vertyll.projecta.common"])
 class MailServiceApplication {
@@ -29,7 +31,7 @@ class MailServiceApplication {
         templateEngine.addTemplateResolver(templateResolver())
         return templateEngine
     }
-    
+
     @Bean
     fun templateResolver(): ITemplateResolver {
         val templateResolver = ClassLoaderTemplateResolver()

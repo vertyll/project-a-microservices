@@ -25,11 +25,11 @@ class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Map<String, String>>> {
         logger.error("Validation Exception: {}", ex.message)
-        
+
         val errors = ex.bindingResult.fieldErrors.associate { error ->
             error.field to (error.defaultMessage ?: "Invalid value")
         }
-        
+
         return ApiResponse.buildResponse(
             data = errors,
             message = "Validation failed",

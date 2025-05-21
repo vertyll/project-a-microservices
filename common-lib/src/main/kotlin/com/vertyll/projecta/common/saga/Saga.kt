@@ -1,6 +1,11 @@
 package com.vertyll.projecta.common.saga
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.Instant
 
 /**
@@ -11,26 +16,26 @@ import java.time.Instant
 class Saga(
     @Id
     val id: String, // Using a UUID string as ID
-    
+
     @Column(nullable = false)
     val type: String,
-    
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var status: SagaStatus,
-    
+
     @Column(nullable = false, columnDefinition = "TEXT")
     val payload: String,
-    
+
     @Column(nullable = true)
     var lastError: String? = null,
-    
+
     @Column(nullable = false)
     val startedAt: Instant,
-    
+
     @Column(nullable = true)
     var completedAt: Instant? = null,
-    
+
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now()
 ) {
@@ -44,12 +49,4 @@ class Saga(
         startedAt = Instant.now(),
         completedAt = null
     )
-}
-
-enum class SagaStatus {
-    STARTED,
-    COMPLETED,
-    FAILED,
-    COMPENSATING,
-    COMPENSATED
 }

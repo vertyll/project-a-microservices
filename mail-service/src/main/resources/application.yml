@@ -1,5 +1,5 @@
 server:
-  port: 8084
+  port: 8085
   servlet:
     context-path: /api/mail
 
@@ -9,7 +9,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   datasource:
-    url: jdbc:postgresql://localhost:5434/mail_service
+    url: jdbc:postgresql://localhost:5435/mail_service
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -101,4 +101,4 @@ management:
     metrics:
       enabled: true
     prometheus:
-      enabled: true 
+      enabled: true

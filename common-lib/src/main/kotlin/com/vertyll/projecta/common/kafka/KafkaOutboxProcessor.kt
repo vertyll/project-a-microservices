@@ -20,7 +20,7 @@ class KafkaOutboxProcessor(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val maxRetries = 3
-    
+
     /**
      * Scheduled job that processes pending messages from the outbox table
      */
@@ -31,9 +31,9 @@ class KafkaOutboxProcessor(
             KafkaOutbox.OutboxStatus.PENDING,
             maxRetries
         )
-        
+
         logger.info("Found ${pendingMessages.size} pending messages to process")
-        
+
         pendingMessages.forEach { message ->
             try {
                 // Mark as processing
@@ -42,16 +42,16 @@ class KafkaOutboxProcessor(
                     KafkaOutbox.OutboxStatus.PROCESSING,
                     Instant.now()
                 )
-                
+
                 // Send to Kafka
                 val result = kafkaTemplate.send(message.topic, message.key, message.payload).get()
-                
+
                 logger.info(
                     "Successfully sent message to Kafka: topic=${message.topic}, " +
-                    "partition=${result.recordMetadata.partition()}, " +
-                    "offset=${result.recordMetadata.offset()}"
+                            "partition=${result.recordMetadata.partition()}, " +
+                            "offset=${result.recordMetadata.offset()}"
                 )
-                
+
                 // Mark as completed
                 kafkaOutboxRepository.updateStatus(
                     message.id,
@@ -60,7 +60,7 @@ class KafkaOutboxProcessor(
                 )
             } catch (e: Exception) {
                 logger.error("Failed to process outbox message id=${message.id}: ${e.message}", e)
-                
+
                 // Mark as failed
                 kafkaOutboxRepository.markAsFailed(
                     message.id!!,
@@ -70,21 +70,21 @@ class KafkaOutboxProcessor(
             }
         }
     }
-    
+
     /**
      * Creates a new outbox message and saves it to the database
      */
     @Transactional
     fun saveOutboxMessage(topic: String, key: String, payload: Any, sagaId: String? = null): KafkaOutbox {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
-        
+
         val outboxMessage = KafkaOutbox(
             topic = topic,
             key = key,
             payload = payloadJson,
             sagaId = sagaId
         )
-        
+
         return kafkaOutboxRepository.save(outboxMessage)
     }
 } 

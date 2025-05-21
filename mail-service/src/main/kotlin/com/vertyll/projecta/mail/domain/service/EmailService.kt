@@ -25,7 +25,7 @@ class EmailService(
 
     /**
      * Sends an email using a template and variables
-     * 
+     *
      * @param to email recipient
      * @param subject email subject
      * @param templateName name of the template to use
@@ -40,40 +40,40 @@ class EmailService(
     ): Boolean {
         try {
             logger.info("Sending email to {} with subject: {}", to, subject)
-            
+
             val message: MimeMessage = mailSender.createMimeMessage()
             val helper = MimeMessageHelper(message, true, "UTF-8")
-            
+
             helper.setFrom(fromEmail)
             helper.setTo(to)
             helper.setSubject(subject)
-            
+
             // Process template
             val context = Context()
-            variables.forEach { (key, value) -> 
+            variables.forEach { (key, value) ->
                 context.setVariable(key, value)
             }
-            
+
             val htmlContent = templateEngine.process(templateName, context)
             helper.setText(htmlContent, true)
-            
+
             // Send message
             mailSender.send(message)
-            
+
             // Log email
             saveEmailLog(to, subject, templateName, true)
-            
+
             return true
         } catch (e: Exception) {
             logger.error("Failed to send email to {} with subject: {}", to, subject, e)
-            
+
             // Log failed email
             saveEmailLog(to, subject, templateName, false, e.message)
-            
+
             return false
         }
     }
-    
+
     private fun saveEmailLog(
         recipient: String,
         subject: String,
@@ -89,7 +89,7 @@ class EmailService(
             errorMessage = errorMessage,
             sentAt = if (success) Instant.now() else null
         )
-        
+
         emailLogRepository.save(emailLog)
     }
 }

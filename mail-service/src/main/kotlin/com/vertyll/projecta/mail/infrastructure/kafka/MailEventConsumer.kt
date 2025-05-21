@@ -19,13 +19,13 @@ class MailEventConsumer(
     private val emailService: EmailService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     @KafkaListener(topics = [KafkaTopics.MAIL_REQUESTED])
     fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
         try {
             logger.info("Received mail request message: ${record.key()}")
             logger.debug("Message payload: ${record.value()}")
-            
+
             // First try direct deserialization
             val event = try {
                 objectMapper.readValue<MailRequestedEvent>(payload)
@@ -38,12 +38,12 @@ class MailEventConsumer(
                 } else {
                     payload
                 }
-                
+
                 // Create MailRequestedEvent manually from the JSON
                 val jsonNode = objectMapper.readTree(cleanPayload)
                 createMailRequestedEventFromJson(jsonNode)
             }
-            
+
             // Process the event
             handleEvent(event)
         } catch (e: Exception) {
@@ -51,7 +51,7 @@ class MailEventConsumer(
             logger.error("Failed payload: $payload")
         }
     }
-    
+
     private fun createMailRequestedEventFromJson(jsonNode: JsonNode): MailRequestedEvent {
         val variablesNode = jsonNode.get("variables")
         val variables = if (variablesNode != null) {
@@ -68,7 +68,7 @@ class MailEventConsumer(
         } else {
             emptyMap()
         }
-        
+
         return MailRequestedEvent(
             eventId = jsonNode.get("eventId")?.asText() ?: "",
             timestamp = try {
@@ -87,17 +87,17 @@ class MailEventConsumer(
             sagaId = jsonNode.get("sagaId")?.asText()
         )
     }
-    
+
     private fun handleEvent(event: MailRequestedEvent) {
         logger.info("Processing mail request: ${event.eventId}")
-        
+
         emailService.sendEmail(
             to = event.to,
             subject = event.subject,
             templateName = event.templateName,
             variables = event.variables
         )
-        
+
         logger.info("Successfully processed mail request: ${event.eventId}")
     }
 }

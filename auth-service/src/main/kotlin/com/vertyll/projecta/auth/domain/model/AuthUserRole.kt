@@ -1,6 +1,12 @@
 package com.vertyll.projecta.auth.domain.model
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.time.Instant
 
 /**
@@ -8,24 +14,26 @@ import java.time.Instant
  * This is used to track which roles a user has, without duplicating the role definitions.
  */
 @Entity
-@Table(name = "auth_user_role",
-       uniqueConstraints = [UniqueConstraint(columnNames = ["auth_user_id", "role_id"])])
+@Table(
+    name = "auth_user_role",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["auth_user_id", "role_id"])]
+)
 class AuthUserRole(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-    
+
     @Column(name = "auth_user_id", nullable = false)
     val authUserId: Long,
-    
+
     @Column(name = "role_id", nullable = false)
     val roleId: Long,
-    
+
     @Column(name = "role_name", nullable = false, length = 50)
     val roleName: String,
-    
+
     @Column(nullable = false)
     val createdAt: Instant = Instant.now(),
-    
+
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now()
 ) {

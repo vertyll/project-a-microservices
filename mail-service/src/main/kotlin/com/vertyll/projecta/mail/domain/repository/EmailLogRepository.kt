@@ -9,10 +9,10 @@ import java.time.Instant
 @Repository
 interface EmailLogRepository : JpaRepository<EmailLog, Long> {
     fun findByRecipient(recipient: String): List<EmailLog>
-    
+
     fun findByTemplateName(templateName: String): List<EmailLog>
-    
+
     fun findBySentAtBetween(start: Instant, end: Instant): List<EmailLog>
-    
+
     fun countByStatusAndSentAtBetween(status: EmailStatus, start: Instant, end: Instant): Long
 }

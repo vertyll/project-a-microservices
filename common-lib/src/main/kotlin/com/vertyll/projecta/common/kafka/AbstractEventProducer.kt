@@ -24,8 +24,8 @@ abstract class AbstractEventProducer<T : DomainEvent>(
                 if (ex == null) {
                     logger.info {
                         "Successfully sent event to topic ${result.recordMetadata.topic()}" +
-                            " partition ${result.recordMetadata.partition()}" +
-                            " offset ${result.recordMetadata.offset()}"
+                                " partition ${result.recordMetadata.partition()}" +
+                                " offset ${result.recordMetadata.offset()}"
                     }
                 } else {
                     logger.error(ex) { "Failed to send event to topic $topic" }

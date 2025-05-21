@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8084
   servlet:
     context-path: /api/roles
 
@@ -7,7 +7,7 @@ spring:
   application:
     name: role-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/role_service
+    url: jdbc:postgresql://localhost:5434/role_service
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -71,4 +71,4 @@ management:
     metrics:
       enabled: true
     prometheus:
-      enabled: true 
+      enabled: true

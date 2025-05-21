@@ -13,11 +13,14 @@ import org.springframework.stereotype.Service
 
 @Service
 class JwtService {
-    @Value("\${security.jwt.secret-key}") private lateinit var secretKey: String
+    @Value("\${security.jwt.secret-key}")
+    private lateinit var secretKey: String
 
-    @Value("\${security.jwt.access-token-expiration}") private var accessTokenExpiration: Long = 0
+    @Value("\${security.jwt.access-token-expiration}")
+    private var accessTokenExpiration: Long = 0
 
-    @Value("\${security.jwt.refresh-token-expiration}") private var refreshTokenExpiration: Long = 0
+    @Value("\${security.jwt.refresh-token-expiration}")
+    private var refreshTokenExpiration: Long = 0
 
     @Value("\${security.jwt.refresh-token-cookie-name}")
     private lateinit var refreshTokenCookieName: String
@@ -34,43 +37,43 @@ class JwtService {
         extraClaims["roles"] = roles
         extraClaims["tokenId"] = java.util.UUID.randomUUID().toString()
         extraClaims["type"] = "access"
-        
+
         return generateToken(extraClaims, userDetails)
     }
 
     fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         val now = Instant.now()
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.username)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusMillis(accessTokenExpiration)))
-                .signWith(getSigningKey())
-                .compact()
+            .setClaims(extraClaims)
+            .setSubject(userDetails.username)
+            .setIssuedAt(Date.from(now))
+            .setExpiration(Date.from(now.plusMillis(accessTokenExpiration)))
+            .signWith(getSigningKey())
+            .compact()
     }
 
     fun generateRefreshToken(userDetails: UserDetails): String {
         val extraClaims = mutableMapOf<String, Any>()
         extraClaims["type"] = "refresh"
         extraClaims["tokenId"] = java.util.UUID.randomUUID().toString()
-        
+
         // Add user roles to token
         val roles = userDetails.authorities.map { it.authority }.toList()
         extraClaims["roles"] = roles
-        
+
         return generateRefreshToken(extraClaims, userDetails)
     }
 
     fun generateRefreshToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         val now = Instant.now()
         return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.username)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusMillis(refreshTokenExpiration)))
-                .setId(java.util.UUID.randomUUID().toString()) // Add a unique ID to each token
-                .signWith(getSigningKey())
-                .compact()
+            .setClaims(extraClaims)
+            .setSubject(userDetails.username)
+            .setIssuedAt(Date.from(now))
+            .setExpiration(Date.from(now.plusMillis(refreshTokenExpiration)))
+            .setId(java.util.UUID.randomUUID().toString()) // Add a unique ID to each token
+            .signWith(getSigningKey())
+            .compact()
     }
 
     fun getRefreshTokenCookieName(): String {
@@ -93,7 +96,7 @@ class JwtService {
     private fun extractExpiration(token: String): Date {
         return extractClaim(token) { it.expiration }
     }
-    
+
     /**
      * Extracts roles from token
      */
@@ -111,10 +114,10 @@ class JwtService {
 
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .body
+            .setSigningKey(getSigningKey())
+            .build()
+            .parseClaimsJws(token)
+            .body
     }
 
     private fun getSigningKey(): Key {

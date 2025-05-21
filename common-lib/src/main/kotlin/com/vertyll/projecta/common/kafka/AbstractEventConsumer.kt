@@ -14,7 +14,7 @@ abstract class AbstractEventConsumer<T : DomainEvent>(
 ) {
     abstract val eventClass: Class<T>
     abstract val topicName: String
-    
+
     @KafkaListener(topics = ["#{@TOPIC_PREFIX}_#{T(java.util.Locale).ENGLISH.getDisplayLanguage()}"])
     protected fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
         try {
@@ -25,9 +25,9 @@ abstract class AbstractEventConsumer<T : DomainEvent>(
             logger.error(e) { "Error processing message from topic ${record.topic()}" }
         }
     }
-    
+
     abstract fun handleEvent(event: T)
-    
+
     @Suppress("UNCHECKED_CAST")
     protected fun getGeneratedTopicName(): String {
         return this.javaClass.simpleName

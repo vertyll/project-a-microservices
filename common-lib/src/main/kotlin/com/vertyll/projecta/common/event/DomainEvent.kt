@@ -27,7 +27,7 @@ interface DomainEvent {
     val timestamp: Instant
     val eventType: String
     val sagaId: String?
-    
+
     companion object {
         fun generateEventId(): String = UUID.randomUUID().toString()
         fun now(): Instant = Instant.now()

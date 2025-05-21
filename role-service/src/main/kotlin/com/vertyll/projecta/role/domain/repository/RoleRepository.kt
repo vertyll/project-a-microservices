@@ -6,6 +6,6 @@ import java.util.Optional
 
 interface RoleRepository : JpaRepository<Role, Long> {
     fun findByName(name: String): Optional<Role>
-    
+
     fun existsByName(name: String): Boolean
 }

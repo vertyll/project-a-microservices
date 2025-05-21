@@ -10,7 +10,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/roles")
@@ -53,14 +60,14 @@ class RoleController(private val roleService: RoleService) {
         val roles = roleService.getAllRoles()
         return ApiResponse.buildResponse(roles, "Roles retrieved successfully", HttpStatus.OK)
     }
-    
+
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get roles for a user")
     fun getRolesForUser(@PathVariable userId: Long): ResponseEntity<ApiResponse<List<RoleResponseDto>>> {
         val roles = roleService.getRolesForUser(userId)
         return ApiResponse.buildResponse(roles, "User roles retrieved successfully", HttpStatus.OK)
     }
-    
+
     @PostMapping("/user/{userId}/role/{roleName}")
     @Operation(summary = "Assign a role to a user")
     fun assignRoleToUser(
@@ -70,7 +77,7 @@ class RoleController(private val roleService: RoleService) {
         roleService.assignRoleToUser(userId, roleName)
         return ApiResponse.buildResponse(null, "Role assigned successfully", HttpStatus.OK)
     }
-    
+
     @DeleteMapping("/user/{userId}/role/{roleName}")
     @Operation(summary = "Remove a role from a user")
     fun removeRoleFromUser(
@@ -80,7 +87,7 @@ class RoleController(private val roleService: RoleService) {
         roleService.removeRoleFromUser(userId, roleName)
         return ApiResponse.buildResponse(null, "Role removed successfully", HttpStatus.OK)
     }
-    
+
     @GetMapping("/role/{roleId}/users")
     @Operation(summary = "Get users for a role")
     fun getUsersForRole(@PathVariable roleId: Long): ResponseEntity<ApiResponse<List<Long>>> {

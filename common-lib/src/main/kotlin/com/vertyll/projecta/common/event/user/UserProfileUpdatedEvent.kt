@@ -23,10 +23,10 @@ data class UserProfileUpdatedEvent @JsonCreator constructor(
         email = "",
         updateType = UpdateType.PROFILE
     )
-    
+
     enum class UpdateType {
         EMAIL,
         PASSWORD,
         PROFILE
     }
-} 
+}

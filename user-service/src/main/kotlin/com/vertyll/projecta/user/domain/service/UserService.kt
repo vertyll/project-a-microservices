@@ -2,6 +2,7 @@ package com.vertyll.projecta.user.domain.service
 
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.exception.ApiException
+import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
 import com.vertyll.projecta.user.domain.dto.UserUpdateDto
@@ -11,14 +12,12 @@ import com.vertyll.projecta.user.infrastructure.kafka.UserEventProducer
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.format.DateTimeFormatter
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val userEventProducer: UserEventProducer
 ) {
-    private val dateFormatter = DateTimeFormatter.ISO_INSTANT
 
     @Transactional
     fun createUser(dto: UserCreateDto): UserResponseDto {
@@ -89,15 +88,15 @@ class UserService(
     }
     
     @Transactional
-    fun updateEmail(currentEmail: String, newEmail: String): UserResponseDto {
-        if (userRepository.existsByEmail(newEmail)) {
+    fun updateEmail(request: EmailUpdateDto): UserResponseDto {
+        if (userRepository.existsByEmail(request.newEmail)) {
             throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
         }
         
-        val user = userRepository.findByEmail(currentEmail)
+        val user = userRepository.findByEmail(request.currentEmail)
             .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
             
-        user.setEmail(newEmail)
+        user.setEmail(request.newEmail)
         val savedUser = userRepository.save(user)
         return mapToDto(savedUser)
     }

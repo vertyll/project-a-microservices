@@ -1,11 +1,11 @@
 server:
-  port: 8085
+  port: 8082
 
 spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://localhost:5431/auth_service
+    url: jdbc:postgresql://localhost:5432/auth_service
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -70,7 +70,7 @@ feign:
 # Service URLs
 service:
   user-service:
-    url: http://localhost:8082
+    url: http://localhost:8083
 
 # Kafka topics configuration
 kafka:

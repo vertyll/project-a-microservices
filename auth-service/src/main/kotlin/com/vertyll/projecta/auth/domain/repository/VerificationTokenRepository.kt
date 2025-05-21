@@ -10,6 +10,6 @@ interface VerificationTokenRepository : JpaRepository<VerificationToken, Long> {
     fun findByToken(token: String): Optional<VerificationToken>
 
     fun findByUsernameAndTokenType(username: String, tokenType: String): Optional<VerificationToken>
-    
+
     fun findByAdditionalData(additionalData: String): Optional<VerificationToken>
 }

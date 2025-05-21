@@ -19,7 +19,7 @@ class SecurityConfig {
                 auth.anyRequest().permitAll()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-        
+
         return http.build()
     }
 }

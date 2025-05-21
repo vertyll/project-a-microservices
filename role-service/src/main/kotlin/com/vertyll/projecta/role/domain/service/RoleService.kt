@@ -66,13 +66,13 @@ class RoleService(
         )
 
         val savedRole = roleRepository.save(role)
-        
+
         try {
             roleEventProducer.sendRoleCreatedEvent(savedRole)
         } catch (e: Exception) {
             logger.error("Failed to send role created event: ${e.message}", e)
         }
-        
+
         return mapToDto(savedRole)
     }
 
@@ -90,15 +90,15 @@ class RoleService(
             name = dto.name,
             description = dto.description
         )
-        
+
         val savedRole = roleRepository.save(updatedRole)
-        
+
         try {
             roleEventProducer.sendRoleUpdatedEvent(savedRole)
         } catch (e: Exception) {
             logger.error("Failed to send role updated event: ${e.message}", e)
         }
-        
+
         return mapToDto(savedRole)
     }
 
@@ -120,7 +120,7 @@ class RoleService(
     fun getAllRoles(): List<RoleResponseDto> {
         return roleRepository.findAll().map { mapToDto(it) }
     }
-    
+
     /**
      * Assigns a role to a user
      * @param userId The ID of the user
@@ -130,28 +130,28 @@ class RoleService(
     @Transactional
     fun assignRoleToUser(userId: Long, roleName: String): UserRole {
         logger.info("Assigning role $roleName to user $userId")
-        
+
         // Check if role exists
         val role = roleRepository.findByName(roleName)
-            .orElseThrow { 
-                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND) 
+            .orElseThrow {
+                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND)
             }
-        
+
         // Check if user already has this role
         if (userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId already has role $roleName")
             return userRoleRepository.findByUserIdAndRoleId(userId, role.id)
                 .orElseThrow { ApiException("User-role mapping not found", HttpStatus.INTERNAL_SERVER_ERROR) }
         }
-        
+
         // Create and save the user-role mapping
         val userRole = UserRole(
             userId = userId,
             roleId = role.id
         )
-        
+
         val savedUserRole = userRoleRepository.save(userRole)
-        
+
         // Send role assigned event
         try {
             roleEventProducer.sendRoleAssignedEvent(savedUserRole, role.name)
@@ -159,11 +159,11 @@ class RoleService(
             logger.error("Failed to send role assigned event: ${e.message}", e)
             // Continue even if event fails to send
         }
-        
+
         logger.info("Successfully assigned role $roleName to user $userId")
         return savedUserRole
     }
-    
+
     /**
      * Removes a role from a user
      * @param userId The ID of the user
@@ -172,22 +172,22 @@ class RoleService(
     @Transactional
     fun removeRoleFromUser(userId: Long, roleName: String) {
         logger.info("Removing role $roleName from user $userId")
-        
+
         // Check if role exists
         val role = roleRepository.findByName(roleName)
-            .orElseThrow { 
-                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND) 
+            .orElseThrow {
+                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND)
             }
-        
+
         // Check if user has this role
         if (!userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId doesn't have role $roleName")
             return
         }
-        
+
         // Delete the user-role mapping
         userRoleRepository.deleteByUserIdAndRoleId(userId, role.id)
-        
+
         // Send role revoked event
         try {
             roleEventProducer.sendRoleRevokedEvent(userId, role.id, role.name)
@@ -195,10 +195,10 @@ class RoleService(
             logger.error("Failed to send role revoked event: ${e.message}", e)
             // Continue even if event fails to send
         }
-        
+
         logger.info("Successfully removed role $roleName from user $userId")
     }
-    
+
     /**
      * Gets all roles for a user
      * @param userId The ID of the user
@@ -208,14 +208,14 @@ class RoleService(
     fun getRolesForUser(userId: Long): List<RoleResponseDto> {
         val userRoles = userRoleRepository.findByUserId(userId)
         val roleIds = userRoles.map { it.roleId }
-        
+
         if (roleIds.isEmpty()) {
             return emptyList()
         }
-        
+
         return roleRepository.findAllById(roleIds).map { mapToDto(it) }
     }
-    
+
     /**
      * Gets all users for a role
      * @param roleId The ID of the role

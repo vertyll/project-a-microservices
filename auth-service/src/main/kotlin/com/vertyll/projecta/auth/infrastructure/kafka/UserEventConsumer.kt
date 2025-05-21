@@ -27,11 +27,11 @@ class UserEventConsumer(
     fun consumeUserRegisteredEvent(record: ConsumerRecord<String, String>) {
         try {
             logger.info("Received user registration event with key: ${record.key()}")
-            
+
             // Deserialize the message payload
             val event = objectMapper.readValue(record.value(), UserRegisteredEvent::class.java)
             logger.info("Deserialized event for user: ${event.email}")
-            
+
             // Only process events from User Service (ignore our own events)
             if (event.userId > 0 && event.eventSource == "USER_SERVICE") {
                 updateAuthUserWithUserId(event)
@@ -42,7 +42,7 @@ class UserEventConsumer(
             logger.error("Error processing user registration event: ${e.message}", e)
         }
     }
-    
+
     /**
      * Listens for role assignment events
      */
@@ -51,29 +51,29 @@ class UserEventConsumer(
     fun consumeRoleAssignedEvent(record: ConsumerRecord<String, String>) {
         try {
             logger.info("Received role assigned event with key: ${record.key()}")
-            
+
             // Parse the event as a map first
             val eventMap = objectMapper.readValue(record.value(), Map::class.java)
             val userId = (eventMap["userId"] as Number).toLong()
             val roleId = (eventMap["roleId"] as Number).toLong()
             val roleName = eventMap["roleName"] as String
-            
+
             logger.info("Received role assignment: User ID $userId, Role $roleName ($roleId)")
-            
+
             // Find the auth user by userId
             val authUser = authUserRepository.findByUserId(userId)
-            
+
             if (authUser != null) {
                 // Check if this role is already assigned
                 if (authUserRoleRepository.existsByAuthUserIdAndRoleId(authUser.id!!, roleId)) {
                     logger.info("Role $roleName ($roleId) already assigned to auth user ${authUser.id}")
                     return
                 }
-                
+
                 // Add the role to the user
                 authUser.addRole(roleId, roleName)
                 authUserRepository.save(authUser)
-                
+
                 logger.info("Successfully assigned role $roleName ($roleId) to auth user ${authUser.id}")
             } else {
                 logger.warn("Auth user not found for userId $userId, can't assign role")
@@ -82,7 +82,7 @@ class UserEventConsumer(
             logger.error("Error processing role assigned event: ${e.message}", e)
         }
     }
-    
+
     /**
      * Listens for role revocation events
      */
@@ -91,23 +91,23 @@ class UserEventConsumer(
     fun consumeRoleRevokedEvent(record: ConsumerRecord<String, String>) {
         try {
             logger.info("Received role revoked event with key: ${record.key()}")
-            
+
             // Parse the event as a map first
             val eventMap = objectMapper.readValue(record.value(), Map::class.java)
             val userId = (eventMap["userId"] as Number).toLong()
             val roleId = (eventMap["roleId"] as Number).toLong()
             val roleName = eventMap["roleName"] as String
-            
+
             logger.info("Received role revocation: User ID $userId, Role $roleName ($roleId)")
-            
+
             // Find the auth user by userId
             val authUser = authUserRepository.findByUserId(userId)
-            
+
             if (authUser != null) {
                 // Remove the role from the user
                 authUser.removeRole(roleId)
                 authUserRepository.save(authUser)
-                
+
                 logger.info("Successfully revoked role $roleName ($roleId) from auth user ${authUser.id}")
             } else {
                 logger.warn("Auth user not found for userId $userId, can't revoke role")
@@ -116,25 +116,25 @@ class UserEventConsumer(
             logger.error("Error processing role revoked event: ${e.message}", e)
         }
     }
-    
+
     /**
      * Updates the auth_user table with the userId from User Service
      */
     @Transactional
     fun updateAuthUserWithUserId(event: UserRegisteredEvent) {
         logger.info("Updating auth user with userId: ${event.userId} for email: ${event.email}")
-        
+
         val authUser = authUserRepository.findByEmail(event.email).orElse(null)
         if (authUser == null) {
             logger.error("Auth user not found for email: ${event.email}")
             return
         }
-        
+
         if (authUser.userId != null) {
             logger.warn("Auth user already has userId: ${authUser.userId}. Not updating.")
             return
         }
-        
+
         // Update the userId field
         authUser.userId = event.userId
         authUserRepository.save(authUser)

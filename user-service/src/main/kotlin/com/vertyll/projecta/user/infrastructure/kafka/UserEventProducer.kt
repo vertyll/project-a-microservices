@@ -21,10 +21,10 @@ class UserEventProducer(
         try {
             // Set source to USER_SERVICE to avoid circular processing
             val modifiedEvent = event.copy(eventSource = "USER_SERVICE")
-            
+
             val eventJson = objectMapper.writeValueAsString(modifiedEvent)
             kafkaTemplate.send(KafkaTopics.USER_REGISTERED, modifiedEvent.eventId, eventJson)
-            
+
             logger.info("Sent user registered event for: ${modifiedEvent.email}")
             return true
         } catch (e: Exception) {
@@ -32,7 +32,7 @@ class UserEventProducer(
             return false
         }
     }
-    
+
     fun sendCredentialsVerificationResult(event: CredentialsVerificationResultEvent) {
         try {
             val eventJson = objectMapper.writeValueAsString(event)
@@ -48,7 +48,7 @@ class UserEventProducer(
         try {
             val eventJson = objectMapper.writeValueAsString(event)
             kafkaTemplate.send(KafkaTopics.USER_UPDATED, event.eventId, eventJson)
-            
+
             logger.info("Sent user profile updated event for: ${event.email}")
             return true
         } catch (e: Exception) {

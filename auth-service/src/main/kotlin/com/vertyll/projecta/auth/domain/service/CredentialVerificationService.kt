@@ -13,14 +13,14 @@ class CredentialVerificationService(
     private val passwordEncoder: PasswordEncoder
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     fun verifyCredentials(email: String, password: String): CredentialsVerificationResultEvent {
         logger.info("Verifying credentials for user: {}", email)
         val requestId = UUID.randomUUID().toString()
-        
+
         return try {
             val userOptional = authUserRepository.findByEmail(email)
-            
+
             if (userOptional.isEmpty) {
                 logger.warn("Login attempt with non-existent email: {}", email)
                 return CredentialsVerificationResultEvent(
@@ -29,9 +29,9 @@ class CredentialVerificationService(
                     message = "Invalid email or password. Please try again."
                 )
             }
-            
+
             val user = userOptional.get()
-            
+
             // First, check if the account is enabled
             if (!user.isEnabled()) {
                 logger.warn("Login attempt with unactivated account: {}", email)
@@ -41,10 +41,10 @@ class CredentialVerificationService(
                     message = "Your account has not been activated. Please check your email for the activation link or request a new one."
                 )
             }
-            
+
             // Then check the password
             val isValid = passwordEncoder.matches(password, user.password)
-            
+
             if (!isValid) {
                 logger.warn("Login attempt with invalid password for user: {}", email)
                 CredentialsVerificationResultEvent(

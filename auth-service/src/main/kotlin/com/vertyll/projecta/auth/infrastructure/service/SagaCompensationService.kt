@@ -22,7 +22,7 @@ class SagaCompensationService(
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     /**
      * Listens for compensation events and processes them
      */
@@ -33,22 +33,22 @@ class SagaCompensationService(
             val event = objectMapper.readValue(payload, Map::class.java)
             val sagaId = event["sagaId"] as String
             val stepId = (event["stepId"] as Int).toLong()
-            
+
             // Find the step that needs compensation
             val step = sagaStepRepository.findById(stepId).orElse(null) ?: run {
                 logger.error("Cannot find saga step with ID $stepId for compensation")
                 return
             }
-            
+
             logger.info("Processing compensation for saga $sagaId, step ${step.stepName}")
-            
+
             // Perform compensation based on step name
             when (step.stepName) {
                 "CreateAuthUser" -> compensateCreateAuthUser(step)
                 "CreateVerificationToken" -> compensateCreateVerificationToken(step)
                 else -> logger.warn("No compensation handler for step ${step.stepName}")
             }
-            
+
             // Record that compensation was completed
             val compensationStep = SagaStep(
                 sagaId = sagaId,
@@ -59,12 +59,12 @@ class SagaCompensationService(
                 compensationStepId = step.id
             )
             sagaStepRepository.save(compensationStep)
-            
+
         } catch (e: Exception) {
             logger.error("Failed to process compensation event: ${e.message}", e)
         }
     }
-    
+
     /**
      * Compensate for creating an auth user by deleting it
      */
@@ -73,7 +73,7 @@ class SagaCompensationService(
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val authUserId = (payload["authUserId"] as Int).toLong()
-            
+
             authUserRepository.findById(authUserId).ifPresent { user ->
                 logger.info("Compensating CreateAuthUser step: Deleting auth user with ID $authUserId")
                 authUserRepository.delete(user)
@@ -83,7 +83,7 @@ class SagaCompensationService(
             throw e
         }
     }
-    
+
     /**
      * Compensate for creating a verification token by deleting it
      */
@@ -92,7 +92,7 @@ class SagaCompensationService(
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val tokenId = (payload["tokenId"] as Int).toLong()
-            
+
             verificationTokenRepository.findById(tokenId).ifPresent { token ->
                 logger.info("Compensating CreateVerificationToken step: Deleting token with ID $tokenId")
                 verificationTokenRepository.delete(token)
