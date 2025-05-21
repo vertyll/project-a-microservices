@@ -40,7 +40,7 @@ class User(
     var updatedAt: Instant = Instant.now()
 ) {
     // No-args constructor required for JPA
-    protected constructor() : this(
+    constructor() : this(
         id = null,
         firstName = "",
         lastName = "",

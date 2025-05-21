@@ -38,7 +38,7 @@ class AuthUserRole(
     var updatedAt: Instant = Instant.now()
 ) {
     // No-args constructor for JPA
-    protected constructor() : this(
+     constructor() : this(
         id = null,
         authUserId = 0,
         roleId = 0,

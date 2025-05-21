@@ -39,7 +39,7 @@ class AuthUser(
     @Column(nullable = false) var updatedAt: Instant = Instant.now()
 ) : UserDetails {
     // No-args constructor required for JPA
-    protected constructor() : this(
+    constructor() : this(
         id = null, email = "", password = "", userRoles = mutableSetOf(), enabled = false
     )
 

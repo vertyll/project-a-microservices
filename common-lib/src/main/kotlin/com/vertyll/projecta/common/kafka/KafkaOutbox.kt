@@ -51,7 +51,7 @@ class KafkaOutbox(
     var sagaId: String? = null
 ) {
     // No-args constructor required by JPA
-    protected constructor() : this(
+    constructor() : this(
         id = null,
         topic = "",
         key = "",

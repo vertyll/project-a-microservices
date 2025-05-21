@@ -46,7 +46,7 @@ class SagaStep(
     var compensationStepId: Long? = null
 ) {
     // No-args constructor required by JPA
-    protected constructor() : this(
+    constructor() : this(
         id = null,
         sagaId = "",
         stepName = "",

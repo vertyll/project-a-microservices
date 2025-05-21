@@ -28,10 +28,10 @@ class Role(
     var updatedAt: Instant = Instant.now()
 ) {
     // No-args constructor required by JPA
-    protected constructor() : this(
+    constructor() : this(
         id = null,
         name = "",
-        description = null
+        description = null,
     )
 
     companion object {

@@ -48,6 +48,22 @@ class EmailLog(
     @Column(nullable = true)
     var sentAt: Instant? = null
 ) {
+    // No-arg constructor for JPA
+    constructor() : this(
+        id = null,
+        recipient = "",
+        subject = "",
+        templateName = "",
+        variables = null,
+        replyTo = null,
+        status = EmailStatus.PENDING,
+        errorMessage = null,
+        createdAt = Instant.now(),
+        updatedAt = Instant.now(),
+        sentAt = null
+    )
+
+
     enum class EmailStatus {
         PENDING,
         SENT,

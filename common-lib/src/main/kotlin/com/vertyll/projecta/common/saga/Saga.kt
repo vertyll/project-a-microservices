@@ -40,7 +40,7 @@ class Saga(
     var updatedAt: Instant = Instant.now()
 ) {
     // No-args constructor required by JPA
-    protected constructor() : this(
+    constructor() : this(
         id = "",
         type = "",
         status = SagaStatus.STARTED,
