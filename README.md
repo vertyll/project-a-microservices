@@ -101,10 +101,10 @@ Each microservice has its own PostgreSQL database and communicates with other se
 
 3. Access the services:
    - API Gateway: http://localhost:8080
-   - Auth Service: http://localhost:8085
-   - User Service: http://localhost:8082
-   - Role Service: http://localhost:8083
-   - Mail Service: http://localhost:8084
+   - Auth Service: http://localhost:8082
+   - User Service: http://localhost:8083
+   - Role Service: http://localhost:8084
+   - Mail Service: http://localhost:8085
    - Kafka UI: http://localhost:8090
    - MailDev: http://localhost:1080
 
@@ -174,10 +174,10 @@ Services communicate asynchronously through Kafka events:
 
 Each service provides its own Swagger UI for API documentation:
 
-- Auth Service: http://localhost:8085/api/auth/swagger-ui.html
-- User Service: http://localhost:8082/api/users/swagger-ui.html
-- Role Service: http://localhost:8083/api/roles/swagger-ui.html
-- Mail Service: http://localhost:8084/api/mail/swagger-ui.html
+- Auth Service: http://localhost:8082/api/auth/swagger-ui.html
+- User Service: http://localhost:8083/api/users/swagger-ui.html
+- Role Service: http://localhost:8084/api/roles/swagger-ui.html
+- Mail Service: http://localhost:8085/api/mail/swagger-ui.html
 
 ## Monitoring
 
