@@ -3,6 +3,7 @@ package com.vertyll.projecta.auth.infrastructure.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.VerificationTokenRepository
+import com.vertyll.projecta.auth.infrastructure.saga.SagaStepName
 import com.vertyll.projecta.common.saga.SagaStep
 import com.vertyll.projecta.common.saga.SagaStepRepository
 import com.vertyll.projecta.common.saga.SagaStepStatus
@@ -44,15 +45,15 @@ class SagaCompensationService(
 
             // Perform compensation based on step name
             when (step.stepName) {
-                "CreateAuthUser" -> compensateCreateAuthUser(step)
-                "CreateVerificationToken" -> compensateCreateVerificationToken(step)
+                SagaStepName.CREATE_AUTH_USER.value -> compensateCreateAuthUser(step)
+                SagaStepName.CREATE_VERIFICATION_TOKEN.value -> compensateCreateVerificationToken(step)
                 else -> logger.warn("No compensation handler for step ${step.stepName}")
             }
 
             // Record that compensation was completed
             val compensationStep = SagaStep(
                 sagaId = sagaId,
-                stepName = "Compensate${step.stepName}",
+                stepName = SagaStepName.compensationNameFromString(step.stepName),
                 status = SagaStepStatus.COMPENSATED,
                 createdAt = java.time.Instant.now(),
                 completedAt = java.time.Instant.now(),
