@@ -7,6 +7,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.23" apply false
     kotlin("plugin.jpa") version "1.9.23" apply false
     kotlin("kapt") version "1.9.23" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1" apply false
 }
 
 allprojects {
@@ -15,6 +16,7 @@ allprojects {
 
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
@@ -24,6 +26,23 @@ subprojects {
         plugin("org.jetbrains.kotlin.plugin.spring")
         plugin("org.springframework.boot")
         plugin("io.spring.dependency-management")
+        plugin("org.jlleitschuh.gradle.ktlint")
+    }
+
+    // Configure ktlint
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        debug.set(false)
+        verbose.set(true)
+        android.set(false)
+        outputToConsole.set(true)
+        outputColorName.set("RED")
+        ignoreFailures.set(false)
+        enableExperimentalRules.set(true)
+        filter {
+            exclude { element -> element.file.path.contains("generated/") }
+            include("**/src/**/*.kt")
+            include("**/src/**/*.kts")
+        }
     }
 
     // Add Spring Cloud dependency management
@@ -69,4 +88,16 @@ subprojects {
             }
         }
     }
+}
+
+tasks.register("formatKotlin") {
+    group = "formatting"
+    description = "Format all Kotlin files in the project"
+    dependsOn(subprojects.map { it.tasks.named("ktlintFormat") })
+}
+
+tasks.register("checkKotlin") {
+    group = "verification"
+    description = "Check all Kotlin files in the project"
+    dependsOn(subprojects.map { it.tasks.named("ktlintCheck") })
 }
