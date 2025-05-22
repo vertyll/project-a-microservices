@@ -3,6 +3,7 @@ package com.vertyll.projecta.role.infrastructure.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.domain.service.RoleService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -39,7 +40,8 @@ class UserEventConsumer(
 
         try {
             // Assign each role to the user
-            // This assumes that the role exists - we should have a default 'USER' role created at startup
+            // This assumes that the roles exist - default roles should be created at startup
+            // Default role is ${RoleType.USER.value} which is created in RoleService.initializeDefaultRoles()
             event.roles.forEach { roleName ->
                 try {
                     roleService.assignRoleToUser(event.userId, roleName)

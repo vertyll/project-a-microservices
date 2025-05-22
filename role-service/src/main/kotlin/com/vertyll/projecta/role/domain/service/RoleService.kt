@@ -1,6 +1,7 @@
 package com.vertyll.projecta.role.domain.service
 
 import com.vertyll.projecta.common.exception.ApiException
+import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.domain.dto.RoleCreateDto
 import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
@@ -31,23 +32,23 @@ class RoleService(
         logger.info("Initializing default roles")
         try {
             // Create default USER role if it doesn't exist
-            if (!roleRepository.existsByName("USER")) {
+            if (!roleRepository.existsByName(RoleType.USER.value)) {
                 val userRole = Role.create(
-                    name = "USER",
+                    name = RoleType.USER.value,
                     description = "Default role for all users"
                 )
                 roleRepository.save(userRole)
-                logger.info("Created default USER role")
+                logger.info("Created default ${RoleType.USER.value} role")
             }
 
             // Create ADMIN role if it doesn't exist
-            if (!roleRepository.existsByName("ADMIN")) {
+            if (!roleRepository.existsByName(RoleType.ADMIN.value)) {
                 val adminRole = Role.create(
-                    name = "ADMIN",
+                    name = RoleType.ADMIN.value,
                     description = "Admin role with all privileges"
                 )
                 roleRepository.save(adminRole)
-                logger.info("Created default ADMIN role")
+                logger.info("Created default ${RoleType.ADMIN.value} role")
             }
         } catch (e: Exception) {
             logger.error("Error initializing default roles: ${e.message}", e)
@@ -83,6 +84,12 @@ class RoleService(
 
         if (dto.name != role.name && roleRepository.existsByName(dto.name)) {
             throw ApiException("Role with name ${dto.name} already exists", HttpStatus.BAD_REQUEST)
+        }
+
+        // Prevent updating of system roles
+        val roleType = RoleType.fromString(role.name)
+        if (roleType != null && role.name != dto.name) {
+            throw ApiException("Cannot change name of system role ${role.name}", HttpStatus.BAD_REQUEST)
         }
 
         val updatedRole = Role(
@@ -183,6 +190,14 @@ class RoleService(
         if (!userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId doesn't have role $roleName")
             return
+        }
+
+        // If it's the USER role, check if it's the only role the user has
+        if (roleName == RoleType.USER.value) {
+            val userRoles = userRoleRepository.findByUserId(userId)
+            if (userRoles.size == 1) {
+                throw ApiException("Cannot remove USER role from user as it's their only role", HttpStatus.BAD_REQUEST)
+            }
         }
 
         // Delete the user-role mapping

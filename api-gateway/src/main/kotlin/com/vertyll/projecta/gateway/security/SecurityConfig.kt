@@ -1,5 +1,6 @@
 package com.vertyll.projecta.gateway.security
 
+import com.vertyll.projecta.common.role.RoleType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
@@ -82,13 +83,13 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
                     .pathMatchers(*PROTECTED_AUTH_ENDPOINTS).authenticated()
 
                     // Role service admin endpoints
-                    .pathMatchers(ROLE_ADMIN_ENDPOINTS).hasRole("ADMIN")
+                    .pathMatchers(ROLE_ADMIN_ENDPOINTS).hasRole(RoleType.ADMIN.value)
 
                     // Role service regular endpoints
                     .pathMatchers(ROLE_USER_ENDPOINTS).authenticated()
 
                     // User service admin endpoints
-                    .pathMatchers(USER_ADMIN_ENDPOINTS).hasRole("ADMIN")
+                    .pathMatchers(USER_ADMIN_ENDPOINTS).hasRole(RoleType.ADMIN.value)
 
                     // User service user endpoints
                     .pathMatchers(USER_PROFILE_ENDPOINT).authenticated()
@@ -97,7 +98,7 @@ class SecurityConfig(private val jwtAuthFilter: JwtAuthFilter) {
                     .pathMatchers(USER_ID_ENDPOINT).authenticated()
 
                     // Mail service endpoints (admin only)
-                    .pathMatchers(MAIL_ENDPOINTS).hasRole("ADMIN")
+                    .pathMatchers(MAIL_ENDPOINTS).hasRole(RoleType.ADMIN.value)
 
                     // Default policy - deny all
                     .anyExchange().authenticated()

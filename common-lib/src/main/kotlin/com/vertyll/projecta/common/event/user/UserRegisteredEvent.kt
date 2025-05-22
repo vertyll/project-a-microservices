@@ -3,6 +3,7 @@ package com.vertyll.projecta.common.event.user
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.vertyll.projecta.common.event.DomainEvent
+import com.vertyll.projecta.common.role.RoleType
 import java.time.Instant
 
 data class UserRegisteredEvent @JsonCreator constructor(
@@ -13,7 +14,7 @@ data class UserRegisteredEvent @JsonCreator constructor(
     @JsonProperty("email") val email: String,
     @JsonProperty("firstName") val firstName: String,
     @JsonProperty("lastName") val lastName: String,
-    @JsonProperty("roles") val roles: Set<String> = setOf("USER"),
+    @JsonProperty("roles") val roles: Set<String> = setOf(RoleType.USER.value),
     @JsonProperty("eventSource") val eventSource: String = "AUTH_SERVICE",
     @JsonProperty("sagaId") override val sagaId: String? = null
 ) : DomainEvent {
