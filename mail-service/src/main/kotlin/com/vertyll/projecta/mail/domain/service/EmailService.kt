@@ -1,5 +1,6 @@
 package com.vertyll.projecta.mail.domain.service
 
+import com.vertyll.projecta.common.mail.EmailTemplate
 import com.vertyll.projecta.mail.domain.model.EmailLog
 import com.vertyll.projecta.mail.domain.repository.EmailLogRepository
 import org.slf4j.LoggerFactory
@@ -24,7 +25,6 @@ class EmailService(
     private lateinit var fromEmail: String
     
     companion object {
-        // Email charset
         private const val CHARSET_UTF8 = "UTF-8"
         
         // Log messages
@@ -33,18 +33,19 @@ class EmailService(
     }
 
     /**
-     * Sends an email using a template and variables
+     * Sends an email using a template specified by the EmailTemplate enum and variables
      *
      * @param to email recipient
      * @param subject email subject
-     * @param templateName name of the template to use
+     * @param template the EmailTemplate to use
      * @param variables variables to use in the template
+     * @param replyTo optional reply-to address
      * @return true if email was sent successfully, false otherwise
      */
     fun sendEmail(
         to: String,
         subject: String,
-        templateName: String,
+        template: EmailTemplate,
         variables: Map<String, String>,
         replyTo: String? = null
     ): Boolean {
@@ -69,17 +70,15 @@ class EmailService(
                 context.setVariable(key, value)
             }
 
-            val htmlContent = templateEngine.process(templateName, context)
+            val htmlContent = templateEngine.process(template.templateName, context)
             helper.setText(htmlContent, true)
 
-            // Send message
             mailSender.send(message)
 
-            // Log email
             saveEmailLog(
                 recipient = to,
                 subject = subject,
-                templateName = templateName,
+                templateName = template.templateName,
                 variables = formatVariablesForStorage(variables),
                 replyTo = replyTo,
                 success = true
@@ -89,11 +88,10 @@ class EmailService(
         } catch (e: Exception) {
             logger.error(LOG_SEND_FAILURE, to, subject, e)
 
-            // Log failed email
             saveEmailLog(
                 recipient = to,
                 subject = subject,
-                templateName = templateName,
+                templateName = template.templateName,
                 variables = formatVariablesForStorage(variables),
                 replyTo = replyTo,
                 success = false,
@@ -103,7 +101,7 @@ class EmailService(
             return false
         }
     }
-    
+
     /**
      * Formats variables map as a string for storage in database
      */

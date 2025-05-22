@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.common.mail.EmailTemplate
 import com.vertyll.projecta.mail.domain.service.EmailService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -49,6 +50,7 @@ class MailEventConsumer(
         private const val LOG_FAILED_PAYLOAD = "Failed payload: {}"
         private const val LOG_PROCESSING_REQUEST = "Processing mail request: {}"
         private const val LOG_SUCCESS = "Successfully processed mail request: {}"
+        private const val LOG_INVALID_TEMPLATE = "Received request with invalid template name: {}. Email will not be sent."
     }
 
     @KafkaListener(topics = ["#{@kafkaTopicsConfig.getMailRequestedTopic()}"])
@@ -70,7 +72,6 @@ class MailEventConsumer(
                 createMailRequestedEventFromJson(jsonNode)
             }
 
-            // Process the event
             handleEvent(event)
         } catch (e: Exception) {
             logger.error(LOG_PROCESSING_ERROR, record.topic(), e)
@@ -106,6 +107,9 @@ class MailEventConsumer(
             emptyMap()
         }
 
+        // Get the template name
+        val templateName = jsonNode.get(FIELD_TEMPLATE_NAME)?.asText() ?: ""
+
         return MailRequestedEvent(
             eventId = jsonNode.get(FIELD_EVENT_ID)?.asText() ?: "",
             timestamp = try {
@@ -117,7 +121,7 @@ class MailEventConsumer(
             eventType = jsonNode.get(FIELD_EVENT_TYPE)?.asText() ?: DEFAULT_EVENT_TYPE,
             to = jsonNode.get(FIELD_TO)?.asText() ?: "",
             subject = jsonNode.get(FIELD_SUBJECT)?.asText() ?: "",
-            templateName = jsonNode.get(FIELD_TEMPLATE_NAME)?.asText() ?: "",
+            templateName = templateName,
             variables = variables,
             replyTo = jsonNode.get(FIELD_REPLY_TO)?.asText(),
             priority = jsonNode.get(FIELD_PRIORITY)?.asInt() ?: DEFAULT_PRIORITY,
@@ -128,13 +132,22 @@ class MailEventConsumer(
     private fun handleEvent(event: MailRequestedEvent) {
         logger.info(LOG_PROCESSING_REQUEST, event.eventId)
 
-        emailService.sendEmail(
-            to = event.to,
-            subject = event.subject,
-            templateName = event.templateName,
-            variables = event.variables
-        )
-
-        logger.info(LOG_SUCCESS, event.eventId)
+        val template = EmailTemplate.fromTemplateName(event.templateName)
+        
+        if (template != null) {
+            val success = emailService.sendEmail(
+                to = event.to,
+                subject = event.subject,
+                template = template,
+                variables = event.variables,
+                replyTo = event.replyTo
+            )
+            
+            if (success) {
+                logger.info(LOG_SUCCESS, event.eventId)
+            }
+        } else {
+            logger.error(LOG_INVALID_TEMPLATE, event.templateName)
+        }
     }
 }

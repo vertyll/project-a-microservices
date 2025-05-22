@@ -15,12 +15,15 @@ import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.RefreshTokenRepository
 import com.vertyll.projecta.auth.domain.repository.VerificationTokenRepository
 import com.vertyll.projecta.auth.infrastructure.kafka.AuthEventProducer
+import com.vertyll.projecta.auth.infrastructure.saga.SagaStepName
+import com.vertyll.projecta.auth.infrastructure.saga.SagaType
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
+import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.exception.ApiException
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.common.mail.EmailTemplate
 import com.vertyll.projecta.common.saga.SagaManager
 import com.vertyll.projecta.common.saga.SagaStepStatus
 import jakarta.servlet.http.Cookie
@@ -38,8 +41,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import com.vertyll.projecta.auth.infrastructure.saga.SagaStepName
-import com.vertyll.projecta.auth.infrastructure.saga.SagaType
 
 @Service
 class AuthService(
@@ -172,7 +173,7 @@ class AuthService(
                 val mailEvent = MailRequestedEvent(
                     to = request.email,
                     subject = "Account Activation",
-                    templateName = "ACTIVATE_ACCOUNT",
+                    templateName = EmailTemplate.ACTIVATE_ACCOUNT.templateName,
                     variables = mapOf(
                         "username" to request.firstName,
                         "activation_code" to verificationToken
@@ -258,7 +259,7 @@ class AuthService(
             MailRequestedEvent(
                 to = verificationToken.username,
                 subject = "Welcome to Project A",
-                templateName = "WELCOME_EMAIL",
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
                     mapOf("username" to verificationToken.username.substringBefore('@'))
             )
@@ -331,7 +332,7 @@ class AuthService(
             MailRequestedEvent(
                 to = email,
                 subject = "Password Change Confirmation",
-                templateName = "CHANGE_PASSWORD",
+                templateName = EmailTemplate.CHANGE_PASSWORD.templateName,
                 variables =
                     mapOf(
                         "username" to email.substringBefore('@'),
@@ -372,7 +373,7 @@ class AuthService(
                 MailRequestedEvent(
                     to = verificationToken.username,
                     subject = "Set Your New Password",
-                    templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                    templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                     variables = mapOf(
                         "username" to verificationToken.username.substringBefore('@'),
                         "message" to "Your password change request has been verified. Please proceed to set your new password with the following code: $tokenId"
@@ -411,7 +412,7 @@ class AuthService(
             MailRequestedEvent(
                 to = verificationToken.username,
                 subject = "Password Changed Successfully",
-                templateName = "WELCOME_EMAIL",
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables = mapOf(
                     "username" to verificationToken.username.substringBefore('@'),
                     "message" to "Your password has been changed successfully."
@@ -449,7 +450,7 @@ class AuthService(
             MailRequestedEvent(
                 to = email,
                 subject = "Password Reset",
-                templateName = "RESET_PASSWORD",
+                templateName = EmailTemplate.RESET_PASSWORD.templateName,
                 variables =
                     mapOf(
                         "username" to email.substringBefore('@'),
@@ -495,7 +496,7 @@ class AuthService(
             MailRequestedEvent(
                 to = verificationToken.username,
                 subject = "Password Reset Successful",
-                templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
                     mapOf(
                         "username" to
@@ -734,7 +735,7 @@ class AuthService(
             MailRequestedEvent(
                 to = email,
                 subject = "Email Change Confirmation",
-                templateName = "CHANGE_EMAIL",
+                templateName = EmailTemplate.CHANGE_EMAIL.templateName,
                 variables =
                     mapOf(
                         "username" to email.substringBefore('@'),
@@ -750,7 +751,7 @@ class AuthService(
             MailRequestedEvent(
                 to = request.newEmail,
                 subject = "Email Change Request Verification",
-                templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
                     mapOf(
                         "username" to request.newEmail.substringBefore('@'),
@@ -819,7 +820,7 @@ class AuthService(
             MailRequestedEvent(
                 to = oldEmail,
                 subject = "Email Change Completed",
-                templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
                     mapOf(
                         "username" to oldEmail.substringBefore('@'),
@@ -832,7 +833,7 @@ class AuthService(
             MailRequestedEvent(
                 to = newEmail,
                 subject = "Welcome to Your Updated Account",
-                templateName = "WELCOME_EMAIL", // Reusing welcome template for this example
+                templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
                     mapOf(
                         "username" to newEmail.substringBefore('@'),
@@ -875,12 +876,11 @@ class AuthService(
 
         saveVerificationToken(email, verificationToken, TokenType.ACCOUNT_ACTIVATION.value)
 
-        // Send activation email
         authEventProducer.sendMailRequestedEvent(
             MailRequestedEvent(
                 to = email,
                 subject = "Account Activation",
-                templateName = "ACTIVATE_ACCOUNT",
+                templateName = EmailTemplate.ACTIVATE_ACCOUNT.templateName,
                 variables = mapOf(
                     "username" to email.substringBefore('@'),
                     "activation_code" to verificationToken
