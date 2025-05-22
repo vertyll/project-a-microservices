@@ -15,7 +15,8 @@ import java.time.Instant
     uniqueConstraints = [UniqueConstraint(columnNames = ["auth_user_id", "role_id"])]
 )
 class AuthUserRole(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(name = "auth_user_id", nullable = false)
@@ -34,7 +35,7 @@ class AuthUserRole(
     var updatedAt: Instant = Instant.now()
 ) {
     // No-args constructor for JPA
-     constructor() : this(
+    constructor() : this(
         id = null,
         authUserId = 0,
         roleId = 0,

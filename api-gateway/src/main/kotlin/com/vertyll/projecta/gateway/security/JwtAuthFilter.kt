@@ -23,34 +23,34 @@ import java.security.Key
 class JwtAuthFilter(
     private val sharedConfig: SharedConfigProperties
 ) : WebFilter {
-    
+
     private val logger = LoggerFactory.getLogger(JwtAuthFilter::class.java)
-    
+
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
         val token = extractTokenFromRequest(exchange.request)
-        
+
         if (token == null) {
             return chain.filter(exchange)
         }
-        
+
         return try {
             val claims = extractAllClaims(token)
             val username = claims.subject
-            
+
             // Extract roles from token
             @Suppress("UNCHECKED_CAST")
             val roles = claims[JwtConstants.CLAIM_ROLES] as? List<String> ?: emptyList()
-            
+
             // Create authorities from roles
             val authorities = roles.map { SimpleGrantedAuthority(it) }
-            
+
             // Create authentication
             val authentication = UsernamePasswordAuthenticationToken(
                 username,
                 null,
                 authorities
             )
-            
+
             // Add authentication to security context
             chain.filter(exchange)
                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
@@ -62,18 +62,18 @@ class JwtAuthFilter(
             chain.filter(exchange)
         }
     }
-    
+
     private fun extractTokenFromRequest(request: ServerHttpRequest): String? {
         val authHeaderName = sharedConfig.security.jwt.authHeaderName
         val authHeader = request.headers.getFirst(authHeaderName) ?: return null
-        
+
         if (!authHeader.startsWith(JwtConstants.BEARER_PREFIX)) {
             return null
         }
-        
+
         return authHeader.substring(JwtConstants.BEARER_PREFIX.length)
     }
-    
+
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parserBuilder()
             .setSigningKey(getSigningKey())
@@ -81,7 +81,7 @@ class JwtAuthFilter(
             .parseClaimsJws(token)
             .body
     }
-    
+
     private fun getSigningKey(): Key {
         val keyBytes = Decoders.BASE64.decode(sharedConfig.security.jwt.secretKey)
         return Keys.hmacShaKeyFor(keyBytes)

@@ -21,6 +21,8 @@ interface KafkaOutboxRepository : JpaRepository<KafkaOutbox, Long> {
     fun updateStatus(id: Long, newStatus: KafkaOutbox.OutboxStatus, now: Instant)
 
     @Modifying
-    @Query("UPDATE KafkaOutbox k SET k.status = :newStatus, k.errorMessage = :errorMessage, k.retryCount = k.retryCount + 1 WHERE k.id = :id")
+    @Query(
+        "UPDATE KafkaOutbox k SET k.status = :newStatus, k.errorMessage = :errorMessage, k.retryCount = k.retryCount + 1 WHERE k.id = :id"
+    )
     fun markAsFailed(id: Long, newStatus: KafkaOutbox.OutboxStatus, errorMessage: String)
 }

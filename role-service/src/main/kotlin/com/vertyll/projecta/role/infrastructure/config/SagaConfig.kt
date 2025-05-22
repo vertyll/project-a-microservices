@@ -10,4 +10,4 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @Configuration
 @EntityScan(basePackageClasses = [Saga::class, SagaStep::class, KafkaOutbox::class])
 @EnableScheduling // Enable scheduling for outbox processing
-class SagaConfig 
+class SagaConfig

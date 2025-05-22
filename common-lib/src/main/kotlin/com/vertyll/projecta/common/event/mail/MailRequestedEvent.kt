@@ -32,7 +32,7 @@ data class MailRequestedEvent @JsonCreator constructor(
     val replyTo: String? = null,
 
     @JsonProperty("priority")
-    val priority: Int = 0,  // 0 is normal priority, higher values indicate higher priority
+    val priority: Int = 0, // 0 is normal priority, higher values indicate higher priority
 
     @JsonProperty("sagaId")
     override val sagaId: String? = null
@@ -47,4 +47,4 @@ data class MailRequestedEvent @JsonCreator constructor(
         templateName = "",
         variables = emptyMap()
     )
-} 
+}

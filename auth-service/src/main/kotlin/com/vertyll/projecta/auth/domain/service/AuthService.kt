@@ -31,9 +31,6 @@ import com.vertyll.projecta.common.saga.SagaTypes
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -43,6 +40,9 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class AuthService(
@@ -68,7 +68,7 @@ class AuthService(
                 logger.warn("Registration attempted for existing unactivated account: {}", request.email)
                 throw ApiException(
                     "An account with this email already exists but hasn't been activated. " +
-                            "Please check your email for the activation link or request a new one.",
+                        "Please check your email for the activation link or request a new one.",
                     HttpStatus.BAD_REQUEST
                 )
             } else {
@@ -213,7 +213,6 @@ class AuthService(
 
             // Mark saga as completed
             sagaManager.completeSaga(saga.id)
-
         } catch (e: Exception) {
             // Mark the saga as failed and initiate compensation
             sagaManager.failSaga(saga.id, e.message ?: "Registration failed")
@@ -263,7 +262,7 @@ class AuthService(
                 subject = "Welcome to Project A",
                 templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
-                    mapOf("username" to verificationToken.username.substringBefore('@'))
+                mapOf("username" to verificationToken.username.substringBefore('@'))
             )
         )
     }
@@ -340,10 +339,10 @@ class AuthService(
                 subject = "Password Change Confirmation",
                 templateName = EmailTemplate.CHANGE_PASSWORD.templateName,
                 variables =
-                    mapOf(
-                        "username" to email.substringBefore('@'),
-                        "activation_code" to token
-                    )
+                mapOf(
+                    "username" to email.substringBefore('@'),
+                    "activation_code" to token
+                )
             )
         )
     }
@@ -458,10 +457,10 @@ class AuthService(
                 subject = "Password Reset",
                 templateName = EmailTemplate.RESET_PASSWORD.templateName,
                 variables =
-                    mapOf(
-                        "username" to email.substringBefore('@'),
-                        "activation_code" to resetToken
-                    )
+                mapOf(
+                    "username" to email.substringBefore('@'),
+                    "activation_code" to resetToken
+                )
             )
         )
     }
@@ -503,11 +502,11 @@ class AuthService(
                 subject = "Password Reset Successful",
                 templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
-                    mapOf(
-                        "username" to
-                                verificationToken.username.substringBefore('@'),
-                        "message" to "Your password has been reset successfully."
-                    )
+                mapOf(
+                    "username" to
+                        verificationToken.username.substringBefore('@'),
+                    "message" to "Your password has been reset successfully."
+                )
             )
         )
     }
@@ -520,8 +519,8 @@ class AuthService(
                 token = jwtRefreshToken,
                 username = userDetails.username,
                 expiryDate =
-                    Instant.now()
-                        .plusMillis(jwtService.getRefreshTokenExpirationTime()),
+                Instant.now()
+                    .plusMillis(jwtService.getRefreshTokenExpirationTime()),
                 revoked = false,
                 deviceInfo = deviceInfo
             )
@@ -583,8 +582,8 @@ class AuthService(
             userAgent.contains("Windows", ignoreCase = true) -> deviceInfo.append("Windows")
             userAgent.contains("Mac", ignoreCase = true) -> deviceInfo.append("Mac")
             userAgent.contains("Android", ignoreCase = true) -> deviceInfo.append("Android")
-            userAgent.contains("iOS", ignoreCase = true) || userAgent.contains("iPhone", ignoreCase = true)
-                    || userAgent.contains("iPad", ignoreCase = true) -> deviceInfo.append("iOS")
+            userAgent.contains("iOS", ignoreCase = true) || userAgent.contains("iPhone", ignoreCase = true) ||
+                userAgent.contains("iPad", ignoreCase = true) -> deviceInfo.append("iOS")
 
             userAgent.contains("Linux", ignoreCase = true) -> deviceInfo.append("Linux")
             else -> deviceInfo.append("Unknown OS")
@@ -682,7 +681,8 @@ class AuthService(
         if (refreshToken.username != username) {
             logger.warn(
                 "Attempted to revoke session belonging to another user: {} tried to revoke session of {}",
-                username, refreshToken.username
+                username,
+                refreshToken.username
             )
             return false
         }
@@ -742,12 +742,12 @@ class AuthService(
                 subject = "Email Change Confirmation",
                 templateName = EmailTemplate.CHANGE_EMAIL.templateName,
                 variables =
-                    mapOf(
-                        "username" to email.substringBefore('@'),
-                        "current_email" to email,
-                        "new_email" to request.newEmail,
-                        "activation_code" to token
-                    )
+                mapOf(
+                    "username" to email.substringBefore('@'),
+                    "current_email" to email,
+                    "new_email" to request.newEmail,
+                    "activation_code" to token
+                )
             )
         )
 
@@ -758,11 +758,11 @@ class AuthService(
                 subject = "Email Change Request Verification",
                 templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
-                    mapOf(
-                        "username" to request.newEmail.substringBefore('@'),
-                        "message" to
-                                "Someone has requested to change their email to this address. If this was you, please confirm by clicking the link sent to your current email address."
-                    )
+                mapOf(
+                    "username" to request.newEmail.substringBefore('@'),
+                    "message" to
+                        "Someone has requested to change their email to this address. If this was you, please confirm by clicking the link sent to your current email address."
+                )
             )
         )
     }
@@ -827,10 +827,10 @@ class AuthService(
                 subject = "Email Change Completed",
                 templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
-                    mapOf(
-                        "username" to oldEmail.substringBefore('@'),
-                        "message" to "Your email has been changed to ${newEmail}."
-                    )
+                mapOf(
+                    "username" to oldEmail.substringBefore('@'),
+                    "message" to "Your email has been changed to $newEmail."
+                )
             )
         )
 
@@ -840,11 +840,11 @@ class AuthService(
                 subject = "Welcome to Your Updated Account",
                 templateName = EmailTemplate.WELCOME_EMAIL.templateName,
                 variables =
-                    mapOf(
-                        "username" to newEmail.substringBefore('@'),
-                        "message" to
-                                "Your account email has been updated successfully."
-                    )
+                mapOf(
+                    "username" to newEmail.substringBefore('@'),
+                    "message" to
+                        "Your account email has been updated successfully."
+                )
             )
         )
     }

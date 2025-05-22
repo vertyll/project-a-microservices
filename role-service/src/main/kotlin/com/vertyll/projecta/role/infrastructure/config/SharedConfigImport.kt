@@ -6,4 +6,4 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @EnableConfigurationProperties(SharedConfigProperties::class)
-class SharedConfigImport 
+class SharedConfigImport

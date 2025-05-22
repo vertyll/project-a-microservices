@@ -10,7 +10,7 @@ import org.springframework.messaging.handler.annotation.Payload
 private val logger = KotlinLogging.logger {}
 
 abstract class AbstractEventConsumer<T : DomainEvent>(
-    protected val objectMapper: ObjectMapper,
+    protected val objectMapper: ObjectMapper
 ) {
     abstract val eventClass: Class<T>
     abstract val topicName: String

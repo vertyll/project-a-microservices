@@ -15,7 +15,8 @@ import java.time.Instant
     uniqueConstraints = [UniqueConstraint(columnNames = ["user_id", "role_id"])]
 )
 class UserRole(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(name = "user_id", nullable = false)
@@ -36,4 +37,4 @@ class UserRole(
         userId = 0,
         roleId = 0
     )
-} 
+}

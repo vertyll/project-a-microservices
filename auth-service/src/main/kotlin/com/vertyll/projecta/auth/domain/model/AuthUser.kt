@@ -50,7 +50,11 @@ class AuthUser(
 ) : UserDetails {
     // No-args constructor required for JPA
     constructor() : this(
-        id = null, email = "", password = "", userRoles = mutableSetOf(), enabled = false
+        id = null,
+        email = "",
+        password = "",
+        userRoles = mutableSetOf(),
+        enabled = false
     )
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
@@ -114,12 +118,7 @@ class AuthUser(
     override fun isEnabled(): Boolean = enabled
 
     companion object {
-        fun create(
-            email: String,
-            password: String,
-            enabled: Boolean = false,
-            userId: Long? = null
-        ): AuthUser {
+        fun create(email: String, password: String, enabled: Boolean = false, userId: Long? = null): AuthUser {
             val authUser = AuthUser(
                 email = email,
                 password = password,

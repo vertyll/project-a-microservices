@@ -281,7 +281,9 @@ class UserEventConsumer(
 
                 UserProfileUpdatedEvent.UpdateType.PROFILE -> {
                     // For any other profile fields that need to be updated
-                    logger.info("Received profile update notification for user ${event.email} with fields: ${event.updatedFields.keys}")
+                    logger.info(
+                        "Received profile update notification for user ${event.email} with fields: ${event.updatedFields.keys}"
+                    )
                     // Additional processing for specific fields could be added here
                 }
             }

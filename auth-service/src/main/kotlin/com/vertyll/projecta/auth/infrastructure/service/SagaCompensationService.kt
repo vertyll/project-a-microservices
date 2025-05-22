@@ -63,7 +63,6 @@ class SagaCompensationService(
                 compensationStepId = step.id
             )
             sagaStepRepository.save(compensationStep)
-
         } catch (e: Exception) {
             logger.error("Failed to process compensation event: ${e.message}", e)
         }

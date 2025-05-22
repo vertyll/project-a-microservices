@@ -15,4 +15,4 @@ class KafkaConfig {
     fun kafkaTopicsConfig(): KafkaTopicsConfig {
         return KafkaTopicsConfig()
     }
-} 
+}

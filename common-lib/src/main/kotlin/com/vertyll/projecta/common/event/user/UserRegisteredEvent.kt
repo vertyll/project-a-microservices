@@ -49,4 +49,4 @@ data class UserRegisteredEvent @JsonCreator constructor(
         firstName = "",
         lastName = ""
     )
-} 
+}

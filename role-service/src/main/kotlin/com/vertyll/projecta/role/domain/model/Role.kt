@@ -31,18 +31,15 @@ class Role(
     constructor() : this(
         id = null,
         name = "",
-        description = null,
+        description = null
     )
 
     companion object {
-        fun create(
-            name: String,
-            description: String? = null
-        ): Role {
+        fun create(name: String, description: String? = null): Role {
             return Role(
                 name = name,
                 description = description
             )
         }
     }
-} 
+}

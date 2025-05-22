@@ -36,4 +36,4 @@ data class CredentialsVerificationEvent @JsonCreator constructor(
         email = "",
         password = ""
     )
-} 
+}

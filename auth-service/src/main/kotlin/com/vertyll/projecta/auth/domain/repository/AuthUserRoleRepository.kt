@@ -20,4 +20,4 @@ interface AuthUserRoleRepository : JpaRepository<AuthUserRole, Long> {
     @Modifying
     @Query("DELETE FROM AuthUserRole ur WHERE ur.authUserId = ?1 AND ur.roleId = ?2")
     fun deleteByAuthUserIdAndRoleId(authUserId: Long, roleId: Long)
-} 
+}

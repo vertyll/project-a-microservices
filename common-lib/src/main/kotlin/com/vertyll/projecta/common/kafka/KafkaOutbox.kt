@@ -69,4 +69,4 @@ class KafkaOutbox(
         COMPLETED,
         FAILED
     }
-} 
+}

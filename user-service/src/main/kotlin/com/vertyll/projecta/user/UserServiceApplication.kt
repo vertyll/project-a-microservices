@@ -8,7 +8,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.kafka.annotation.EnableKafka
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = ["com.vertyll.projecta.user.domain.repository", "com.vertyll.projecta.common.saga", "com.vertyll.projecta.common.kafka"])
+@EnableJpaRepositories(
+    basePackages = [
+        "com.vertyll.projecta.user.domain.repository",
+        "com.vertyll.projecta.common.saga",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.user.domain.model",
@@ -22,4 +28,4 @@ class UserServiceApplication
 
 fun main(args: Array<String>) {
     runApplication<UserServiceApplication>(*args)
-} 
+}

@@ -11,7 +11,8 @@ import java.time.Instant
 @Entity
 @Table(name = "refresh_token")
 class RefreshToken(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
     @Column(nullable = false, unique = true, length = 1024)
@@ -37,14 +38,14 @@ class RefreshToken(
 ) {
     // No-arg constructor for JPA
     constructor() :
-            this(
-                id = null,
-                token = "",
-                username = "",
-                expiryDate = Instant.now(),
-                revoked = false,
-                deviceInfo = null
-            )
+        this(
+            id = null,
+            token = "",
+            username = "",
+            expiryDate = Instant.now(),
+            revoked = false,
+            deviceInfo = null
+        )
 
     val isRevoked: Boolean
         get() = revoked

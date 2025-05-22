@@ -31,4 +31,4 @@ dependencies {
     testImplementation("org.testcontainers:kafka")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.h2database:h2")
-} 
+}

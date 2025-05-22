@@ -25,7 +25,10 @@ import org.springframework.web.bind.annotation.RestController
 class RoleController(private val roleService: RoleService) {
     @PostMapping
     @Operation(summary = "Create a new role")
-    fun createRole(@RequestBody @Valid dto: RoleCreateDto): ResponseEntity<ApiResponse<RoleResponseDto>> {
+    fun createRole(
+        @RequestBody @Valid
+        dto: RoleCreateDto
+    ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val createdRole = roleService.createRole(dto)
         return ApiResponse.buildResponse(createdRole, "Role created successfully", HttpStatus.CREATED)
     }
@@ -34,7 +37,8 @@ class RoleController(private val roleService: RoleService) {
     @Operation(summary = "Update a role")
     fun updateRole(
         @PathVariable id: Long,
-        @RequestBody @Valid dto: RoleUpdateDto
+        @RequestBody @Valid
+        dto: RoleUpdateDto
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val updatedRole = roleService.updateRole(id, dto)
         return ApiResponse.buildResponse(updatedRole, "Role updated successfully", HttpStatus.OK)
@@ -70,10 +74,7 @@ class RoleController(private val roleService: RoleService) {
 
     @PostMapping("/user/{userId}/role/{roleName}")
     @Operation(summary = "Assign a role to a user")
-    fun assignRoleToUser(
-        @PathVariable userId: Long,
-        @PathVariable roleName: String
-    ): ResponseEntity<ApiResponse<Any>> {
+    fun assignRoleToUser(@PathVariable userId: Long, @PathVariable roleName: String): ResponseEntity<ApiResponse<Any>> {
         roleService.assignRoleToUser(userId, roleName)
         return ApiResponse.buildResponse(null, "Role assigned successfully", HttpStatus.OK)
     }
@@ -94,4 +95,4 @@ class RoleController(private val roleService: RoleService) {
         val users = roleService.getUsersForRole(roleId)
         return ApiResponse.buildResponse(users, "Role users retrieved successfully", HttpStatus.OK)
     }
-} 
+}

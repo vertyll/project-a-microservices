@@ -6,21 +6,21 @@ enum class SagaStepNames(val value: String) {
     CREATE_USER_EVENT("CreateUserEvent"),
     CREATE_VERIFICATION_TOKEN("CreateVerificationToken"),
     CREATE_MAIL_EVENT("CreateMailEvent"),
-    
+
     // User service steps
     CREATE_USER("CreateUser"),
     UPDATE_USER_PROFILE("UpdateUserProfile"),
     DELETE_USER("DeleteUser"),
-    
+
     // Role service steps
     CREATE_ROLE("CreateRole"),
     UPDATE_ROLE("UpdateRole"),
     ASSIGN_ROLE("AssignRole"),
     REVOKE_ROLE("RevokeRole"),
-    
+
     // Mail service steps
     SEND_EMAIL("SendEmail");
-    
+
     companion object {
         const val COMPENSATION_PREFIX = "Compensate"
 
@@ -32,4 +32,4 @@ enum class SagaStepNames(val value: String) {
 
         fun compensationNameFromString(stepName: String): String = "$COMPENSATION_PREFIX$stepName"
     }
-} 
+}

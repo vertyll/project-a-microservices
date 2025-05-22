@@ -51,12 +51,7 @@ class SagaManager(
      * @return The created saga step
      */
     @Transactional
-    fun recordSagaStep(
-        sagaId: String,
-        stepName: String,
-        status: SagaStepStatus,
-        payload: Any? = null
-    ): SagaStep {
+    fun recordSagaStep(sagaId: String, stepName: String, status: SagaStepStatus, payload: Any? = null): SagaStep {
         val payloadJson = payload?.let {
             it as? String ?: objectMapper.writeValueAsString(it)
         }

@@ -25,35 +25,35 @@ class ApiGatewayApplication(
         private const val USER_SERVICE_ROUTE = "user-service"
         private const val ROLE_SERVICE_ROUTE = "role-service"
         private const val MAIL_SERVICE_ROUTE = "mail-service"
-        
+
         // API Path Prefixes
         private const val AUTH_API_PATH = "/api/v1/auth/**"
         private const val USER_API_PATH = "/api/v1/users/**"
         private const val ROLE_API_PATH = "/api/v1/roles/**"
         private const val MAIL_API_PATH = "/api/v1/mail/**"
-        
+
         // Rewrite path patterns
         private const val AUTH_REWRITE_PATTERN = "/api/v1/auth/(?<segment>.*)"
         private const val USER_REWRITE_PATTERN = "/api/v1/users/(?<segment>.*)"
         private const val ROLE_REWRITE_PATTERN = "/api/v1/roles/(?<segment>.*)"
         private const val MAIL_REWRITE_PATTERN = "/api/v1/mail/(?<segment>.*)"
-        
+
         // Rewrite replacement patterns
         private const val AUTH_REPLACEMENT = "/api/auth/\${segment}"
         private const val USER_REPLACEMENT = "/api/users/\${segment}"
         private const val ROLE_REPLACEMENT = "/api/roles/\${segment}"
         private const val MAIL_REPLACEMENT = "/api/mail/\${segment}"
     }
-    
+
     @Bean
     fun customRouteLocator(builder: RouteLocatorBuilder): RouteLocator {
         val gatewayUrl = "http://localhost:$serverPort"
-        
+
         val authServiceUrl = sharedConfig.services.authService.url
         val userServiceUrl = sharedConfig.services.userService.url
         val roleServiceUrl = sharedConfig.services.roleService.url
         val mailServiceUrl = sharedConfig.services.mailService.url
-        
+
         return builder.routes()
             .route(ROOT_REDIRECT_ROUTE) { r ->
                 r.path("/").filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health") }

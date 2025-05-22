@@ -3,6 +3,7 @@ package com.vertyll.projecta.mail.domain.service
 import com.vertyll.projecta.common.mail.EmailTemplate
 import com.vertyll.projecta.mail.domain.model.EmailLog
 import com.vertyll.projecta.mail.domain.repository.EmailLogRepository
+import jakarta.mail.internet.MimeMessage
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.javamail.JavaMailSender
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import java.time.Instant
-import jakarta.mail.internet.MimeMessage
 
 @Service
 class EmailService(
@@ -23,10 +23,10 @@ class EmailService(
 
     @Value("\${spring.mail.from}")
     private lateinit var fromEmail: String
-    
+
     companion object {
         private const val CHARSET_UTF8 = "UTF-8"
-        
+
         // Log messages
         private const val LOG_SENDING_EMAIL = "Sending email to {} with subject: {}"
         private const val LOG_SEND_FAILURE = "Failed to send email to {} with subject: {}"
@@ -58,7 +58,7 @@ class EmailService(
             helper.setFrom(fromEmail)
             helper.setTo(to)
             helper.setSubject(subject)
-            
+
             // Set reply-to address if provided
             if (replyTo != null) {
                 helper.setReplyTo(replyTo)
@@ -106,7 +106,7 @@ class EmailService(
         if (variables.isEmpty()) {
             return null
         }
-        
+
         return variables.entries.joinToString(", ") { (key, value) ->
             if (value.length > 50) {
                 "$key: ${value.take(50)}..."

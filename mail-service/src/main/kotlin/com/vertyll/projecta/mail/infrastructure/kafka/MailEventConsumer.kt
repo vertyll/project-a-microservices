@@ -23,7 +23,7 @@ class MailEventConsumer(
     private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    
+
     companion object {
         // Event field names
         private const val FIELD_EVENT_ID = "eventId"
@@ -36,35 +36,35 @@ class MailEventConsumer(
         private const val FIELD_REPLY_TO = "replyTo"
         private const val FIELD_PRIORITY = "priority"
         private const val FIELD_SAGA_ID = "sagaId"
-        
+
         // Default values
         private val DEFAULT_EVENT_TYPE = EventType.MAIL_REQUESTED.value
         private const val DEFAULT_PRIORITY = 0
-        
+
         // Log messages
-        private const val LOG_RECEIVED_MESSAGE = "Received mail request message: {}"
-        private const val LOG_MESSAGE_PAYLOAD = "Message payload: {}"
-        private const val LOG_DESERIALIZATION_ERROR = "Could not directly deserialize payload, attempting manual parsing: {}"
-        private const val LOG_VARIABLES_ERROR = "Could not convert variables to Map<String, String>, using empty map: {}"
-        private const val LOG_TIMESTAMP_ERROR = "Could not convert timestamp, using current time: {}"
-        private const val LOG_PROCESSING_ERROR = "Error processing message from topic {}"
-        private const val LOG_FAILED_PAYLOAD = "Failed payload: {}"
-        private const val LOG_PROCESSING_REQUEST = "Processing mail request: {}"
-        private const val LOG_SUCCESS = "Successfully processed mail request: {}"
-        private const val LOG_INVALID_TEMPLATE = "Received request with invalid template name: {}. Email will not be sent."
+        private const val MSG_RECEIVED = "Received mail request message: {}"
+        private const val MSG_PAYLOAD = "Message payload: {}"
+        private const val ERR_DESERIAL = "Could not directly deserialize payload, attempting manual parsing: {}"
+        private const val ERR_VARIABLES = "Could not convert variables to Map<String, String>, using empty map: {}"
+        private const val ERR_TIMESTAMP = "Could not convert timestamp, using current time: {}"
+        private const val ERR_PROCESSING = "Error processing message from topic {}"
+        private const val ERR_FAILED_PAYLOAD = "Failed payload: {}"
+        private const val MSG_PROCESSING = "Processing mail request: {}"
+        private const val MSG_SUCCESS = "Successfully processed mail request: {}"
+        private const val ERR_INV_TEMPLATE = "Received request with invalid template name: {}. Email will not be sent."
     }
 
     @KafkaListener(topics = ["#{@kafkaTopicsConfig.getMailRequestedTopic()}"])
     fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
         try {
-            logger.info(LOG_RECEIVED_MESSAGE, record.key())
-            logger.debug(LOG_MESSAGE_PAYLOAD, record.value())
+            logger.info(MSG_RECEIVED, record.key())
+            logger.debug(MSG_PAYLOAD, record.value())
 
             // First try direct deserialization
             val event = try {
                 objectMapper.readValue<MailRequestedEvent>(payload)
             } catch (e: JsonProcessingException) {
-                logger.warn(LOG_DESERIALIZATION_ERROR, e.message)
+                logger.warn(ERR_DESERIAL, e.message)
                 // The payload may be wrapped in quotes, so we need to handle that
                 val cleanPayload = cleanJsonPayload(payload)
 
@@ -75,11 +75,11 @@ class MailEventConsumer(
 
             handleEvent(event)
         } catch (e: Exception) {
-            logger.error(LOG_PROCESSING_ERROR, record.topic(), e)
-            logger.error(LOG_FAILED_PAYLOAD, payload)
+            logger.error(ERR_PROCESSING, record.topic(), e)
+            logger.error(ERR_FAILED_PAYLOAD, payload)
         }
     }
-    
+
     /**
      * Removes outer quotes and unescapes inner quotes if necessary
      */
@@ -101,7 +101,7 @@ class MailEventConsumer(
                     key to (value.asText() ?: "")
                 }
             } catch (e: Exception) {
-                logger.warn(LOG_VARIABLES_ERROR, e.message)
+                logger.warn(ERR_VARIABLES, e.message)
                 emptyMap()
             }
         } else {
@@ -116,7 +116,7 @@ class MailEventConsumer(
             timestamp = try {
                 objectMapper.convertValue(jsonNode.get(FIELD_TIMESTAMP), Instant::class.java)
             } catch (e: Exception) {
-                logger.warn(LOG_TIMESTAMP_ERROR, e.message)
+                logger.warn(ERR_TIMESTAMP, e.message)
                 Instant.now()
             },
             eventType = jsonNode.get(FIELD_EVENT_TYPE)?.asText() ?: DEFAULT_EVENT_TYPE,
@@ -131,10 +131,10 @@ class MailEventConsumer(
     }
 
     private fun handleEvent(event: MailRequestedEvent) {
-        logger.info(LOG_PROCESSING_REQUEST, event.eventId)
+        logger.info(MSG_PROCESSING, event.eventId)
 
         val template = EmailTemplate.fromTemplateName(event.templateName)
-        
+
         if (template != null) {
             val success = emailService.sendEmail(
                 to = event.to,
@@ -143,12 +143,12 @@ class MailEventConsumer(
                 variables = event.variables,
                 replyTo = event.replyTo
             )
-            
+
             if (success) {
-                logger.info(LOG_SUCCESS, event.eventId)
+                logger.info(MSG_SUCCESS, event.eventId)
             }
         } else {
-            logger.error(LOG_INVALID_TEMPLATE, event.templateName)
+            logger.error(ERR_INV_TEMPLATE, event.templateName)
         }
     }
 }

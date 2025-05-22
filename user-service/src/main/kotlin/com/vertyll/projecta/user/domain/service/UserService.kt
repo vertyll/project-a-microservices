@@ -36,7 +36,7 @@ class UserService(
         )
 
         val savedUser = userRepository.save(user)
-        
+
         // Publish user created event
         userEventProducer.send(
             UserRegisteredEvent(
@@ -47,7 +47,7 @@ class UserService(
                 roles = savedUser.getCachedRoles()
             )
         )
-        
+
         return mapToDto(savedUser)
     }
 
@@ -63,12 +63,12 @@ class UserService(
         user.profilePicture = dto.profilePicture
         user.phoneNumber = dto.phoneNumber
         user.address = dto.address
-        
+
         // If roles are being updated, update the cached roles
         if (dto.roles.isNotEmpty()) {
             user.setCachedRoles(dto.roles)
         }
-        
+
         val savedUser = userRepository.save(user)
         return mapToDto(savedUser)
     }
@@ -86,16 +86,16 @@ class UserService(
             .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
         return mapToDto(user)
     }
-    
+
     @Transactional
     fun updateEmail(request: EmailUpdateDto): UserResponseDto {
         if (userRepository.existsByEmail(request.newEmail)) {
             throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
         }
-        
+
         val user = userRepository.findByEmail(request.currentEmail)
             .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
-            
+
         user.setEmail(request.newEmail)
         val savedUser = userRepository.save(user)
         return mapToDto(savedUser)
@@ -115,4 +115,4 @@ class UserService(
             updatedAt = user.updatedAt.toString()
         )
     }
-} 
+}

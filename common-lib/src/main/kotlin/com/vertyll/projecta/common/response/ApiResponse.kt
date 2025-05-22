@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 class ApiResponse<T> private constructor(
     data: T?,
     message: String,
-    timestamp: LocalDateTime,
+    timestamp: LocalDateTime
 ) : BaseResponse<T>(data, message, timestamp) {
     companion object {
         /**
@@ -18,16 +18,12 @@ class ApiResponse<T> private constructor(
          * @param status The HTTP status code for the response
          * @return A ResponseEntity with an ApiResponse body
          */
-        fun <T> buildResponse(
-            data: T?,
-            message: String?,
-            status: HttpStatus,
-        ): ResponseEntity<ApiResponse<T>> {
+        fun <T> buildResponse(data: T?, message: String?, status: HttpStatus): ResponseEntity<ApiResponse<T>> {
             val response =
                 ApiResponse(
                     data = data,
                     message = message ?: "",
-                    timestamp = LocalDateTime.now(),
+                    timestamp = LocalDateTime.now()
                 )
 
             return ResponseEntity(response, status)

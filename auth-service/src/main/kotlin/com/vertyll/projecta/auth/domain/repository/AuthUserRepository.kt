@@ -12,4 +12,4 @@ interface AuthUserRepository : JpaRepository<AuthUser, Long> {
     fun existsByEmail(email: String): Boolean
 
     fun findByUserId(userId: Long): AuthUser?
-} 
+}

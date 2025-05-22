@@ -28,7 +28,10 @@ class UserController(
 ) {
     @PostMapping
     @Operation(summary = "Create a new user")
-    fun createUser(@RequestBody @Valid request: UserCreateDto): ResponseEntity<ApiResponse<UserResponseDto>> {
+    fun createUser(
+        @RequestBody @Valid
+        request: UserCreateDto
+    ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.createUser(request)
         return ApiResponse.buildResponse(
             user,
@@ -41,7 +44,8 @@ class UserController(
     @Operation(summary = "Update an existing user")
     fun updateUser(
         @PathVariable id: Long,
-        @RequestBody @Valid request: UserUpdateDto
+        @RequestBody @Valid
+        request: UserUpdateDto
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.updateUser(id, request)
         return ApiResponse.buildResponse(
@@ -76,7 +80,8 @@ class UserController(
     @PostMapping("/email")
     @Operation(summary = "Update user email")
     fun updateEmail(
-        @RequestParam @Valid request: EmailUpdateDto
+        @RequestParam @Valid
+        request: EmailUpdateDto
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.updateEmail(request)
         return ApiResponse.buildResponse(

@@ -11,4 +11,4 @@ enum class TokenTypes(val value: String) {
             return TokenTypes.entries.find { it.value == value }
         }
     }
-} 
+}

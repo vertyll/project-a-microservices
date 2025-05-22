@@ -14,11 +14,13 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import org.thymeleaf.templateresolver.ITemplateResolver
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = [
-    "com.vertyll.projecta.mail.domain.repository", 
-    "com.vertyll.projecta.common.saga", 
-    "com.vertyll.projecta.common.kafka"
-])
+@EnableJpaRepositories(
+    basePackages = [
+        "com.vertyll.projecta.mail.domain.repository",
+        "com.vertyll.projecta.common.saga",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.mail.domain.model",
@@ -36,7 +38,7 @@ class MailServiceApplication {
         private const val TEMPLATE_SUFFIX = ".html"
         private const val TEMPLATE_ENCODING = "UTF-8"
     }
-    
+
     /**
      * Configures the Thymeleaf template engine with our template resolver
      */

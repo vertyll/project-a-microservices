@@ -48,8 +48,8 @@ class KafkaOutboxProcessor(
 
                 logger.info(
                     "Successfully sent message to Kafka: topic=${message.topic}, " +
-                            "partition=${result.recordMetadata.partition()}, " +
-                            "offset=${result.recordMetadata.offset()}"
+                        "partition=${result.recordMetadata.partition()}, " +
+                        "offset=${result.recordMetadata.offset()}"
                 )
 
                 // Mark as completed
@@ -87,4 +87,4 @@ class KafkaOutboxProcessor(
 
         return kafkaOutboxRepository.save(outboxMessage)
     }
-} 
+}

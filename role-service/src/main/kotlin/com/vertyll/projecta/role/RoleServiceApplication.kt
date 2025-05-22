@@ -8,11 +8,13 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.kafka.annotation.EnableKafka
 
 @SpringBootApplication
-@EnableJpaRepositories(basePackages = [
-    "com.vertyll.projecta.role.domain.repository",
-    "com.vertyll.projecta.common.saga",
-    "com.vertyll.projecta.common.kafka"
-])
+@EnableJpaRepositories(
+    basePackages = [
+        "com.vertyll.projecta.role.domain.repository",
+        "com.vertyll.projecta.common.saga",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.role.domain.model",

@@ -45,4 +45,4 @@ data class CredentialsVerificationResultEvent @JsonCreator constructor(
         requestId = "",
         valid = false
     )
-} 
+}
