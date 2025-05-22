@@ -8,7 +8,6 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpHeaders
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -65,7 +64,8 @@ class JwtAuthFilter(
     }
     
     private fun extractTokenFromRequest(request: ServerHttpRequest): String? {
-        val authHeader = request.headers.getFirst(HttpHeaders.AUTHORIZATION) ?: return null
+        val authHeaderName = sharedConfig.security.jwt.authHeaderName
+        val authHeader = request.headers.getFirst(authHeaderName) ?: return null
         
         if (!authHeader.startsWith(JwtConstants.BEARER_PREFIX)) {
             return null

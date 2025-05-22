@@ -11,10 +11,11 @@ class SharedConfigProperties(
         val jwt: JwtProperties = JwtProperties()
     ) {
         class JwtProperties(
-            val secretKey: String = JwtConstants.DEFAULT_SECRET_KEY,
-            val accessTokenExpiration: Long = JwtConstants.DEFAULT_ACCESS_TOKEN_EXPIRATION,
-            val refreshTokenExpiration: Long = JwtConstants.DEFAULT_REFRESH_TOKEN_EXPIRATION,
-            val refreshTokenCookieName: String = JwtConstants.DEFAULT_REFRESH_TOKEN_COOKIE_NAME
+            val secretKey: String = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970",
+            val accessTokenExpiration: Long = 900000L,
+            val refreshTokenExpiration: Long = 604800000L,
+            val refreshTokenCookieName: String = "refresh_token",
+            val authHeaderName: String = "Authorization"
         )
     }
 
