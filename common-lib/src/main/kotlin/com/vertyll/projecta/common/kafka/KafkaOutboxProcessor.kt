@@ -75,11 +75,11 @@ class KafkaOutboxProcessor(
      * Creates a new outbox message and saves it to the database
      */
     @Transactional
-    fun saveOutboxMessage(topic: String, key: String, payload: Any, sagaId: String? = null): KafkaOutbox {
+    fun saveOutboxMessage(topic: KafkaTopicNames, key: String, payload: Any, sagaId: String? = null): KafkaOutbox {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
 
         val outboxMessage = KafkaOutbox(
-            topic = topic,
+            topic = topic.value,
             key = key,
             payload = payloadJson,
             sagaId = sagaId

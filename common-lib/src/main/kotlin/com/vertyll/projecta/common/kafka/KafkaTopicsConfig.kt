@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 /**
  * Configuration class for Kafka topics.
- * This loads values from the kafka.topics section in the configuration files.
+ * This class holds the configuration properties for Kafka topics and type mappings.
  */
 @Configuration
 @ConfigurationProperties(prefix = "kafka")
@@ -66,28 +66,29 @@ class KafkaTopicsConfig {
     // Helper methods to retrieve common topics
     
     // Auth service topics
-    fun getUserRegisteredTopic(): String = topics.auth["user-registered"] ?: "user-registered"
-    fun getUserActivatedTopic(): String = topics.auth["user-activated"] ?: "user-activated"
-    fun getCredentialsVerificationTopic(): String = topics.auth["credentials-verification"] ?: "credentials-verification"
-    fun getCredentialsVerificationResultTopic(): String = topics.auth["credentials-verification-result"] ?: "credentials-verification-result"
+    fun getUserRegisteredTopic(): String = topics.auth[KafkaTopicNames.USER_REGISTERED.value] ?: KafkaTopicNames.USER_REGISTERED.value
+    fun getUserActivatedTopic(): String = topics.auth[KafkaTopicNames.USER_ACTIVATED.value] ?: KafkaTopicNames.USER_ACTIVATED.value
+    fun getCredentialsVerificationTopic(): String = topics.auth[KafkaTopicNames.CREDENTIALS_VERIFICATION.value] ?: KafkaTopicNames.CREDENTIALS_VERIFICATION.value
+    fun getCredentialsVerificationResultTopic(): String = topics.auth[KafkaTopicNames.CREDENTIALS_VERIFICATION_RESULT.value] ?: KafkaTopicNames.CREDENTIALS_VERIFICATION_RESULT.value
     
     // User service topics
-    fun getUserUpdatedTopic(): String = topics.user["user-updated"] ?: "user-updated"
-    fun getUserEmailUpdatedTopic(): String = topics.user["user-email-updated"] ?: "user-email-updated"
-    fun getUserDeletedTopic(): String = topics.user["user-deleted"] ?: "user-deleted"
-    
+    fun getUserUpdatedTopic(): String = topics.user[KafkaTopicNames.USER_UPDATED.value] ?: KafkaTopicNames.USER_UPDATED.value
+    fun getUserEmailUpdatedTopic(): String = topics.user[KafkaTopicNames.USER_EMAIL_UPDATED.value] ?: KafkaTopicNames.USER_EMAIL_UPDATED.value
+    fun getUserDeletedTopic(): String = topics.user[KafkaTopicNames.USER_DELETED.value] ?: KafkaTopicNames.USER_DELETED.value
+    fun getUserCreationConfirmedTopic(): String = topics.user[KafkaTopicNames.USER_CREATION_CONFIRMED.value] ?: KafkaTopicNames.USER_CREATION_CONFIRMED.value
+
     // Role service topics
-    fun getRoleCreatedTopic(): String = topics.role["role-created"] ?: "role-created"
-    fun getRoleUpdatedTopic(): String = topics.role["role-updated"] ?: "role-updated"
-    fun getRoleDeletedTopic(): String = topics.role["role-deleted"] ?: "role-deleted"
-    fun getRoleAssignedTopic(): String = topics.role["role-assigned"] ?: "role-assigned"
-    fun getRoleRevokedTopic(): String = topics.role["role-revoked"] ?: "role-revoked"
+    fun getRoleCreatedTopic(): String = topics.role[KafkaTopicNames.ROLE_CREATED.value] ?: KafkaTopicNames.ROLE_CREATED.value
+    fun getRoleUpdatedTopic(): String = topics.role[KafkaTopicNames.ROLE_UPDATED.value] ?: KafkaTopicNames.ROLE_UPDATED.value
+    fun getRoleDeletedTopic(): String = topics.role[KafkaTopicNames.ROLE_DELETED.value] ?: KafkaTopicNames.ROLE_DELETED.value
+    fun getRoleAssignedTopic(): String = topics.role[KafkaTopicNames.ROLE_ASSIGNED.value] ?: KafkaTopicNames.ROLE_ASSIGNED.value
+    fun getRoleRevokedTopic(): String = topics.role[KafkaTopicNames.ROLE_REVOKED.value] ?: KafkaTopicNames.ROLE_REVOKED.value
     
     // Mail service topics
-    fun getMailRequestedTopic(): String = topics.mail["mail-requested"] ?: "mail-requested"
-    fun getMailSentTopic(): String = topics.mail["mail-sent"] ?: "mail-sent"
-    fun getMailFailedTopic(): String = topics.mail["mail-failed"] ?: "mail-failed"
+    fun getMailRequestedTopic(): String = topics.mail[KafkaTopicNames.MAIL_REQUESTED.value] ?: KafkaTopicNames.MAIL_REQUESTED.value
+    fun getMailSentTopic(): String = topics.mail[KafkaTopicNames.MAIL_SENT.value] ?: KafkaTopicNames.MAIL_SENT.value
+    fun getMailFailedTopic(): String = topics.mail[KafkaTopicNames.MAIL_FAILED.value] ?: KafkaTopicNames.MAIL_FAILED.value
     
     // Saga topics
-    fun getSagaCompensationTopic(): String = topics.saga["saga-compensation"] ?: "saga-compensation"
-} 
+    fun getSagaCompensationTopic(): String = topics.saga[KafkaTopicNames.SAGA_COMPENSATION.value] ?: KafkaTopicNames.SAGA_COMPENSATION.value
+}

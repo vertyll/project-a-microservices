@@ -128,12 +128,6 @@ class RoleService(
         return roleRepository.findAll().map { mapToDto(it) }
     }
 
-    /**
-     * Assigns a role to a user
-     * @param userId The ID of the user
-     * @param roleName The name of the role to assign
-     * @return The created user-role mapping
-     */
     @Transactional
     fun assignRoleToUser(userId: Long, roleName: String): UserRole {
         logger.info("Assigning role $roleName to user $userId")
@@ -171,11 +165,6 @@ class RoleService(
         return savedUserRole
     }
 
-    /**
-     * Removes a role from a user
-     * @param userId The ID of the user
-     * @param roleName The name of the role to remove
-     */
     @Transactional
     fun removeRoleFromUser(userId: Long, roleName: String) {
         logger.info("Removing role $roleName from user $userId")
@@ -214,11 +203,6 @@ class RoleService(
         logger.info("Successfully removed role $roleName from user $userId")
     }
 
-    /**
-     * Gets all roles for a user
-     * @param userId The ID of the user
-     * @return A list of role DTOs
-     */
     @Transactional(readOnly = true)
     fun getRolesForUser(userId: Long): List<RoleResponseDto> {
         val userRoles = userRoleRepository.findByUserId(userId)
@@ -231,11 +215,6 @@ class RoleService(
         return roleRepository.findAllById(roleIds).map { mapToDto(it) }
     }
 
-    /**
-     * Gets all users for a role
-     * @param roleId The ID of the role
-     * @return A list of user IDs
-     */
     @Transactional(readOnly = true)
     fun getUsersForRole(roleId: Long): List<Long> {
         val userRoles = userRoleRepository.findByRoleId(roleId)

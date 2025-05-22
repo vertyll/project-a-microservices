@@ -1,6 +1,6 @@
 package com.vertyll.projecta.auth.domain.model
 
-import com.vertyll.projecta.auth.domain.enums.TokenType
+import com.vertyll.projecta.common.auth.TokenTypes
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -14,20 +14,32 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "verification_token")
 class VerificationToken(
-        @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-        @Column(nullable = false, unique = true, length = 1024) var token: String,
-        @Column(nullable = false) var username: String,
-        @Column(nullable = false) var expiryDate: LocalDateTime,
-        @Column(nullable = false) var used: Boolean = false,
-        @Column(nullable = false) var tokenType: String,
+        @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long? = null,
 
-        /**
-         * Additional data that might be needed for specific token types. For example, for
-         * EMAIL_CHANGE, this could store the new email address.
-         */
-        @Column(nullable = true) var additionalData: String? = null,
-        @Column(nullable = false) val createdAt: Instant = Instant.now(),
-        @Column(nullable = false) var updatedAt: Instant = Instant.now()
+        @Column(nullable = false, unique = true, length = 1024)
+        var token: String,
+
+        @Column(nullable = false)
+        var username: String,
+
+        @Column(nullable = false)
+        var expiryDate: LocalDateTime,
+
+        @Column(nullable = false)
+        var used: Boolean = false,
+
+        @Column(nullable = false)
+        var tokenType: String,
+
+        @Column(nullable = true)
+        var additionalData: String? = null,
+
+        @Column(nullable = false)
+        val createdAt: Instant = Instant.now(),
+
+        @Column(nullable = false)
+        var updatedAt: Instant = Instant.now()
 ) {
     // No-arg constructor for JPA
     constructor() :
@@ -44,7 +56,7 @@ class VerificationToken(
     /**
      * Check if the token is of a specific type.
      */
-    fun isTokenType(type: TokenType): Boolean {
+    fun isTokenType(type: TokenTypes): Boolean {
         return this.tokenType == type.value
     }
 }

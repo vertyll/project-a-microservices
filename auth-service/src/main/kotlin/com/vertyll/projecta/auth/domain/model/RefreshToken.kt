@@ -11,14 +11,29 @@ import java.time.Instant
 @Entity
 @Table(name = "refresh_token")
 class RefreshToken(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-    @Column(nullable = false, unique = true, length = 1024) var token: String,
-    @Column(nullable = false) var username: String,
-    @Column(nullable = false) var expiryDate: Instant,
-    @Column(nullable = false) var revoked: Boolean = false,
-    @Column(nullable = true) var deviceInfo: String? = null,
-    @Column(nullable = false) val createdAt: Instant = Instant.now(),
-    @Column(nullable = false) var updatedAt: Instant = Instant.now()
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
+
+    @Column(nullable = false, unique = true, length = 1024)
+    var token: String,
+
+    @Column(nullable = false)
+    var username: String,
+
+    @Column(nullable = false)
+    var expiryDate: Instant,
+
+    @Column(nullable = false)
+    var revoked: Boolean = false,
+
+    @Column(nullable = true)
+    var deviceInfo: String? = null,
+
+    @Column(nullable = false)
+    val createdAt: Instant = Instant.now(),
+
+    @Column(nullable = false)
+    var updatedAt: Instant = Instant.now()
 ) {
     // No-arg constructor for JPA
     constructor() :

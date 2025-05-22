@@ -24,7 +24,11 @@ class AuthEventProducer(
      */
     fun sendUserRegisteredEvent(event: UserRegisteredEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
-        kafkaTemplate.send(kafkaTopicsConfig.getUserRegisteredTopic(), event.eventId, eventJson)
+        kafkaTemplate.send(
+            kafkaTopicsConfig.getUserRegisteredTopic(),
+            event.eventId,
+            eventJson
+        )
         logger.info("Sent user registration event for: ${event.email}")
     }
 
@@ -48,7 +52,11 @@ class AuthEventProducer(
      */
     fun sendUserProfileUpdatedEvent(event: UserProfileUpdatedEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
-        kafkaTemplate.send(kafkaTopicsConfig.getUserUpdatedTopic(), event.eventId, eventJson)
+        kafkaTemplate.send(
+            kafkaTopicsConfig.getUserUpdatedTopic(),
+            event.eventId,
+            eventJson
+        )
         logger.info("Sent user profile updated event for user: ${event.email}")
     }
 }

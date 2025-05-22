@@ -26,9 +26,7 @@ spring:
         format_sql: true
     database: postgresql
     
-  # Email server configuration 
-  # In development, this uses a local SMTP server provided by maildev
-  # In production, this should be configured to use a real SMTP server
+  # Email server configuration
   mail:
     host: localhost
     port: 1025

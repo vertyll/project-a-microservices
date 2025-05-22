@@ -1,6 +1,7 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.vertyll.projecta.common.event.EventSource
 import com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
@@ -21,7 +22,7 @@ class UserEventProducer(
     fun send(event: UserRegisteredEvent): Boolean {
         try {
             // Set source to USER_SERVICE to avoid circular processing
-            val modifiedEvent = event.copy(eventSource = "USER_SERVICE")
+            val modifiedEvent = event.copy(eventSource = EventSource.USER_SERVICE.value)
 
             val eventJson = objectMapper.writeValueAsString(modifiedEvent)
             kafkaTemplate.send(kafkaTopicsConfig.getUserRegisteredTopic(), modifiedEvent.eventId, eventJson)

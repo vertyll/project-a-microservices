@@ -1,5 +1,6 @@
 package com.vertyll.projecta.user.domain.dto
 
+import com.vertyll.projecta.common.role.RoleType
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 
@@ -14,11 +15,8 @@ data class UserCreateDto(
     @field:Email(message = "Email should be valid")
     val email: String,
 
-    val roles: Set<String> = setOf("USER"),
-
+    val roles: Set<String> = setOf(RoleType.USER.value),
     val profilePicture: String? = null,
-
     val phoneNumber: String? = null,
-
     val address: String? = null
 )

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.vertyll.projecta.common.event.EventType
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.mail.EmailTemplate
@@ -37,7 +38,7 @@ class MailEventConsumer(
         private const val FIELD_SAGA_ID = "sagaId"
         
         // Default values
-        private const val DEFAULT_EVENT_TYPE = "MAIL_REQUESTED"
+        private val DEFAULT_EVENT_TYPE = EventType.MAIL_REQUESTED.value
         private const val DEFAULT_PRIORITY = 0
         
         // Log messages

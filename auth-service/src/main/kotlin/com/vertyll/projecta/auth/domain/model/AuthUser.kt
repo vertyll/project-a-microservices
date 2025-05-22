@@ -18,25 +18,35 @@ import java.time.Instant
 @Entity
 @Table(name = "auth_user")
 class AuthUser(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
 
-    @Column(nullable = false, unique = true) private var email: String,
+    @Column(nullable = false, unique = true)
+    private var email: String,
 
-    @Column(nullable = false) private var password: String,
+    @Column(nullable = false)
+    private var password: String,
 
     @OneToMany(
         fetch = FetchType.EAGER,
         cascade = [CascadeType.ALL],
         orphanRemoval = true
-    ) @JoinColumn(name = "auth_user_id") var userRoles: MutableSet<AuthUserRole> = mutableSetOf(),
+    )
+    @JoinColumn(name = "auth_user_id")
+    var userRoles: MutableSet<AuthUserRole> = mutableSetOf(),
 
-    @Column(nullable = false) var enabled: Boolean = false,
+    @Column(nullable = false)
+    var enabled: Boolean = false,
 
-    @Column(nullable = true) var userId: Long? = null,
+    @Column(nullable = true)
+    var userId: Long? = null,
 
-    @Column(nullable = false) val createdAt: Instant = Instant.now(),
+    @Column(nullable = false)
+    val createdAt: Instant = Instant.now(),
 
-    @Column(nullable = false) var updatedAt: Instant = Instant.now()
+    @Column(nullable = false)
+    var updatedAt: Instant = Instant.now()
 ) : UserDetails {
     // No-args constructor required for JPA
     constructor() : this(

@@ -102,9 +102,6 @@ class EmailService(
         }
     }
 
-    /**
-     * Formats variables map as a string for storage in database
-     */
     private fun formatVariablesForStorage(variables: Map<String, String>): String? {
         if (variables.isEmpty()) {
             return null

@@ -3,7 +3,6 @@ package com.vertyll.projecta.role.infrastructure.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
-import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.domain.service.RoleService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -26,7 +25,10 @@ class UserEventConsumer(
             logger.info("Received user registration event with key: ${record.key()}")
 
             // Deserialize the message payload
-            val event = objectMapper.readValue(record.value(), UserRegisteredEvent::class.java)
+            val event = objectMapper.readValue(
+                record.value(),
+                UserRegisteredEvent::class.java
+            )
             logger.info("Deserialized event for user: ${event.email} with roles: ${event.roles}")
 
             handleUserRegisteredEvent(event)

@@ -1,10 +1,11 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.vertyll.projecta.common.event.EventSource
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.saga.SagaManager
 import com.vertyll.projecta.common.saga.SagaStepStatus
@@ -40,7 +41,7 @@ class UserEventConsumer(
             logger.info("Deserialized event for user: ${event.email}")
 
             // Skip events that we sent ourselves to avoid circular processing
-            if (event.eventSource == "USER_SERVICE") {
+            if (event.eventSource == EventSource.USER_SERVICE.value) {
                 logger.debug("Ignoring event from User Service - skip circular processing")
                 return
             }
@@ -239,7 +240,7 @@ class UserEventConsumer(
             )
 
             kafkaOutboxProcessor.saveOutboxMessage(
-                topic = "user-creation-confirmed",
+                topic = KafkaTopicNames.USER_CREATION_CONFIRMED,
                 key = createdUser.id.toString(),
                 payload = creationConfirmedEvent,
                 sagaId = sagaId
@@ -300,7 +301,7 @@ class UserEventConsumer(
         )
 
         kafkaOutboxProcessor.saveOutboxMessage(
-            topic = "saga-compensation",
+            topic = KafkaTopicNames.SAGA_COMPENSATION,
             key = sagaId,
             payload = compensationEvent,
             sagaId = sagaId
@@ -308,4 +309,4 @@ class UserEventConsumer(
 
         logger.info("Sent compensation event for user ${event.email} in saga $sagaId")
     }
-} 
+}

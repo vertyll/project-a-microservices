@@ -9,10 +9,6 @@ import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import java.time.Instant
 
-/**
- * Entity representing the relationship between an AuthUser and a role from the Role Service.
- * This is used to track which roles a user has, without duplicating the role definitions.
- */
 @Entity
 @Table(
     name = "auth_user_role",

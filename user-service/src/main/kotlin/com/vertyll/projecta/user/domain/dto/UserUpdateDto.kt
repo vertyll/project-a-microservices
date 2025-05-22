@@ -10,10 +10,7 @@ data class UserUpdateDto(
     val email: String,
 
     val roles: Set<String> = emptySet(),
-
     val profilePicture: String? = null,
-
     val phoneNumber: String? = null,
-
     val address: String? = null
 )

@@ -64,7 +64,6 @@ class AuthController(private val authService: AuthService) {
         response: HttpServletResponse,
         httpRequest: HttpServletRequest
     ): ResponseEntity<ApiResponse<AuthResponseDto>> {
-        // Extract User-Agent header and add it to the request
         val userAgent = httpRequest.getHeader("User-Agent")
         val requestWithUserAgent = request.copy(userAgent = userAgent)
 

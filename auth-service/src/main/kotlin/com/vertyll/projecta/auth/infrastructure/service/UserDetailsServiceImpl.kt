@@ -11,12 +11,9 @@ import org.springframework.stereotype.Service
 class UserDetailsServiceImpl(
     private val authUserRepository: AuthUserRepository
 ) : UserDetailsService {
+
     /**
      * Load user by username (email).
-     *
-     * @param username the username (email) of the user to load
-     * @return UserDetails object containing user information
-     * @throws ApiException if the user is not found
      */
     override fun loadUserByUsername(username: String): UserDetails {
         return authUserRepository.findByEmail(username)

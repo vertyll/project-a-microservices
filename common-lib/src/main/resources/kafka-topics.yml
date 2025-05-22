@@ -3,7 +3,7 @@
 
 kafka:
   topics:
-    # Auth Service Events
+    # Auth service topics
     auth:
       user-registered: "user-registered"
       user-activated: "user-activated"
@@ -11,7 +11,7 @@ kafka:
       credentials-verification: "credentials-verification"
       credentials-verification-result: "credentials-verification-result"
 
-    # User Service Events
+    # User service topics
     user:
       user-updated: "user-updated"
       user-email-updated: "user-email-updated"
@@ -19,7 +19,7 @@ kafka:
       user-deleted: "user-deleted"
       user-deletion: "user-deletion"  # Used for compensation transactions
 
-    # Role Service Events
+    # Role service topics
     role:
       role-created: "role-created"
       role-updated: "role-updated"
@@ -27,7 +27,7 @@ kafka:
       role-assigned: "role-assigned"
       role-revoked: "role-revoked"
 
-    # Mail Service Events
+    # Mail service topics
     mail:
       mail-requested: "mail-requested"
       mail-sent: "mail-sent"

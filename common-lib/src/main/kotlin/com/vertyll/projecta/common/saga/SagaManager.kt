@@ -2,6 +2,7 @@ package com.vertyll.projecta.common.saga
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -187,7 +188,7 @@ class SagaManager(
 
         // Create an outbox message for user deletion
         kafkaOutboxProcessor.saveOutboxMessage(
-            topic = "user-deletion",
+            topic = KafkaTopicNames.USER_DELETION,
             key = userId.toString(),
             payload = mapOf(
                 "userId" to userId,
@@ -209,7 +210,7 @@ class SagaManager(
 
         // Create an outbox message for role revocation
         kafkaOutboxProcessor.saveOutboxMessage(
-            topic = "role-revoked",
+            topic = KafkaTopicNames.ROLE_REVOKED,
             key = "$userId-$roleId",
             payload = mapOf(
                 "userId" to userId,
@@ -233,7 +234,7 @@ class SagaManager(
         val to = payload["to"] as String
 
         kafkaOutboxProcessor.saveOutboxMessage(
-            topic = "mail-requested",
+            topic = KafkaTopicNames.MAIL_REQUESTED,
             key = UUID.randomUUID().toString(),
             payload = mapOf(
                 "to" to to,

@@ -3,6 +3,7 @@ package com.vertyll.projecta.auth.infrastructure.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.AuthUserRoleRepository
+import com.vertyll.projecta.common.event.EventSource
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -30,11 +31,14 @@ class UserEventConsumer(
             logger.info("Received user registration event with key: ${record.key()}")
 
             // Deserialize the message payload
-            val event = objectMapper.readValue(record.value(), UserRegisteredEvent::class.java)
+            val event = objectMapper.readValue(
+                record.value(),
+                UserRegisteredEvent::class.java
+            )
             logger.info("Deserialized event for user: ${event.email}")
 
             // Only process events from User Service (ignore our own events)
-            if (event.userId > 0 && event.eventSource == "USER_SERVICE") {
+            if (event.userId > 0 && event.eventSource == EventSource.USER_SERVICE.value) {
                 updateAuthUserWithUserId(event)
             } else {
                 logger.debug("Ignoring event from Auth Service or with invalid userId")
@@ -54,7 +58,10 @@ class UserEventConsumer(
             logger.info("Received role assigned event with key: ${record.key()}")
 
             // Parse the event as a map first
-            val eventMap = objectMapper.readValue(record.value(), Map::class.java)
+            val eventMap = objectMapper.readValue(
+                record.value(),
+                Map::class.java
+            )
             val userId = (eventMap["userId"] as Number).toLong()
             val roleId = (eventMap["roleId"] as Number).toLong()
             val roleName = eventMap["roleName"] as String
@@ -94,7 +101,10 @@ class UserEventConsumer(
             logger.info("Received role revoked event with key: ${record.key()}")
 
             // Parse the event as a map first
-            val eventMap = objectMapper.readValue(record.value(), Map::class.java)
+            val eventMap = objectMapper.readValue(
+                record.value(),
+                Map::class.java
+            )
             val userId = (eventMap["userId"] as Number).toLong()
             val roleId = (eventMap["roleId"] as Number).toLong()
             val roleName = eventMap["roleName"] as String

@@ -7,7 +7,6 @@ import com.vertyll.projecta.auth.domain.dto.ChangePasswordRequestDto
 import com.vertyll.projecta.auth.domain.dto.RegisterRequestDto
 import com.vertyll.projecta.auth.domain.dto.ResetPasswordRequestDto
 import com.vertyll.projecta.auth.domain.dto.SessionDto
-import com.vertyll.projecta.auth.domain.enums.TokenType
 import com.vertyll.projecta.auth.domain.model.AuthUser
 import com.vertyll.projecta.auth.domain.model.RefreshToken
 import com.vertyll.projecta.auth.domain.model.VerificationToken
@@ -15,17 +14,20 @@ import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.RefreshTokenRepository
 import com.vertyll.projecta.auth.domain.repository.VerificationTokenRepository
 import com.vertyll.projecta.auth.infrastructure.kafka.AuthEventProducer
-import com.vertyll.projecta.auth.infrastructure.saga.SagaStepName
-import com.vertyll.projecta.auth.infrastructure.saga.SagaType
+import com.vertyll.projecta.common.auth.TokenTypes
+import com.vertyll.projecta.common.config.JwtConstants
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.exception.ApiException
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.mail.EmailTemplate
 import com.vertyll.projecta.common.saga.SagaManager
+import com.vertyll.projecta.common.saga.SagaStepNames
 import com.vertyll.projecta.common.saga.SagaStepStatus
+import com.vertyll.projecta.common.saga.SagaTypes
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -81,7 +83,7 @@ class AuthService(
         logger.info("Creating new user with email: {}", request.email)
 
         val saga = sagaManager.startSaga(
-            sagaType = SagaType.USER_REGISTRATION.value,
+            sagaType = SagaTypes.USER_REGISTRATION.value,
             payload = mapOf(
                 "email" to request.email,
                 "firstName" to request.firstName,
@@ -101,7 +103,7 @@ class AuthService(
 
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepName.CREATE_AUTH_USER.value,
+                stepName = SagaStepNames.CREATE_AUTH_USER.value,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "authUserId" to savedAuthUser.id,
@@ -121,7 +123,7 @@ class AuthService(
 
                 // Save the event to the outbox table
                 kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = kafkaTopicsConfig.getUserRegisteredTopic(),
+                    topic = KafkaTopicNames.USER_REGISTERED,
                     key = event.eventId,
                     payload = event,
                     sagaId = saga.id
@@ -130,7 +132,7 @@ class AuthService(
                 // Record successful event creation step
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepName.CREATE_USER_EVENT.value,
+                    stepName = SagaStepNames.CREATE_USER_EVENT.value,
                     status = SagaStepStatus.COMPLETED,
                     payload = event
                 )
@@ -141,7 +143,7 @@ class AuthService(
                 // Mark step as failed and trigger saga compensation
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepName.CREATE_USER_EVENT.value,
+                    stepName = SagaStepNames.CREATE_USER_EVENT.value,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -154,13 +156,13 @@ class AuthService(
             val savedToken = saveVerificationToken(
                 request.email,
                 verificationToken,
-                TokenType.ACCOUNT_ACTIVATION.value
+                TokenTypes.ACCOUNT_ACTIVATION.value
             )
 
             // Record successful token creation step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepName.CREATE_VERIFICATION_TOKEN.value,
+                stepName = SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "tokenId" to savedToken.id,
@@ -182,7 +184,7 @@ class AuthService(
 
                 // Save the event to the outbox table
                 kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = kafkaTopicsConfig.getMailRequestedTopic(),
+                    topic = KafkaTopicNames.MAIL_REQUESTED,
                     key = mailEvent.eventId,
                     payload = mailEvent,
                     sagaId = saga.id
@@ -191,7 +193,7 @@ class AuthService(
                 // Record successful mail event creation step
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepName.CREATE_MAIL_EVENT.value,
+                    stepName = SagaStepNames.CREATE_MAIL_EVENT.value,
                     status = SagaStepStatus.COMPLETED,
                     payload = mailEvent
                 )
@@ -202,7 +204,7 @@ class AuthService(
                 // Since email is not critical, we'll just log the error but not fail the saga
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepName.CREATE_MAIL_EVENT.value,
+                    stepName = SagaStepNames.CREATE_MAIL_EVENT.value,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -239,7 +241,7 @@ class AuthService(
             throw ApiException("Token expired", HttpStatus.BAD_REQUEST)
         }
 
-        if (!verificationToken.isTokenType(TokenType.ACCOUNT_ACTIVATION)) {
+        if (!verificationToken.isTokenType(TokenTypes.ACCOUNT_ACTIVATION)) {
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
@@ -305,7 +307,11 @@ class AuthService(
 
             addRefreshTokenCookie(response, refreshToken)
 
-            return AuthResponseDto(token = jwtToken)
+            return AuthResponseDto(
+                token = jwtToken,
+                type = JwtConstants.BEARER_PREFIX,
+                expiresIn = jwtService.getAccessTokenExpirationTime()
+            )
         } catch (e: ApiException) {
             throw e
         } catch (e: Exception) {
@@ -325,7 +331,7 @@ class AuthService(
         val token = generateVerificationToken()
 
         // First stage - save the token
-        saveVerificationToken(email, token, TokenType.PASSWORD_CHANGE_REQUEST.value)
+        saveVerificationToken(email, token, TokenTypes.PASSWORD_CHANGE_REQUEST.value)
 
         // Send password change confirmation email
         authEventProducer.sendMailRequestedEvent(
@@ -357,7 +363,7 @@ class AuthService(
             throw ApiException("Token expired", HttpStatus.BAD_REQUEST)
         }
 
-        if (!verificationToken.isTokenType(TokenType.PASSWORD_CHANGE_REQUEST)) {
+        if (!verificationToken.isTokenType(TokenTypes.PASSWORD_CHANGE_REQUEST)) {
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
@@ -397,7 +403,7 @@ class AuthService(
             throw ApiException("Token expired", HttpStatus.BAD_REQUEST)
         }
 
-        if (!verificationToken.isTokenType(TokenType.PASSWORD_CHANGE_REQUEST)) {
+        if (!verificationToken.isTokenType(TokenTypes.PASSWORD_CHANGE_REQUEST)) {
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
@@ -443,7 +449,7 @@ class AuthService(
 
         val resetToken = generateVerificationToken()
 
-        saveVerificationToken(email, resetToken, TokenType.PASSWORD_RESET.value)
+        saveVerificationToken(email, resetToken, TokenTypes.PASSWORD_RESET.value)
 
         // Send password reset email
         authEventProducer.sendMailRequestedEvent(
@@ -475,7 +481,7 @@ class AuthService(
             throw ApiException("Token expired", HttpStatus.BAD_REQUEST)
         }
 
-        if (!verificationToken.isTokenType(TokenType.PASSWORD_RESET)) {
+        if (!verificationToken.isTokenType(TokenTypes.PASSWORD_RESET)) {
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
@@ -483,8 +489,7 @@ class AuthService(
             ApiException("User not found", HttpStatus.NOT_FOUND)
         }
 
-        // Update password - we don't need to store the password in the token 
-        // for PASSWORD_RESET type as the new password comes directly from the request
+        // Update password
         user.setPassword(passwordEncoder.encode(request.newPassword))
         authUserRepository.save(user)
 
@@ -728,7 +733,7 @@ class AuthService(
 
         val token = generateVerificationToken()
 
-        saveVerificationToken(email, token, TokenType.EMAIL_CHANGE.value, request.newEmail)
+        saveVerificationToken(email, token, TokenTypes.EMAIL_CHANGE.value, request.newEmail)
 
         // Send email change confirmation email
         authEventProducer.sendMailRequestedEvent(
@@ -777,7 +782,7 @@ class AuthService(
             throw ApiException("Token expired", HttpStatus.BAD_REQUEST)
         }
 
-        if (!verificationToken.isTokenType(TokenType.EMAIL_CHANGE)) {
+        if (!verificationToken.isTokenType(TokenTypes.EMAIL_CHANGE)) {
             throw ApiException("Invalid token type", HttpStatus.BAD_REQUEST)
         }
 
@@ -860,7 +865,7 @@ class AuthService(
 
         // Check if there's an existing unused activation token
         val existingToken = verificationTokenRepository
-            .findByUsernameAndTokenType(email, TokenType.ACCOUNT_ACTIVATION.value)
+            .findByUsernameAndTokenType(email, TokenTypes.ACCOUNT_ACTIVATION.value)
             .orElse(null)
 
         // If token exists and hasn't expired, invalidate it
@@ -874,7 +879,7 @@ class AuthService(
 
         val verificationToken = generateVerificationToken()
 
-        saveVerificationToken(email, verificationToken, TokenType.ACCOUNT_ACTIVATION.value)
+        saveVerificationToken(email, verificationToken, TokenTypes.ACCOUNT_ACTIVATION.value)
 
         authEventProducer.sendMailRequestedEvent(
             MailRequestedEvent(
