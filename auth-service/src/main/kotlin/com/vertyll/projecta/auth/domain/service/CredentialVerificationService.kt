@@ -37,7 +37,7 @@ class CredentialVerificationService(
                 return CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Your account has not been activated. Please check your email for the activation link or request a new one."
+                    message = "Your account has not been activated. Please check your email for the activation code or request a new one."
                 )
             }
 

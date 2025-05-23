@@ -30,7 +30,11 @@ class RoleController(private val roleService: RoleService) {
         dto: RoleCreateDto
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val createdRole = roleService.createRole(dto)
-        return ApiResponse.buildResponse(createdRole, "Role created successfully", HttpStatus.CREATED)
+        return ApiResponse.buildResponse(
+            data = createdRole,
+            message = "Role created successfully",
+            status = HttpStatus.CREATED
+        )
     }
 
     @PutMapping("/{id}")
@@ -41,42 +45,66 @@ class RoleController(private val roleService: RoleService) {
         dto: RoleUpdateDto
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val updatedRole = roleService.updateRole(id, dto)
-        return ApiResponse.buildResponse(updatedRole, "Role updated successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = updatedRole,
+            message = "Role updated successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get role by ID")
     fun getRoleById(@PathVariable id: Long): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleById(id)
-        return ApiResponse.buildResponse(role, "Role retrieved successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = role,
+            message = "Role retrieved successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @GetMapping("/name/{name}")
     @Operation(summary = "Get role by name")
     fun getRoleByName(@PathVariable name: String): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleByName(name)
-        return ApiResponse.buildResponse(role, "Role retrieved successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = role,
+            message = "Role retrieved successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @GetMapping
     @Operation(summary = "Get all roles")
     fun getAllRoles(): ResponseEntity<ApiResponse<List<RoleResponseDto>>> {
         val roles = roleService.getAllRoles()
-        return ApiResponse.buildResponse(roles, "Roles retrieved successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = roles,
+            message = "Roles retrieved successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get roles for a user")
     fun getRolesForUser(@PathVariable userId: Long): ResponseEntity<ApiResponse<List<RoleResponseDto>>> {
         val roles = roleService.getRolesForUser(userId)
-        return ApiResponse.buildResponse(roles, "User roles retrieved successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = roles,
+            message = "User roles retrieved successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @PostMapping("/user/{userId}/role/{roleName}")
     @Operation(summary = "Assign a role to a user")
     fun assignRoleToUser(@PathVariable userId: Long, @PathVariable roleName: String): ResponseEntity<ApiResponse<Any>> {
         roleService.assignRoleToUser(userId, roleName)
-        return ApiResponse.buildResponse(null, "Role assigned successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = null,
+            message = "Role assigned successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @DeleteMapping("/user/{userId}/role/{roleName}")
@@ -86,13 +114,21 @@ class RoleController(private val roleService: RoleService) {
         @PathVariable roleName: String
     ): ResponseEntity<ApiResponse<Any>> {
         roleService.removeRoleFromUser(userId, roleName)
-        return ApiResponse.buildResponse(null, "Role removed successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = null,
+            message = "Role removed successfully",
+            status = HttpStatus.OK
+        )
     }
 
     @GetMapping("/role/{roleId}/users")
     @Operation(summary = "Get users for a role")
     fun getUsersForRole(@PathVariable roleId: Long): ResponseEntity<ApiResponse<List<Long>>> {
         val users = roleService.getUsersForRole(roleId)
-        return ApiResponse.buildResponse(users, "Role users retrieved successfully", HttpStatus.OK)
+        return ApiResponse.buildResponse(
+            data = users,
+            message = "Role users retrieved successfully",
+            status = HttpStatus.OK
+        )
     }
 }

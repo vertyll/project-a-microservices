@@ -11,7 +11,6 @@ import org.springframework.kafka.annotation.EnableKafka
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.role.domain.repository",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )

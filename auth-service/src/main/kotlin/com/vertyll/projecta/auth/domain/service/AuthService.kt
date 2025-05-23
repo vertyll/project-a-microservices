@@ -67,7 +67,7 @@ class AuthService(
                 logger.warn("Registration attempted for existing unactivated account: {}", request.email)
                 throw ApiException(
                     "An account with this email already exists but hasn't been activated. " +
-                        "Please check your email for the activation link or request a new one.",
+                        "Please check your email for the activation code or request a new one.",
                     HttpStatus.BAD_REQUEST
                 )
             } else {
@@ -287,7 +287,7 @@ class AuthService(
             if (!user.isEnabled()) {
                 logger.warn("Attempted login to inactive account: {}", user.username)
                 throw ApiException(
-                    "Your account has not been activated. Please check your email for the activation link or request a new one.",
+                    "Your account has not been activated. Please check your email for the activation code or request a new one.",
                     HttpStatus.FORBIDDEN
                 )
             }
@@ -388,7 +388,7 @@ class AuthService(
     }
 
     @Transactional
-    fun setNewPassword(tokenId: Long, newPassword: String) {
+    fun setNewPassword(tokenId: Long, dto: ResetPasswordRequestDto) {
         val verificationToken = verificationTokenRepository.findById(tokenId).orElseThrow {
             ApiException("Invalid token", HttpStatus.BAD_REQUEST)
         }
@@ -409,7 +409,7 @@ class AuthService(
             ApiException("User not found", HttpStatus.NOT_FOUND)
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword))
+        user.setPassword(passwordEncoder.encode(dto.newPassword))
         authUserRepository.save(user)
 
         authEventProducer.sendMailRequestedEvent(
@@ -760,7 +760,7 @@ class AuthService(
                 mapOf(
                     "username" to request.newEmail.substringBefore('@'),
                     "message" to
-                        "Someone has requested to change their email to this address. If this was you, please confirm by clicking the link sent to your current email address."
+                        "Someone has requested to change their email to this address. If this was you, please confirm by clicking the code sent to your current email address."
                 )
             )
         )

@@ -17,7 +17,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.mail.domain.repository",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )

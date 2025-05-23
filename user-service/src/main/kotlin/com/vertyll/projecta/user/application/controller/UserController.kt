@@ -34,9 +34,9 @@ class UserController(
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.createUser(request)
         return ApiResponse.buildResponse(
-            user,
-            "User created successfully",
-            HttpStatus.CREATED
+            data = user,
+            message = "User created successfully",
+            status = HttpStatus.CREATED
         )
     }
 
@@ -49,9 +49,9 @@ class UserController(
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.updateUser(id, request)
         return ApiResponse.buildResponse(
-            user,
-            "User updated successfully",
-            HttpStatus.OK
+            data = user,
+            message = "User updated successfully",
+            status = HttpStatus.OK
         )
     }
 
@@ -60,9 +60,9 @@ class UserController(
     fun getUserById(@PathVariable id: Long): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserById(id)
         return ApiResponse.buildResponse(
-            user,
-            "User retrieved successfully",
-            HttpStatus.OK
+            data = user,
+            message = "User retrieved successfully",
+            status = HttpStatus.OK
         )
     }
 
@@ -71,9 +71,9 @@ class UserController(
     fun getUserByEmail(@PathVariable email: String): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserByEmail(email)
         return ApiResponse.buildResponse(
-            user,
-            "User retrieved successfully",
-            HttpStatus.OK
+            data = user,
+            message = "User retrieved successfully",
+            status = HttpStatus.OK
         )
     }
 
@@ -85,9 +85,9 @@ class UserController(
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.updateEmail(request)
         return ApiResponse.buildResponse(
-            user,
-            "Email updated successfully",
-            HttpStatus.OK
+            data = user,
+            message = "Email updated successfully",
+            status = HttpStatus.OK
         )
     }
 }
