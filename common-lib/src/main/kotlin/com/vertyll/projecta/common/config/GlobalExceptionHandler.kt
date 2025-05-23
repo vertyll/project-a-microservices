@@ -1,14 +1,19 @@
-package com.vertyll.projecta.auth.infrastructure.config
+package com.vertyll.projecta.common.config
 
 import com.vertyll.projecta.common.exception.ApiException
 import com.vertyll.projecta.common.response.ApiResponse
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@RestControllerAdvice
+/**
+ * Global exception handler for all microservices.
+ * Provides consistent error responses across the application.
+ */
+@RestControllerAdvice(basePackages = ["com.vertyll.projecta"])
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
@@ -35,7 +40,7 @@ class GlobalExceptionHandler {
         return ApiResponse.buildResponse(
             data = errors,
             message = "Validation failed",
-            status = org.springframework.http.HttpStatus.BAD_REQUEST
+            status = HttpStatus.BAD_REQUEST
         )
     }
 
@@ -45,7 +50,7 @@ class GlobalExceptionHandler {
         return ApiResponse.buildResponse(
             data = null,
             message = "An unexpected error occurred",
-            status = org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
+            status = HttpStatus.INTERNAL_SERVER_ERROR
         )
     }
-}
+} 
