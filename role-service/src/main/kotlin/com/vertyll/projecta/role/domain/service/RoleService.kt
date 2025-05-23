@@ -31,7 +31,6 @@ class RoleService(
     fun initializeDefaultRoles() {
         logger.info("Initializing default roles")
         try {
-            // Create default USER role if it doesn't exist
             if (!roleRepository.existsByName(RoleType.USER.value)) {
                 val userRole = Role.create(
                     name = RoleType.USER.value,
@@ -41,7 +40,6 @@ class RoleService(
                 logger.info("Created default ${RoleType.USER.value} role")
             }
 
-            // Create ADMIN role if it doesn't exist
             if (!roleRepository.existsByName(RoleType.ADMIN.value)) {
                 val adminRole = Role.create(
                     name = RoleType.ADMIN.value,
@@ -58,7 +56,10 @@ class RoleService(
     @Transactional
     fun createRole(dto: RoleCreateDto): RoleResponseDto {
         if (roleRepository.existsByName(dto.name)) {
-            throw ApiException("Role with name ${dto.name} already exists", HttpStatus.BAD_REQUEST)
+            throw ApiException(
+                message = "Role with name ${dto.name} already exists",
+                status = HttpStatus.BAD_REQUEST
+            )
         }
 
         val role = Role.create(
@@ -80,16 +81,27 @@ class RoleService(
     @Transactional
     fun updateRole(id: Long, dto: RoleUpdateDto): RoleResponseDto {
         val role = roleRepository.findById(id)
-            .orElseThrow { ApiException("Role not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "Role not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
 
         if (dto.name != role.name && roleRepository.existsByName(dto.name)) {
-            throw ApiException("Role with name ${dto.name} already exists", HttpStatus.BAD_REQUEST)
+            throw ApiException(
+                message = "Role with name ${dto.name} already exists",
+                status = HttpStatus.BAD_REQUEST
+            )
         }
 
         // Prevent updating of system roles
         val roleType = RoleType.fromString(role.name)
         if (roleType != null && role.name != dto.name) {
-            throw ApiException("Cannot change name of system role ${role.name}", HttpStatus.BAD_REQUEST)
+            throw ApiException(
+                message = "Cannot change name of system role ${role.name}",
+                status = HttpStatus.BAD_REQUEST
+            )
         }
 
         val updatedRole = Role(
@@ -112,14 +124,24 @@ class RoleService(
     @Transactional(readOnly = true)
     fun getRoleById(id: Long): RoleResponseDto {
         val role = roleRepository.findById(id)
-            .orElseThrow { ApiException("Role not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "Role not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
         return mapToDto(role)
     }
 
     @Transactional(readOnly = true)
     fun getRoleByName(name: String): RoleResponseDto {
         val role = roleRepository.findByName(name)
-            .orElseThrow { ApiException("Role not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "Role not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
         return mapToDto(role)
     }
 
@@ -132,20 +154,25 @@ class RoleService(
     fun assignRoleToUser(userId: Long, roleName: String): UserRole {
         logger.info("Assigning role $roleName to user $userId")
 
-        // Check if role exists
         val role = roleRepository.findByName(roleName)
             .orElseThrow {
-                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND)
+                ApiException(
+                    message = "Role $roleName not found",
+                    status = HttpStatus.NOT_FOUND
+                )
             }
 
-        // Check if user already has this role
         if (userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId already has role $roleName")
             return userRoleRepository.findByUserIdAndRoleId(userId, role.id)
-                .orElseThrow { ApiException("User-role mapping not found", HttpStatus.INTERNAL_SERVER_ERROR) }
+                .orElseThrow {
+                    ApiException(
+                        message = "User-role mapping not found",
+                        status = HttpStatus.INTERNAL_SERVER_ERROR
+                    )
+                }
         }
 
-        // Create and save the user-role mapping
         val userRole = UserRole(
             userId = userId,
             roleId = role.id
@@ -169,13 +196,14 @@ class RoleService(
     fun removeRoleFromUser(userId: Long, roleName: String) {
         logger.info("Removing role $roleName from user $userId")
 
-        // Check if role exists
         val role = roleRepository.findByName(roleName)
             .orElseThrow {
-                ApiException("Role $roleName not found", HttpStatus.NOT_FOUND)
+                ApiException(
+                    message = "Role $roleName not found",
+                    status = HttpStatus.NOT_FOUND
+                )
             }
 
-        // Check if user has this role
         if (!userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId doesn't have role $roleName")
             return
@@ -185,11 +213,13 @@ class RoleService(
         if (roleName == RoleType.USER.value) {
             val userRoles = userRoleRepository.findByUserId(userId)
             if (userRoles.size == 1) {
-                throw ApiException("Cannot remove USER role from user as it's their only role", HttpStatus.BAD_REQUEST)
+                throw ApiException(
+                    message = "Cannot remove USER role from user as it's their only role",
+                    status = HttpStatus.BAD_REQUEST
+                )
             }
         }
 
-        // Delete the user-role mapping
         userRoleRepository.deleteByUserIdAndRoleId(userId, role.id)
 
         // Send role revoked event

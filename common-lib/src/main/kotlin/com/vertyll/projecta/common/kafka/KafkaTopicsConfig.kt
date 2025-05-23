@@ -24,7 +24,9 @@ class KafkaTopicsConfig {
         var mail: Map<String, String> = emptyMap()
         var saga: Map<String, String> = emptyMap()
 
-        // Helper method to retrieve a topic by its name within a domain
+        /**
+         * Helper method to get a specific topic by domain and topic name.
+         */
         fun getTopic(domain: String, topicName: String): String? {
             return when (domain.lowercase()) {
                 "auth" -> auth[topicName]
@@ -46,7 +48,10 @@ class KafkaTopicsConfig {
         var role: List<String> = emptyList()
         var mail: List<String> = emptyList()
 
-        // Helper method to get type mappings for a specific service
+        /**
+         * Helper method to get type mappings for a specific service.
+         * This method returns a list of type mappings based on the service name.
+         */
         fun getTypeMappings(serviceName: String): List<String> {
             return when (serviceName.lowercase()) {
                 "auth" -> auth
@@ -57,7 +62,10 @@ class KafkaTopicsConfig {
             }
         }
 
-        // Helper method to get type mappings as a string for configuration
+        /**
+         * Helper method to get type mappings as a comma-separated string.
+         * This method returns a string of type mappings based on the service name.
+         */
         fun getTypeMappingsAsString(serviceName: String): String {
             return getTypeMappings(serviceName).joinToString(",")
         }

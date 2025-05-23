@@ -53,8 +53,8 @@ kafka:
 
     role:
       - "userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent"
-      - "roleCreated:com.vertyll.projecta.role.infrastructure.kafka.RoleCreatedEvent"
-      - "roleUpdated:com.vertyll.projecta.role.infrastructure.kafka.RoleUpdatedEvent"
+      - "roleCreated:com.vertyll.projecta.common.event.role.RoleCreatedEvent"
+      - "roleUpdated:com.vertyll.projecta.common.event.role.RoleUpdatedEvent"
 
     mail:
       - "mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent"

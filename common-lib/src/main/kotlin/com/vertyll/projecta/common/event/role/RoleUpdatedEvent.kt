@@ -1,4 +1,4 @@
-package com.vertyll.projecta.role.infrastructure.kafka
+package com.vertyll.projecta.common.event.role
 
 import com.vertyll.projecta.common.event.DomainEvent
 import com.vertyll.projecta.common.event.EventType

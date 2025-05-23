@@ -3,6 +3,8 @@ package com.vertyll.projecta.common.event
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
+import com.vertyll.projecta.common.event.role.RoleCreatedEvent
+import com.vertyll.projecta.common.event.role.RoleUpdatedEvent
 import com.vertyll.projecta.common.event.user.CredentialsVerificationEvent
 import com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
 import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
@@ -20,7 +22,10 @@ import java.util.UUID
     JsonSubTypes.Type(value = UserProfileUpdatedEvent::class, name = "USER_UPDATED"),
     JsonSubTypes.Type(value = MailRequestedEvent::class, name = "MAIL_REQUESTED"),
     JsonSubTypes.Type(value = CredentialsVerificationEvent::class, name = "CREDENTIALS_VERIFICATION"),
-    JsonSubTypes.Type(value = CredentialsVerificationResultEvent::class, name = "CREDENTIALS_VERIFICATION_RESULT")
+    JsonSubTypes.Type(value = CredentialsVerificationResultEvent::class, name = "CREDENTIALS_VERIFICATION_RESULT"),
+    JsonSubTypes.Type(value = RoleCreatedEvent::class, name = "ROLE_CREATED"),
+    JsonSubTypes.Type(value = RoleUpdatedEvent::class, name = "ROLE_UPDATED")
+
 )
 interface DomainEvent {
     val eventId: String

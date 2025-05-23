@@ -17,7 +17,7 @@ class UserEventConsumer(
     private val objectMapper: ObjectMapper,
     private val authUserRepository: AuthUserRepository,
     private val authUserRoleRepository: AuthUserRoleRepository,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -1,7 +1,6 @@
 package com.vertyll.projecta.role.domain.model
 
 enum class SagaStepNames(val value: String) {
-    // Role service steps
     CREATE_ROLE("CreateRole"),
     ASSIGN_ROLE("AssignRole"),
     REVOKE_ROLE("RevokeRole"),

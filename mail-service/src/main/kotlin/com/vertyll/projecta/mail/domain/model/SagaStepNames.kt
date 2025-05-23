@@ -1,7 +1,6 @@
 package com.vertyll.projecta.mail.domain.model
 
 enum class SagaStepNames(val value: String) {
-    // Mail service steps
     SEND_EMAIL("SendEmail"),
     PROCESS_TEMPLATE("ProcessTemplate"),
     RECORD_EMAIL_LOG("RecordEmailLog");

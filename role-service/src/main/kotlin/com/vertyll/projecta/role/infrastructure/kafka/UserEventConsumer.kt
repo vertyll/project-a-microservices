@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
     private val roleService: RoleService,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

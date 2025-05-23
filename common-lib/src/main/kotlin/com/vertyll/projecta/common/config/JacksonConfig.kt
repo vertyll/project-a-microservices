@@ -10,10 +10,7 @@ import org.springframework.context.annotation.Primary
 
 /**
  * Common Jackson configuration for all microservices.
- * Provides properly configured ObjectMapper with support for:
- * - Kotlin data classes
- * - Java 8 date/time types
- * - Proper serialization of dates as ISO strings
+ * This configuration is used to customize the ObjectMapper
  */
 @Configuration
 class JacksonConfig {

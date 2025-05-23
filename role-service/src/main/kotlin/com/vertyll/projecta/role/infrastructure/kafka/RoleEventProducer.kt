@@ -2,6 +2,8 @@ package com.vertyll.projecta.role.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.event.EventType
+import com.vertyll.projecta.common.event.role.RoleCreatedEvent
+import com.vertyll.projecta.common.event.role.RoleUpdatedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.role.domain.model.Role
 import com.vertyll.projecta.role.domain.model.UserRole

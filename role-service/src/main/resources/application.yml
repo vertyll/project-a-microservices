@@ -28,7 +28,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: true
-        spring.json.type.mapping: roleCreated:com.vertyll.projecta.role.infrastructure.kafka.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.role.infrastructure.kafka.RoleUpdatedEvent
+        spring.json.type.mapping: roleCreated:com.vertyll.projecta.common.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.common.event.role.RoleUpdatedEvent
     consumer:
       group-id: role-service-group
       auto-offset-reset: earliest
@@ -40,7 +40,7 @@ spring:
         spring.json.trusted.packages: "com.vertyll.projecta.*"
         spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,roleCreated:com.vertyll.projecta.role.infrastructure.kafka.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.role.infrastructure.kafka.RoleUpdatedEvent
+        spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,roleCreated:com.vertyll.projecta.common.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.common.event.role.RoleUpdatedEvent,roleAssigned:com.vertyll.projecta.common.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.common.event.role.RoleRevokedEvent
 
 # OpenAPI configuration
 springdoc:

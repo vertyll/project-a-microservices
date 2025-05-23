@@ -26,7 +26,7 @@ class UserEventConsumer(
     private val userRepository: UserRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
     private val sagaManager: SagaManager,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -247,8 +247,7 @@ class UserEventConsumer(
             )
         } catch (e: Exception) {
             logger.error("Failed to create user profile for ${event.email}", e)
-            // This will be handled by the outer try-catch, which will record the failure
-            // and send a compensation event
+            // This will be handled by the outer try-catch, which will record the failure and send a compensation event
             throw e
         }
     }

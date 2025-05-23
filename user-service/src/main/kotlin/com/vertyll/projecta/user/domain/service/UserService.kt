@@ -22,7 +22,10 @@ class UserService(
     @Transactional
     fun createUser(dto: UserCreateDto): UserResponseDto {
         if (userRepository.existsByEmail(dto.email)) {
-            throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
+            throw ApiException(
+                message = "Email already exists",
+                status = HttpStatus.BAD_REQUEST
+            )
         }
 
         val user = User.create(
@@ -54,9 +57,13 @@ class UserService(
     @Transactional
     fun updateUser(id: Long, dto: UserUpdateDto): UserResponseDto {
         val user = userRepository.findById(id)
-            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "User not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
 
-        // Update user fields
         user.firstName = dto.firstName
         user.lastName = dto.lastName
         user.setEmail(dto.email)
@@ -76,25 +83,43 @@ class UserService(
     @Transactional(readOnly = true)
     fun getUserById(id: Long): UserResponseDto {
         val user = userRepository.findById(id)
-            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "User not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
         return mapToDto(user)
     }
 
     @Transactional(readOnly = true)
     fun getUserByEmail(email: String): UserResponseDto {
         val user = userRepository.findByEmail(email)
-            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "User not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
         return mapToDto(user)
     }
 
     @Transactional
     fun updateEmail(request: EmailUpdateDto): UserResponseDto {
         if (userRepository.existsByEmail(request.newEmail)) {
-            throw ApiException("Email already exists", HttpStatus.BAD_REQUEST)
+            throw ApiException(
+                message = "Email already exists",
+                status = HttpStatus.BAD_REQUEST
+            )
         }
 
         val user = userRepository.findByEmail(request.currentEmail)
-            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "User not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
 
         user.setEmail(request.newEmail)
         val savedUser = userRepository.save(user)

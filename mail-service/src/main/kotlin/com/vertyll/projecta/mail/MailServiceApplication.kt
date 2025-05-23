@@ -23,7 +23,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.mail.domain.model",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )

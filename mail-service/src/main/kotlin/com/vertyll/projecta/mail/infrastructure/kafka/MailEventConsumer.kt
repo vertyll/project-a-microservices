@@ -20,7 +20,7 @@ import java.time.Instant
 class MailEventConsumer(
     private val objectMapper: ObjectMapper,
     private val emailService: EmailService,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

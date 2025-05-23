@@ -1,7 +1,6 @@
 package com.vertyll.projecta.auth.domain.model
 
 enum class SagaStepNames(val value: String) {
-    // Auth service steps
     CREATE_AUTH_USER("CreateAuthUser"),
     CREATE_USER_EVENT("CreateUserEvent"),
     CREATE_VERIFICATION_TOKEN("CreateVerificationToken"),

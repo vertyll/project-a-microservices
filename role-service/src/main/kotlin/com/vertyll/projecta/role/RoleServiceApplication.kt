@@ -17,7 +17,6 @@ import org.springframework.kafka.annotation.EnableKafka
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.role.domain.model",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )

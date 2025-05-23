@@ -1,7 +1,6 @@
 package com.vertyll.projecta.user.domain.model
 
 enum class SagaStepNames(val value: String) {
-    // User service steps
     CREATE_USER_PROFILE("CreateUserProfile"),
     UPDATE_USER_PROFILE("UpdateUserProfile"),
     DELETE_USER_PROFILE("DeleteUserProfile");

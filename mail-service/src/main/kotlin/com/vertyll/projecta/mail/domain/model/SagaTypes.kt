@@ -1,7 +1,6 @@
 package com.vertyll.projecta.mail.domain.model
 
 enum class SagaTypes(val value: String) {
-    // Email related sagas
     EMAIL_SENDING("EmailSending"),
     EMAIL_NOTIFICATION("EmailNotification"),
     TEMPLATE_PROCESSING("TemplateProcessing"),
