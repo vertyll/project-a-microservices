@@ -1,6 +1,7 @@
-package com.vertyll.projecta.gateway.security
+package com.vertyll.projecta.gateway.config
 
 import com.vertyll.projecta.common.role.RoleType
+import com.vertyll.projecta.gateway.security.JwtAuthFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity

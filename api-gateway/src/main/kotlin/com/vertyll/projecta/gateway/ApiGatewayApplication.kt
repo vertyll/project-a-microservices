@@ -1,18 +1,22 @@
 package com.vertyll.projecta.gateway
 
 import com.vertyll.projecta.common.config.SharedConfigProperties
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.http.HttpStatus
 
 @SpringBootApplication
+@ComponentScan(
+    basePackages = [
+        "com.vertyll.projecta.common"
+    ]
+)
 class ApiGatewayApplication(
-    @Qualifier("projecta.shared-com.vertyll.projecta.common.config.SharedConfigProperties")
     private val sharedConfig: SharedConfigProperties
 ) {
     @Value("\${server.port:8080}")
