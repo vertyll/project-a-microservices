@@ -1,4 +1,4 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.role.domain.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -14,7 +14,7 @@ import java.time.Instant
  * Represents a step in a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "saga_step")
+@Table(name = "role_saga_step")
 class SagaStep(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,3 +58,12 @@ class SagaStep(
         compensationStepId = null
     )
 }
+
+enum class SagaStepStatus {
+    STARTED,
+    COMPLETED,
+    FAILED,
+    COMPENSATING,
+    COMPENSATED,
+    COMPENSATION_FAILED
+} 

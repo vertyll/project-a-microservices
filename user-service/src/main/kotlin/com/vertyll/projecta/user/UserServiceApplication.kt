@@ -11,14 +11,12 @@ import org.springframework.kafka.annotation.EnableKafka
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.user.domain.repository",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.user.domain.model",
-        "com.vertyll.projecta.common.saga",
         "com.vertyll.projecta.common.kafka"
     ]
 )

@@ -1,12 +1,12 @@
 package com.vertyll.projecta.auth.infrastructure.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.vertyll.projecta.auth.domain.model.SagaStep
+import com.vertyll.projecta.auth.domain.model.SagaStepNames
+import com.vertyll.projecta.auth.domain.model.SagaStepStatus
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
+import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.auth.domain.repository.VerificationTokenRepository
-import com.vertyll.projecta.common.saga.SagaStep
-import com.vertyll.projecta.common.saga.SagaStepNames
-import com.vertyll.projecta.common.saga.SagaStepRepository
-import com.vertyll.projecta.common.saga.SagaStepStatus
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
@@ -36,7 +36,7 @@ class SagaCompensationService(
                 Map::class.java
             )
             val sagaId = event["sagaId"] as String
-            val stepId = (event["stepId"] as Int).toLong()
+            val stepId = (event["stepId"] as Number).toLong()
 
             // Find the step that needs compensation
             val step = sagaStepRepository.findById(stepId).orElse(null) ?: run {
@@ -48,8 +48,8 @@ class SagaCompensationService(
 
             // Perform compensation based on step name
             when (step.stepName) {
-                SagaStepNames.CREATE_AUTH_USER.value -> compensateCreateAuthUser(step)
-                SagaStepNames.CREATE_VERIFICATION_TOKEN.value -> compensateCreateVerificationToken(step)
+                "CreateAuthUser" -> compensateCreateAuthUser(step)
+                "CreateVerificationToken" -> compensateCreateVerificationToken(step)
                 else -> logger.warn("No compensation handler for step ${step.stepName}")
             }
 
@@ -75,7 +75,7 @@ class SagaCompensationService(
     fun compensateCreateAuthUser(step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Int).toLong()
+            val authUserId = (payload["authUserId"] as Number).toLong()
 
             authUserRepository.findById(authUserId).ifPresent { user ->
                 logger.info("Compensating CreateAuthUser step: Deleting auth user with ID $authUserId")
@@ -94,7 +94,7 @@ class SagaCompensationService(
     fun compensateCreateVerificationToken(step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val tokenId = (payload["tokenId"] as Int).toLong()
+            val tokenId = (payload["tokenId"] as Number).toLong()
 
             verificationTokenRepository.findById(tokenId).ifPresent { token ->
                 logger.info("Compensating CreateVerificationToken step: Deleting token with ID $tokenId")

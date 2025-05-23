@@ -1,5 +1,7 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.auth.domain.repository
 
+import com.vertyll.projecta.auth.domain.model.SagaStep
+import com.vertyll.projecta.auth.domain.model.SagaStepStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
@@ -14,4 +16,4 @@ interface SagaStepRepository : JpaRepository<SagaStep, Long> {
     fun findByStepNameAndStatus(stepName: String, status: SagaStepStatus): List<SagaStep>
 
     fun findByCompensationStepId(compensationStepId: Long): SagaStep?
-}
+} 

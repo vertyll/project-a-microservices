@@ -1,5 +1,7 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.user.domain.repository
 
+import com.vertyll.projecta.user.domain.model.Saga
+import com.vertyll.projecta.user.domain.model.SagaStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional
@@ -13,4 +15,4 @@ interface SagaRepository : JpaRepository<Saga, String> {
     fun findByTypeAndStatus(type: String, status: SagaStatus): List<Saga>
 
     fun findByIdAndType(id: String, type: String): Optional<Saga>
-}
+} 

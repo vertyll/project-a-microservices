@@ -1,25 +1,10 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.user.domain.model
 
 enum class SagaStepNames(val value: String) {
-    // Auth service steps
-    CREATE_AUTH_USER("CreateAuthUser"),
-    CREATE_USER_EVENT("CreateUserEvent"),
-    CREATE_VERIFICATION_TOKEN("CreateVerificationToken"),
-    CREATE_MAIL_EVENT("CreateMailEvent"),
-
     // User service steps
-    CREATE_USER("CreateUser"),
+    CREATE_USER_PROFILE("CreateUserProfile"),
     UPDATE_USER_PROFILE("UpdateUserProfile"),
-    DELETE_USER("DeleteUser"),
-
-    // Role service steps
-    CREATE_ROLE("CreateRole"),
-    UPDATE_ROLE("UpdateRole"),
-    ASSIGN_ROLE("AssignRole"),
-    REVOKE_ROLE("RevokeRole"),
-
-    // Mail service steps
-    SEND_EMAIL("SendEmail");
+    DELETE_USER_PROFILE("DeleteUserProfile");
 
     companion object {
         const val COMPENSATION_PREFIX = "Compensate"
@@ -32,4 +17,4 @@ enum class SagaStepNames(val value: String) {
 
         fun compensationNameFromString(stepName: String): String = "$COMPENSATION_PREFIX$stepName"
     }
-}
+} 

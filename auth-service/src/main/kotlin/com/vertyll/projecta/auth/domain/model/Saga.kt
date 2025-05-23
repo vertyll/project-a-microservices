@@ -1,4 +1,4 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.auth.domain.model
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -12,7 +12,7 @@ import java.time.Instant
  * Represents the state of a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "saga")
+@Table(name = "auth_saga")
 class Saga(
     @Id
     val id: String, // Using a UUID string as ID
@@ -50,3 +50,11 @@ class Saga(
         completedAt = null
     )
 }
+
+enum class SagaStatus {
+    STARTED,
+    COMPLETED,
+    FAILED,
+    COMPENSATING,
+    COMPENSATED
+} 

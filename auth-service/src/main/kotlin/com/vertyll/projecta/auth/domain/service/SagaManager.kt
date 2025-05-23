@@ -1,6 +1,12 @@
-package com.vertyll.projecta.common.saga
+package com.vertyll.projecta.auth.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.vertyll.projecta.auth.domain.model.Saga
+import com.vertyll.projecta.auth.domain.model.SagaStatus
+import com.vertyll.projecta.auth.domain.model.SagaStep
+import com.vertyll.projecta.auth.domain.model.SagaStepStatus
+import com.vertyll.projecta.auth.domain.repository.SagaRepository
+import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
@@ -148,9 +154,8 @@ class SagaManager(
             try {
                 // Create a compensation event based on the step name
                 when (step.stepName) {
-                    "CreateUser" -> createUserCompensationEvent(saga.id, step)
-                    "AssignRole" -> createRoleAssignmentCompensationEvent(saga.id, step)
-                    "SendEmail" -> createEmailCompensationEvent(saga.id, step)
+                    "CreateAuthUser" -> compensateCreateAuthUser(saga.id, step)
+                    "CreateVerificationToken" -> compensateCreateVerificationToken(saga.id, step)
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
 
@@ -174,71 +179,52 @@ class SagaManager(
     }
 
     /**
-     * Creates a compensation event for user creation
+     * Compensate for creating an auth user
      */
-    private fun createUserCompensationEvent(sagaId: String, step: SagaStep) {
-        // Extract user ID from step payload
-        val payload = objectMapper.readValue(step.payload, Map::class.java)
-        val userId = payload["userId"] as Long
+    private fun compensateCreateAuthUser(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val authUserId = (payload["authUserId"] as Number).toLong()
 
-        // Create an outbox message for user deletion
-        kafkaOutboxProcessor.saveOutboxMessage(
-            topic = KafkaTopicNames.USER_DELETION,
-            key = userId.toString(),
-            payload = mapOf(
-                "userId" to userId,
-                "sagaId" to sagaId,
-                "compensationFor" to step.id
-            ),
-            sagaId = sagaId
-        )
+            // Send compensation event to delete the auth user
+            kafkaOutboxProcessor.saveOutboxMessage(
+                topic = KafkaTopicNames.SAGA_COMPENSATION,
+                key = sagaId,
+                payload = mapOf(
+                    "sagaId" to sagaId,
+                    "stepId" to step.id,
+                    "action" to "DELETE_AUTH_USER",
+                    "authUserId" to authUserId
+                ),
+                sagaId = sagaId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for CreateAuthUser: ${e.message}", e)
+        }
     }
 
     /**
-     * Creates a compensation event for role assignment
+     * Compensate for creating a verification token
      */
-    private fun createRoleAssignmentCompensationEvent(sagaId: String, step: SagaStep) {
-        // Extract role assignment details from step payload
-        val payload = objectMapper.readValue(step.payload, Map::class.java)
-        val userId = payload["userId"] as Long
-        val roleId = payload["roleId"] as Long
+    private fun compensateCreateVerificationToken(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val tokenId = (payload["tokenId"] as Number).toLong()
 
-        // Create an outbox message for role revocation
-        kafkaOutboxProcessor.saveOutboxMessage(
-            topic = KafkaTopicNames.ROLE_REVOKED,
-            key = "$userId-$roleId",
-            payload = mapOf(
-                "userId" to userId,
-                "roleId" to roleId,
-                "sagaId" to sagaId,
-                "compensationFor" to step.id
-            ),
-            sagaId = sagaId
-        )
+            // Send compensation event to delete the verification token
+            kafkaOutboxProcessor.saveOutboxMessage(
+                topic = KafkaTopicNames.SAGA_COMPENSATION,
+                key = sagaId,
+                payload = mapOf(
+                    "sagaId" to sagaId,
+                    "stepId" to step.id,
+                    "action" to "DELETE_VERIFICATION_TOKEN",
+                    "tokenId" to tokenId
+                ),
+                sagaId = sagaId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for CreateVerificationToken: ${e.message}", e)
+        }
     }
-
-    /**
-     * Creates a compensation event for email sending
-     */
-    private fun createEmailCompensationEvent(sagaId: String, step: SagaStep) {
-        // For emails, there's typically no compensation - just record that we would have sent a compensation email
-        logger.info("Email compensation would be sent for step ${step.id}")
-
-        // Optionally, we could send a "correction" email
-        val payload = objectMapper.readValue(step.payload, Map::class.java)
-        val to = payload["to"] as String
-
-        kafkaOutboxProcessor.saveOutboxMessage(
-            topic = KafkaTopicNames.MAIL_REQUESTED,
-            key = UUID.randomUUID().toString(),
-            payload = mapOf(
-                "to" to to,
-                "subject" to "Correction Notice",
-                "body" to "Please disregard our previous email as it was sent in error.",
-                "sagaId" to sagaId,
-                "compensationFor" to step.id
-            ),
-            sagaId = sagaId
-        )
-    }
-}
+} 

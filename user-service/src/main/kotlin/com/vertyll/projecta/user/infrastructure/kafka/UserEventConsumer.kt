@@ -7,11 +7,11 @@ import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
-import com.vertyll.projecta.common.saga.SagaManager
-import com.vertyll.projecta.common.saga.SagaStepStatus
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
+import com.vertyll.projecta.user.domain.model.SagaStepStatus
 import com.vertyll.projecta.user.domain.repository.UserRepository
+import com.vertyll.projecta.user.domain.service.SagaManager
 import com.vertyll.projecta.user.domain.service.UserService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
