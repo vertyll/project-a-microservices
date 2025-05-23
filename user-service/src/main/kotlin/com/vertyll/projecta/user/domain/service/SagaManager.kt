@@ -229,4 +229,4 @@ class SagaManager(
             logger.error("Failed to create compensation event for UpdateUserProfile: ${e.message}", e)
         }
     }
-} 
+}

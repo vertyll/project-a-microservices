@@ -16,4 +16,4 @@ interface SagaStepRepository : JpaRepository<SagaStep, Long> {
     fun findByStepNameAndStatus(stepName: String, status: SagaStepStatus): List<SagaStep>
 
     fun findByCompensationStepId(compensationStepId: Long): SagaStep?
-} 
+}

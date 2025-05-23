@@ -3,7 +3,7 @@ package com.vertyll.projecta.auth.domain.model
 enum class SagaTypes(val value: String) {
     // User related sagas
     USER_REGISTRATION("UserRegistration"),
-    
+
     // Email related sagas
     EMAIL_CHANGE("EmailChange"),
 
@@ -16,4 +16,4 @@ enum class SagaTypes(val value: String) {
             return SagaTypes.entries.find { it.value == value }
         }
     }
-} 
+}

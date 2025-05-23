@@ -3,17 +3,39 @@ package com.vertyll.projecta.gateway
 import com.vertyll.projecta.common.config.SharedConfigProperties
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.http.HttpStatus
+import org.springframework.kafka.annotation.EnableKafka
 
 @SpringBootApplication
+@EnableJpaRepositories(
+    basePackages = [
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
+@EntityScan(
+    basePackages = [
+        "com.vertyll.projecta.auth.domain.model",
+        "com.vertyll.projecta.common.kafka"
+    ]
+)
+@EnableKafka
 @ComponentScan(
     basePackages = [
+        "com.vertyll.projecta.auth",
         "com.vertyll.projecta.common"
+    ]
+)
+@ComponentScan(
+    basePackages = [
+        "com.vertyll.projecta.common",
+        "com.vertyll.projecta.gateway"
     ]
 )
 class ApiGatewayApplication(

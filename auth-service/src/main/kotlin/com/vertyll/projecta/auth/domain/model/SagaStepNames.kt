@@ -18,4 +18,4 @@ enum class SagaStepNames(val value: String) {
 
         fun compensationNameFromString(stepName: String): String = "$COMPENSATION_PREFIX$stepName"
     }
-} 
+}

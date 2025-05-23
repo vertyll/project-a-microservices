@@ -11,4 +11,4 @@ enum class SagaTypes(val value: String) {
             return SagaTypes.entries.find { it.value == value }
         }
     }
-} 
+}

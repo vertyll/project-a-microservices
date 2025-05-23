@@ -27,4 +27,4 @@ class JacksonConfig {
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .findAndRegisterModules()
     }
-} 
+}

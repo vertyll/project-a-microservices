@@ -57,4 +57,4 @@ enum class SagaStatus {
     FAILED,
     COMPENSATING,
     COMPENSATED
-} 
+}

@@ -227,4 +227,4 @@ class SagaManager(
             logger.error("Failed to create compensation event for CreateVerificationToken: ${e.message}", e)
         }
     }
-} 
+}

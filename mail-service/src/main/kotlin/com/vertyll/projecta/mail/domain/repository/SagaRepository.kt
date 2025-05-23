@@ -15,4 +15,4 @@ interface SagaRepository : JpaRepository<Saga, String> {
     fun findByTypeAndStatus(type: String, status: SagaStatus): List<Saga>
 
     fun findByIdAndType(id: String, type: String): Optional<Saga>
-} 
+}
