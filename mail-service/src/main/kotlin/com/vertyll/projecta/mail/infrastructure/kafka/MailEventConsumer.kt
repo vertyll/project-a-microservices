@@ -8,7 +8,7 @@ import com.vertyll.projecta.common.event.EventType
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.common.mail.EmailTemplate
-import com.vertyll.projecta.mail.domain.service.EmailService
+import com.vertyll.projecta.mail.domain.service.EmailSagaService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
@@ -19,7 +19,7 @@ import java.time.Instant
 @Component
 class MailEventConsumer(
     private val objectMapper: ObjectMapper,
-    private val emailService: EmailService,
+    private val emailSagaService: EmailSagaService,
     @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -136,7 +136,8 @@ class MailEventConsumer(
         val template = EmailTemplate.fromTemplateName(event.templateName)
 
         if (template != null) {
-            val success = emailService.sendEmail(
+            // Use EmailSagaService to track the email sending process
+            val success = emailSagaService.sendEmailWithSaga(
                 to = event.to,
                 subject = event.subject,
                 template = template,
