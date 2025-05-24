@@ -40,7 +40,7 @@ spring:
         spring.json.trusted.packages: "com.vertyll.projecta.*"
         spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent,roleAssigned:com.vertyll.projecta.common.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.common.event.role.RoleRevokedEvent
   cloud:
     discovery:
       enabled: false

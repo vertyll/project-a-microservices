@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.AuthUserRoleRepository
 import com.vertyll.projecta.common.event.EventSource
+import com.vertyll.projecta.common.event.role.RoleAssignedEvent
+import com.vertyll.projecta.common.event.role.RoleRevokedEvent
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -57,34 +59,31 @@ class UserEventConsumer(
         try {
             logger.info("Received role assigned event with key: ${record.key()}")
 
-            // Parse the event as a map first
-            val eventMap = objectMapper.readValue(
+            // Deserialize the event using the structured class
+            val event = objectMapper.readValue(
                 record.value(),
-                Map::class.java
+                RoleAssignedEvent::class.java
             )
-            val userId = (eventMap["userId"] as Number).toLong()
-            val roleId = (eventMap["roleId"] as Number).toLong()
-            val roleName = eventMap["roleName"] as String
 
-            logger.info("Received role assignment: User ID $userId, Role $roleName ($roleId)")
+            logger.info("Received role assignment: User ID ${event.userId}, Role ${event.roleName} (${event.roleId})")
 
             // Find the auth user by userId
-            val authUser = authUserRepository.findByUserId(userId)
+            val authUser = authUserRepository.findByUserId(event.userId)
 
             if (authUser != null) {
                 // Check if this role is already assigned
-                if (authUserRoleRepository.existsByAuthUserIdAndRoleId(authUser.id!!, roleId)) {
-                    logger.info("Role $roleName ($roleId) already assigned to auth user ${authUser.id}")
+                if (authUserRoleRepository.existsByAuthUserIdAndRoleId(authUser.id!!, event.roleId)) {
+                    logger.info("Role ${event.roleName} (${event.roleId}) already assigned to auth user ${authUser.id}")
                     return
                 }
 
                 // Add the role to the user
-                authUser.addRole(roleId, roleName)
+                authUser.addRole(event.roleId, event.roleName)
                 authUserRepository.save(authUser)
 
-                logger.info("Successfully assigned role $roleName ($roleId) to auth user ${authUser.id}")
+                logger.info("Successfully assigned role ${event.roleName} (${event.roleId}) to auth user ${authUser.id}")
             } else {
-                logger.warn("Auth user not found for userId $userId, can't assign role")
+                logger.warn("Auth user not found for userId ${event.userId}, can't assign role")
             }
         } catch (e: Exception) {
             logger.error("Error processing role assigned event: ${e.message}", e)
@@ -100,28 +99,25 @@ class UserEventConsumer(
         try {
             logger.info("Received role revoked event with key: ${record.key()}")
 
-            // Parse the event as a map first
-            val eventMap = objectMapper.readValue(
+            // Deserialize the event using the structured class
+            val event = objectMapper.readValue(
                 record.value(),
-                Map::class.java
+                RoleRevokedEvent::class.java
             )
-            val userId = (eventMap["userId"] as Number).toLong()
-            val roleId = (eventMap["roleId"] as Number).toLong()
-            val roleName = eventMap["roleName"] as String
 
-            logger.info("Received role revocation: User ID $userId, Role $roleName ($roleId)")
+            logger.info("Received role revocation: User ID ${event.userId}, Role ${event.roleName} (${event.roleId})")
 
             // Find the auth user by userId
-            val authUser = authUserRepository.findByUserId(userId)
+            val authUser = authUserRepository.findByUserId(event.userId)
 
             if (authUser != null) {
                 // Remove the role from the user
-                authUser.removeRole(roleId)
+                authUser.removeRole(event.roleId)
                 authUserRepository.save(authUser)
 
-                logger.info("Successfully revoked role $roleName ($roleId) from auth user ${authUser.id}")
+                logger.info("Successfully revoked role ${event.roleName} (${event.roleId}) from auth user ${authUser.id}")
             } else {
-                logger.warn("Auth user not found for userId $userId, can't revoke role")
+                logger.warn("Auth user not found for userId ${event.userId}, can't revoke role")
             }
         } catch (e: Exception) {
             logger.error("Error processing role revoked event: ${e.message}", e)
