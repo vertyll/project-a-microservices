@@ -82,7 +82,7 @@ services:
 
   # Kafka and Zookeeper for event-driven communication
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
+    image: docker.io/confluentinc/cp-zookeeper:7.4.0
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -98,7 +98,7 @@ services:
       retries: 5
 
   kafka:
-    image: confluentinc/cp-kafka:7.4.0
+    image: docker.io/confluentinc/cp-kafka:7.4.0
     container_name: kafka
     depends_on:
       zookeeper:
@@ -123,7 +123,7 @@ services:
       retries: 5
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.4.0
+    image: docker.io/confluentinc/cp-schema-registry:7.4.0
     container_name: schema-registry
     depends_on:
       kafka:
@@ -155,7 +155,7 @@ services:
 
   # Kafka UI tool
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
+    image: docker.io/provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     depends_on:
       - kafka
