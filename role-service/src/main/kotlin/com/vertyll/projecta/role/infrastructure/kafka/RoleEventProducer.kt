@@ -1,8 +1,9 @@
 package com.vertyll.projecta.role.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.event.EventType
+import com.vertyll.projecta.common.event.role.RoleAssignedEvent
 import com.vertyll.projecta.common.event.role.RoleCreatedEvent
+import com.vertyll.projecta.common.event.role.RoleRevokedEvent
 import com.vertyll.projecta.common.event.role.RoleUpdatedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.role.domain.model.Role
@@ -58,42 +59,38 @@ class RoleEventProducer(
     }
 
     /**
-     * Sends an event when a role is assigned to a user using a Map
+     * Sends an event when a role is assigned to a user using the structured event class
      */
     fun sendRoleAssignedEvent(userRole: UserRole, roleName: String) {
-        val eventMap = mapOf(
-            "eventType" to EventType.ROLE_ASSIGNED.value,
-            "userId" to userRole.userId,
-            "roleId" to userRole.roleId,
-            "roleName" to roleName,
-            "timestamp" to System.currentTimeMillis()
+        val event = RoleAssignedEvent(
+            userId = userRole.userId,
+            roleId = userRole.roleId,
+            roleName = roleName
         )
 
-        val eventJson = objectMapper.writeValueAsString(eventMap)
+        val eventJson = objectMapper.writeValueAsString(event)
         kafkaTemplate.send(
             kafkaTopicsConfig.getRoleAssignedTopic(),
-            userRole.userId.toString(),
+            event.eventId,
             eventJson
         )
         logger.info("Sent role assigned event: Role {} assigned to user {}", roleName, userRole.userId)
     }
 
     /**
-     * Sends an event when a role is revoked from a user using a Map
+     * Sends an event when a role is revoked from a user using the structured event class
      */
     fun sendRoleRevokedEvent(userId: Long, roleId: Long, roleName: String) {
-        val eventMap = mapOf(
-            "eventType" to EventType.ROLE_REVOKED.value,
-            "userId" to userId,
-            "roleId" to roleId,
-            "roleName" to roleName,
-            "timestamp" to System.currentTimeMillis()
+        val event = RoleRevokedEvent(
+            userId = userId,
+            roleId = roleId,
+            roleName = roleName
         )
 
-        val eventJson = objectMapper.writeValueAsString(eventMap)
+        val eventJson = objectMapper.writeValueAsString(event)
         kafkaTemplate.send(
             kafkaTopicsConfig.getRoleRevokedTopic(),
-            userId.toString(),
+            event.eventId,
             eventJson
         )
         logger.info("Sent role revoked event: Role {} revoked from user {}", roleName, userId)
