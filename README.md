@@ -7,7 +7,7 @@
 
 # Project A Microservices
 
-A microservices-based architecture for Project A, following Domain-Driven Design (DDD) principles, Separation of Concerns (SoC), SOLID principles, Choreography pattern for service coordination, and the Saga pattern for distributed transactions.
+A microservices-based architecture for Project A, following Domain-Driven Design (DDD) principles, Hexagonal Architecture (Ports & Adapters), Separation of Concerns (SoC), SOLID principles, Choreography pattern for service coordination, and the Saga pattern for distributed transactions.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ The project is split into the following components:
 5. **Mail Service** - Handles email sending operations and templates
 6. **Common Library** - Shared code, contracts, and utilities used across all microservices
 
-Each microservice has its own PostgreSQL database and communicates with other services via Apache Kafka for event-driven architecture, implementing the Choreography pattern.
+Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other via Apache Kafka for event-driven architecture, implementing the Choreography pattern.
 
 ### Detailed Description of Components
 
@@ -32,6 +32,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
 - Contains reusable components for Kafka integration, exception handling, and API responses
 - Ensures consistency in how services communicate and process events
 - Includes base classes for implementing event choreography
+- Provides shared ports and adapters interfaces for consistent hexagonal architecture implementation
 
 #### Auth Service
 - Responsible for user authentication and authorization using JWT and refresh tokens
@@ -43,6 +44,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
   - User roles (mirrored from Role Service)
 - Provides endpoints for registration, login, logout, account activation, password reset, and email change
 - Publishes authentication events that trigger workflows in other services
+- Implements hexagonal architecture with clear separation between business logic and external adapters
 
 #### Role Service
 - Manages the roles and permissions throughout the system
@@ -53,6 +55,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
 - Provides APIs for creating, updating, and assigning roles
 - Publishes role-related events to Kafka for other services to consume
 - Reacts to user events to assign default roles automatically
+- Follows hexagonal architecture with domain-driven role management at its core
 
 #### User Service
 - Manages user profiles and user-related information not needed for authentication
@@ -63,6 +66,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
 - Consumes user-related events from other services
 - Provides APIs for managing user profiles
 - Publishes user profile events when changes occur
+- Implements clean hexagonal architecture with isolated business logic
 
 #### Mail Service
 - Responsible for sending emails based on templates
@@ -73,6 +77,7 @@ Each microservice has its own PostgreSQL database and communicates with other se
 - Consumes mail request events from other services
 - Supports various email templates (welcome, password reset, account activation, etc.)
 - Acts as a reactive service in the choreography flow
+- Uses hexagonal architecture to decouple email sending logic from external mail providers
 
 ## Technology Stack
 
@@ -129,19 +134,29 @@ Each microservice has its own PostgreSQL database and communicates with other se
 
 ## Architecture Design
 
+### Hexagonal Architecture (Ports & Adapters)
+
+Each microservice implements Hexagonal Architecture to achieve clean separation of concerns.
+
+Benefits:
+- **Testability**: Core business logic can be tested independently
+- **Flexibility**: Easy to swap external dependencies without affecting business logic
+- **Maintainability**: Clear separation between business rules and technical details
+- **Technology Independence**: Core domain is not coupled to specific frameworks or technologies
+
 ### Domain-Driven Design (DDD)
 
 Each microservice is designed around a specific business domain with:
 - A clear bounded context
 - Domain models that represent business entities
-- A layered architecture (domain, application, infrastructure)
+- A layered architecture within the hexagonal structure
 - Domain-specific language
 - Encapsulated business logic
 
-The project structure follows DDD principles:
-- `domain`: Core business models, repositories, and services
-- `application`: Controllers and application services
-- `infrastructure`: Technical concerns like Kafka, database configurations
+The project structure follows DDD principles within hexagonal architecture:
+- `domain`: Core business models, domain services, domain events, and business logic
+- `application`: Controllers, DTOs, use cases, application services, and port definitions (Primary Adapters)
+- `infrastructure`: Adapters for external systems like databases, Kafka, email providers, etc. (Secondary Adapters)
 
 ### SOLID Principles and Separation of Concerns
 
@@ -150,7 +165,12 @@ The codebase adheres to:
 - **Open/Closed Principle**: Classes are open for extension but closed for modification
 - **Liskov Substitution Principle**: Subtypes are substitutable for their base types
 - **Interface Segregation Principle**: Specific interfaces rather than general ones
-- **Dependency Inversion Principle**: Depends on abstractions, not concretions
+- **Dependency Inversion Principle**: Depends on abstractions (ports), not concretions (adapters)
+
+The hexagonal architecture naturally enforces these principles by:
+- Isolating business logic from external concerns
+- Using dependency inversion through ports and adapters
+- Maintaining clear boundaries between layers
 
 ### Choreography Pattern for Service Coordination
 
@@ -166,14 +186,16 @@ Benefits of this approach:
 - More flexible and scalable architecture
 - Easier to add new services or modify existing ones
 - Better resilience as there's no single point of failure
+- Aligns well with hexagonal architecture by treating event communication as external adapters
 
 ### Saga Pattern for Distributed Transactions
 
 For distributed transactions that span multiple services, we use the Saga pattern:
 
-1. A service publishes a domain event to Kafka
-2. Other services consume the event and perform their operations
-3. If an operation fails, compensating transactions are triggered to maintain consistency
+1. A service publishes a domain event to Kafka through its event publishing adapter
+2. Other services consume the event through their event consuming adapters
+3. Business logic in the domain core processes the event and may trigger compensating actions
+4. If an operation fails, compensating transactions are triggered to maintain consistency
 
 Example: User Registration Saga
 - Auth Service: Creates new user credentials and publishes UserRegisteredEvent
@@ -181,9 +203,11 @@ Example: User Registration Saga
 - Role Service: Consumes event and assigns default roles
 - Mail Service: Consumes event and sends welcome email
 
+Each step is handled by the respective service's hexagonal architecture, ensuring clean separation between event handling (adapters) and business logic (domain core).
+
 ### Event-Driven Communication
 
-Services communicate asynchronously through Kafka events:
+Services communicate asynchronously through Kafka events, implemented as external adapters in the hexagonal architecture:
 
 - **UserRegisteredEvent**: Triggered when a new user registers
 - **UserActivatedEvent**: Triggered when a user activates their account
@@ -191,6 +215,8 @@ Services communicate asynchronously through Kafka events:
 - **RoleCreatedEvent**: Triggered when a new role is created
 - **RoleAssignedEvent**: Triggered when a role is assigned to a user
 - **UserProfileUpdatedEvent**: Triggered when a user profile is updated
+
+Event publishing and consuming are handled by dedicated adapters, keeping the domain core focused on business logic.
 
 ## API Documentation
 
