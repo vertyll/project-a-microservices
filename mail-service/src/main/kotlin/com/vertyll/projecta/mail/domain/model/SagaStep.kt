@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import java.time.Instant
 
@@ -14,11 +15,11 @@ import java.time.Instant
  * Represents a step in a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "mail_saga_step")
+@Table(name = "saga_steps")
 class SagaStep(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long = 0,
 
     @Column(nullable = false)
     val sagaId: String,
@@ -26,44 +27,32 @@ class SagaStep(
     @Column(nullable = false)
     val stepName: String,
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: SagaStepStatus,
+    @Column(nullable = false)
+    val status: SagaStepStatus,
 
-    @Column(nullable = true, columnDefinition = "TEXT")
+    @Lob
+    @Column(columnDefinition = "TEXT")
     val payload: String? = null,
 
-    @Column(nullable = true)
-    var errorMessage: String? = null,
-
     @Column(nullable = false)
-    val createdAt: Instant,
+    val createdAt: Instant = Instant.now(),
 
     @Column(nullable = true)
-    var completedAt: Instant? = null,
+    val completedAt: Instant? = null,
 
     @Column(nullable = true)
-    var compensationStepId: Long? = null
+    val compensationStepId: Long? = null
 ) {
     // No-args constructor required by JPA
     constructor() : this(
-        id = null,
+        id = 0,
         sagaId = "",
         stepName = "",
         status = SagaStepStatus.STARTED,
         payload = null,
-        errorMessage = null,
         createdAt = Instant.now(),
         completedAt = null,
         compensationStepId = null
     )
-}
-
-enum class SagaStepStatus {
-    STARTED,
-    COMPLETED,
-    FAILED,
-    COMPENSATING,
-    COMPENSATED,
-    COMPENSATION_FAILED
 }

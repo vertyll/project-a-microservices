@@ -5,6 +5,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
+import jakarta.persistence.Lob
 import jakarta.persistence.Table
 import java.time.Instant
 
@@ -12,29 +13,30 @@ import java.time.Instant
  * Represents the state of a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "mail_saga")
+@Table(name = "sagas")
 class Saga(
     @Id
-    val id: String, // Using a UUID string as ID
+    val id: String,
 
     @Column(nullable = false)
     val type: String,
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    var status: SagaStatus,
+    @Column(nullable = false)
+    var status: SagaStatus = SagaStatus.STARTED,
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    val payload: String,
-
-    @Column(nullable = true)
-    var lastError: String? = null,
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    val payload: String?,
 
     @Column(nullable = false)
-    val startedAt: Instant,
+    val startedAt: Instant = Instant.now(),
 
     @Column(nullable = true)
     var completedAt: Instant? = null,
+
+    @Column(nullable = true)
+    var lastError: String? = null,
 
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now()
@@ -44,17 +46,8 @@ class Saga(
         id = "",
         type = "",
         status = SagaStatus.STARTED,
-        payload = "",
-        lastError = null,
+        payload = null,
         startedAt = Instant.now(),
         completedAt = null
     )
-}
-
-enum class SagaStatus {
-    STARTED,
-    COMPLETED,
-    FAILED,
-    COMPENSATING,
-    COMPENSATED
 }

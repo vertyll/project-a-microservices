@@ -6,6 +6,8 @@ import com.vertyll.projecta.role.domain.dto.RoleCreateDto
 import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
 import com.vertyll.projecta.role.domain.model.Role
+import com.vertyll.projecta.role.domain.model.SagaStepStatus
+import com.vertyll.projecta.role.domain.model.SagaTypes
 import com.vertyll.projecta.role.domain.model.UserRole
 import com.vertyll.projecta.role.domain.repository.RoleRepository
 import com.vertyll.projecta.role.domain.repository.UserRoleRepository
@@ -20,7 +22,8 @@ import org.springframework.transaction.annotation.Transactional
 class RoleService(
     private val roleRepository: RoleRepository,
     private val userRoleRepository: UserRoleRepository,
-    private val roleEventProducer: RoleEventProducer
+    private val roleEventProducer: RoleEventProducer,
+    private val sagaManager: SagaManager
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -62,20 +65,61 @@ class RoleService(
             )
         }
 
-        val role = Role.create(
-            name = dto.name,
-            description = dto.description
+        // Start a saga for role creation
+        val saga = sagaManager.startSaga(
+            sagaType = SagaTypes.ROLE_CREATION.value,
+            payload = dto
         )
 
-        val savedRole = roleRepository.save(role)
+        // Record the start of the role creation step
+        sagaManager.recordSagaStep(
+            sagaId = saga.id,
+            stepName = "CreateRole",
+            status = SagaStepStatus.STARTED
+        )
 
         try {
-            roleEventProducer.sendRoleCreatedEvent(savedRole)
-        } catch (e: Exception) {
-            logger.error("Failed to send role created event: ${e.message}", e)
-        }
+            // Create the role
+            val role = Role.create(
+                name = dto.name,
+                description = dto.description
+            )
 
-        return mapToDto(savedRole)
+            val savedRole = roleRepository.save(role)
+
+            // Record successful completion of role creation step
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "CreateRole",
+                status = SagaStepStatus.COMPLETED,
+                payload = mapOf(
+                    "roleId" to savedRole.id,
+                    "name" to savedRole.name
+                )
+            )
+
+            // Send event
+            try {
+                roleEventProducer.sendRoleCreatedEvent(savedRole)
+                sagaManager.completeSaga(saga.id)
+            } catch (e: Exception) {
+                logger.error("Failed to send role created event: ${e.message}", e)
+                // We don't fail the saga here since the role was created successfully
+                // Just log the event sending failure
+            }
+
+            return mapToDto(savedRole)
+        } catch (e: Exception) {
+            // Record failure
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "CreateRole",
+                status = SagaStepStatus.FAILED,
+                payload = mapOf("error" to (e.message ?: "Unknown error"))
+            )
+            sagaManager.failSaga(saga.id, e.message ?: "Role creation failed")
+            throw e
+        }
     }
 
     @Transactional
@@ -104,21 +148,70 @@ class RoleService(
             )
         }
 
-        val updatedRole = Role(
-            id = role.id,
-            name = dto.name,
-            description = dto.description
+        // Start saga for role update
+        val saga = sagaManager.startSaga(
+            sagaType = SagaTypes.ROLE_UPDATE.value,
+            payload = mapOf(
+                "roleId" to id,
+                "originalName" to role.name,
+                "originalDescription" to role.description,
+                "newName" to dto.name,
+                "newDescription" to dto.description
+            )
         )
 
-        val savedRole = roleRepository.save(updatedRole)
+        // Record start of update step
+        sagaManager.recordSagaStep(
+            sagaId = saga.id,
+            stepName = "UpdateRole",
+            status = SagaStepStatus.STARTED
+        )
 
         try {
-            roleEventProducer.sendRoleUpdatedEvent(savedRole)
-        } catch (e: Exception) {
-            logger.error("Failed to send role updated event: ${e.message}", e)
-        }
+            val updatedRole = Role(
+                id = role.id,
+                name = dto.name,
+                description = dto.description
+            )
 
-        return mapToDto(savedRole)
+            val savedRole = roleRepository.save(updatedRole)
+
+            // Record successful completion of role update step
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "UpdateRole",
+                status = SagaStepStatus.COMPLETED,
+                payload = mapOf(
+                    "roleId" to savedRole.id,
+                    "name" to savedRole.name,
+                    "originalData" to mapOf(
+                        "name" to role.name,
+                        "description" to role.description
+                    )
+                )
+            )
+
+            // Send event
+            try {
+                roleEventProducer.sendRoleUpdatedEvent(savedRole)
+                sagaManager.completeSaga(saga.id)
+            } catch (e: Exception) {
+                logger.error("Failed to send role updated event: ${e.message}", e)
+                // We don't fail the saga here since the role was updated successfully
+            }
+
+            return mapToDto(savedRole)
+        } catch (e: Exception) {
+            // Record failure
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "UpdateRole",
+                status = SagaStepStatus.FAILED,
+                payload = mapOf("error" to (e.message ?: "Unknown error"))
+            )
+            sagaManager.failSaga(saga.id, e.message ?: "Role update failed")
+            throw e
+        }
     }
 
     @Transactional(readOnly = true)
@@ -173,23 +266,65 @@ class RoleService(
                 }
         }
 
-        val userRole = UserRole(
-            userId = userId,
-            roleId = role.id
+        // Start saga for role assignment
+        val saga = sagaManager.startSaga(
+            sagaType = SagaTypes.ROLE_ASSIGNMENT.value,
+            payload = mapOf(
+                "userId" to userId,
+                "roleId" to role.id,
+                "roleName" to role.name
+            )
         )
 
-        val savedUserRole = userRoleRepository.save(userRole)
+        // Record start of assignment step
+        sagaManager.recordSagaStep(
+            sagaId = saga.id,
+            stepName = "AssignRole",
+            status = SagaStepStatus.STARTED
+        )
 
-        // Send role assigned event
         try {
-            roleEventProducer.sendRoleAssignedEvent(savedUserRole, role.name)
-        } catch (e: Exception) {
-            logger.error("Failed to send role assigned event: ${e.message}", e)
-            // Continue even if event fails to send
-        }
+            val userRole = UserRole(
+                userId = userId,
+                roleId = role.id
+            )
 
-        logger.info("Successfully assigned role $roleName to user $userId")
-        return savedUserRole
+            val savedUserRole = userRoleRepository.save(userRole)
+
+            // Record successful completion of role assignment step
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "AssignRole",
+                status = SagaStepStatus.COMPLETED,
+                payload = mapOf(
+                    "userId" to userId,
+                    "roleId" to role.id,
+                    "roleName" to role.name
+                )
+            )
+
+            // Send role assigned event
+            try {
+                roleEventProducer.sendRoleAssignedEvent(savedUserRole, role.name)
+                sagaManager.completeSaga(saga.id)
+            } catch (e: Exception) {
+                logger.error("Failed to send role assigned event: ${e.message}", e)
+                // We don't fail the saga here since the role was assigned successfully
+            }
+
+            logger.info("Successfully assigned role $roleName to user $userId")
+            return savedUserRole
+        } catch (e: Exception) {
+            // Record failure
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "AssignRole",
+                status = SagaStepStatus.FAILED,
+                payload = mapOf("error" to (e.message ?: "Unknown error"))
+            )
+            sagaManager.failSaga(saga.id, e.message ?: "Role assignment failed")
+            throw e
+        }
     }
 
     @Transactional
@@ -220,17 +355,62 @@ class RoleService(
             }
         }
 
-        userRoleRepository.deleteByUserIdAndRoleId(userId, role.id)
+        // Start saga for role revocation
+        val saga = sagaManager.startSaga(
+            sagaType = SagaTypes.ROLE_REVOCATION.value,
+            payload = mapOf(
+                "userId" to userId,
+                "roleId" to role.id,
+                "roleName" to role.name
+            )
+        )
 
-        // Send role revoked event
+        // Record start of revocation step
+        sagaManager.recordSagaStep(
+            sagaId = saga.id,
+            stepName = "RevokeRole",
+            status = SagaStepStatus.STARTED
+        )
+
         try {
-            roleEventProducer.sendRoleRevokedEvent(userId, role.id, role.name)
-        } catch (e: Exception) {
-            logger.error("Failed to send role revoked event: ${e.message}", e)
-            // Continue even if event fails to send
-        }
+            // Store the user role data before deletion for potential compensation
+            val userRole = userRoleRepository.findByUserIdAndRoleId(userId, role.id).orElse(null)
 
-        logger.info("Successfully removed role $roleName from user $userId")
+            userRoleRepository.deleteByUserIdAndRoleId(userId, role.id)
+
+            // Record successful completion of role revocation step
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "RevokeRole",
+                status = SagaStepStatus.COMPLETED,
+                payload = mapOf(
+                    "userId" to userId,
+                    "roleId" to role.id,
+                    "roleName" to role.name
+                )
+            )
+
+            // Send role revoked event
+            try {
+                roleEventProducer.sendRoleRevokedEvent(userId, role.id, role.name)
+                sagaManager.completeSaga(saga.id)
+            } catch (e: Exception) {
+                logger.error("Failed to send role revoked event: ${e.message}", e)
+                // We don't fail the saga here since the role was revoked successfully
+            }
+
+            logger.info("Successfully removed role $roleName from user $userId")
+        } catch (e: Exception) {
+            // Record failure
+            sagaManager.recordSagaStep(
+                sagaId = saga.id,
+                stepName = "RevokeRole",
+                status = SagaStepStatus.FAILED,
+                payload = mapOf("error" to (e.message ?: "Unknown error"))
+            )
+            sagaManager.failSaga(saga.id, e.message ?: "Role revocation failed")
+            throw e
+        }
     }
 
     @Transactional(readOnly = true)

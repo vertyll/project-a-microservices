@@ -6,6 +6,7 @@ enum class SagaTypes(val value: String) {
 
     // Email related sagas
     EMAIL_CHANGE("EmailChange"),
+    EMAIL_VERIFICATION("EmailVerification"),
 
     // Password related sagas
     PASSWORD_CHANGE("PasswordChange"),

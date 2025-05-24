@@ -1,9 +1,11 @@
 package com.vertyll.projecta.mail.domain.model
 
 enum class SagaStepNames(val value: String) {
-    SEND_EMAIL("SendEmail"),
     PROCESS_TEMPLATE("ProcessTemplate"),
-    RECORD_EMAIL_LOG("RecordEmailLog");
+    SEND_EMAIL("SendEmail"),
+    RECORD_EMAIL_LOG("RecordEmailLog"),
+    TEMPLATE_UPDATE("TemplateUpdate"),
+    TEMPLATE_DELETE("TemplateDelete");
 
     companion object {
         const val COMPENSATION_PREFIX = "Compensate"

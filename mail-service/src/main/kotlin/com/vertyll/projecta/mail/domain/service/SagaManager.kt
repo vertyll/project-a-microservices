@@ -1,17 +1,17 @@
-package com.vertyll.projecta.auth.domain.service
+package com.vertyll.projecta.mail.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.auth.domain.model.Saga
-import com.vertyll.projecta.auth.domain.model.SagaCompensationActions
-import com.vertyll.projecta.auth.domain.model.SagaStatus
-import com.vertyll.projecta.auth.domain.model.SagaStep
-import com.vertyll.projecta.auth.domain.model.SagaStepNames
-import com.vertyll.projecta.auth.domain.model.SagaStepStatus
-import com.vertyll.projecta.auth.domain.model.SagaTypes
-import com.vertyll.projecta.auth.domain.repository.SagaRepository
-import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicNames
+import com.vertyll.projecta.mail.domain.model.Saga
+import com.vertyll.projecta.mail.domain.model.SagaCompensationActions
+import com.vertyll.projecta.mail.domain.model.SagaStatus
+import com.vertyll.projecta.mail.domain.model.SagaStep
+import com.vertyll.projecta.mail.domain.model.SagaStepNames
+import com.vertyll.projecta.mail.domain.model.SagaStepStatus
+import com.vertyll.projecta.mail.domain.model.SagaTypes
+import com.vertyll.projecta.mail.domain.repository.SagaRepository
+import com.vertyll.projecta.mail.domain.repository.SagaStepRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,28 +32,17 @@ class SagaManager(
 
     // Define the expected steps for each saga type
     private val sagaStepDefinitions = mapOf(
-        SagaTypes.USER_REGISTRATION.value to listOf(
-            SagaStepNames.CREATE_AUTH_USER.value,
-            SagaStepNames.CREATE_USER_EVENT.value,
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
+        SagaTypes.EMAIL_SENDING.value to listOf(
+            SagaStepNames.PROCESS_TEMPLATE.value,
+            SagaStepNames.SEND_EMAIL.value
         ),
-        SagaTypes.PASSWORD_RESET.value to listOf(
-            SagaStepNames.CREATE_RESET_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
+        SagaTypes.EMAIL_BATCH_PROCESSING.value to listOf(
+            SagaStepNames.PROCESS_TEMPLATE.value,
+            SagaStepNames.SEND_EMAIL.value,
+            SagaStepNames.RECORD_EMAIL_LOG.value
         ),
-        SagaTypes.EMAIL_VERIFICATION.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.PASSWORD_CHANGE.value to listOf(
-            SagaStepNames.VERIFY_CURRENT_PASSWORD.value,
-            SagaStepNames.UPDATE_PASSWORD.value
-        ),
-        SagaTypes.EMAIL_CHANGE.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value,
-            SagaStepNames.UPDATE_EMAIL.value
+        SagaTypes.TEMPLATE_MANAGEMENT.value to listOf(
+            SagaStepNames.TEMPLATE_UPDATE.value
         )
     )
 
@@ -114,15 +103,19 @@ class SagaManager(
 
             // Trigger compensation
             triggerCompensation(saga)
-        } else if (status == SagaStepStatus.COMPLETED) {
+        } else if (status == SagaStepStatus.COMPLETED || status == SagaStepStatus.PARTIALLY_COMPLETED) {
             // Check if this is the last step in the saga based on the saga type
             saga.updatedAt = Instant.now()
 
             // If all expected steps are completed, mark the saga as completed
-            if (areAllStepsCompleted(saga)) {
+            if (status != SagaStepStatus.PARTIALLY_COMPLETED && areAllStepsCompleted(saga)) {
                 saga.status = SagaStatus.COMPLETED
                 saga.completedAt = Instant.now()
                 logger.info("All steps completed for saga ${saga.id}, marking as COMPLETED")
+            } else if (status == SagaStepStatus.PARTIALLY_COMPLETED) {
+                saga.status = SagaStatus.PARTIALLY_COMPLETED
+                saga.completedAt = Instant.now()
+                logger.info("Saga ${saga.id} partially completed")
             }
 
             sagaRepository.save(saga)
@@ -154,47 +147,6 @@ class SagaManager(
     }
 
     /**
-     * Marks a saga as completed
-     * @param sagaId The ID of the saga to complete
-     * @return The updated saga
-     */
-    @Transactional
-    fun completeSaga(sagaId: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
-
-        saga.status = SagaStatus.COMPLETED
-        saga.completedAt = Instant.now()
-
-        return sagaRepository.save(saga)
-    }
-
-    /**
-     * Marks a saga as failed and initiates compensation
-     * @param sagaId The ID of the saga that failed
-     * @param error The error that caused the failure
-     * @return The updated saga
-     */
-    @Transactional
-    fun failSaga(sagaId: String, error: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
-
-        saga.status = SagaStatus.FAILED
-        saga.lastError = error
-        saga.updatedAt = Instant.now()
-
-        val savedSaga = sagaRepository.save(saga)
-
-        // Trigger compensation
-        triggerCompensation(savedSaga)
-
-        return savedSaga
-    }
-
-    /**
      * Triggers compensation for a failed saga
      * @param saga The saga to compensate
      */
@@ -212,10 +164,9 @@ class SagaManager(
             try {
                 // Create a compensation event based on the step name
                 when (step.stepName) {
-                    SagaStepNames.CREATE_AUTH_USER.value -> compensateCreateAuthUser(saga.id, step)
-                    SagaStepNames.CREATE_VERIFICATION_TOKEN.value -> compensateCreateVerificationToken(saga.id, step)
-                    SagaStepNames.UPDATE_PASSWORD.value -> compensateUpdatePassword(saga.id, step)
-                    SagaStepNames.UPDATE_EMAIL.value -> compensateUpdateEmail(saga.id, step)
+                    SagaStepNames.SEND_EMAIL.value -> compensateSendEmail(saga.id, step)
+                    SagaStepNames.RECORD_EMAIL_LOG.value -> compensateRecordEmailLog(saga.id, step)
+                    SagaStepNames.TEMPLATE_UPDATE.value -> compensateTemplateUpdate(saga.id, step)
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
 
@@ -239,114 +190,83 @@ class SagaManager(
     }
 
     /**
-     * Compensate for creating an auth user
+     * Compensate for sending an email (for auditing/logging only, can't "unsend" an email)
      */
-    private fun compensateCreateAuthUser(sagaId: String, step: SagaStep) {
+    private fun compensateSendEmail(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
+            val to = payload["to"]?.toString()
+            val emailId = payload["emailId"]?.toString()
 
-            // Send compensation event to delete the auth user
+            // Send compensation event to log the compensation
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_AUTH_USER.value,
-                    "authUserId" to authUserId
+                    "action" to SagaCompensationActions.LOG_EMAIL_COMPENSATION.value,
+                    "emailId" to emailId,
+                    "to" to to,
+                    "message" to "Email cannot be unsent, compensation logged for auditing purposes"
                 ),
                 sagaId = sagaId
             )
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for CreateAuthUser: ${e.message}", e)
+            logger.error("Failed to create compensation event for SendEmail: ${e.message}", e)
         }
     }
 
     /**
-     * Compensate for creating a verification token
+     * Compensate for recording an email log (delete it)
      */
-    private fun compensateCreateVerificationToken(sagaId: String, step: SagaStep) {
+    private fun compensateRecordEmailLog(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val tokenId = (payload["tokenId"] as Number).toLong()
+            val logId = payload["logId"]?.toString()
 
-            // Send compensation event to delete the verification token
+            if (logId != null) {
+                // Send compensation event to delete the email log
+                kafkaOutboxProcessor.saveOutboxMessage(
+                    topic = KafkaTopicNames.SAGA_COMPENSATION,
+                    key = sagaId,
+                    payload = mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.DELETE_EMAIL_LOG.value,
+                        "logId" to logId
+                    ),
+                    sagaId = sagaId
+                )
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for RecordEmailLog: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Compensate for updating a template (mostly for logging)
+     */
+    private fun compensateTemplateUpdate(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val templateName = payload["templateName"]?.toString()
+
+            // Send compensation event to log the template compensation
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_VERIFICATION_TOKEN.value,
-                    "tokenId" to tokenId
+                    "action" to SagaCompensationActions.LOG_TEMPLATE_COMPENSATION.value,
+                    "templateName" to templateName,
+                    "message" to "Template update compensation logged"
                 ),
                 sagaId = sagaId
             )
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for CreateVerificationToken: ${e.message}", e)
-        }
-    }
-
-    /**
-     * Compensate for updating a password
-     */
-    private fun compensateUpdatePassword(sagaId: String, step: SagaStep) {
-        try {
-            val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
-            val originalPasswordHash = payload["originalPasswordHash"]?.toString()
-
-            if (originalPasswordHash != null) {
-                // Send compensation event to revert the password update
-                kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = KafkaTopicNames.SAGA_COMPENSATION,
-                    key = sagaId,
-                    payload = mapOf(
-                        "sagaId" to sagaId,
-                        "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_PASSWORD_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalPasswordHash" to originalPasswordHash
-                    ),
-                    sagaId = sagaId
-                )
-            } else {
-                logger.warn("No original password hash available for compensating password update for user $authUserId")
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to create compensation event for UpdatePassword: ${e.message}", e)
-        }
-    }
-
-    /**
-     * Compensate for updating an email
-     */
-    private fun compensateUpdateEmail(sagaId: String, step: SagaStep) {
-        try {
-            val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
-            val originalEmail = payload["originalEmail"]?.toString()
-
-            if (originalEmail != null) {
-                // Send compensation event to revert the email update
-                kafkaOutboxProcessor.saveOutboxMessage(
-                    topic = KafkaTopicNames.SAGA_COMPENSATION,
-                    key = sagaId,
-                    payload = mapOf(
-                        "sagaId" to sagaId,
-                        "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_EMAIL_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalEmail" to originalEmail
-                    ),
-                    sagaId = sagaId
-                )
-            } else {
-                logger.warn("No original email available for compensating email update for user $authUserId")
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to create compensation event for UpdateEmail: ${e.message}", e)
+            logger.error("Failed to create compensation event for TemplateUpdate: ${e.message}", e)
         }
     }
 }

@@ -50,11 +50,3 @@ class Saga(
         completedAt = null
     )
 }
-
-enum class SagaStatus {
-    STARTED,
-    COMPLETED,
-    FAILED,
-    COMPENSATING,
-    COMPENSATED
-}

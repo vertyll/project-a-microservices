@@ -4,9 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.user.domain.model.Saga
+import com.vertyll.projecta.user.domain.model.SagaCompensationActions
 import com.vertyll.projecta.user.domain.model.SagaStatus
 import com.vertyll.projecta.user.domain.model.SagaStep
+import com.vertyll.projecta.user.domain.model.SagaStepNames
 import com.vertyll.projecta.user.domain.model.SagaStepStatus
+import com.vertyll.projecta.user.domain.model.SagaTypes
 import com.vertyll.projecta.user.domain.repository.SagaRepository
 import com.vertyll.projecta.user.domain.repository.SagaStepRepository
 import org.slf4j.LoggerFactory
@@ -26,6 +29,25 @@ class SagaManager(
     private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    // Define the expected steps for each saga type
+    private val sagaStepDefinitions = mapOf(
+        SagaTypes.USER_REGISTRATION.value to listOf(
+            SagaStepNames.CREATE_USER_PROFILE.value
+        ),
+        SagaTypes.USER_UPDATE.value to listOf(
+            SagaStepNames.UPDATE_USER_PROFILE.value
+        ),
+        SagaTypes.USER_DELETION.value to listOf(
+            SagaStepNames.DELETE_USER_PROFILE.value
+        ),
+        SagaTypes.USER_PASSWORD_CHANGE.value to listOf(
+            SagaStepNames.UPDATE_USER_CREDENTIALS.value
+        ),
+        SagaTypes.USER_EMAIL_CHANGE.value to listOf(
+            SagaStepNames.UPDATE_USER_EMAIL.value
+        )
+    )
 
     /**
      * Starts a new saga
@@ -85,10 +107,16 @@ class SagaManager(
             // Trigger compensation
             triggerCompensation(saga)
         } else if (status == SagaStepStatus.COMPLETED) {
-            // Check if this is the last step
-            // This would require knowing the total steps in the saga
-            // For now, we'll just update the saga status
+            // Check if this is the last step in the saga based on the saga type
             saga.updatedAt = Instant.now()
+
+            // If all expected steps are completed, mark the saga as completed
+            if (areAllStepsCompleted(saga)) {
+                saga.status = SagaStatus.COMPLETED
+                saga.completedAt = Instant.now()
+                logger.info("All steps completed for saga ${saga.id}, marking as COMPLETED")
+            }
+
             sagaRepository.save(saga)
         }
 
@@ -96,44 +124,25 @@ class SagaManager(
     }
 
     /**
-     * Marks a saga as completed
-     * @param sagaId The ID of the saga to complete
-     * @return The updated saga
+     * Checks if all expected steps for a saga have been completed
      */
-    @Transactional
-    fun completeSaga(sagaId: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
+    private fun areAllStepsCompleted(saga: Saga): Boolean {
+        // Get the expected steps for this saga type
+        val expectedSteps = sagaStepDefinitions[saga.type] ?: return false
+
+        // Get all completed steps for this saga
+        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
+            saga.id,
+            SagaStepStatus.COMPLETED
+        )
+
+        // Get the step names of completed steps
+        val completedStepNames = completedSteps.map { it.stepName }
+
+        // Check if all expected steps are in the completed steps
+        return expectedSteps.all { expectedStep ->
+            completedStepNames.contains(expectedStep)
         }
-
-        saga.status = SagaStatus.COMPLETED
-        saga.completedAt = Instant.now()
-
-        return sagaRepository.save(saga)
-    }
-
-    /**
-     * Marks a saga as failed and initiates compensation
-     * @param sagaId The ID of the saga that failed
-     * @param error The error that caused the failure
-     * @return The updated saga
-     */
-    @Transactional
-    fun failSaga(sagaId: String, error: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
-
-        saga.status = SagaStatus.FAILED
-        saga.lastError = error
-        saga.updatedAt = Instant.now()
-
-        val savedSaga = sagaRepository.save(saga)
-
-        // Trigger compensation
-        triggerCompensation(savedSaga)
-
-        return savedSaga
     }
 
     /**
@@ -154,8 +163,11 @@ class SagaManager(
             try {
                 // Create a compensation event based on the step name
                 when (step.stepName) {
-                    "CreateUserProfile" -> compensateCreateUserProfile(saga.id, step)
-                    "UpdateUserProfile" -> compensateUpdateUserProfile(saga.id, step)
+                    SagaStepNames.CREATE_USER_PROFILE.value -> compensateCreateUserProfile(saga.id, step)
+                    SagaStepNames.UPDATE_USER_PROFILE.value -> compensateUpdateUserProfile(saga.id, step)
+                    SagaStepNames.UPDATE_USER_CREDENTIALS.value -> compensateUpdateUserCredentials(saga.id, step)
+                    SagaStepNames.UPDATE_USER_EMAIL.value -> compensateUpdateUserEmail(saga.id, step)
+                    SagaStepNames.DELETE_USER_PROFILE.value -> compensateDeleteUserProfile(saga.id, step)
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
 
@@ -163,7 +175,7 @@ class SagaManager(
                 sagaStepRepository.save(
                     SagaStep(
                         sagaId = saga.id,
-                        stepName = "Compensate${step.stepName}",
+                        stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.STARTED,
                         createdAt = Instant.now()
                     )
@@ -193,7 +205,7 @@ class SagaManager(
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to "DELETE_USER_PROFILE",
+                    "action" to SagaCompensationActions.DELETE_USER_PROFILE.value,
                     "userId" to userId
                 ),
                 sagaId = sagaId
@@ -219,7 +231,7 @@ class SagaManager(
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to "REVERT_USER_PROFILE_UPDATE",
+                    "action" to SagaCompensationActions.REVERT_USER_PROFILE_UPDATE.value,
                     "userId" to userId,
                     "originalData" to originalData
                 ),
@@ -227,6 +239,95 @@ class SagaManager(
             )
         } catch (e: Exception) {
             logger.error("Failed to create compensation event for UpdateUserProfile: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Compensate for updating user credentials
+     */
+    private fun compensateUpdateUserCredentials(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val userId = (payload["userId"] as Number).toLong()
+            val originalData = payload["originalData"]
+
+            // Send compensation event to revert the credentials update
+            kafkaOutboxProcessor.saveOutboxMessage(
+                topic = KafkaTopicNames.SAGA_COMPENSATION,
+                key = sagaId,
+                payload = mapOf(
+                    "sagaId" to sagaId,
+                    "stepId" to step.id,
+                    "action" to SagaCompensationActions.REVERT_USER_CREDENTIALS_UPDATE.value,
+                    "userId" to userId,
+                    "originalData" to originalData
+                ),
+                sagaId = sagaId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for UpdateUserCredentials: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Compensate for updating user email
+     */
+    private fun compensateUpdateUserEmail(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val userId = (payload["userId"] as Number).toLong()
+            val originalEmail = payload["originalEmail"]?.toString()
+
+            if (originalEmail != null) {
+                // Send compensation event to revert the email update
+                kafkaOutboxProcessor.saveOutboxMessage(
+                    topic = KafkaTopicNames.SAGA_COMPENSATION,
+                    key = sagaId,
+                    payload = mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.REVERT_USER_EMAIL_UPDATE.value,
+                        "userId" to userId,
+                        "originalEmail" to originalEmail
+                    ),
+                    sagaId = sagaId
+                )
+            } else {
+                logger.warn("No original email available for compensating email update for user $userId")
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for UpdateUserEmail: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Compensate for deleting a user profile (recreate it)
+     */
+    private fun compensateDeleteUserProfile(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val userId = (payload["userId"] as Number).toLong()
+            val userData = payload["userData"]
+
+            if (userData != null) {
+                // Send compensation event to recreate the user profile
+                kafkaOutboxProcessor.saveOutboxMessage(
+                    topic = KafkaTopicNames.SAGA_COMPENSATION,
+                    key = sagaId,
+                    payload = mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.RECREATE_USER_PROFILE.value,
+                        "userId" to userId,
+                        "userData" to userData
+                    ),
+                    sagaId = sagaId
+                )
+            } else {
+                logger.warn("No user data available for compensating user deletion: $userId")
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for DeleteUserProfile: ${e.message}", e)
         }
     }
 }

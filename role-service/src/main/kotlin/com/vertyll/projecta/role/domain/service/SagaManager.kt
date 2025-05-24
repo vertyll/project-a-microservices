@@ -1,17 +1,17 @@
-package com.vertyll.projecta.auth.domain.service
+package com.vertyll.projecta.role.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.auth.domain.model.Saga
-import com.vertyll.projecta.auth.domain.model.SagaCompensationActions
-import com.vertyll.projecta.auth.domain.model.SagaStatus
-import com.vertyll.projecta.auth.domain.model.SagaStep
-import com.vertyll.projecta.auth.domain.model.SagaStepNames
-import com.vertyll.projecta.auth.domain.model.SagaStepStatus
-import com.vertyll.projecta.auth.domain.model.SagaTypes
-import com.vertyll.projecta.auth.domain.repository.SagaRepository
-import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.common.kafka.KafkaTopicNames
+import com.vertyll.projecta.role.domain.model.Saga
+import com.vertyll.projecta.role.domain.model.SagaCompensationActions
+import com.vertyll.projecta.role.domain.model.SagaStatus
+import com.vertyll.projecta.role.domain.model.SagaStep
+import com.vertyll.projecta.role.domain.model.SagaStepNames
+import com.vertyll.projecta.role.domain.model.SagaStepStatus
+import com.vertyll.projecta.role.domain.model.SagaTypes
+import com.vertyll.projecta.role.domain.repository.SagaRepository
+import com.vertyll.projecta.role.domain.repository.SagaStepRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,29 +32,11 @@ class SagaManager(
 
     // Define the expected steps for each saga type
     private val sagaStepDefinitions = mapOf(
-        SagaTypes.USER_REGISTRATION.value to listOf(
-            SagaStepNames.CREATE_AUTH_USER.value,
-            SagaStepNames.CREATE_USER_EVENT.value,
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.PASSWORD_RESET.value to listOf(
-            SagaStepNames.CREATE_RESET_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.EMAIL_VERIFICATION.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.PASSWORD_CHANGE.value to listOf(
-            SagaStepNames.VERIFY_CURRENT_PASSWORD.value,
-            SagaStepNames.UPDATE_PASSWORD.value
-        ),
-        SagaTypes.EMAIL_CHANGE.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value,
-            SagaStepNames.UPDATE_EMAIL.value
-        )
+        SagaTypes.ROLE_CREATION.value to listOf(SagaStepNames.CREATE_ROLE.value),
+        SagaTypes.ROLE_UPDATE.value to listOf(SagaStepNames.UPDATE_ROLE.value),
+        SagaTypes.ROLE_ASSIGNMENT.value to listOf(SagaStepNames.ASSIGN_ROLE.value),
+        SagaTypes.ROLE_REVOCATION.value to listOf(SagaStepNames.REVOKE_ROLE.value),
+        SagaTypes.ROLE_DELETION.value to listOf(SagaStepNames.DELETE_ROLE.value)
     )
 
     /**
@@ -212,10 +194,11 @@ class SagaManager(
             try {
                 // Create a compensation event based on the step name
                 when (step.stepName) {
-                    SagaStepNames.CREATE_AUTH_USER.value -> compensateCreateAuthUser(saga.id, step)
-                    SagaStepNames.CREATE_VERIFICATION_TOKEN.value -> compensateCreateVerificationToken(saga.id, step)
-                    SagaStepNames.UPDATE_PASSWORD.value -> compensateUpdatePassword(saga.id, step)
-                    SagaStepNames.UPDATE_EMAIL.value -> compensateUpdateEmail(saga.id, step)
+                    SagaStepNames.CREATE_ROLE.value -> compensateCreateRole(saga.id, step)
+                    SagaStepNames.ASSIGN_ROLE.value -> compensateAssignRole(saga.id, step)
+                    SagaStepNames.REVOKE_ROLE.value -> compensateRevokeRole(saga.id, step)
+                    SagaStepNames.UPDATE_ROLE.value -> compensateUpdateRole(saga.id, step)
+                    SagaStepNames.DELETE_ROLE.value -> compensateDeleteRole(saga.id, step)
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
 
@@ -239,114 +222,145 @@ class SagaManager(
     }
 
     /**
-     * Compensate for creating an auth user
+     * Compensate for creating a role
      */
-    private fun compensateCreateAuthUser(sagaId: String, step: SagaStep) {
+    private fun compensateCreateRole(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
+            val roleId = (payload["roleId"] as Number).toLong()
 
-            // Send compensation event to delete the auth user
+            // Send compensation event to delete the role
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_AUTH_USER.value,
-                    "authUserId" to authUserId
+                    "action" to SagaCompensationActions.DELETE_ROLE.value,
+                    "roleId" to roleId
                 ),
                 sagaId = sagaId
             )
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for CreateAuthUser: ${e.message}", e)
+            logger.error("Failed to create compensation event for CreateRole: ${e.message}", e)
         }
     }
 
     /**
-     * Compensate for creating a verification token
+     * Compensate for assigning a role
      */
-    private fun compensateCreateVerificationToken(sagaId: String, step: SagaStep) {
+    private fun compensateAssignRole(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val tokenId = (payload["tokenId"] as Number).toLong()
+            val userId = (payload["userId"] as Number).toLong()
+            val roleId = (payload["roleId"] as Number).toLong()
 
-            // Send compensation event to delete the verification token
+            // Send compensation event to revoke the role
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
                 payload = mapOf(
                     "sagaId" to sagaId,
                     "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_VERIFICATION_TOKEN.value,
-                    "tokenId" to tokenId
+                    "action" to SagaCompensationActions.REVOKE_ROLE.value,
+                    "userId" to userId,
+                    "roleId" to roleId
                 ),
                 sagaId = sagaId
             )
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for CreateVerificationToken: ${e.message}", e)
+            logger.error("Failed to create compensation event for AssignRole: ${e.message}", e)
         }
     }
 
     /**
-     * Compensate for updating a password
+     * Compensate for revoking a role
      */
-    private fun compensateUpdatePassword(sagaId: String, step: SagaStep) {
+    private fun compensateRevokeRole(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
-            val originalPasswordHash = payload["originalPasswordHash"]?.toString()
+            val userId = (payload["userId"] as Number).toLong()
+            val roleId = (payload["roleId"] as Number).toLong()
+            val roleName = payload["roleName"] as String
 
-            if (originalPasswordHash != null) {
-                // Send compensation event to revert the password update
+            // Send compensation event to assign the role back
+            kafkaOutboxProcessor.saveOutboxMessage(
+                topic = KafkaTopicNames.SAGA_COMPENSATION,
+                key = sagaId,
+                payload = mapOf(
+                    "sagaId" to sagaId,
+                    "stepId" to step.id,
+                    "action" to SagaCompensationActions.ASSIGN_ROLE.value,
+                    "userId" to userId,
+                    "roleId" to roleId,
+                    "roleName" to roleName
+                ),
+                sagaId = sagaId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to create compensation event for RevokeRole: ${e.message}", e)
+        }
+    }
+
+    /**
+     * Compensate for updating a role
+     */
+    private fun compensateUpdateRole(sagaId: String, step: SagaStep) {
+        try {
+            val payload = objectMapper.readValue(step.payload, Map::class.java)
+            val roleId = (payload["roleId"] as Number).toLong()
+            val originalData = payload["originalData"] as? Map<*, *>
+
+            if (originalData != null) {
+                // Send compensation event to revert the role update
                 kafkaOutboxProcessor.saveOutboxMessage(
                     topic = KafkaTopicNames.SAGA_COMPENSATION,
                     key = sagaId,
                     payload = mapOf(
                         "sagaId" to sagaId,
                         "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_PASSWORD_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalPasswordHash" to originalPasswordHash
+                        "action" to SagaCompensationActions.REVERT_ROLE_UPDATE.value,
+                        "roleId" to roleId,
+                        "originalData" to originalData
                     ),
                     sagaId = sagaId
                 )
             } else {
-                logger.warn("No original password hash available for compensating password update for user $authUserId")
+                logger.warn("No original data available for compensating role update: $roleId")
             }
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for UpdatePassword: ${e.message}", e)
+            logger.error("Failed to create compensation event for UpdateRole: ${e.message}", e)
         }
     }
 
     /**
-     * Compensate for updating an email
+     * Compensate for deleting a role
      */
-    private fun compensateUpdateEmail(sagaId: String, step: SagaStep) {
+    private fun compensateDeleteRole(sagaId: String, step: SagaStep) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
-            val authUserId = (payload["authUserId"] as Number).toLong()
-            val originalEmail = payload["originalEmail"]?.toString()
+            val roleId = (payload["roleId"] as Number).toLong()
+            val originalData = payload["originalData"] as? Map<*, *>
 
-            if (originalEmail != null) {
-                // Send compensation event to revert the email update
+            if (originalData != null) {
+                // Send compensation event to recreate the role
                 kafkaOutboxProcessor.saveOutboxMessage(
                     topic = KafkaTopicNames.SAGA_COMPENSATION,
                     key = sagaId,
                     payload = mapOf(
                         "sagaId" to sagaId,
                         "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_EMAIL_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalEmail" to originalEmail
+                        "action" to SagaCompensationActions.RECREATE_ROLE.value,
+                        "roleId" to roleId,
+                        "originalData" to originalData
                     ),
                     sagaId = sagaId
                 )
             } else {
-                logger.warn("No original email available for compensating email update for user $authUserId")
+                logger.warn("No original data available for compensating role deletion: $roleId")
             }
         } catch (e: Exception) {
-            logger.error("Failed to create compensation event for UpdateEmail: ${e.message}", e)
+            logger.error("Failed to create compensation event for DeleteRole: ${e.message}", e)
         }
     }
 }

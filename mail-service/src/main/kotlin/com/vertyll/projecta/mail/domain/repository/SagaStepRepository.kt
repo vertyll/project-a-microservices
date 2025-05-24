@@ -13,7 +13,9 @@ interface SagaStepRepository : JpaRepository<SagaStep, Long> {
 
     fun findBySagaIdAndStatus(sagaId: String, status: SagaStepStatus): List<SagaStep>
 
-    fun findByStepNameAndStatus(stepName: String, status: SagaStepStatus): List<SagaStep>
+    fun findBySagaIdAndStepNameAndStatus(sagaId: String, stepName: String, status: SagaStepStatus): List<SagaStep>
+
+    fun findBySagaIdOrderByCreatedAtDesc(sagaId: String): List<SagaStep>
 
     fun findByCompensationStepId(compensationStepId: Long): SagaStep?
 }
