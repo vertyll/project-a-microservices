@@ -121,13 +121,17 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 ### Development Workflow
 
 1. Make changes to the relevant service code
-2. Build the service:
+2. Build the service/services:
    ```bash
    ./gradlew :<service-name>:build
+   # or
+   ./gradlew build
    ```
-3. Restart the service container:
+3. Restart the service container or locally start the microservice:
    ```bash
    docker-compose up -d --build <service-name>
+   # or
+   ./gradlew :<service-name>:bootRun
    ```
 
 ## Architecture Design
