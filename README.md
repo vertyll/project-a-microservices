@@ -28,14 +28,14 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 
 #### Common Library
 - Provides shared code, DTOs, event definitions, and utilities for all microservices
-- Implements common patterns like the Saga pattern and Outbox pattern
+- Implements common patterns like Outbox pattern
 - Contains reusable components for Kafka integration, exception handling, and API responses
 - Ensures consistency in how services communicate and process events
 - Includes base classes for implementing event choreography
 - Provides shared ports and adapters interfaces for consistent hexagonal architecture implementation
 
 #### Auth Service
-- Responsible for user authentication and authorization using JWT and refresh tokens
+- Responsible for user authentication, authorization using JWT and refresh tokens
 - Manages the user credentials, account activation, and session management
 - Database stores:
   - User credentials (email, hashed passwords)
@@ -50,7 +50,6 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 - Manages the roles and permissions throughout the system
 - Database stores:
   - Role definitions
-  - Permission definitions
   - User-role assignments
 - Provides APIs for creating, updating, and assigning roles
 - Publishes role-related events to Kafka for other services to consume
@@ -73,7 +72,6 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 - Database stores:
   - Email logs
   - Delivery status
-  - Email templates
 - Consumes mail request events from other services
 - Supports various email templates (welcome, password reset, account activation, etc.)
 - Acts as a reactive service in the choreography flow
