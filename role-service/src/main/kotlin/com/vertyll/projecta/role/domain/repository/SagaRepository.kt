@@ -4,6 +4,7 @@ import com.vertyll.projecta.role.domain.model.Saga
 import com.vertyll.projecta.role.domain.model.SagaStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import java.time.Instant
 import java.util.Optional
 
 @Repository
@@ -15,4 +16,8 @@ interface SagaRepository : JpaRepository<Saga, String> {
     fun findByTypeAndStatus(type: String, status: SagaStatus): List<Saga>
 
     fun findByIdAndType(id: String, type: String): Optional<Saga>
+
+    fun findByStartedAtBefore(startedAt: Instant): List<Saga>
+
+    fun findByStatusInAndStartedAtBefore(statuses: List<SagaStatus>, startedAt: Instant): List<Saga>
 }
