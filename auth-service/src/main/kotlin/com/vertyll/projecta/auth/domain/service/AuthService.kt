@@ -357,7 +357,7 @@ class AuthService(
         // Check if there are existing unused password change tokens and invalidate them
         val existingTokens = verificationTokenRepository
             .findAllByUsernameAndTokenType(email, TokenTypes.PASSWORD_CHANGE_REQUEST.value)
-        
+
         // Invalidate any existing unused tokens that haven't expired
         existingTokens.forEach { token ->
             if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
@@ -420,7 +420,7 @@ class AuthService(
 
         // Generate a secure confirmation code for setting the new password
         val confirmationCode = generateVerificationToken()
-        
+
         // Store this confirmation code in the additionalData field
         verificationToken.additionalData = confirmationCode
         verificationToken.used = true
@@ -481,7 +481,7 @@ class AuthService(
                 status = HttpStatus.BAD_REQUEST
             )
         }
-        
+
         // Verify the confirmation code if it exists
         if (verificationToken.additionalData.isNullOrEmpty() || verificationToken.additionalData != dto.confirmationCode) {
             throw ApiException(
@@ -536,7 +536,7 @@ class AuthService(
         // Check if there are existing unused password reset tokens and invalidate them
         val existingTokens = verificationTokenRepository
             .findAllByUsernameAndTokenType(email, TokenTypes.PASSWORD_RESET.value)
-        
+
         // Invalidate any existing unused tokens that haven't expired
         existingTokens.forEach { token ->
             if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
@@ -628,7 +628,7 @@ class AuthService(
 
     private fun createRefreshToken(userDetails: UserDetails, deviceInfo: String?): String {
         val jwtRefreshToken = jwtService.generateRefreshToken(userDetails)
-        
+
         // Hash the token before storing in the database
         val hashedToken = passwordEncoder.encode(jwtRefreshToken)
 
@@ -727,7 +727,7 @@ class AuthService(
             // Find all non-revoked tokens for this user
             val userTokens = refreshTokenRepository.findByUsername(username)
                 .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
-            
+
             // Find a matching token by comparing hashes
             val storedToken = userTokens.find { token ->
                 passwordEncoder.matches(refreshTokenString, token.token)
@@ -780,16 +780,14 @@ class AuthService(
         if (refreshTokenString != null) {
             try {
                 val username = jwtService.extractUsername(refreshTokenString)
-                
+
                 // Find all non-revoked tokens for this user
                 val userTokens = refreshTokenRepository.findByUsername(username)
                     .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
-                
+
                 // Find a matching token by comparing hashes
-                val token = userTokens.find { 
-                    passwordEncoder.matches(refreshTokenString, it.token) 
-                }
-                
+                val token = userTokens.find { passwordEncoder.matches(refreshTokenString, it.token) }
+
                 token?.let {
                     it.revoked = true
                     refreshTokenRepository.save(it)
@@ -812,7 +810,7 @@ class AuthService(
         // Note: We can't determine the current session by direct token comparison
         // since we're now storing hashed tokens. Instead, we'll use session creation time
         // as an approximation or return false for isCurrentSession.
-        
+
         return refreshTokens.map { token ->
             SessionDto(
                 id = token.id,
@@ -883,7 +881,7 @@ class AuthService(
         // Check if there are existing unused email change tokens and invalidate them
         val existingTokens = verificationTokenRepository
             .findAllByUsernameAndTokenType(email, TokenTypes.EMAIL_CHANGE.value)
-        
+
         // Invalidate any existing unused tokens that haven't expired
         existingTokens.forEach { token ->
             if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
@@ -1046,7 +1044,7 @@ class AuthService(
         // Check if there's existing unused activation tokens and invalidate them
         val existingTokens = verificationTokenRepository
             .findAllByUsernameAndTokenType(email, TokenTypes.ACCOUNT_ACTIVATION.value)
-        
+
         // Invalidate any existing unused tokens that haven't expired
         existingTokens.forEach { token ->
             if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
