@@ -827,6 +827,19 @@ class AuthService(
             )
         }
 
+        // Check if there are existing unused email change tokens and invalidate them
+        val existingTokens = verificationTokenRepository
+            .findAllByUsernameAndTokenType(email, TokenTypes.EMAIL_CHANGE.value)
+        
+        // Invalidate any existing unused tokens that haven't expired
+        existingTokens.forEach { token ->
+            if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
+                logger.info("Invalidating existing email change token for: {}", email)
+                token.used = true
+                verificationTokenRepository.save(token)
+            }
+        }
+
         val token = generateVerificationToken()
 
         saveVerificationToken(email, token, TokenTypes.EMAIL_CHANGE.value, request.newEmail)
