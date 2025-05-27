@@ -8,6 +8,7 @@ enum class EmailTemplate(val templateName: String) {
     // Password management
     RESET_PASSWORD("RESET_PASSWORD"),
     CHANGE_PASSWORD("CHANGE_PASSWORD"),
+    SET_NEW_PASSWORD("SET_NEW_PASSWORD"),
 
     // Email management
     CHANGE_EMAIL("CHANGE_EMAIL");

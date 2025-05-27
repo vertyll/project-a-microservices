@@ -354,6 +354,19 @@ class AuthService(
             )
         }
 
+        // Check if there are existing unused password change tokens and invalidate them
+        val existingTokens = verificationTokenRepository
+            .findAllByUsernameAndTokenType(email, TokenTypes.PASSWORD_CHANGE_REQUEST.value)
+        
+        // Invalidate any existing unused tokens that haven't expired
+        existingTokens.forEach { token ->
+            if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
+                logger.info("Invalidating existing password change token for: {}", email)
+                token.used = true
+                verificationTokenRepository.save(token)
+            }
+        }
+
         val token = generateVerificationToken()
 
         // First stage - save the token
@@ -405,6 +418,11 @@ class AuthService(
             )
         }
 
+        // Generate a secure confirmation code for setting the new password
+        val confirmationCode = generateVerificationToken()
+        
+        // Store this confirmation code in the additionalData field
+        verificationToken.additionalData = confirmationCode
         verificationToken.used = true
         verificationTokenRepository.save(verificationToken)
 
@@ -420,10 +438,11 @@ class AuthService(
                 MailRequestedEvent(
                     to = verificationToken.username,
                     subject = "Set Your New Password",
-                    templateName = EmailTemplate.WELCOME_EMAIL.templateName,
+                    templateName = EmailTemplate.SET_NEW_PASSWORD.templateName,
                     variables = mapOf(
                         "username" to verificationToken.username.substringBefore('@'),
-                        "message" to "Your password change request has been verified. Please proceed to set your new password with the following code: $tokenId"
+                        "token_id" to tokenId.toString(),
+                        "confirmation_code" to confirmationCode
                     )
                 )
             )
@@ -459,6 +478,14 @@ class AuthService(
         if (!verificationToken.isTokenType(TokenTypes.PASSWORD_CHANGE_REQUEST)) {
             throw ApiException(
                 message = "Invalid token type",
+                status = HttpStatus.BAD_REQUEST
+            )
+        }
+        
+        // Verify the confirmation code if it exists
+        if (verificationToken.additionalData.isNullOrEmpty() || verificationToken.additionalData != dto.confirmationCode) {
+            throw ApiException(
+                message = "Invalid confirmation code",
                 status = HttpStatus.BAD_REQUEST
             )
         }
