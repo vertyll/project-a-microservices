@@ -1,10 +1,10 @@
 package com.vertyll.projecta.mail.infrastructure.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.mail.domain.model.SagaCompensationActions
-import com.vertyll.projecta.mail.domain.model.SagaStep
-import com.vertyll.projecta.mail.domain.model.SagaStepNames
-import com.vertyll.projecta.mail.domain.model.SagaStepStatus
+import com.vertyll.projecta.mail.domain.model.entity.SagaStep
+import com.vertyll.projecta.mail.domain.model.enums.SagaCompensationActions
+import com.vertyll.projecta.mail.domain.model.enums.SagaStepNames
+import com.vertyll.projecta.mail.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.mail.domain.repository.SagaStepRepository
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

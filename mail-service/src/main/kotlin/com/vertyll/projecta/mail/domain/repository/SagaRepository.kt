@@ -1,7 +1,7 @@
 package com.vertyll.projecta.mail.domain.repository
 
-import com.vertyll.projecta.mail.domain.model.Saga
-import com.vertyll.projecta.mail.domain.model.SagaStatus
+import com.vertyll.projecta.mail.domain.model.entity.Saga
+import com.vertyll.projecta.mail.domain.model.enums.SagaStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.time.Instant

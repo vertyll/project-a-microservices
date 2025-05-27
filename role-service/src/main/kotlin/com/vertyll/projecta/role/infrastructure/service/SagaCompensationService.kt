@@ -1,11 +1,12 @@
 package com.vertyll.projecta.role.infrastructure.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.role.domain.model.Role
-import com.vertyll.projecta.role.domain.model.SagaCompensationActions
-import com.vertyll.projecta.role.domain.model.SagaStep
-import com.vertyll.projecta.role.domain.model.SagaStepNames
-import com.vertyll.projecta.role.domain.model.SagaStepStatus
+import com.vertyll.projecta.role.domain.model.entity.Role
+import com.vertyll.projecta.role.domain.model.entity.SagaStep
+import com.vertyll.projecta.role.domain.model.entity.UserRole
+import com.vertyll.projecta.role.domain.model.enums.SagaCompensationActions
+import com.vertyll.projecta.role.domain.model.enums.SagaStepNames
+import com.vertyll.projecta.role.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.role.domain.repository.RoleRepository
 import com.vertyll.projecta.role.domain.repository.SagaStepRepository
 import com.vertyll.projecta.role.domain.repository.UserRoleRepository
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  * Service that handles compensation actions for the Role Service
@@ -82,8 +84,8 @@ class SagaCompensationService(
                         sagaId = sagaId,
                         stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.COMPENSATED,
-                        createdAt = java.time.Instant.now(),
-                        completedAt = java.time.Instant.now(),
+                        createdAt = Instant.now(),
+                        completedAt = Instant.now(),
                         compensationStepId = step.id
                     )
                     sagaStepRepository.save(compensationStep)
@@ -137,7 +139,7 @@ class SagaCompensationService(
 
                 val role = roleRepository.findById(roleId).orElse(null)
                 if (role != null) {
-                    val userRole = com.vertyll.projecta.role.domain.model.UserRole(
+                    val userRole = UserRole(
                         userId = userId,
                         roleId = roleId
                     )
@@ -185,7 +187,7 @@ class SagaCompensationService(
                     name = originalDataMap["name"]?.toString() ?: role.name,
                     description = originalDataMap["description"]?.toString() ?: role.description,
                     createdAt = role.createdAt,
-                    updatedAt = java.time.Instant.now()
+                    updatedAt = Instant.now()
                 )
 
                 roleRepository.save(updatedRole)

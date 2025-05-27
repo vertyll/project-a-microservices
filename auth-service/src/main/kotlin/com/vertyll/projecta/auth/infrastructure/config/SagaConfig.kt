@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth.infrastructure.config
 
-import com.vertyll.projecta.auth.domain.model.Saga
-import com.vertyll.projecta.auth.domain.model.SagaStep
+import com.vertyll.projecta.auth.domain.model.entity.Saga
+import com.vertyll.projecta.auth.domain.model.entity.SagaStep
 import com.vertyll.projecta.common.kafka.KafkaOutbox
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Configuration

@@ -1,7 +1,8 @@
 package com.vertyll.projecta.mail.domain.service
 
 import com.vertyll.projecta.common.mail.EmailTemplate
-import com.vertyll.projecta.mail.domain.model.EmailLog
+import com.vertyll.projecta.mail.domain.model.entity.EmailLog
+import com.vertyll.projecta.mail.domain.model.enums.EmailStatus
 import com.vertyll.projecta.mail.domain.repository.EmailLogRepository
 import jakarta.mail.internet.MimeMessage
 import org.slf4j.LoggerFactory
@@ -131,7 +132,7 @@ class EmailService(
             templateName = templateName,
             variables = variables,
             replyTo = replyTo,
-            status = if (success) EmailLog.EmailStatus.SENT else EmailLog.EmailStatus.FAILED,
+            status = if (success) EmailStatus.SENT else EmailStatus.FAILED,
             errorMessage = errorMessage,
             sentAt = if (success) Instant.now() else null
         )

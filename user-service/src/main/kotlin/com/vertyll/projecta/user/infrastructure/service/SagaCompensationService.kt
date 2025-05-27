@@ -1,16 +1,18 @@
 package com.vertyll.projecta.user.infrastructure.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.user.domain.model.SagaCompensationActions
-import com.vertyll.projecta.user.domain.model.SagaStep
-import com.vertyll.projecta.user.domain.model.SagaStepNames
-import com.vertyll.projecta.user.domain.model.SagaStepStatus
+import com.vertyll.projecta.user.domain.model.entity.SagaStep
+import com.vertyll.projecta.user.domain.model.entity.User
+import com.vertyll.projecta.user.domain.model.enums.SagaCompensationActions
+import com.vertyll.projecta.user.domain.model.enums.SagaStepNames
+import com.vertyll.projecta.user.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.user.domain.repository.SagaStepRepository
 import com.vertyll.projecta.user.domain.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  * Service that handles compensation actions for the User Service
@@ -73,8 +75,8 @@ class SagaCompensationService(
                         sagaId = sagaId,
                         stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.COMPENSATED,
-                        createdAt = java.time.Instant.now(),
-                        completedAt = java.time.Instant.now(),
+                        createdAt = Instant.now(),
+                        completedAt = Instant.now(),
                         compensationStepId = step.id
                     )
                     sagaStepRepository.save(compensationStep)
@@ -214,7 +216,7 @@ class SagaCompensationService(
                 }
 
                 // Create new user with original data
-                val user = com.vertyll.projecta.user.domain.model.User(
+                val user = User(
                     id = userId,
                     firstName = firstName,
                     lastName = lastName,

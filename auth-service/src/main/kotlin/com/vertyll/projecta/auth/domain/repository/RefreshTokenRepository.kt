@@ -1,6 +1,6 @@
 package com.vertyll.projecta.auth.domain.repository
 
-import com.vertyll.projecta.auth.domain.model.RefreshToken
+import com.vertyll.projecta.auth.domain.model.entity.RefreshToken
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

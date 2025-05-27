@@ -1,6 +1,6 @@
 package com.vertyll.projecta.auth.domain.repository
 
-import com.vertyll.projecta.auth.domain.model.VerificationToken
+import com.vertyll.projecta.auth.domain.model.entity.VerificationToken
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional

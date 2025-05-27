@@ -1,7 +1,7 @@
 package com.vertyll.projecta.mail.domain.repository
 
-import com.vertyll.projecta.mail.domain.model.EmailLog
-import com.vertyll.projecta.mail.domain.model.EmailLog.EmailStatus
+import com.vertyll.projecta.mail.domain.model.entity.EmailLog
+import com.vertyll.projecta.mail.domain.model.enums.EmailStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository

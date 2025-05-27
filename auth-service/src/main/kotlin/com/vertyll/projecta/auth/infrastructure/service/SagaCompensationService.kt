@@ -1,9 +1,9 @@
 package com.vertyll.projecta.auth.infrastructure.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.auth.domain.model.SagaStep
-import com.vertyll.projecta.auth.domain.model.SagaStepNames
-import com.vertyll.projecta.auth.domain.model.SagaStepStatus
+import com.vertyll.projecta.auth.domain.model.entity.SagaStep
+import com.vertyll.projecta.auth.domain.model.enums.SagaStepNames
+import com.vertyll.projecta.auth.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.auth.domain.repository.VerificationTokenRepository

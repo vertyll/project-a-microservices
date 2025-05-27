@@ -6,8 +6,8 @@ import com.vertyll.projecta.common.event.role.RoleCreatedEvent
 import com.vertyll.projecta.common.event.role.RoleRevokedEvent
 import com.vertyll.projecta.common.event.role.RoleUpdatedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
-import com.vertyll.projecta.role.domain.model.Role
-import com.vertyll.projecta.role.domain.model.UserRole
+import com.vertyll.projecta.role.domain.model.entity.Role
+import com.vertyll.projecta.role.domain.model.entity.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component

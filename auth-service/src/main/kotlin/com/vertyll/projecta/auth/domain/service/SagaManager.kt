@@ -1,13 +1,13 @@
 package com.vertyll.projecta.auth.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.auth.domain.model.Saga
-import com.vertyll.projecta.auth.domain.model.SagaCompensationActions
-import com.vertyll.projecta.auth.domain.model.SagaStatus
-import com.vertyll.projecta.auth.domain.model.SagaStep
-import com.vertyll.projecta.auth.domain.model.SagaStepNames
-import com.vertyll.projecta.auth.domain.model.SagaStepStatus
-import com.vertyll.projecta.auth.domain.model.SagaTypes
+import com.vertyll.projecta.auth.domain.model.entity.Saga
+import com.vertyll.projecta.auth.domain.model.entity.SagaStep
+import com.vertyll.projecta.auth.domain.model.enums.SagaCompensationActions
+import com.vertyll.projecta.auth.domain.model.enums.SagaStatus
+import com.vertyll.projecta.auth.domain.model.enums.SagaStepNames
+import com.vertyll.projecta.auth.domain.model.enums.SagaStepStatus
+import com.vertyll.projecta.auth.domain.model.enums.SagaTypes
 import com.vertyll.projecta.auth.domain.repository.SagaRepository
 import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
 import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor

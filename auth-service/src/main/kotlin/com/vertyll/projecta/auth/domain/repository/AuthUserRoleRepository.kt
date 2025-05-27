@@ -1,6 +1,6 @@
 package com.vertyll.projecta.auth.domain.repository
 
-import com.vertyll.projecta.auth.domain.model.AuthUserRole
+import com.vertyll.projecta.auth.domain.model.entity.AuthUserRole
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

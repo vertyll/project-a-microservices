@@ -5,10 +5,10 @@ import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.domain.dto.RoleCreateDto
 import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
-import com.vertyll.projecta.role.domain.model.Role
-import com.vertyll.projecta.role.domain.model.SagaStepStatus
-import com.vertyll.projecta.role.domain.model.SagaTypes
-import com.vertyll.projecta.role.domain.model.UserRole
+import com.vertyll.projecta.role.domain.model.entity.Role
+import com.vertyll.projecta.role.domain.model.entity.UserRole
+import com.vertyll.projecta.role.domain.model.enums.SagaStepStatus
+import com.vertyll.projecta.role.domain.model.enums.SagaTypes
 import com.vertyll.projecta.role.domain.repository.RoleRepository
 import com.vertyll.projecta.role.domain.repository.UserRoleRepository
 import com.vertyll.projecta.role.infrastructure.kafka.RoleEventProducer

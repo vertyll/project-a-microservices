@@ -1,7 +1,7 @@
 package com.vertyll.projecta.role.domain.repository
 
-import com.vertyll.projecta.role.domain.model.SagaStep
-import com.vertyll.projecta.role.domain.model.SagaStepStatus
+import com.vertyll.projecta.role.domain.model.entity.SagaStep
+import com.vertyll.projecta.role.domain.model.enums.SagaStepStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

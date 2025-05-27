@@ -1,6 +1,6 @@
 package com.vertyll.projecta.role.infrastructure.config
 
-import com.vertyll.projecta.role.domain.model.SagaStatus
+import com.vertyll.projecta.role.domain.model.enums.SagaStatus
 import com.vertyll.projecta.role.domain.repository.SagaRepository
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration

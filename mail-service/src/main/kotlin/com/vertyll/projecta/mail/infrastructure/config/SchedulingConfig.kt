@@ -1,6 +1,6 @@
 package com.vertyll.projecta.mail.infrastructure.config
 
-import com.vertyll.projecta.mail.domain.model.SagaStatus
+import com.vertyll.projecta.mail.domain.model.enums.SagaStatus
 import com.vertyll.projecta.mail.domain.repository.SagaRepository
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration
