@@ -27,7 +27,12 @@ import org.thymeleaf.templateresolver.ITemplateResolver
     ]
 )
 @EnableKafka
-@ComponentScan(basePackages = ["com.vertyll.projecta.mail", "com.vertyll.projecta.common"])
+@ComponentScan(
+    basePackages = [
+        "com.vertyll.projecta.mail",
+        "com.vertyll.projecta.common"
+    ]
+)
 class MailServiceApplication {
 
     companion object {
