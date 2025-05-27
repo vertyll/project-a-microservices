@@ -7,6 +7,7 @@ import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
 import com.vertyll.projecta.role.domain.model.entity.Role
 import com.vertyll.projecta.role.domain.model.entity.UserRole
+import com.vertyll.projecta.role.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.role.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.role.domain.model.enums.SagaTypes
 import com.vertyll.projecta.role.domain.repository.RoleRepository
@@ -67,14 +68,14 @@ class RoleService(
 
         // Start a saga for role creation
         val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_CREATION.value,
+            sagaType = SagaTypes.ROLE_CREATION,
             payload = dto
         )
 
         // Record the start of the role creation step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
-            stepName = "CreateRole",
+            stepName = SagaStepNames.CREATE_ROLE,
             status = SagaStepStatus.STARTED
         )
 
@@ -90,7 +91,7 @@ class RoleService(
             // Record successful completion of role creation step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "CreateRole",
+                stepName = SagaStepNames.CREATE_ROLE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "roleId" to savedRole.id,
@@ -113,7 +114,7 @@ class RoleService(
             // Record failure
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "CreateRole",
+                stepName = SagaStepNames.CREATE_ROLE,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf("error" to (e.message ?: "Unknown error"))
             )
@@ -150,7 +151,7 @@ class RoleService(
 
         // Start saga for role update
         val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_UPDATE.value,
+            sagaType = SagaTypes.ROLE_UPDATE,
             payload = mapOf(
                 "roleId" to id,
                 "originalName" to role.name,
@@ -163,7 +164,7 @@ class RoleService(
         // Record start of update step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
-            stepName = "UpdateRole",
+            stepName = SagaStepNames.UPDATE_ROLE,
             status = SagaStepStatus.STARTED
         )
 
@@ -179,7 +180,7 @@ class RoleService(
             // Record successful completion of role update step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "UpdateRole",
+                stepName = SagaStepNames.UPDATE_ROLE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "roleId" to savedRole.id,
@@ -205,7 +206,7 @@ class RoleService(
             // Record failure
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "UpdateRole",
+                stepName = SagaStepNames.UPDATE_ROLE,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf("error" to (e.message ?: "Unknown error"))
             )
@@ -268,7 +269,7 @@ class RoleService(
 
         // Start saga for role assignment
         val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_ASSIGNMENT.value,
+            sagaType = SagaTypes.ROLE_ASSIGNMENT,
             payload = mapOf(
                 "userId" to userId,
                 "roleId" to role.id,
@@ -279,7 +280,7 @@ class RoleService(
         // Record start of assignment step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
-            stepName = "AssignRole",
+            stepName = SagaStepNames.ASSIGN_ROLE,
             status = SagaStepStatus.STARTED
         )
 
@@ -294,7 +295,7 @@ class RoleService(
             // Record successful completion of role assignment step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "AssignRole",
+                stepName = SagaStepNames.ASSIGN_ROLE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "userId" to userId,
@@ -318,7 +319,7 @@ class RoleService(
             // Record failure
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "AssignRole",
+                stepName = SagaStepNames.ASSIGN_ROLE,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf("error" to (e.message ?: "Unknown error"))
             )
@@ -357,7 +358,7 @@ class RoleService(
 
         // Start saga for role revocation
         val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_REVOCATION.value,
+            sagaType = SagaTypes.ROLE_REVOCATION,
             payload = mapOf(
                 "userId" to userId,
                 "roleId" to role.id,
@@ -368,7 +369,7 @@ class RoleService(
         // Record start of revocation step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
-            stepName = "RevokeRole",
+            stepName = SagaStepNames.REVOKE_ROLE,
             status = SagaStepStatus.STARTED
         )
 
@@ -381,7 +382,7 @@ class RoleService(
             // Record successful completion of role revocation step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "RevokeRole",
+                stepName = SagaStepNames.REVOKE_ROLE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "userId" to userId,
@@ -404,7 +405,7 @@ class RoleService(
             // Record failure
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = "RevokeRole",
+                stepName = SagaStepNames.REVOKE_ROLE,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf("error" to (e.message ?: "Unknown error"))
             )

@@ -30,7 +30,7 @@ class EmailSagaService(
         replyTo: String? = null
     ): Boolean {
         val sagaId = sagaManager.startSaga(
-            sagaType = SagaTypes.EMAIL_SENDING.value,
+            sagaType = SagaTypes.EMAIL_SENDING,
             payload = mapOf(
                 "to" to to,
                 "subject" to subject,
@@ -44,7 +44,7 @@ class EmailSagaService(
             // Process template
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.PROCESS_TEMPLATE.value,
+                stepName = SagaStepNames.PROCESS_TEMPLATE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "templateName" to template.templateName,
@@ -58,7 +58,7 @@ class EmailSagaService(
             if (success) {
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = SagaStepNames.SEND_EMAIL.value,
+                    stepName = SagaStepNames.SEND_EMAIL,
                     status = SagaStepStatus.COMPLETED,
                     payload = mapOf(
                         "to" to to,
@@ -70,7 +70,7 @@ class EmailSagaService(
             } else {
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = SagaStepNames.SEND_EMAIL.value,
+                    stepName = SagaStepNames.SEND_EMAIL,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf(
                         "to" to to,
@@ -84,7 +84,7 @@ class EmailSagaService(
             logger.error("Error in email saga: ${e.message}", e)
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.SEND_EMAIL.value,
+                stepName = SagaStepNames.SEND_EMAIL,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf(
                     "error" to e.message
@@ -107,7 +107,7 @@ class EmailSagaService(
         replyTo: String? = null
     ): Map<String, Boolean> {
         val sagaId = sagaManager.startSaga(
-            sagaType = SagaTypes.EMAIL_BATCH_PROCESSING.value,
+            sagaType = SagaTypes.EMAIL_BATCH_PROCESSING,
             payload = mapOf(
                 "recipients" to recipients,
                 "subject" to subject,
@@ -124,7 +124,7 @@ class EmailSagaService(
             // Process template
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.PROCESS_TEMPLATE.value,
+                stepName = SagaStepNames.PROCESS_TEMPLATE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "templateName" to template.templateName,
@@ -145,7 +145,7 @@ class EmailSagaService(
             // Record email log
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.RECORD_EMAIL_LOG.value,
+                stepName = SagaStepNames.RECORD_EMAIL_LOG,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "logId" to sagaId,
@@ -156,7 +156,7 @@ class EmailSagaService(
             // Record send email step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.SEND_EMAIL.value,
+                stepName = SagaStepNames.SEND_EMAIL,
                 status = if (results.values.all { it }) SagaStepStatus.COMPLETED else SagaStepStatus.PARTIALLY_COMPLETED,
                 payload = mapOf(
                     "recipients" to recipients,
@@ -170,7 +170,7 @@ class EmailSagaService(
             logger.error("Error in email batch saga: ${e.message}", e)
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = SagaStepNames.SEND_EMAIL.value,
+                stepName = SagaStepNames.SEND_EMAIL,
                 status = SagaStepStatus.FAILED,
                 payload = mapOf(
                     "error" to e.message

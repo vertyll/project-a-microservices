@@ -53,12 +53,12 @@ class SagaManager(
      * @return The created saga instance
      */
     @Transactional
-    fun startSaga(sagaType: String, payload: Any): Saga {
+    fun startSaga(sagaType: SagaTypes, payload: Any): Saga {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
 
         val saga = Saga(
             id = UUID.randomUUID().toString(),
-            type = sagaType,
+            type = sagaType.value,
             status = SagaStatus.STARTED,
             payload = payloadJson,
             startedAt = Instant.now()
@@ -76,7 +76,7 @@ class SagaManager(
      * @return The created saga step
      */
     @Transactional
-    fun recordSagaStep(sagaId: String, stepName: String, status: SagaStepStatus, payload: Any? = null): SagaStep {
+    fun recordSagaStep(sagaId: String, stepName: SagaStepNames, status: SagaStepStatus, payload: Any? = null): SagaStep {
         val payloadJson = payload?.let {
             it as? String ?: objectMapper.writeValueAsString(it)
         }
@@ -87,7 +87,7 @@ class SagaManager(
 
         val step = SagaStep(
             sagaId = sagaId,
-            stepName = stepName,
+            stepName = stepName.value,
             status = status,
             payload = payloadJson,
             createdAt = Instant.now()

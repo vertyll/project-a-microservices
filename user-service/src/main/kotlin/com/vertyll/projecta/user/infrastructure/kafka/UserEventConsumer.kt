@@ -9,7 +9,9 @@ import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
+import com.vertyll.projecta.user.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.user.domain.model.enums.SagaStepStatus
+import com.vertyll.projecta.user.domain.model.enums.SagaTypes
 import com.vertyll.projecta.user.domain.repository.UserRepository
 import com.vertyll.projecta.user.domain.service.SagaManager
 import com.vertyll.projecta.user.domain.service.UserService
@@ -50,7 +52,7 @@ class UserEventConsumer(
             val sagaId = event.sagaId ?: run {
                 logger.warn("No saga ID provided in event, creating a new saga")
                 sagaManager.startSaga(
-                    "UserRegistration",
+                    SagaTypes.USER_REGISTRATION,
                     mapOf("event" to event)
                 ).id
             }
@@ -58,7 +60,7 @@ class UserEventConsumer(
             // Start a saga step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = "CreateUserProfile",
+                stepName = SagaStepNames.CREATE_USER_PROFILE,
                 status = SagaStepStatus.STARTED
             )
 
@@ -70,7 +72,7 @@ class UserEventConsumer(
                 // Record step as completed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "CreateUserProfile",
+                    stepName = SagaStepNames.CREATE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
                     payload = mapOf("userId" to existingUser.id)
                 )
@@ -85,7 +87,7 @@ class UserEventConsumer(
                 // Record step as failed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "CreateUserProfile",
+                    stepName = SagaStepNames.CREATE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -113,14 +115,14 @@ class UserEventConsumer(
 
             // Get or create saga
             val sagaId = event.sagaId ?: sagaManager.startSaga(
-                "UserProfileUpdate",
+                SagaTypes.USER_PROFILE_UPDATE,
                 mapOf("event" to event)
             ).id
 
             // Start a saga step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = "UpdateUserProfile",
+                stepName = SagaStepNames.UPDATE_USER_PROFILE,
                 status = SagaStepStatus.STARTED
             )
 
@@ -131,7 +133,7 @@ class UserEventConsumer(
                 // Record step as completed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "UpdateUserProfile",
+                    stepName = SagaStepNames.UPDATE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
                     payload = mapOf(
                         "email" to event.email,
@@ -142,7 +144,7 @@ class UserEventConsumer(
                 // Record step as failed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "UpdateUserProfile",
+                    stepName = SagaStepNames.UPDATE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -170,7 +172,7 @@ class UserEventConsumer(
             // Start a saga step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = "DeleteUserProfile",
+                stepName = SagaStepNames.DELETE_USER_PROFILE,
                 status = SagaStepStatus.STARTED
             )
 
@@ -184,7 +186,7 @@ class UserEventConsumer(
                 // Record step as completed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "DeleteUserProfile",
+                    stepName = SagaStepNames.DELETE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
                     payload = mapOf("userId" to userId)
                 )
@@ -192,7 +194,7 @@ class UserEventConsumer(
                 // Record step as failed
                 sagaManager.recordSagaStep(
                     sagaId = sagaId,
-                    stepName = "DeleteUserProfile",
+                    stepName = SagaStepNames.DELETE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -223,7 +225,7 @@ class UserEventConsumer(
             // Record step as completed
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
-                stepName = "CreateUserProfile",
+                stepName = SagaStepNames.CREATE_USER_PROFILE,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "userId" to createdUser.id,

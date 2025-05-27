@@ -80,7 +80,7 @@ class AuthService(
         logger.info("Creating new user with email: {}", request.email)
 
         val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.USER_REGISTRATION.value,
+            sagaType = SagaTypes.USER_REGISTRATION,
             payload = mapOf(
                 "email" to request.email,
                 "firstName" to request.firstName,
@@ -100,7 +100,7 @@ class AuthService(
 
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.CREATE_AUTH_USER.value,
+                stepName = SagaStepNames.CREATE_AUTH_USER,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "authUserId" to savedAuthUser.id,
@@ -129,7 +129,7 @@ class AuthService(
                 // Record successful event creation step
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepNames.CREATE_USER_EVENT.value,
+                    stepName = SagaStepNames.CREATE_USER_EVENT,
                     status = SagaStepStatus.COMPLETED,
                     payload = event
                 )
@@ -140,7 +140,7 @@ class AuthService(
                 // Mark step as failed and trigger saga compensation
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepNames.CREATE_USER_EVENT.value,
+                    stepName = SagaStepNames.CREATE_USER_EVENT,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )
@@ -159,7 +159,7 @@ class AuthService(
             // Record successful token creation step
             sagaManager.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
+                stepName = SagaStepNames.CREATE_VERIFICATION_TOKEN,
                 status = SagaStepStatus.COMPLETED,
                 payload = mapOf(
                     "tokenId" to savedToken.id,
@@ -190,7 +190,7 @@ class AuthService(
                 // Record successful mail event creation step
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepNames.CREATE_MAIL_EVENT.value,
+                    stepName = SagaStepNames.CREATE_MAIL_EVENT,
                     status = SagaStepStatus.COMPLETED,
                     payload = mailEvent
                 )
@@ -201,7 +201,7 @@ class AuthService(
                 // Since email is not critical, we'll just log the error but not fail the saga
                 sagaManager.recordSagaStep(
                     sagaId = saga.id,
-                    stepName = SagaStepNames.CREATE_MAIL_EVENT.value,
+                    stepName = SagaStepNames.CREATE_MAIL_EVENT,
                     status = SagaStepStatus.FAILED,
                     payload = mapOf("error" to e.message)
                 )

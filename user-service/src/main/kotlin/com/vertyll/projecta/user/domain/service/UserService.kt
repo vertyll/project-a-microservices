@@ -2,6 +2,7 @@ package com.vertyll.projecta.user.domain.service
 
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
 import com.vertyll.projecta.common.exception.ApiException
+import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
@@ -32,7 +33,7 @@ class UserService(
             firstName = dto.firstName,
             lastName = dto.lastName,
             email = dto.email,
-            roles = dto.roles.ifEmpty { setOf("USER") },
+            roles = dto.roles.ifEmpty { setOf(RoleType.USER.value) },
             profilePicture = dto.profilePicture,
             phoneNumber = dto.phoneNumber,
             address = dto.address
