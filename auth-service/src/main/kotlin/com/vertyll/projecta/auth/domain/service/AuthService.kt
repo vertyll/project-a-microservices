@@ -506,6 +506,19 @@ class AuthService(
             return
         }
 
+        // Check if there are existing unused password reset tokens and invalidate them
+        val existingTokens = verificationTokenRepository
+            .findAllByUsernameAndTokenType(email, TokenTypes.PASSWORD_RESET.value)
+        
+        // Invalidate any existing unused tokens that haven't expired
+        existingTokens.forEach { token ->
+            if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
+                logger.info("Invalidating existing password reset token for: {}", email)
+                token.used = true
+                verificationTokenRepository.save(token)
+            }
+        }
+
         val resetToken = generateVerificationToken()
 
         saveVerificationToken(email, resetToken, TokenTypes.PASSWORD_RESET.value)
