@@ -11,5 +11,7 @@ interface VerificationTokenRepository : JpaRepository<VerificationToken, Long> {
 
     fun findByUsernameAndTokenType(username: String, tokenType: String): Optional<VerificationToken>
 
+    fun findAllByUsernameAndTokenType(username: String, tokenType: String): List<VerificationToken>
+
     fun findByAdditionalData(additionalData: String): Optional<VerificationToken>
 }

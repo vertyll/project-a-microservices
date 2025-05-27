@@ -977,17 +977,16 @@ class AuthService(
             )
         }
 
-        // Check if there's an existing unused activation token
-        val existingToken = verificationTokenRepository
-            .findByUsernameAndTokenType(email, TokenTypes.ACCOUNT_ACTIVATION.value)
-            .orElse(null)
-
-        // If token exists and hasn't expired, invalidate it
-        if (existingToken != null && !existingToken.used) {
-            if (existingToken.expiryDate.isAfter(LocalDateTime.now())) {
+        // Check if there's existing unused activation tokens and invalidate them
+        val existingTokens = verificationTokenRepository
+            .findAllByUsernameAndTokenType(email, TokenTypes.ACCOUNT_ACTIVATION.value)
+        
+        // Invalidate any existing unused tokens that haven't expired
+        existingTokens.forEach { token ->
+            if (!token.used && token.expiryDate.isAfter(LocalDateTime.now())) {
                 logger.info("Invalidating existing activation token for: {}", email)
-                existingToken.used = true
-                verificationTokenRepository.save(existingToken)
+                token.used = true
+                verificationTokenRepository.save(token)
             }
         }
 
