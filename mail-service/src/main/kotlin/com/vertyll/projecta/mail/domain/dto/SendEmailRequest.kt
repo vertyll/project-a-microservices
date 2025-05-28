@@ -1,4 +1,4 @@
-package com.vertyll.projecta.mail.application.dto
+package com.vertyll.projecta.mail.domain.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

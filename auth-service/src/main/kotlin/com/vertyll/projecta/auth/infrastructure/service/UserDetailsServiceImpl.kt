@@ -17,6 +17,11 @@ class UserDetailsServiceImpl(
      */
     override fun loadUserByUsername(username: String): UserDetails {
         return authUserRepository.findByEmail(username)
-            .orElseThrow { ApiException("User not found", HttpStatus.NOT_FOUND) }
+            .orElseThrow {
+                ApiException(
+                    message = "User not found",
+                    status = HttpStatus.NOT_FOUND
+                )
+            }
     }
 }

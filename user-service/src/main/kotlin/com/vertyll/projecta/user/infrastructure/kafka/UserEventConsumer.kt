@@ -9,6 +9,7 @@ import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
+import com.vertyll.projecta.user.domain.model.enums.SagaCompensationActions
 import com.vertyll.projecta.user.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.user.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.user.domain.model.enums.SagaTypes
@@ -300,7 +301,7 @@ class UserEventConsumer(
             "email" to event.email,
             "sagaId" to sagaId,
             "errorMessage" to errorMessage,
-            "action" to "COMPENSATE_USER_CREATION"
+            "action" to SagaCompensationActions.COMPENSATE_USER_CREATION.value
         )
 
         kafkaOutboxProcessor.saveOutboxMessage(
