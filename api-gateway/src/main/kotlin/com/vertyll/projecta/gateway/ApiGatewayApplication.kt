@@ -7,12 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.boot.runApplication
+import org.springframework.cloud.gateway.filter.GatewayFilter
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.annotation.EnableKafka
+import org.springframework.stereotype.Component
 
 @SpringBootApplication(
     exclude = [
@@ -31,7 +35,8 @@ import org.springframework.kafka.annotation.EnableKafka
 )
 @EnableKafka
 class ApiGatewayApplication(
-    private val sharedConfig: SharedConfigProperties
+    private val sharedConfig: SharedConfigProperties,
+    private val authHeaderFilterFactory: AuthHeaderGatewayFilterFactory
 ) {
     @Value("\${server.port:8080}")
     private lateinit var serverPort: String
@@ -72,33 +77,87 @@ class ApiGatewayApplication(
         val roleServiceUrl = sharedConfig.services.roleService.url
         val mailServiceUrl = sharedConfig.services.mailService.url
 
+        val authFilter = authHeaderFilterFactory.apply(AuthHeaderGatewayFilterFactory.Config())
+
         return builder.routes()
             .route(ROOT_REDIRECT_ROUTE) { r ->
-                r.path("/").filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health") }
-                    .uri(gatewayUrl)
+                r.path("/").filters { f ->
+                    f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health")
+                }.uri(gatewayUrl)
             }
             .route(AUTH_SERVICE_ROUTE) { r ->
                 r.path(AUTH_API_PATH)
-                    .filters { f -> f.rewritePath(AUTH_REWRITE_PATTERN, AUTH_REPLACEMENT) }
+                    .filters { f ->
+                        f.rewritePath(AUTH_REWRITE_PATTERN, AUTH_REPLACEMENT)
+                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
+                    }
                     .uri(authServiceUrl)
             }
             .route(USER_SERVICE_ROUTE) { r ->
                 r.path(USER_API_PATH)
-                    .filters { f -> f.rewritePath(USER_REWRITE_PATTERN, USER_REPLACEMENT) }
+                    .filters { f ->
+                        f.rewritePath(USER_REWRITE_PATTERN, USER_REPLACEMENT)
+                        f.preserveHostHeader()
+                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
+                        f.filter(authFilter)
+                    }
                     .uri(userServiceUrl)
             }
             .route(ROLE_SERVICE_ROUTE) { r ->
                 r.path(ROLE_API_PATH)
-                    .filters { f -> f.rewritePath(ROLE_REWRITE_PATTERN, ROLE_REPLACEMENT) }
+                    .filters { f ->
+                        f.rewritePath(ROLE_REWRITE_PATTERN, ROLE_REPLACEMENT)
+                        f.preserveHostHeader()
+                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
+                        f.filter(authFilter)
+                    }
                     .uri(roleServiceUrl)
             }
             .route(MAIL_SERVICE_ROUTE) { r ->
                 r.path(MAIL_API_PATH)
-                    .filters { f -> f.rewritePath(MAIL_REWRITE_PATTERN, MAIL_REPLACEMENT) }
+                    .filters { f ->
+                        f.rewritePath(MAIL_REWRITE_PATTERN, MAIL_REPLACEMENT)
+                        f.preserveHostHeader()
+                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
+                        f.filter(authFilter)
+                    }
                     .uri(mailServiceUrl)
             }
             .build()
     }
+}
+
+@Component
+class AuthHeaderGatewayFilterFactory : AbstractGatewayFilterFactory<AuthHeaderGatewayFilterFactory.Config>(Config::class.java) {
+    data class Config(
+        val enabled: Boolean = true,
+        val headerName: String = HttpHeaders.AUTHORIZATION
+    )
+
+    override fun apply(config: Config): GatewayFilter {
+        return GatewayFilter { exchange, chain ->
+            if (!config.enabled) {
+                return@GatewayFilter chain.filter(exchange)
+            }
+
+            val request = exchange.request
+            val authHeader = request.headers.getFirst(config.headerName)
+
+            if (authHeader != null) {
+                val mutatedExchange = exchange.mutate()
+                    .request { requestBuilder ->
+                        requestBuilder.header(config.headerName, authHeader)
+                    }
+                    .build()
+
+                chain.filter(mutatedExchange)
+            } else {
+                chain.filter(exchange)
+            }
+        }
+    }
+
+    override fun name(): String = "AuthHeader"
 }
 
 fun main(args: Array<String>) {
