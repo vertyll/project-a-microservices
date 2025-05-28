@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
  * Controller for managing emails
  */
 @RestController
-@RequestMapping("/api/mail")
+@RequestMapping("/")
 class EmailController(
     private val emailSagaService: EmailSagaService
 ) {

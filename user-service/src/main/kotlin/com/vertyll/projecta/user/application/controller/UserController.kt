@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/")
 @Tag(name = "Users", description = "User management API")
 class UserController(
     private val userService: UserService

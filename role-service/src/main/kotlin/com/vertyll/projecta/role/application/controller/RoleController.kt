@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/")
 @Tag(name = "Roles", description = "Role management APIs")
 class RoleController(private val roleService: RoleService) {
     @PostMapping

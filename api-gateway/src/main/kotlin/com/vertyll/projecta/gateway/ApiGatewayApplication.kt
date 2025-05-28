@@ -62,10 +62,10 @@ class ApiGatewayApplication(
         private const val MAIL_REWRITE_PATTERN = "/api/v1/mail/(?<segment>.*)"
 
         // Rewrite replacement patterns
-        private const val AUTH_REPLACEMENT = "/api/auth/\${segment}"
-        private const val USER_REPLACEMENT = "/api/users/\${segment}"
-        private const val ROLE_REPLACEMENT = "/api/roles/\${segment}"
-        private const val MAIL_REPLACEMENT = "/api/mail/\${segment}"
+        private const val AUTH_REPLACEMENT = "/auth/\${segment}"
+        private const val USER_REPLACEMENT = "/users/\${segment}"
+        private const val ROLE_REPLACEMENT = "/roles/\${segment}"
+        private const val MAIL_REPLACEMENT = "/mail/\${segment}"
     }
 
     @Bean
