@@ -30,7 +30,10 @@ import org.springframework.stereotype.Component
         "com.vertyll.projecta.gateway"
     ],
     excludeFilters = [
-        ComponentScan.Filter(type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE, classes = [KafkaOutboxProcessor::class])
+        ComponentScan.Filter(
+            type = org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE,
+            classes = [KafkaOutboxProcessor::class]
+        )
     ]
 )
 @EnableKafka
@@ -42,93 +45,91 @@ class ApiGatewayApplication(
     private lateinit var serverPort: String
 
     companion object {
-        // Route IDs
+        // Service configuration
+        private val SERVICE_CONFIGS = mapOf(
+            "auth" to ServiceConfig("auth-service", "/api/v1/auth", "/auth", false),
+            "user" to ServiceConfig("user-service", "/api/v1/users", "/users", true),
+            "role" to ServiceConfig("role-service", "/api/v1/roles", "/roles", true),
+            "mail" to ServiceConfig("mail-service", "/api/v1/mail", "/mail", true)
+        )
+
         private const val ROOT_REDIRECT_ROUTE = "root-redirect"
-        private const val AUTH_SERVICE_ROUTE = "auth-service"
-        private const val USER_SERVICE_ROUTE = "user-service"
-        private const val ROLE_SERVICE_ROUTE = "role-service"
-        private const val MAIL_SERVICE_ROUTE = "mail-service"
-
-        // API Path Prefixes
-        private const val AUTH_API_PATH = "/api/v1/auth/**"
-        private const val USER_API_PATH = "/api/v1/users/**"
-        private const val ROLE_API_PATH = "/api/v1/roles/**"
-        private const val MAIL_API_PATH = "/api/v1/mail/**"
-
-        // Rewrite path patterns
-        private const val AUTH_REWRITE_PATTERN = "/api/v1/auth/(?<segment>.*)"
-        private const val USER_REWRITE_PATTERN = "/api/v1/users/(?<segment>.*)"
-        private const val ROLE_REWRITE_PATTERN = "/api/v1/roles/(?<segment>.*)"
-        private const val MAIL_REWRITE_PATTERN = "/api/v1/mail/(?<segment>.*)"
-
-        // Rewrite replacement patterns
-        private const val AUTH_REPLACEMENT = "/auth/\${segment}"
-        private const val USER_REPLACEMENT = "/users/\${segment}"
-        private const val ROLE_REPLACEMENT = "/roles/\${segment}"
-        private const val MAIL_REPLACEMENT = "/mail/\${segment}"
+        private const val CORS_HEADER = "Access-Control-Allow-Origin"
+        private const val CORS_VALUE = "*"
     }
+
+    data class ServiceConfig(
+        val routeId: String,
+        val apiPath: String,
+        val targetPath: String,
+        val requiresAuth: Boolean
+    )
 
     @Bean
     fun customRouteLocator(builder: RouteLocatorBuilder): RouteLocator {
         val gatewayUrl = "http://localhost:$serverPort"
-
-        val authServiceUrl = sharedConfig.services.authService.url
-        val userServiceUrl = sharedConfig.services.userService.url
-        val roleServiceUrl = sharedConfig.services.roleService.url
-        val mailServiceUrl = sharedConfig.services.mailService.url
-
         val authFilter = authHeaderFilterFactory.apply(AuthHeaderGatewayFilterFactory.Config())
 
-        return builder.routes()
+        var routes = builder.routes()
+            // Root redirect route
             .route(ROOT_REDIRECT_ROUTE) { r ->
-                r.path("/").filters { f ->
-                    f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health")
-                }.uri(gatewayUrl)
+                r.path("/")
+                    .filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health") }
+                    .uri(gatewayUrl)
             }
-            .route(AUTH_SERVICE_ROUTE) { r ->
-                r.path(AUTH_API_PATH)
+
+        // Dynamic service routes
+        SERVICE_CONFIGS.forEach { (serviceName, config) ->
+            val serviceUrl = getServiceUrl(serviceName)
+
+            // Root path route (e.g., /api/v1/users -> /users)
+            routes = routes.route("${config.routeId}-root") { r ->
+                r.path(config.apiPath)
                     .filters { f ->
-                        f.rewritePath(AUTH_REWRITE_PATTERN, AUTH_REPLACEMENT)
-                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
-                    }
-                    .uri(authServiceUrl)
-            }
-            .route(USER_SERVICE_ROUTE) { r ->
-                r.path(USER_API_PATH)
-                    .filters { f ->
-                        f.rewritePath(USER_REWRITE_PATTERN, USER_REPLACEMENT)
+                        f.rewritePath(config.apiPath, config.targetPath)
                         f.preserveHostHeader()
-                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
-                        f.filter(authFilter)
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        if (config.requiresAuth) {
+                            f.filter(authFilter)
+                        }
+                        f
                     }
-                    .uri(userServiceUrl)
+                    .uri(serviceUrl)
             }
-            .route(ROLE_SERVICE_ROUTE) { r ->
-                r.path(ROLE_API_PATH)
+
+            // Wildcard path route (e.g., /api/v1/users/** -> /users/**)
+            routes = routes.route(config.routeId) { r ->
+                r.path("${config.apiPath}/**")
                     .filters { f ->
-                        f.rewritePath(ROLE_REWRITE_PATTERN, ROLE_REPLACEMENT)
-                        f.preserveHostHeader()
-                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
-                        f.filter(authFilter)
+                        f.rewritePath("${config.apiPath}/(?<segment>.*)", "${config.targetPath}/\${segment}")
+                        if (config.requiresAuth) {
+                            f.preserveHostHeader()
+                        }
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        if (config.requiresAuth) {
+                            f.filter(authFilter)
+                        }
+                        f
                     }
-                    .uri(roleServiceUrl)
+                    .uri(serviceUrl)
             }
-            .route(MAIL_SERVICE_ROUTE) { r ->
-                r.path(MAIL_API_PATH)
-                    .filters { f ->
-                        f.rewritePath(MAIL_REWRITE_PATTERN, MAIL_REPLACEMENT)
-                        f.preserveHostHeader()
-                        f.addResponseHeader("Access-Control-Allow-Origin", "*")
-                        f.filter(authFilter)
-                    }
-                    .uri(mailServiceUrl)
-            }
-            .build()
+        }
+
+        return routes.build()
+    }
+
+    private fun getServiceUrl(serviceName: String): String = when (serviceName) {
+        "auth" -> sharedConfig.services.authService.url
+        "user" -> sharedConfig.services.userService.url
+        "role" -> sharedConfig.services.roleService.url
+        "mail" -> sharedConfig.services.mailService.url
+        else -> throw IllegalArgumentException("Unknown service: $serviceName")
     }
 }
 
 @Component
 class AuthHeaderGatewayFilterFactory : AbstractGatewayFilterFactory<AuthHeaderGatewayFilterFactory.Config>(Config::class.java) {
+
     data class Config(
         val enabled: Boolean = true,
         val headerName: String = HttpHeaders.AUTHORIZATION
@@ -140,24 +141,21 @@ class AuthHeaderGatewayFilterFactory : AbstractGatewayFilterFactory<AuthHeaderGa
                 return@GatewayFilter chain.filter(exchange)
             }
 
-            val request = exchange.request
-            val authHeader = request.headers.getFirst(config.headerName)
+            val authHeader = exchange.request.headers.getFirst(config.headerName)
 
-            if (authHeader != null) {
-                val mutatedExchange = exchange.mutate()
-                    .request { requestBuilder ->
-                        requestBuilder.header(config.headerName, authHeader)
-                    }
-                    .build()
-
-                chain.filter(mutatedExchange)
+            if (authHeader.isNullOrBlank()) {
+                // Optionally handle missing auth header
+                chain.filter(exchange)
             } else {
+                // Forward the auth header - it's already present in the request
                 chain.filter(exchange)
             }
         }
     }
 
     override fun name(): String = "AuthHeader"
+
+    override fun shortcutFieldOrder(): List<String> = listOf("enabled", "headerName")
 }
 
 fun main(args: Array<String>) {
