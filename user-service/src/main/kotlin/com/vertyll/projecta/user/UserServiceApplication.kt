@@ -21,7 +21,12 @@ import org.springframework.kafka.annotation.EnableKafka
     ]
 )
 @EnableKafka
-@ComponentScan(basePackages = ["com.vertyll.projecta.user", "com.vertyll.projecta.common"])
+@ComponentScan(
+    basePackages = [
+        "com.vertyll.projecta.user",
+        "com.vertyll.projecta.common"
+    ]
+)
 class UserServiceApplication
 
 fun main(args: Array<String>) {
