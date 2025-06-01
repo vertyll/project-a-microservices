@@ -6,7 +6,6 @@ import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
-import com.vertyll.projecta.user.domain.dto.UserUpdateDto
 import com.vertyll.projecta.user.domain.model.entity.User
 import com.vertyll.projecta.user.domain.repository.UserRepository
 import com.vertyll.projecta.user.infrastructure.kafka.UserEventProducer
@@ -52,32 +51,6 @@ class UserService(
             )
         )
 
-        return mapToDto(savedUser)
-    }
-
-    @Transactional
-    fun updateUser(id: Long, dto: UserUpdateDto): UserResponseDto {
-        val user = userRepository.findById(id)
-            .orElseThrow {
-                ApiException(
-                    message = "User not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
-
-        user.firstName = dto.firstName
-        user.lastName = dto.lastName
-        user.setEmail(dto.email)
-        user.profilePicture = dto.profilePicture
-        user.phoneNumber = dto.phoneNumber
-        user.address = dto.address
-
-        // If roles are being updated, update the cached roles
-        if (dto.roles.isNotEmpty()) {
-            user.setCachedRoles(dto.roles)
-        }
-
-        val savedUser = userRepository.save(user)
         return mapToDto(savedUser)
     }
 

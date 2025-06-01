@@ -80,7 +80,7 @@ class ApiGatewayApplication(
             // API Gateway OpenAPI documentation routes
             .route("api-docs") { r ->
                 r.path("/api-docs/**")
-                    .filters { f -> 
+                    .filters { f ->
                         f.preserveHostHeader()
                         f.addResponseHeader(CORS_HEADER, CORS_VALUE)
                         f
@@ -89,7 +89,7 @@ class ApiGatewayApplication(
             }
             .route("swagger-ui") { r ->
                 r.path("/swagger-ui/**")
-                    .filters { f -> 
+                    .filters { f ->
                         f.preserveHostHeader()
                         f.addResponseHeader(CORS_HEADER, CORS_VALUE)
                         f
@@ -98,7 +98,7 @@ class ApiGatewayApplication(
             }
             .route("webjars") { r ->
                 r.path("/webjars/**")
-                    .filters { f -> 
+                    .filters { f ->
                         f.preserveHostHeader()
                         f.addResponseHeader(CORS_HEADER, CORS_VALUE)
                         f

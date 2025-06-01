@@ -224,10 +224,10 @@ Event publishing and consuming are handled by dedicated adapters, keeping the do
 
 Each service provides its own Swagger UI for API documentation:
 
-- Auth Service: http://localhost:8082/api/auth/swagger-ui.html
-- User Service: http://localhost:8083/api/users/swagger-ui.html
-- Role Service: http://localhost:8084/api/roles/swagger-ui.html
-- Mail Service: http://localhost:8085/api/mail/swagger-ui.html
+- Auth Service: http://localhost:8082/swagger-ui.html
+- User Service: http://localhost:8083/swagger-ui.html
+- Role Service: http://localhost:8084/swagger-ui.html
+- Mail Service: http://localhost:8085/swagger-ui.html
 
 ## Monitoring
 
