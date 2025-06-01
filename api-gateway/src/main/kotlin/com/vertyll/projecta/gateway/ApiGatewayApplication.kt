@@ -74,7 +74,35 @@ class ApiGatewayApplication(
             // Root redirect route
             .route(ROOT_REDIRECT_ROUTE) { r ->
                 r.path("/")
-                    .filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/actuator/health") }
+                    .filters { f -> f.redirect(HttpStatus.TEMPORARY_REDIRECT.value(), "/swagger-ui.html") }
+                    .uri(gatewayUrl)
+            }
+            // API Gateway OpenAPI documentation routes
+            .route("api-docs") { r ->
+                r.path("/api-docs/**")
+                    .filters { f -> 
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        f
+                    }
+                    .uri(gatewayUrl)
+            }
+            .route("swagger-ui") { r ->
+                r.path("/swagger-ui/**")
+                    .filters { f -> 
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        f
+                    }
+                    .uri(gatewayUrl)
+            }
+            .route("webjars") { r ->
+                r.path("/webjars/**")
+                    .filters { f -> 
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        f
+                    }
                     .uri(gatewayUrl)
             }
 
@@ -109,6 +137,41 @@ class ApiGatewayApplication(
                         if (config.requiresAuth) {
                             f.filter(authFilter)
                         }
+                        f
+                    }
+                    .uri(serviceUrl)
+            }
+
+            // OpenAPI documentation routes for each service
+            routes = routes.route("${config.routeId}-api-docs") { r ->
+                r.path("${config.apiPath}/api-docs/**")
+                    .filters { f ->
+                        f.rewritePath("${config.apiPath}/api-docs/(?<segment>.*)", "/api-docs/\${segment}")
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        f
+                    }
+                    .uri(serviceUrl)
+            }
+
+            routes = routes.route("${config.routeId}-swagger-ui") { r ->
+                r.path("${config.apiPath}/swagger-ui/**")
+                    .filters { f ->
+                        f.rewritePath("${config.apiPath}/swagger-ui/(?<segment>.*)", "/swagger-ui/\${segment}")
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
+                        f
+                    }
+                    .uri(serviceUrl)
+            }
+
+            // Add route for webjars resources
+            routes = routes.route("${config.routeId}-webjars") { r ->
+                r.path("${config.apiPath}/webjars/**")
+                    .filters { f ->
+                        f.rewritePath("${config.apiPath}/webjars/(?<segment>.*)", "/webjars/\${segment}")
+                        f.preserveHostHeader()
+                        f.addResponseHeader(CORS_HEADER, CORS_VALUE)
                         f
                     }
                     .uri(serviceUrl)
