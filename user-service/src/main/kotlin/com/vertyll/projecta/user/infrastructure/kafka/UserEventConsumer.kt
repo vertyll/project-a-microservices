@@ -158,7 +158,7 @@ class UserEventConsumer(
         }
     }
 
-    @KafkaListener(topics = ["user-deletion"])
+    @KafkaListener(topics = ["#{@kafkaTopicsConfig.getUserDeletionTopic()}"])
     @Transactional
     fun handleDeletion(record: ConsumerRecord<String, String>) {
         try {

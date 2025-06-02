@@ -90,6 +90,8 @@ class KafkaTopicsConfig {
         topics.user[KafkaTopicNames.USER_EMAIL_UPDATED.value] ?: KafkaTopicNames.USER_EMAIL_UPDATED.value
     fun getUserDeletedTopic(): String =
         topics.user[KafkaTopicNames.USER_DELETED.value] ?: KafkaTopicNames.USER_DELETED.value
+    fun getUserDeletionTopic(): String =
+        topics.user[KafkaTopicNames.USER_DELETION.value] ?: KafkaTopicNames.USER_DELETION.value
     fun getUserCreationConfirmedTopic(): String =
         topics.user[KafkaTopicNames.USER_CREATION_CONFIRMED.value] ?: KafkaTopicNames.USER_CREATION_CONFIRMED.value
 
