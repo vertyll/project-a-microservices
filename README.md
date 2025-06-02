@@ -1,8 +1,8 @@
 <p align="center">
-<img src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white">
-<img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white">
-<img src="https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white">
-<img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
+<img alt="" src="https://img.shields.io/badge/Kotlin-B125EA?style=for-the-badge&logo=kotlin&logoColor=white">
+<img alt="" src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white">
+<img alt="" src="https://img.shields.io/badge/Apache_Kafka-231F20?style=for-the-badge&logo=apache-kafka&logoColor=white">
+<img alt="" src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
 </p>
 
 # Project A Microservices
@@ -21,6 +21,7 @@ The project is split into the following components:
 4. **Role Service** - Manages roles and permissions across the system
 5. **Mail Service** - Handles email sending operations and templates
 6. **Common Library** - Shared code, contracts, and utilities used across all microservices
+7. **Template Service** - Baseline configuration for future microservices
 
 Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other via Apache Kafka for event-driven architecture, implementing the Choreography pattern.
 
@@ -91,7 +92,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 
 ### Prerequisites
 
-- Docker and Docker Compose
+- Docker and Docker Compose / Podman and Podman Compose
 - JDK 21 (LTS)
 - Gradle
 
@@ -220,6 +221,25 @@ Services communicate asynchronously through Kafka events, implemented as externa
 
 Event publishing and consuming are handled by dedicated adapters, keeping the domain core focused on business logic.
 
+### Common Library
+
+The common library provides shared functionality across all microservices, including:
+
+- **JWT base configuration**: Common JWT token configuration for authentication
+- **Kafka integration**: Base classes for event publishing and consuming
+- **Exception Handling**: Common exception handling strategies
+- **API Response Wrappers**: Standardized API response structures
+- **Outbox Pattern**: Implementation for reliable event publishing
+
+### Template Service
+
+The Template Service serves as a baseline configuration for future microservices, providing:
+
+- A template for implementing hexagonal architecture
+- Example domain models, repositories, and services
+- Sample event definitions and Kafka integration
+- Basic Saga pattern implementation
+
 ## API Documentation
 
 Each service provides its own Swagger UI for API documentation:
@@ -234,3 +254,16 @@ Each service provides its own Swagger UI for API documentation:
 - Each service exposes health and metrics endpoints through Spring Boot Actuator
 - Health checks can be accessed at `/actuator/health` on each service
 - Metrics can be collected for observability and monitoring service health
+
+## Formatting and code style
+
+The project using ktlint for code formatting and style checks. To format the code, run:
+
+```bash
+./gradlew ktlintFormat
+```
+
+To check the code style, run:
+```bash
+./gradlew ktlintCheck
+```
