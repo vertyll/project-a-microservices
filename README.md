@@ -230,6 +230,7 @@ The common library provides shared functionality across all microservices, inclu
 - **Exception Handling**: Common exception handling strategies
 - **API Response Wrappers**: Standardized API response structures
 - **Outbox Pattern**: Implementation for reliable event publishing
+- **Integration Events**: Shared event definitions for inter-service communication
 
 ### Template Service
 
