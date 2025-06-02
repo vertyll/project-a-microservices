@@ -34,6 +34,13 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 - Ensures consistency in how services communicate and process events
 - Includes base classes for implementing event choreography
 - Provides shared ports and adapters interfaces for consistent hexagonal architecture implementation
+- Integration events definitions for inter-service communication
+
+#### Template Service
+- A template for implementing hexagonal architecture
+- Example domain models, repositories, and services
+- Sample event definitions and Kafka integration
+- Basic Saga pattern implementation
 
 #### Auth Service
 - Responsible for user authentication, authorization using JWT and refresh tokens
@@ -220,26 +227,6 @@ Services communicate asynchronously through Kafka events, implemented as externa
 - **UserProfileUpdatedEvent**: Triggered when a user profile is updated
 
 Event publishing and consuming are handled by dedicated adapters, keeping the domain core focused on business logic.
-
-### Common Library
-
-The common library provides shared functionality across all microservices, including:
-
-- **JWT base configuration**: Common JWT token configuration for authentication
-- **Kafka integration**: Base classes for event publishing and consuming
-- **Exception Handling**: Common exception handling strategies
-- **API Response Wrappers**: Standardized API response structures
-- **Outbox Pattern**: Implementation for reliable event publishing
-- **Integration Events**: Shared event definitions for inter-service communication
-
-### Template Service
-
-The Template Service serves as a baseline configuration for future microservices, providing:
-
-- A template for implementing hexagonal architecture
-- Example domain models, repositories, and services
-- Sample event definitions and Kafka integration
-- Basic Saga pattern implementation
 
 ## API Documentation
 
