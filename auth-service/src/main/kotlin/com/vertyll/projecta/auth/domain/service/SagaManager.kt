@@ -133,6 +133,8 @@ class SagaManager(
 
     /**
      * Checks if all expected steps for a saga have been completed
+     * @param saga The saga to check
+     * @return True if all expected steps are completed, false otherwise
      */
     private fun areAllStepsCompleted(saga: Saga): Boolean {
         // Get the expected steps for this saga type
@@ -197,6 +199,7 @@ class SagaManager(
     /**
      * Triggers compensation for a failed saga
      * @param saga The saga to compensate
+     * @return Unit
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
@@ -240,6 +243,10 @@ class SagaManager(
 
     /**
      * Compensate for creating an auth user
+     * This will delete the auth user created in the saga step
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateCreateAuthUser(sagaId: String, step: SagaStep) {
         try {
@@ -265,6 +272,10 @@ class SagaManager(
 
     /**
      * Compensate for creating a verification token
+     * This will delete the verification token created in the saga step
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateCreateVerificationToken(sagaId: String, step: SagaStep) {
         try {
@@ -290,6 +301,10 @@ class SagaManager(
 
     /**
      * Compensate for updating a password
+     * This will revert the password update made in the saga step
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateUpdatePassword(sagaId: String, step: SagaStep) {
         try {
@@ -321,6 +336,10 @@ class SagaManager(
 
     /**
      * Compensate for updating an email
+     * This will revert the email update made in the saga step
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateUpdateEmail(sagaId: String, step: SagaStep) {
         try {

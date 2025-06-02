@@ -807,10 +807,6 @@ class AuthService(
         val refreshTokens = refreshTokenRepository.findByUsername(username)
             .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
-        // Note: We can't determine the current session by direct token comparison
-        // since we're now storing hashed tokens. Instead, we'll use session creation time
-        // as an approximation or return false for isCurrentSession.
-
         return refreshTokens.map { token ->
             SessionDto(
                 id = token.id,
@@ -835,8 +831,6 @@ class AuthService(
             return false
         }
 
-        // Note: Since we're now storing hashed tokens, we can't directly compare tokens here.
-        // We'll proceed with the revocation based on the session ID.
         refreshToken.revoked = true
         refreshTokenRepository.save(refreshToken)
         logger.info("Revoked session {} for user {}", sessionId, username)

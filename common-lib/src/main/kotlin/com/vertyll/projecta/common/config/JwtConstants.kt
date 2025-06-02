@@ -1,5 +1,8 @@
 package com.vertyll.projecta.common.config
 
+/**
+ * Constants used for JWT (JSON Web Token) handling in the application.
+ */
 object JwtConstants {
     // JWT field names and claim keys
     const val CLAIM_ROLES = "roles"

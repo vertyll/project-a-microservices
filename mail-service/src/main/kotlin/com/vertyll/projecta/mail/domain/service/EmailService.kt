@@ -103,6 +103,12 @@ class EmailService(
         }
     }
 
+    /**
+     * Formats variables for storage, truncating long values for readability
+     *
+     * @param variables map of variables to format
+     * @return formatted string representation of variables, or null if empty
+     */
     private fun formatVariablesForStorage(variables: Map<String, String>): String? {
         if (variables.isEmpty()) {
             return null
@@ -117,6 +123,17 @@ class EmailService(
         }
     }
 
+    /**
+     * Saves an email log entry to the database
+     *
+     * @param recipient email recipient
+     * @param subject email subject
+     * @param templateName name of the email template used
+     * @param variables variables used in the email, formatted for storage
+     * @param replyTo optional reply-to address
+     * @param success whether the email was sent successfully
+     * @param errorMessage optional error message if sending failed
+     */
     private fun saveEmailLog(
         recipient: String,
         subject: String,

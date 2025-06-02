@@ -44,7 +44,7 @@ class MailEventConsumer(
         // Log messages
         private const val MSG_RECEIVED = "Received mail request message: {}"
         private const val MSG_PAYLOAD = "Message payload: {}"
-        private const val ERR_DESERIAL = "Could not directly deserialize payload, attempting manual parsing: {}"
+        private const val ERR_DESERIALIZE = "Could not directly deserialize payload, attempting manual parsing: {}"
         private const val ERR_VARIABLES = "Could not convert variables to Map<String, String>, using empty map: {}"
         private const val ERR_TIMESTAMP = "Could not convert timestamp, using current time: {}"
         private const val ERR_PROCESSING = "Error processing message from topic {}"
@@ -64,7 +64,7 @@ class MailEventConsumer(
             val event = try {
                 objectMapper.readValue<MailRequestedEvent>(payload)
             } catch (e: JsonProcessingException) {
-                logger.warn(ERR_DESERIAL, e.message)
+                logger.warn(ERR_DESERIALIZE, e.message)
                 // The payload may be wrapped in quotes, so we need to handle that
                 val cleanPayload = cleanJsonPayload(payload)
 

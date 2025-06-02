@@ -54,16 +54,10 @@ class User(
     @Transient
     private var cachedRoles: Set<String>? = null
 
-    /**
-     * Set cached roles from Role Service
-     */
     fun setCachedRoles(roles: Set<String>) {
         this.cachedRoles = roles
     }
 
-    /**
-     * Get cached roles
-     */
     fun getCachedRoles(): Set<String> {
         return cachedRoles ?: emptySet()
     }

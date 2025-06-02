@@ -148,6 +148,7 @@ class SagaManager(
     /**
      * Triggers compensation for a failed saga
      * @param saga The saga to compensate
+     * @return Unit
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
@@ -192,6 +193,9 @@ class SagaManager(
 
     /**
      * Compensate for creating a user profile
+     * @param sagaId The ID of the saga
+     * @param step The saga step to compensate
+     * @return Unit
      */
     private fun compensateCreateUserProfile(sagaId: String, step: SagaStep) {
         try {
@@ -217,6 +221,9 @@ class SagaManager(
 
     /**
      * Compensate for updating a user profile
+     * @param sagaId The ID of the saga
+     * @param step The saga step to compensate
+     * @return Unit
      */
     private fun compensateUpdateUserProfile(sagaId: String, step: SagaStep) {
         try {
@@ -244,6 +251,9 @@ class SagaManager(
 
     /**
      * Compensate for updating user credentials
+     * @param sagaId The ID of the saga
+     * @param step The saga step to compensate
+     * @return Unit
      */
     private fun compensateUpdateUserCredentials(sagaId: String, step: SagaStep) {
         try {
@@ -271,6 +281,9 @@ class SagaManager(
 
     /**
      * Compensate for updating user email
+     * @param sagaId The ID of the saga
+     * @param step The saga step to compensate
+     * @return Unit
      */
     private fun compensateUpdateUserEmail(sagaId: String, step: SagaStep) {
         try {
@@ -302,6 +315,9 @@ class SagaManager(
 
     /**
      * Compensate for deleting a user profile (recreate it)
+     * @param sagaId The ID of the saga
+     * @param step The saga step to compensate
+     * @return Unit
      */
     private fun compensateDeleteUserProfile(sagaId: String, step: SagaStep) {
         try {

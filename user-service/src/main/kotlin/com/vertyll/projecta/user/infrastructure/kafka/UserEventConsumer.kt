@@ -268,7 +268,7 @@ class UserEventConsumer(
                     }
 
                     userService.updateEmail(
-                        EmailUpdateDto(
+                        request = EmailUpdateDto(
                             currentEmail = event.email,
                             newEmail = newEmail
                         )

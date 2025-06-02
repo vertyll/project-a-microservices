@@ -115,6 +115,8 @@ class SagaManager(
 
     /**
      * Checks if all expected steps for a saga have been completed
+     * @param saga The saga to check
+     * @return True if all expected steps are completed, false otherwise
      */
     private fun areAllStepsCompleted(saga: Saga): Boolean {
         // Get the expected steps for this saga type
@@ -179,6 +181,7 @@ class SagaManager(
     /**
      * Triggers compensation for a failed saga
      * @param saga The saga to compensate
+     * @return Unit
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
@@ -223,6 +226,9 @@ class SagaManager(
 
     /**
      * Compensate for creating a role
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateCreateRole(sagaId: String, step: SagaStep) {
         try {
@@ -248,6 +254,9 @@ class SagaManager(
 
     /**
      * Compensate for assigning a role
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateAssignRole(sagaId: String, step: SagaStep) {
         try {
@@ -275,6 +284,9 @@ class SagaManager(
 
     /**
      * Compensate for revoking a role
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateRevokeRole(sagaId: String, step: SagaStep) {
         try {
@@ -304,6 +316,9 @@ class SagaManager(
 
     /**
      * Compensate for updating a role
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateUpdateRole(sagaId: String, step: SagaStep) {
         try {
@@ -335,6 +350,9 @@ class SagaManager(
 
     /**
      * Compensate for deleting a role
+     * @param sagaId The ID of the saga
+     * @param step The saga step that needs compensation
+     * @return Unit
      */
     private fun compensateDeleteRole(sagaId: String, step: SagaStep) {
         try {

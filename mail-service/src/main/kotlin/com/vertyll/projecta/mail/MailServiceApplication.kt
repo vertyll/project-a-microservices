@@ -62,7 +62,7 @@ class MailServiceApplication {
         templateResolver.suffix = TEMPLATE_SUFFIX
         templateResolver.templateMode = TemplateMode.HTML
         templateResolver.characterEncoding = TEMPLATE_ENCODING
-        templateResolver.isCacheable = false // Set to true in production
+        templateResolver.isCacheable = false // TODO: Extract configuration and set to true in production
         return templateResolver
     }
 }

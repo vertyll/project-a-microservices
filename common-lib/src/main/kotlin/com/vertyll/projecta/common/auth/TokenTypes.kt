@@ -1,5 +1,8 @@
 package com.vertyll.projecta.common.auth
 
+/**
+ * Enum representing different types of tokens used in the authentication process.
+ */
 enum class TokenTypes(val value: String) {
     ACCOUNT_ACTIVATION("ACCOUNT_ACTIVATION"),
     EMAIL_CHANGE("EMAIL_CHANGE"),
