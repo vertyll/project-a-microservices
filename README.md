@@ -87,7 +87,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 
 ## Technology Stack
 
-- **Backend**: Spring Boot, Kotlin, Gradle Kotlin DSL
+- **Back-end**: Spring Boot, Kotlin, Gradle Kotlin DSL
 - **Database**: PostgreSQL (separate instance for each service)
 - **Message Broker**: Apache Kafka (for event-driven communication)
 - **API Documentation**: OpenAPI (Swagger)
