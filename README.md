@@ -16,7 +16,7 @@ A microservices-based architecture for Project A, following Domain-Driven Design
 The project is split into the following components:
 
 1. **API Gateway** - Entry point for all client requests, handles routing to appropriate services and JWT token validation
-2. **Auth Service** - Manages authentication and authorization with JWT tokens and refresh tokens (http secure cookie)
+2. **Auth Service** - Manages authentication and authorization with JWT tokens and refresh tokens (http only secure cookie)
 3. **User Service** - Handles user profile management and user-related operations
 4. **Role Service** - Manages roles and permissions across the system
 5. **Mail Service** - Handles email sending operations and templates
@@ -43,11 +43,11 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 - Basic Saga pattern implementation
 
 #### Auth Service
-- Responsible for user authentication, authorization using JWT and refresh tokens (http secure cookie)
+- Responsible for user authentication, authorization using JWT and refresh tokens (http only secure cookie)
 - Manages the user credentials, account activation, and session management
 - Database stores:
   - User credentials (email, hashed passwords)
-  - Refresh tokens (http secure cookie)
+  - Refresh tokens (http only secure cookie)
   - Verification tokens (for account activation, password reset, etc.)
   - User roles (mirrored from Role Service)
 - Provides endpoints for registration, login, logout, account activation, password reset, and email change
@@ -92,7 +92,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 - **Message Broker**: Apache Kafka (for event-driven communication)
 - **API Documentation**: OpenAPI (Swagger)
 - **Containerization**: Docker/Podman, Docker Compose/Podman Compose
-- **Authentication**: JWT and refresh tokens (http secure cookie)
+- **Authentication**: JWT and refresh tokens (http only secure cookie)
 - **Testing**: JUnit, Testcontainers
 
 ## Development Setup
