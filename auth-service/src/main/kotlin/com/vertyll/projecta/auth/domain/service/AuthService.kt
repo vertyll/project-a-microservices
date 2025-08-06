@@ -38,8 +38,10 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.security.MessageDigest
 import java.time.Instant
 import java.time.LocalDateTime
+import java.util.Base64
 import java.util.UUID
 
 @Service
@@ -629,19 +631,17 @@ class AuthService(
     private fun createRefreshToken(userDetails: UserDetails, deviceInfo: String?): String {
         val jwtRefreshToken = jwtService.generateRefreshToken(userDetails)
 
-        // Hash the token before storing in the database
-        val hashedToken = passwordEncoder.encode(jwtRefreshToken)
+        val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+        val hashBytes = messageDigest.digest(jwtRefreshToken.toByteArray())
+        val hashedToken = java.util.Base64.getEncoder().encodeToString(hashBytes)
 
-        val refreshToken =
-            RefreshToken(
-                token = hashedToken,
-                username = userDetails.username,
-                expiryDate =
-                Instant.now()
-                    .plusMillis(jwtService.getRefreshTokenExpirationTime()),
-                revoked = false,
-                deviceInfo = deviceInfo
-            )
+        val refreshToken = RefreshToken(
+            token = hashedToken,
+            username = userDetails.username,
+            expiryDate = Instant.now().plusMillis(jwtService.getRefreshTokenExpirationTime()),
+            revoked = false,
+            deviceInfo = deviceInfo
+        )
 
         refreshTokenRepository.save(refreshToken)
         return jwtRefreshToken
@@ -728,13 +728,15 @@ class AuthService(
             val userTokens = refreshTokenRepository.findByUsername(username)
                 .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
-            // Find a matching token by comparing hashes
-            val storedToken = userTokens.find { token ->
-                passwordEncoder.matches(refreshTokenString, token.token)
-            } ?: throw ApiException(
-                message = "Invalid refresh token",
-                status = HttpStatus.UNAUTHORIZED
-            )
+            val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+            val hashBytes = messageDigest.digest(refreshTokenString.toByteArray())
+            val tokenHash = java.util.Base64.getEncoder().encodeToString(hashBytes)
+
+            val storedToken = userTokens.find { it.token == tokenHash }
+                ?: throw ApiException(
+                    message = "Invalid refresh token",
+                    status = HttpStatus.UNAUTHORIZED
+                )
 
             if (username != storedToken.username) {
                 throw ApiException(
@@ -785,8 +787,11 @@ class AuthService(
                 val userTokens = refreshTokenRepository.findByUsername(username)
                     .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
-                // Find a matching token by comparing hashes
-                val token = userTokens.find { passwordEncoder.matches(refreshTokenString, it.token) }
+                val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+                val hashBytes = messageDigest.digest(refreshTokenString.toByteArray())
+                val tokenHash = java.util.Base64.getEncoder().encodeToString(hashBytes)
+
+                val token = userTokens.find { it.token == tokenHash }
 
                 token?.let {
                     it.revoked = true
