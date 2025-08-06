@@ -10,7 +10,7 @@ plugins {
 group = "com.vertyll.projecta"
 version = "0.0.1-SNAPSHOT"
 
-val springCloudVersion = "2023.0.0"
+val springCloudVersion = "2025.0.0"
 
 java {
     toolchain {
