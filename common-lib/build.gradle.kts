@@ -30,9 +30,9 @@ dependencies {
 
     // Security
     api("org.springframework.boot:spring-boot-starter-security")
-    api("io.jsonwebtoken:jjwt-api:0.12.5")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    api("io.jsonwebtoken:jjwt-api:0.12.6")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
     // Database
     api("org.springframework.boot:spring-boot-starter-data-jpa")

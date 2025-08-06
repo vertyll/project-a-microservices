@@ -17,7 +17,7 @@ import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
-import java.security.Key
+import javax.crypto.SecretKey
 
 @Component
 class JwtAuthFilter(
@@ -75,14 +75,14 @@ class JwtAuthFilter(
     }
 
     private fun extractAllClaims(token: String): Claims {
-        return Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
+        return Jwts.parser()
+            .verifyWith(getSigningKey())
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
     }
 
-    private fun getSigningKey(): Key {
+    private fun getSigningKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(sharedConfig.security.jwt.secretKey)
         return Keys.hmacShaKeyFor(keyBytes)
     }

@@ -8,10 +8,10 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
-import java.security.Key
 import java.time.Instant
 import java.util.Date
 import java.util.UUID
+import javax.crypto.SecretKey
 
 @Service
 class JwtService(
@@ -48,10 +48,12 @@ class JwtService(
     fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         val now = Instant.now()
         return Jwts.builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.username)
-            .setIssuedAt(Date.from(now))
-            .setExpiration(Date.from(now.plusMillis(accessTokenExpiration)))
+            .claims()
+            .add(extraClaims)
+            .subject(userDetails.username)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plusMillis(accessTokenExpiration)))
+            .and()
             .signWith(getSigningKey())
             .compact()
     }
@@ -71,11 +73,13 @@ class JwtService(
     fun generateRefreshToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
         val now = Instant.now()
         return Jwts.builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.username)
-            .setIssuedAt(Date.from(now))
-            .setExpiration(Date.from(now.plusMillis(refreshTokenExpiration)))
-            .setId(UUID.randomUUID().toString()) // Add a unique ID to each token
+            .claims()
+            .add(extraClaims)
+            .subject(userDetails.username)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plusMillis(refreshTokenExpiration)))
+            .id(UUID.randomUUID().toString()) // Add a unique ID to each token
+            .and()
             .signWith(getSigningKey())
             .compact()
     }
@@ -118,14 +122,14 @@ class JwtService(
     }
 
     private fun extractAllClaims(token: String): Claims {
-        return Jwts.parserBuilder()
-            .setSigningKey(getSigningKey())
+        return Jwts.parser()
+            .verifyWith(getSigningKey())
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
     }
 
-    private fun getSigningKey(): Key {
+    private fun getSigningKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(secretKey)
         return Keys.hmacShaKeyFor(keyBytes)
     }
