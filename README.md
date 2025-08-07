@@ -112,9 +112,20 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
    cd project-a-microservices
    ```
 
-2. Start the infrastructure using Docker Compose:
+2. Start the infrastructure using Docker Compose or locally start the microservice:
+
+   Docker:
    ```bash
    docker-compose up -d
+   ```
+   Locally
+   ```bash
+   ./gradlew :<service-name>:build
+   # or
+   ./gradlew build
+   ```
+   ```bash
+   ./gradlew :<service-name>:bootRun --args='--spring.profiles.active=dev'
    ```
 
 3. Access the services:
