@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth.domain.service
 
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
-import com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationResultEvent
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service

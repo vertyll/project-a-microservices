@@ -26,7 +26,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: true
-        spring.json.type.mapping: roleCreated:com.vertyll.projecta.common.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.common.event.role.RoleUpdatedEvent,roleAssigned:com.vertyll.projecta.common.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.common.event.role.RoleRevokedEvent
+        spring.json.type.mapping: roleCreated:com.vertyll.projecta.sharedinfrastructure.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.sharedinfrastructure.event.role.RoleUpdatedEvent,roleAssigned:com.vertyll.projecta.sharedinfrastructure.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.sharedinfrastructure.event.role.RoleRevokedEvent
     consumer:
       group-id: role-service-group
       auto-offset-reset: earliest
@@ -36,9 +36,9 @@ spring:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "com.vertyll.projecta.*"
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,roleCreated:com.vertyll.projecta.common.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.common.event.role.RoleUpdatedEvent,roleAssigned:com.vertyll.projecta.common.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.common.event.role.RoleRevokedEvent
+        spring.json.type.mapping: userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,roleCreated:com.vertyll.projecta.sharedinfrastructure.event.role.RoleCreatedEvent,roleUpdated:com.vertyll.projecta.sharedinfrastructure.event.role.RoleUpdatedEvent,roleAssigned:com.vertyll.projecta.sharedinfrastructure.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.sharedinfrastructure.event.role.RoleRevokedEvent
 
 # OpenAPI configuration
 springdoc:

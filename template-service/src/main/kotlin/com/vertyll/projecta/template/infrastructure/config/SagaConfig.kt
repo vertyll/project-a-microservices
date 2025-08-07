@@ -1,6 +1,6 @@
 package com.vertyll.projecta.template.infrastructure.config
 
-import com.vertyll.projecta.common.kafka.KafkaOutbox
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutbox
 import com.vertyll.projecta.template.domain.model.entity.Saga
 import com.vertyll.projecta.template.domain.model.entity.SagaStep
 import org.springframework.boot.autoconfigure.domain.EntityScan

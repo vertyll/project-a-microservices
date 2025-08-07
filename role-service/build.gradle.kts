@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":common-lib"))
+    implementation(project(":shared-infrastructure"))
 
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")

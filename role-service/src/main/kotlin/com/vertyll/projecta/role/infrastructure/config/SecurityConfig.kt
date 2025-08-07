@@ -1,7 +1,7 @@
 package com.vertyll.projecta.role.infrastructure.config
 
-import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.infrastructure.security.JwtAuthenticationFilter
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity

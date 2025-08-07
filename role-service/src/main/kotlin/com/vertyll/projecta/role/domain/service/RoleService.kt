@@ -1,6 +1,5 @@
 package com.vertyll.projecta.role.domain.service
 
-import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.role.domain.dto.RoleCreateDto
 import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
@@ -13,6 +12,7 @@ import com.vertyll.projecta.role.domain.repository.RoleRepository
 import com.vertyll.projecta.role.domain.repository.UserRoleRepository
 import com.vertyll.projecta.role.infrastructure.exception.ApiException
 import com.vertyll.projecta.role.infrastructure.kafka.RoleEventProducer
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus

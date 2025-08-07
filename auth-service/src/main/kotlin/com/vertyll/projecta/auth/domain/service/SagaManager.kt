@@ -10,8 +10,8 @@ import com.vertyll.projecta.auth.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.auth.domain.model.enums.SagaTypes
 import com.vertyll.projecta.auth.domain.repository.SagaRepository
 import com.vertyll.projecta.auth.domain.repository.SagaStepRepository
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopicNames
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

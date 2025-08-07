@@ -1,6 +1,6 @@
 package com.vertyll.projecta.template.infrastructure.config
 
-import com.vertyll.projecta.common.role.RoleType
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import com.vertyll.projecta.template.infrastructure.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

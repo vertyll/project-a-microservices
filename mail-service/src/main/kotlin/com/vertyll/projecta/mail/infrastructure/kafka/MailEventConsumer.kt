@@ -4,11 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.vertyll.projecta.common.event.EventType
-import com.vertyll.projecta.common.event.mail.MailRequestedEvent
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.service.EmailSagaService
+import com.vertyll.projecta.sharedinfrastructure.event.EventType
+import com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

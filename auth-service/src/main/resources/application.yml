@@ -27,8 +27,8 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: true
-        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
     consumer:
       group-id: auth-service-group
       auto-offset-reset: earliest
@@ -38,9 +38,9 @@ spring:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "com.vertyll.projecta.*"
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent,roleAssigned:com.vertyll.projecta.common.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.common.event.role.RoleRevokedEvent
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent,userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent,roleAssigned:com.vertyll.projecta.sharedinfrastructure.event.role.RoleAssignedEvent,roleRevoked:com.vertyll.projecta.sharedinfrastructure.event.role.RoleRevokedEvent
   cloud:
     discovery:
       enabled: false

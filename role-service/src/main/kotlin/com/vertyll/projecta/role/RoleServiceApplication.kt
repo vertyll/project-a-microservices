@@ -11,20 +11,20 @@ import org.springframework.kafka.annotation.EnableKafka
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.role.domain.repository",
-        "com.vertyll.projecta.common.kafka"
+        "com.vertyll.projecta.sharedinfrastructure.kafka"
     ]
 )
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.role.domain.model",
-        "com.vertyll.projecta.common.kafka"
+        "com.vertyll.projecta.sharedinfrastructure.kafka"
     ]
 )
 @EnableKafka
 @ComponentScan(
     basePackages = [
         "com.vertyll.projecta.role",
-        "com.vertyll.projecta.common"
+        "com.vertyll.projecta.sharedinfrastructure"
     ]
 )
 class RoleServiceApplication

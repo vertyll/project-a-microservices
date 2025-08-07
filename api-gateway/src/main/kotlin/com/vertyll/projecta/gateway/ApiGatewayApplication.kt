@@ -1,7 +1,7 @@
 package com.vertyll.projecta.gateway
 
-import com.vertyll.projecta.common.config.SharedConfigProperties
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component
 )
 @ComponentScan(
     basePackages = [
-        "com.vertyll.projecta.common",
+        "com.vertyll.projecta.sharedinfrastructure",
         "com.vertyll.projecta.gateway"
     ],
     excludeFilters = [

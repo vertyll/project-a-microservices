@@ -1,6 +1,6 @@
 package com.vertyll.projecta.gateway.config
 
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

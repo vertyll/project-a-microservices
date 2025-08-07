@@ -1,8 +1,6 @@
 package com.vertyll.projecta.mail.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopicNames
 import com.vertyll.projecta.mail.domain.model.entity.Saga
 import com.vertyll.projecta.mail.domain.model.entity.SagaStep
 import com.vertyll.projecta.mail.domain.model.enums.SagaCompensationActions
@@ -12,6 +10,8 @@ import com.vertyll.projecta.mail.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.mail.domain.model.enums.SagaTypes
 import com.vertyll.projecta.mail.domain.repository.SagaRepository
 import com.vertyll.projecta.mail.domain.repository.SagaStepRepository
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

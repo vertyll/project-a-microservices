@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.vertyll.projecta.common.config.SharedConfigAutoConfiguration,\
-com.vertyll.projecta.common.kafka.KafkaConfigAutoConfiguration,\
-com.vertyll.projecta.common.config.JacksonConfig

@@ -1,12 +1,12 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.event.EventSource
-import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopicNames
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.sharedinfrastructure.event.EventSource
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.model.enums.SagaCompensationActions

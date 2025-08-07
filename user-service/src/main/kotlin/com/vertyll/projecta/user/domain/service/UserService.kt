@@ -1,7 +1,7 @@
 package com.vertyll.projecta.user.domain.service
 
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.role.RoleType
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto

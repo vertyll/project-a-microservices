@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth.infrastructure.security
 
 import com.vertyll.projecta.auth.domain.service.JwtService
-import com.vertyll.projecta.common.config.JwtConstants
+import com.vertyll.projecta.sharedinfrastructure.config.JwtConstants
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

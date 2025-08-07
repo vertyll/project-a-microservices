@@ -17,20 +17,20 @@ import org.thymeleaf.templateresolver.ITemplateResolver
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.mail.domain.repository",
-        "com.vertyll.projecta.common.kafka"
+        "com.vertyll.projecta.sharedinfrastructure.kafka"
     ]
 )
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.mail.domain.model",
-        "com.vertyll.projecta.common.kafka"
+        "com.vertyll.projecta.sharedinfrastructure.kafka"
     ]
 )
 @EnableKafka
 @ComponentScan(
     basePackages = [
         "com.vertyll.projecta.mail",
-        "com.vertyll.projecta.common"
+        "com.vertyll.projecta.sharedinfrastructure"
     ]
 )
 class MailServiceApplication {

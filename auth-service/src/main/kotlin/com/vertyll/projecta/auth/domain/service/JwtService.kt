@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth.domain.service
 
-import com.vertyll.projecta.common.config.JwtConstants
-import com.vertyll.projecta.common.config.SharedConfigProperties
+import com.vertyll.projecta.sharedinfrastructure.config.JwtConstants
+import com.vertyll.projecta.sharedinfrastructure.config.SharedConfigProperties
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders

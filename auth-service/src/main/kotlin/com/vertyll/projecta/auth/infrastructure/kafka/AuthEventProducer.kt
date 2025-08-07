@@ -1,10 +1,10 @@
 package com.vertyll.projecta.auth.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.event.mail.MailRequestedEvent
-import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.KafkaHeaders

@@ -1,8 +1,8 @@
 package com.vertyll.projecta.user.domain.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.kafka.KafkaOutboxProcessor
-import com.vertyll.projecta.common.kafka.KafkaTopicNames
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
 import com.vertyll.projecta.user.domain.model.entity.Saga
 import com.vertyll.projecta.user.domain.model.entity.SagaStep
 import com.vertyll.projecta.user.domain.model.enums.SagaCompensationActions

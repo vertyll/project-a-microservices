@@ -20,16 +20,16 @@ The project is split into the following components:
 3. **User Service** - Handles user profile management and user-related operations
 4. **Role Service** - Manages roles and permissions across the system
 5. **Mail Service** - Handles email sending operations and templates
-6. **Common Library** - Shared code, contracts, and utilities used across all microservices
+6. **Shared Infrastructure** - Shared infrastructure, contracts, and utilities used across all microservices
 7. **Template Service** - Baseline configuration for future microservices
 
 Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other via Apache Kafka for event-driven architecture, implementing the Choreography pattern.
 
 ### Detailed Description of Components
 
-#### Common Library
+#### Shared Infrastructure
 - Provides shared code, DTOs, event definitions, and utilities for all microservices
-- Implements common patterns like Outbox pattern
+- Implements shared patterns like Outbox pattern
 - Contains reusable components for Kafka integration, exception handling, and API responses
 - Ensures consistency in how services communicate and process events
 - Includes base classes for implementing event choreography

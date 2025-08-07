@@ -1,9 +1,9 @@
 package com.vertyll.projecta.role.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
 import com.vertyll.projecta.role.domain.service.RoleService
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

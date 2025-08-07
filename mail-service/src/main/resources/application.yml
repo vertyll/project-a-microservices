@@ -50,7 +50,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: true
-        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
     consumer:
       group-id: mail-service-group
       auto-offset-reset: earliest
@@ -59,8 +59,8 @@ spring:
       properties:
         spring.json.trusted.packages: "com.vertyll.projecta.*"
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
-        spring.json.type.mapping: mailRequested:com.vertyll.projecta.common.event.mail.MailRequestedEvent
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.mail.MailRequestedEvent"
+        spring.json.type.mapping: mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent"
         spring.json.use.type.headers: true
 
 # OpenAPI documentation configuration

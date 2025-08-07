@@ -1,6 +1,6 @@
 package com.vertyll.projecta.user.domain.dto
 
-import com.vertyll.projecta.common.role.RoleType
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 

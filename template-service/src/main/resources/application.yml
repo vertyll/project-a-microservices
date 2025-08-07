@@ -27,7 +27,7 @@ spring:
       properties:
         spring.json.add.type.headers: true
         spring.json.type.mapping:
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
     consumer:
       group-id: template-service-group
       auto-offset-reset: earliest
@@ -37,7 +37,7 @@ spring:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "com.vertyll.projecta.*"
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         spring.json.use.type.headers: true
         spring.json.type.mapping:
 

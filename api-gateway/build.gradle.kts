@@ -19,7 +19,7 @@ java {
 }
 
 dependencies {
-    implementation(project(":common-lib"))
+    implementation(project(":shared-infrastructure"))
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")

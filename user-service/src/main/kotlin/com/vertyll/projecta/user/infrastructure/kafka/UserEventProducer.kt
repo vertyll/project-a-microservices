@@ -1,11 +1,11 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.projecta.common.event.EventSource
-import com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
-import com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.sharedinfrastructure.event.EventSource
+import com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationResultEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate

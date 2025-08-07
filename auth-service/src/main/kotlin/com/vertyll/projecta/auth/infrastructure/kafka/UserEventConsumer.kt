@@ -3,11 +3,11 @@ package com.vertyll.projecta.auth.infrastructure.kafka
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.AuthUserRoleRepository
-import com.vertyll.projecta.common.event.EventSource
-import com.vertyll.projecta.common.event.role.RoleAssignedEvent
-import com.vertyll.projecta.common.event.role.RoleRevokedEvent
-import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
+import com.vertyll.projecta.sharedinfrastructure.event.EventSource
+import com.vertyll.projecta.sharedinfrastructure.event.role.RoleAssignedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.role.RoleRevokedEvent
+import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

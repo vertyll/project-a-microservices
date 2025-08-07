@@ -26,8 +26,8 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: true
-        spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent,credentialsVerificationResult:com.vertyll.projecta.common.event.user.CredentialsVerificationResultEvent
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.type.mapping: userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent,credentialsVerificationResult:com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationResultEvent
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
     consumer:
       group-id: user-service-group
       auto-offset-reset: earliest
@@ -37,9 +37,9 @@ spring:
         spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "com.vertyll.projecta.*"
-        spring.json.value.default.type: "com.vertyll.projecta.common.event.DomainEvent"
+        spring.json.value.default.type: "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         spring.json.use.type.headers: true
-        spring.json.type.mapping: userRegistered:com.vertyll.projecta.common.event.user.UserRegisteredEvent,credentialsVerification:com.vertyll.projecta.common.event.user.CredentialsVerificationEvent,userUpdated:com.vertyll.projecta.common.event.user.UserProfileUpdatedEvent
+        spring.json.type.mapping: userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,credentialsVerification:com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
 
 # OpenAPI configuration
 springdoc:
