@@ -1,8 +1,8 @@
 package com.vertyll.projecta.user.application.controller
 
-import com.vertyll.projecta.common.response.ApiResponse
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
 import com.vertyll.projecta.user.domain.service.UserService
+import com.vertyll.projecta.user.infrastructure.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus

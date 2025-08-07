@@ -1,13 +1,13 @@
 package com.vertyll.projecta.mail.application.controller
 
-import com.vertyll.projecta.common.mail.EmailTemplate
-import com.vertyll.projecta.common.response.ApiResponse
 import com.vertyll.projecta.mail.domain.dto.EmailResult
 import com.vertyll.projecta.mail.domain.dto.SendBatchEmailRequest
 import com.vertyll.projecta.mail.domain.dto.SendBatchEmailResponse
 import com.vertyll.projecta.mail.domain.dto.SendEmailRequest
 import com.vertyll.projecta.mail.domain.dto.SendEmailResponse
+import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.service.EmailSagaService
+import com.vertyll.projecta.mail.infrastructure.response.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

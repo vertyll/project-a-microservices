@@ -8,7 +8,7 @@ import com.vertyll.projecta.auth.domain.dto.RegisterRequestDto
 import com.vertyll.projecta.auth.domain.dto.ResetPasswordRequestDto
 import com.vertyll.projecta.auth.domain.dto.SessionDto
 import com.vertyll.projecta.auth.domain.service.AuthService
-import com.vertyll.projecta.common.response.ApiResponse
+import com.vertyll.projecta.auth.infrastructure.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest

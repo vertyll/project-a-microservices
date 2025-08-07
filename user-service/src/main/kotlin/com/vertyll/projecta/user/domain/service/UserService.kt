@@ -1,13 +1,13 @@
 package com.vertyll.projecta.user.domain.service
 
 import com.vertyll.projecta.common.event.user.UserRegisteredEvent
-import com.vertyll.projecta.common.exception.ApiException
 import com.vertyll.projecta.common.role.RoleType
 import com.vertyll.projecta.user.domain.dto.EmailUpdateDto
 import com.vertyll.projecta.user.domain.dto.UserCreateDto
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
 import com.vertyll.projecta.user.domain.model.entity.User
 import com.vertyll.projecta.user.domain.repository.UserRepository
+import com.vertyll.projecta.user.infrastructure.exception.ApiException
 import com.vertyll.projecta.user.infrastructure.kafka.UserEventProducer
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

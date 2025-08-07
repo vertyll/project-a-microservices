@@ -1,4 +1,4 @@
-package com.vertyll.projecta.common.mail
+package com.vertyll.projecta.auth.domain.model.enums
 
 enum class EmailTemplate(val templateName: String) {
     // User registration and account management

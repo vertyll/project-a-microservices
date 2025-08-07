@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth.infrastructure.service
 
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
-import com.vertyll.projecta.common.exception.ApiException
+import com.vertyll.projecta.auth.infrastructure.exception.ApiException
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService

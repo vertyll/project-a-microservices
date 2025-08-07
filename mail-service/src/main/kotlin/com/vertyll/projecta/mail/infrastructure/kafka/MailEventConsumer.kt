@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.vertyll.projecta.common.event.EventType
 import com.vertyll.projecta.common.event.mail.MailRequestedEvent
 import com.vertyll.projecta.common.kafka.KafkaTopicsConfig
-import com.vertyll.projecta.common.mail.EmailTemplate
+import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.service.EmailSagaService
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory

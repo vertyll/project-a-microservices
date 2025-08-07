@@ -1,4 +1,4 @@
-package com.vertyll.projecta.common.response
+package com.vertyll.projecta.template.infrastructure.response
 
 import java.time.LocalDateTime
 

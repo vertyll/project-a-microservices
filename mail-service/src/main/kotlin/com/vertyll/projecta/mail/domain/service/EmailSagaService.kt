@@ -1,6 +1,6 @@
 package com.vertyll.projecta.mail.domain.service
 
-import com.vertyll.projecta.common.mail.EmailTemplate
+import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.mail.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.mail.domain.model.enums.SagaTypes

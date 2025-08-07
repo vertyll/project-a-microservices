@@ -1,10 +1,10 @@
 package com.vertyll.projecta.role.application.controller
 
-import com.vertyll.projecta.common.response.ApiResponse
 import com.vertyll.projecta.role.domain.dto.RoleCreateDto
 import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
 import com.vertyll.projecta.role.domain.service.RoleService
+import com.vertyll.projecta.role.infrastructure.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

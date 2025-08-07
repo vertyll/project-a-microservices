@@ -1,4 +1,4 @@
-package com.vertyll.projecta.common.exception
+package com.vertyll.projecta.auth.infrastructure.exception
 
 import org.springframework.http.HttpStatus
 

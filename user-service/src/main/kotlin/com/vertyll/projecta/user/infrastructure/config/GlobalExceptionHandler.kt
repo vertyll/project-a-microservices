@@ -1,7 +1,7 @@
-package com.vertyll.projecta.common.config
+package com.vertyll.projecta.user.infrastructure.config
 
-import com.vertyll.projecta.common.exception.ApiException
-import com.vertyll.projecta.common.response.ApiResponse
+import com.vertyll.projecta.user.infrastructure.exception.ApiException
+import com.vertyll.projecta.user.infrastructure.response.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /**
- * Global exception handler for all microservices.
- * Provides consistent error responses across the application.
+ * Global exception handler for user service.
+ * Provides consistent error responses across the user service.
  */
-@RestControllerAdvice(basePackages = ["com.vertyll.projecta"])
+@RestControllerAdvice(basePackages = ["com.vertyll.projecta.user"])
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 

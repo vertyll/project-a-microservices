@@ -1,6 +1,6 @@
 package com.vertyll.projecta.auth.domain.model.entity
 
-import com.vertyll.projecta.common.auth.TokenTypes
+import com.vertyll.projecta.auth.domain.model.enums.TokenTypes
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
