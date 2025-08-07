@@ -1,0 +1,95 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: mail-service
+  config:
+    import: classpath:shared-config.yml
+  datasource:
+    url: jdbc:postgresql://mail-db:5432/mail_service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        '[format_sql]': true
+    database: postgresql
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        '[spring.json.add.type.headers]': true
+        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
+    consumer:
+      group-id: mail-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.StringDeserializer
+        '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+        '[spring.json.trusted.packages]': "com.vertyll.projecta.*"
+        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
+        '[spring.json.use.type.headers]': true
+        '[spring.json.type.mapping]': mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+  mail:
+    host: mail-dev
+    port: 1025
+    username: ""
+    password: ""
+    from: noreply@projecta.com
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+  thymeleaf:
+    cache: true
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+# OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    url: /api-docs
+    config-url: /api-docs/swagger-config
+
+# Logging configuration for Docker
+logging:
+  level:
+    '[com.vertyll.projecta]': INFO
+    '[org.springframework.kafka]': WARN
+    '[org.springframework.security]': WARN
+    '[org.hibernate]': WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator endpoints configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    metrics:
+      access: read-only
+    prometheus:
+      access: read-only

@@ -1,0 +1,45 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://user-db:5432/user_service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        '[format_sql]': true
+    database: postgresql
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        '[spring.json.add.type.headers]': true
+        '[spring.json.type.mapping]': userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent,credentialsVerificationResult:com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationResultEvent
+        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.StringDeserializer
+        '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+        '[spring.json.trusted.packages]': "com.vertyll.projecta.*"
+        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
+        '[spring.json.use.type.headers]': true
+        '[spring.json.type.mapping]': userRegistered:com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent,credentialsVerification:com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationEvent,userUpdated:com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
+
+# Docker logging configuration
+logging:
+  level:
+    '[com.vertyll.projecta]': INFO
+    '[org.springframework.kafka]': WARN
+    '[org.springframework.security]': WARN
+    '[org.hibernate]': WARN
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
