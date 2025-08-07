@@ -139,7 +139,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
    ```bash
    docker-compose up -d --build <service-name>
    # or
-   ./gradlew :<service-name>:bootRun
+   ./gradlew :<service-name>:bootRun --args='--spring.profiles.active=dev'
    ```
 
 ## Architecture Design
