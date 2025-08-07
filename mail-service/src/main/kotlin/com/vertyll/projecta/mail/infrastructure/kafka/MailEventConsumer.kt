@@ -97,7 +97,7 @@ class MailEventConsumer(
         val variables = if (variablesNode != null) {
             try {
                 // Convert variables safely with type checking
-                variablesNode.fields().asSequence().associate { (key, value) ->
+                variablesNode.properties().associate { (key, value) ->
                     key to (value.asText() ?: "")
                 }
             } catch (e: Exception) {
