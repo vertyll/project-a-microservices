@@ -14,13 +14,30 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter
 ) {
+
+    companion object {
+        // Public Auth endpoints
+        private val PUBLIC_AUTH_ENDPOINTS = arrayOf(
+            "/auth/register",
+            "/auth/authenticate",
+            "/auth/refresh-token",
+            "/auth/activate",
+            "/auth/reset-password-request",
+            "/auth/confirm-reset-password",
+            "/auth/resend-activation"
+        )
+    }
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .csrf { it.disable() }
             .cors { it.disable() }
             .authorizeHttpRequests { auth ->
-                auth.anyRequest().permitAll()
+                auth
+                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers(*PUBLIC_AUTH_ENDPOINTS).permitAll()
+                    .anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
