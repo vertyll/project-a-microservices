@@ -14,6 +14,9 @@ allprojects {
     group = "com.vertyll.projecta"
     version = "0.0.1-SNAPSHOT"
 
+    extra["author"] = "Mikołaj Gawron"
+    extra["email"] = "gawrmiko@gmail.com"
+
     repositories {
         mavenCentral()
         gradlePluginPortal()
