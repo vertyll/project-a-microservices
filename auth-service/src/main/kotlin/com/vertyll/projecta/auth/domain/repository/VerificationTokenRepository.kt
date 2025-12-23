@@ -9,9 +9,15 @@ import java.util.Optional
 interface VerificationTokenRepository : JpaRepository<VerificationToken, Long> {
     fun findByToken(token: String): Optional<VerificationToken>
 
-    fun findByUsernameAndTokenType(username: String, tokenType: String): Optional<VerificationToken>
+    fun findByUsernameAndTokenType(
+        username: String,
+        tokenType: String,
+    ): Optional<VerificationToken>
 
-    fun findAllByUsernameAndTokenType(username: String, tokenType: String): List<VerificationToken>
+    fun findAllByUsernameAndTokenType(
+        username: String,
+        tokenType: String,
+    ): List<VerificationToken>
 
     fun findByAdditionalData(additionalData: String): Optional<VerificationToken>
 }

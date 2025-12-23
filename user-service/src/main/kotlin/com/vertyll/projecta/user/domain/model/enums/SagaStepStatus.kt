@@ -6,5 +6,5 @@ enum class SagaStepStatus {
     FAILED,
     COMPENSATING,
     COMPENSATED,
-    COMPENSATION_FAILED
+    COMPENSATION_FAILED,
 }

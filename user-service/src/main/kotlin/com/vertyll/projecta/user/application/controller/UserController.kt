@@ -16,27 +16,31 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/users")
 @Tag(name = "Users", description = "User management API")
 class UserController(
-    private val userService: UserService
+    private val userService: UserService,
 ) {
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID")
-    fun getUserById(@PathVariable id: Long): ResponseEntity<ApiResponse<UserResponseDto>> {
+    fun getUserById(
+        @PathVariable id: Long,
+    ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserById(id)
         return ApiResponse.buildResponse(
             data = user,
             message = "User retrieved successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @GetMapping("/email/{email}")
     @Operation(summary = "Get user by email")
-    fun getUserByEmail(@PathVariable email: String): ResponseEntity<ApiResponse<UserResponseDto>> {
+    fun getUserByEmail(
+        @PathVariable email: String,
+    ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserByEmail(email)
         return ApiResponse.buildResponse(
             data = user,
             message = "User retrieved successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 }

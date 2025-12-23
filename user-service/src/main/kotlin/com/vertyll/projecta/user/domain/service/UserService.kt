@@ -16,27 +16,27 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserService(
     private val userRepository: UserRepository,
-    private val userEventProducer: UserEventProducer
+    private val userEventProducer: UserEventProducer,
 ) {
-
     @Transactional
     fun createUser(dto: UserCreateDto): UserResponseDto {
         if (userRepository.existsByEmail(dto.email)) {
             throw ApiException(
                 message = "Email already exists",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
 
-        val user = User.create(
-            firstName = dto.firstName,
-            lastName = dto.lastName,
-            email = dto.email,
-            roles = dto.roles.ifEmpty { setOf(RoleType.USER.value) },
-            profilePicture = dto.profilePicture,
-            phoneNumber = dto.phoneNumber,
-            address = dto.address
-        )
+        val user =
+            User.create(
+                firstName = dto.firstName,
+                lastName = dto.lastName,
+                email = dto.email,
+                roles = dto.roles.ifEmpty { setOf(RoleType.USER.value) },
+                profilePicture = dto.profilePicture,
+                phoneNumber = dto.phoneNumber,
+                address = dto.address,
+            )
 
         val savedUser = userRepository.save(user)
 
@@ -47,8 +47,8 @@ class UserService(
                 email = savedUser.getEmail(),
                 firstName = savedUser.firstName,
                 lastName = savedUser.lastName,
-                roles = savedUser.getCachedRoles()
-            )
+                roles = savedUser.getCachedRoles(),
+            ),
         )
 
         return mapToDto(savedUser)
@@ -56,25 +56,29 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getUserById(id: Long): UserResponseDto {
-        val user = userRepository.findById(id)
-            .orElseThrow {
-                ApiException(
-                    message = "User not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val user =
+            userRepository
+                .findById(id)
+                .orElseThrow {
+                    ApiException(
+                        message = "User not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
         return mapToDto(user)
     }
 
     @Transactional(readOnly = true)
     fun getUserByEmail(email: String): UserResponseDto {
-        val user = userRepository.findByEmail(email)
-            .orElseThrow {
-                ApiException(
-                    message = "User not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val user =
+            userRepository
+                .findByEmail(email)
+                .orElseThrow {
+                    ApiException(
+                        message = "User not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
         return mapToDto(user)
     }
 
@@ -83,25 +87,27 @@ class UserService(
         if (userRepository.existsByEmail(request.newEmail)) {
             throw ApiException(
                 message = "Email already exists",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
 
-        val user = userRepository.findByEmail(request.currentEmail)
-            .orElseThrow {
-                ApiException(
-                    message = "User not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val user =
+            userRepository
+                .findByEmail(request.currentEmail)
+                .orElseThrow {
+                    ApiException(
+                        message = "User not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
 
         user.setEmail(request.newEmail)
         val savedUser = userRepository.save(user)
         return mapToDto(savedUser)
     }
 
-    private fun mapToDto(user: User): UserResponseDto {
-        return UserResponseDto(
+    private fun mapToDto(user: User): UserResponseDto =
+        UserResponseDto(
             id = user.id!!,
             firstName = user.firstName,
             lastName = user.lastName,
@@ -111,7 +117,6 @@ class UserService(
             phoneNumber = user.phoneNumber,
             address = user.address,
             createdAt = user.createdAt.toString(),
-            updatedAt = user.updatedAt.toString()
+            updatedAt = user.updatedAt.toString(),
         )
-    }
 }

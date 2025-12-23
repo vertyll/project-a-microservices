@@ -18,29 +18,22 @@ import java.time.Instant
 class Saga(
     @Id
     val id: String,
-
     @Column(nullable = false)
     val type: String,
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: SagaStatus = SagaStatus.STARTED,
-
     @Lob
     @Column(columnDefinition = "TEXT")
     val payload: String?,
-
     @Column(nullable = false)
     val startedAt: Instant = Instant.now(),
-
     @Column(nullable = true)
     var completedAt: Instant? = null,
-
     @Column(nullable = true)
     var lastError: String? = null,
-
     @Column(nullable = false)
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
 ) {
     // No-args constructor required by JPA
     constructor() : this(
@@ -49,6 +42,6 @@ class Saga(
         status = SagaStatus.STARTED,
         payload = null,
         startedAt = Instant.now(),
-        completedAt = null
+        completedAt = null,
     )
 }

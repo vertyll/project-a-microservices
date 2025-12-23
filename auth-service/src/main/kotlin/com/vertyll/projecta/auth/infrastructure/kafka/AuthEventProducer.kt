@@ -1,6 +1,5 @@
 package com.vertyll.projecta.auth.infrastructure.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
@@ -10,12 +9,13 @@ import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class AuthEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val objectMapper: ObjectMapper,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -27,7 +27,7 @@ class AuthEventProducer(
         kafkaTemplate.send(
             kafkaTopicsConfig.getUserRegisteredTopic(),
             event.eventId,
-            eventJson
+            eventJson,
         )
         logger.info("Sent user registration event for: ${event.email}")
     }
@@ -37,12 +37,13 @@ class AuthEventProducer(
      */
     fun sendMailRequestedEvent(event: MailRequestedEvent) {
         val eventJson = objectMapper.writeValueAsString(event)
-        val message = MessageBuilder
-            .withPayload(eventJson)
-            .setHeader(KafkaHeaders.KEY, event.eventId)
-            .setHeader(KafkaHeaders.TOPIC, kafkaTopicsConfig.getMailRequestedTopic())
-            .setHeader("__TypeId__", "mailRequested")
-            .build()
+        val message =
+            MessageBuilder
+                .withPayload(eventJson)
+                .setHeader(KafkaHeaders.KEY, event.eventId)
+                .setHeader(KafkaHeaders.TOPIC, kafkaTopicsConfig.getMailRequestedTopic())
+                .setHeader("__TypeId__", "mailRequested")
+                .build()
         kafkaTemplate.send(message)
         logger.info("Sent mail request to: ${event.to}")
     }
@@ -55,7 +56,7 @@ class AuthEventProducer(
         kafkaTemplate.send(
             kafkaTopicsConfig.getUserUpdatedTopic(),
             event.eventId,
-            eventJson
+            eventJson,
         )
         logger.info("Sent user profile updated event for user: ${event.email}")
     }

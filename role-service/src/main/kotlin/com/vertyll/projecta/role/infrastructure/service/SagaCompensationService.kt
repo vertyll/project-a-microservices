@@ -1,6 +1,5 @@
 package com.vertyll.projecta.role.infrastructure.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.role.domain.model.entity.Role
 import com.vertyll.projecta.role.domain.model.entity.SagaStep
 import com.vertyll.projecta.role.domain.model.entity.UserRole
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 /**
@@ -24,7 +24,7 @@ class SagaCompensationService(
     private val roleRepository: RoleRepository,
     private val userRoleRepository: UserRoleRepository,
     private val sagaStepRepository: SagaStepRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -35,10 +35,11 @@ class SagaCompensationService(
     @Transactional
     fun handleCompensationEvent(payload: String) {
         try {
-            val event = objectMapper.readValue(
-                payload,
-                Map::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    payload,
+                    Map::class.java,
+                )
             val sagaId = event["sagaId"] as String
             val actionStr = event["action"] as String
 
@@ -80,14 +81,15 @@ class SagaCompensationService(
             if (stepId != null) {
                 val step = sagaStepRepository.findById(stepId.toLong()).orElse(null)
                 if (step != null) {
-                    val compensationStep = SagaStep(
-                        sagaId = sagaId,
-                        stepName = SagaStepNames.compensationNameFromString(step.stepName),
-                        status = SagaStepStatus.COMPENSATED,
-                        createdAt = Instant.now(),
-                        completedAt = Instant.now(),
-                        compensationStepId = step.id
-                    )
+                    val compensationStep =
+                        SagaStep(
+                            sagaId = sagaId,
+                            stepName = SagaStepNames.compensationNameFromString(step.stepName),
+                            status = SagaStepStatus.COMPENSATED,
+                            createdAt = Instant.now(),
+                            completedAt = Instant.now(),
+                            compensationStepId = step.id,
+                        )
                     sagaStepRepository.save(compensationStep)
                 }
             }
@@ -116,7 +118,10 @@ class SagaCompensationService(
      * Revoke a role from a user as part of compensation
      */
     @Transactional
-    fun revokeRole(userId: Long, roleId: Long) {
+    fun revokeRole(
+        userId: Long,
+        roleId: Long,
+    ) {
         try {
             if (userRoleRepository.existsByUserIdAndRoleId(userId, roleId)) {
                 logger.info("Compensating by revoking role $roleId from user $userId")
@@ -132,17 +137,22 @@ class SagaCompensationService(
      * Assign a role to a user as part of compensation
      */
     @Transactional
-    fun assignRole(userId: Long, roleId: Long, roleName: String) {
+    fun assignRole(
+        userId: Long,
+        roleId: Long,
+        roleName: String,
+    ) {
         try {
             if (!userRoleRepository.existsByUserIdAndRoleId(userId, roleId)) {
                 logger.info("Compensating by assigning role $roleName ($roleId) to user $userId")
 
                 val role = roleRepository.findById(roleId).orElse(null)
                 if (role != null) {
-                    val userRole = UserRole(
-                        userId = userId,
-                        roleId = roleId
-                    )
+                    val userRole =
+                        UserRole(
+                            userId = userId,
+                            roleId = roleId,
+                        )
                     userRoleRepository.save(userRole)
                 } else {
                     logger.warn("Cannot compensate - role $roleId not found")
@@ -158,7 +168,10 @@ class SagaCompensationService(
      * Revert a role update as part of compensation
      */
     @Transactional
-    fun revertRoleUpdate(roleId: Long, originalData: Any?) {
+    fun revertRoleUpdate(
+        roleId: Long,
+        originalData: Any?,
+    ) {
         try {
             val roleOpt = roleRepository.findById(roleId)
             if (!roleOpt.isPresent) {
@@ -176,19 +189,21 @@ class SagaCompensationService(
 
             // Convert originalData back to a Role object and update fields
             try {
-                val originalDataMap = originalData as? Map<*, *> ?: run {
-                    logger.error("Original data is not in the expected format")
-                    return
-                }
+                val originalDataMap =
+                    originalData as? Map<*, *> ?: run {
+                        logger.error("Original data is not in the expected format")
+                        return
+                    }
 
                 // Since Role properties are val, we need to create a new Role object
-                val updatedRole = Role(
-                    id = role.id,
-                    name = originalDataMap["name"]?.toString() ?: role.name,
-                    description = originalDataMap["description"]?.toString() ?: role.description,
-                    createdAt = role.createdAt,
-                    updatedAt = Instant.now()
-                )
+                val updatedRole =
+                    Role(
+                        id = role.id,
+                        name = originalDataMap["name"]?.toString() ?: role.name,
+                        description = originalDataMap["description"]?.toString() ?: role.description,
+                        createdAt = role.createdAt,
+                        updatedAt = Instant.now(),
+                    )
 
                 roleRepository.save(updatedRole)
                 logger.info("Successfully reverted update for role $roleId")
@@ -206,7 +221,10 @@ class SagaCompensationService(
      * Recreate a deleted role as part of compensation
      */
     @Transactional
-    fun recreateRole(roleId: Long, originalData: Any?) {
+    fun recreateRole(
+        roleId: Long,
+        originalData: Any?,
+    ) {
         try {
             // Check if role already exists (idempotency check)
             if (roleRepository.existsById(roleId)) {
@@ -222,24 +240,27 @@ class SagaCompensationService(
             }
 
             try {
-                val originalDataMap = originalData as? Map<*, *> ?: run {
-                    logger.error("Original data is not in the expected format")
-                    return
-                }
+                val originalDataMap =
+                    originalData as? Map<*, *> ?: run {
+                        logger.error("Original data is not in the expected format")
+                        return
+                    }
 
                 // Create new role with original ID and values
-                val name = originalDataMap["name"]?.toString() ?: run {
-                    logger.error("Missing name in original data")
-                    return
-                }
+                val name =
+                    originalDataMap["name"]?.toString() ?: run {
+                        logger.error("Missing name in original data")
+                        return
+                    }
 
                 val description = originalDataMap["description"]?.toString() ?: ""
 
-                val role = Role(
-                    id = roleId,
-                    name = name,
-                    description = description
-                )
+                val role =
+                    Role(
+                        id = roleId,
+                        name = name,
+                        description = description,
+                    )
 
                 roleRepository.save(role)
                 logger.info("Successfully recreated role $roleId")

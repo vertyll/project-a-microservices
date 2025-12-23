@@ -14,30 +14,22 @@ class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @Column(nullable = false)
     var firstName: String,
-
     @Column(nullable = false)
     var lastName: String,
-
     @Column(nullable = false, unique = true)
     private var email: String,
-
     @Column(nullable = true)
     var profilePicture: String? = null,
-
     @Column(nullable = true)
     var phoneNumber: String? = null,
-
     @Column(nullable = true)
     var address: String? = null,
-
     @Column(nullable = false)
     val createdAt: Instant = Instant.now(),
-
     @Column(nullable = false)
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
 ) {
     // No-args constructor required for JPA
     constructor() : this(
@@ -47,7 +39,7 @@ class User(
         email = "",
         profilePicture = null,
         phoneNumber = null,
-        address = null
+        address = null,
     )
 
     // Roles are stored in the Role Service
@@ -58,9 +50,7 @@ class User(
         this.cachedRoles = roles
     }
 
-    fun getCachedRoles(): Set<String> {
-        return cachedRoles ?: emptySet()
-    }
+    fun getCachedRoles(): Set<String> = cachedRoles ?: emptySet()
 
     fun getEmail(): String = email
 
@@ -77,16 +67,17 @@ class User(
             roles: Set<String> = setOf("USER"),
             profilePicture: String? = null,
             phoneNumber: String? = null,
-            address: String? = null
+            address: String? = null,
         ): User {
-            val user = User(
-                firstName = firstName,
-                lastName = lastName,
-                email = email,
-                profilePicture = profilePicture,
-                phoneNumber = phoneNumber,
-                address = address
-            )
+            val user =
+                User(
+                    firstName = firstName,
+                    lastName = lastName,
+                    email = email,
+                    profilePicture = profilePicture,
+                    phoneNumber = phoneNumber,
+                    address = address,
+                )
             user.setCachedRoles(roles)
             return user
         }

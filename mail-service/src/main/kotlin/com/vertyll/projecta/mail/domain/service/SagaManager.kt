@@ -1,6 +1,5 @@
 package com.vertyll.projecta.mail.domain.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.mail.domain.model.entity.Saga
 import com.vertyll.projecta.mail.domain.model.entity.SagaStep
 import com.vertyll.projecta.mail.domain.model.enums.SagaCompensationActions
@@ -15,6 +14,7 @@ import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -26,25 +26,29 @@ class SagaManager(
     private val sagaRepository: SagaRepository,
     private val sagaStepRepository: SagaStepRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // Define the expected steps for each saga type
-    private val sagaStepDefinitions = mapOf(
-        SagaTypes.EMAIL_SENDING.value to listOf(
-            SagaStepNames.PROCESS_TEMPLATE.value,
-            SagaStepNames.SEND_EMAIL.value
-        ),
-        SagaTypes.EMAIL_BATCH_PROCESSING.value to listOf(
-            SagaStepNames.PROCESS_TEMPLATE.value,
-            SagaStepNames.SEND_EMAIL.value,
-            SagaStepNames.RECORD_EMAIL_LOG.value
-        ),
-        SagaTypes.TEMPLATE_MANAGEMENT.value to listOf(
-            SagaStepNames.TEMPLATE_UPDATE.value
+    private val sagaStepDefinitions =
+        mapOf(
+            SagaTypes.EMAIL_SENDING.value to
+                listOf(
+                    SagaStepNames.PROCESS_TEMPLATE.value,
+                    SagaStepNames.SEND_EMAIL.value,
+                ),
+            SagaTypes.EMAIL_BATCH_PROCESSING.value to
+                listOf(
+                    SagaStepNames.PROCESS_TEMPLATE.value,
+                    SagaStepNames.SEND_EMAIL.value,
+                    SagaStepNames.RECORD_EMAIL_LOG.value,
+                ),
+            SagaTypes.TEMPLATE_MANAGEMENT.value to
+                listOf(
+                    SagaStepNames.TEMPLATE_UPDATE.value,
+                ),
         )
-    )
 
     /**
      * Starts a new saga
@@ -53,16 +57,20 @@ class SagaManager(
      * @return The created saga instance
      */
     @Transactional
-    fun startSaga(sagaType: SagaTypes, payload: Any): Saga {
+    fun startSaga(
+        sagaType: SagaTypes,
+        payload: Any,
+    ): Saga {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
 
-        val saga = Saga(
-            id = UUID.randomUUID().toString(),
-            type = sagaType.value,
-            status = SagaStatus.STARTED,
-            payload = payloadJson,
-            startedAt = Instant.now()
-        )
+        val saga =
+            Saga(
+                id = UUID.randomUUID().toString(),
+                type = sagaType.value,
+                status = SagaStatus.STARTED,
+                payload = payloadJson,
+                startedAt = Instant.now(),
+            )
 
         return sagaRepository.save(saga)
     }
@@ -76,22 +84,30 @@ class SagaManager(
      * @return The created saga step
      */
     @Transactional
-    fun recordSagaStep(sagaId: String, stepName: SagaStepNames, status: SagaStepStatus, payload: Any? = null): SagaStep {
-        val payloadJson = payload?.let {
-            it as? String ?: objectMapper.writeValueAsString(it)
-        }
+    fun recordSagaStep(
+        sagaId: String,
+        stepName: SagaStepNames,
+        status: SagaStepStatus,
+        payload: Any? = null,
+    ): SagaStep {
+        val payloadJson =
+            payload?.let {
+                it as? String ?: objectMapper.writeValueAsString(it)
+            }
 
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
+        val saga =
+            sagaRepository.findById(sagaId).orElseThrow {
+                IllegalArgumentException("Saga with ID $sagaId not found")
+            }
 
-        val step = SagaStep(
-            sagaId = sagaId,
-            stepName = stepName.value,
-            status = status,
-            payload = payloadJson,
-            createdAt = Instant.now()
-        )
+        val step =
+            SagaStep(
+                sagaId = sagaId,
+                stepName = stepName.value,
+                status = status,
+                payload = payloadJson,
+                createdAt = Instant.now(),
+            )
 
         val savedStep = sagaStepRepository.save(step)
 
@@ -134,10 +150,11 @@ class SagaManager(
         val expectedSteps = sagaStepDefinitions[saga.type] ?: return false
 
         // Get all completed steps for this saga
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        )
+        val completedSteps =
+            sagaStepRepository.findBySagaIdAndStatus(
+                saga.id,
+                SagaStepStatus.COMPLETED,
+            )
 
         // Get the step names of completed steps
         val completedStepNames = completedSteps.map { it.stepName }
@@ -155,10 +172,12 @@ class SagaManager(
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        ).sortedByDescending { it.createdAt }
+        val completedSteps =
+            sagaStepRepository
+                .findBySagaIdAndStatus(
+                    saga.id,
+                    SagaStepStatus.COMPLETED,
+                ).sortedByDescending { it.createdAt }
 
         logger.info("Triggering compensation for saga ${saga.id} with ${completedSteps.size} steps to compensate")
 
@@ -179,8 +198,8 @@ class SagaManager(
                         sagaId = saga.id,
                         stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.STARTED,
-                        createdAt = Instant.now()
-                    )
+                        createdAt = Instant.now(),
+                    ),
                 )
             } catch (e: Exception) {
                 logger.error("Failed to create compensation event for step ${step.stepName}: ${e.message}", e)
@@ -198,7 +217,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateSendEmail(sagaId: String, step: SagaStep) {
+    private fun compensateSendEmail(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val to = payload["to"]?.toString()
@@ -208,15 +230,16 @@ class SagaManager(
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
-                payload = mapOf(
-                    "sagaId" to sagaId,
-                    "stepId" to step.id,
-                    "action" to SagaCompensationActions.LOG_EMAIL_COMPENSATION.value,
-                    "emailId" to emailId,
-                    "to" to to,
-                    "message" to "Email cannot be unsent, compensation logged for auditing purposes"
-                ),
-                sagaId = sagaId
+                payload =
+                    mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.LOG_EMAIL_COMPENSATION.value,
+                        "emailId" to emailId,
+                        "to" to to,
+                        "message" to "Email cannot be unsent, compensation logged for auditing purposes",
+                    ),
+                sagaId = sagaId,
             )
         } catch (e: Exception) {
             logger.error("Failed to create compensation event for SendEmail: ${e.message}", e)
@@ -229,7 +252,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateRecordEmailLog(sagaId: String, step: SagaStep) {
+    private fun compensateRecordEmailLog(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val logId = payload["logId"]?.toString()
@@ -239,13 +265,14 @@ class SagaManager(
                 kafkaOutboxProcessor.saveOutboxMessage(
                     topic = KafkaTopicNames.SAGA_COMPENSATION,
                     key = sagaId,
-                    payload = mapOf(
-                        "sagaId" to sagaId,
-                        "stepId" to step.id,
-                        "action" to SagaCompensationActions.DELETE_EMAIL_LOG.value,
-                        "logId" to logId
-                    ),
-                    sagaId = sagaId
+                    payload =
+                        mapOf(
+                            "sagaId" to sagaId,
+                            "stepId" to step.id,
+                            "action" to SagaCompensationActions.DELETE_EMAIL_LOG.value,
+                            "logId" to logId,
+                        ),
+                    sagaId = sagaId,
                 )
             }
         } catch (e: Exception) {
@@ -259,7 +286,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateTemplateUpdate(sagaId: String, step: SagaStep) {
+    private fun compensateTemplateUpdate(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val templateName = payload["templateName"]?.toString()
@@ -268,14 +298,15 @@ class SagaManager(
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
-                payload = mapOf(
-                    "sagaId" to sagaId,
-                    "stepId" to step.id,
-                    "action" to SagaCompensationActions.LOG_TEMPLATE_COMPENSATION.value,
-                    "templateName" to templateName,
-                    "message" to "Template update compensation logged"
-                ),
-                sagaId = sagaId
+                payload =
+                    mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.LOG_TEMPLATE_COMPENSATION.value,
+                        "templateName" to templateName,
+                        "message" to "Template update compensation logged",
+                    ),
+                sagaId = sagaId,
             )
         } catch (e: Exception) {
             logger.error("Failed to create compensation event for TemplateUpdate: ${e.message}", e)

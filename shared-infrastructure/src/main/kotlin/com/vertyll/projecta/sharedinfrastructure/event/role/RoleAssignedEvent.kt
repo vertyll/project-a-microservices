@@ -11,5 +11,5 @@ data class RoleAssignedEvent(
     val userId: Long,
     val roleId: Long,
     val roleName: String,
-    override val sagaId: String? = null
+    override val sagaId: String? = null,
 ) : DomainEvent

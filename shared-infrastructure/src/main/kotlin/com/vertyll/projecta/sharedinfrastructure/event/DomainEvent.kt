@@ -17,7 +17,7 @@ import java.util.UUID
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
-    property = "eventType"
+    property = "eventType",
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = UserRegisteredEvent::class, name = "USER_REGISTERED"),
@@ -28,7 +28,7 @@ import java.util.UUID
     JsonSubTypes.Type(value = RoleCreatedEvent::class, name = "ROLE_CREATED"),
     JsonSubTypes.Type(value = RoleUpdatedEvent::class, name = "ROLE_UPDATED"),
     JsonSubTypes.Type(value = RoleAssignedEvent::class, name = "ROLE_ASSIGNED"),
-    JsonSubTypes.Type(value = RoleRevokedEvent::class, name = "ROLE_REVOKED")
+    JsonSubTypes.Type(value = RoleRevokedEvent::class, name = "ROLE_REVOKED"),
 )
 interface DomainEvent {
     val eventId: String
@@ -38,6 +38,7 @@ interface DomainEvent {
 
     companion object {
         fun generateEventId(): String = UUID.randomUUID().toString()
+
         fun now(): Instant = Instant.now()
     }
 }

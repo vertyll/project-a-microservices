@@ -1,5 +1,5 @@
 services:
-  # Postgres databases for each service
+  # Postgres databases for each services
   auth-db:
     image: postgres:17-alpine
     container_name: auth-db

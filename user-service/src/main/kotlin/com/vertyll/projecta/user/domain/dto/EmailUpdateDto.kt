@@ -7,8 +7,7 @@ data class EmailUpdateDto(
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Email should be valid")
     val currentEmail: String,
-
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Email should be valid")
-    val newEmail: String
+    val newEmail: String,
 )

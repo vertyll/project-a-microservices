@@ -3,6 +3,7 @@ spring:
     url: r2dbc:postgresql://localhost:5431/api_gateway
     username: postgres
     password: postgres
+
   kafka:
     bootstrap-servers: localhost:29092
     producer:
@@ -22,6 +23,7 @@ spring:
         '[spring.json.trusted.packages]': "com.vertyll.projecta.*"
         '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         '[spring.json.use.type.headers]': true
+
   cloud:
     gateway:
       routes:
@@ -54,5 +56,6 @@ logging:
     '[org.springframework.security]': DEBUG
     '[org.springframework.kafka]': INFO
     '[reactor.netty.http.client]': DEBUG
+
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

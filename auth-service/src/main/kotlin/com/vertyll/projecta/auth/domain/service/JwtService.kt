@@ -15,7 +15,7 @@ import javax.crypto.SecretKey
 
 @Service
 class JwtService(
-    private val sharedConfig: SharedConfigProperties
+    private val sharedConfig: SharedConfigProperties,
 ) {
     private val secretKey: String
         get() = sharedConfig.security.jwt.secretKey
@@ -29,9 +29,7 @@ class JwtService(
     private val refreshTokenCookieName: String
         get() = sharedConfig.security.jwt.refreshTokenCookieName
 
-    fun extractUsername(token: String): String {
-        return extractClaim(token) { it.subject }
-    }
+    fun extractUsername(token: String): String = extractClaim(token) { it.subject }
 
     fun generateToken(userDetails: UserDetails): String {
         // Create claims including roles for the token
@@ -45,9 +43,13 @@ class JwtService(
         return generateToken(extraClaims, userDetails)
     }
 
-    fun generateToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
+    fun generateToken(
+        extraClaims: Map<String, Any>,
+        userDetails: UserDetails,
+    ): String {
         val now = Instant.now()
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .claims()
             .add(extraClaims)
             .subject(userDetails.username)
@@ -70,9 +72,13 @@ class JwtService(
         return generateRefreshToken(extraClaims, userDetails)
     }
 
-    fun generateRefreshToken(extraClaims: Map<String, Any>, userDetails: UserDetails): String {
+    fun generateRefreshToken(
+        extraClaims: Map<String, Any>,
+        userDetails: UserDetails,
+    ): String {
         val now = Instant.now()
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .claims()
             .add(extraClaims)
             .subject(userDetails.username)
@@ -84,50 +90,45 @@ class JwtService(
             .compact()
     }
 
-    fun getRefreshTokenCookieNameFromConfig(): String {
-        return refreshTokenCookieName
-    }
+    fun getRefreshTokenCookieNameFromConfig(): String = refreshTokenCookieName
 
-    fun getRefreshTokenExpirationTime(): Long {
-        return refreshTokenExpiration
-    }
+    fun getRefreshTokenExpirationTime(): Long = refreshTokenExpiration
 
-    fun getAccessTokenExpirationTime(): Long {
-        return accessTokenExpiration
-    }
+    fun getAccessTokenExpirationTime(): Long = accessTokenExpiration
 
-    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+    fun isTokenValid(
+        token: String,
+        userDetails: UserDetails,
+    ): Boolean {
         val username = extractUsername(token)
         return username == userDetails.username && !isTokenExpired(token)
     }
 
-    private fun isTokenExpired(token: String): Boolean {
-        return extractExpiration(token).before(Date.from(Instant.now()))
-    }
+    private fun isTokenExpired(token: String): Boolean = extractExpiration(token).before(Date.from(Instant.now()))
 
-    private fun extractExpiration(token: String): Date {
-        return extractClaim(token) { it.expiration }
-    }
+    private fun extractExpiration(token: String): Date = extractClaim(token) { it.expiration }
 
-    fun extractRoles(token: String): List<String> {
-        return extractClaim(token) { claims ->
+    fun extractRoles(token: String): List<String> =
+        extractClaim(token) { claims ->
             @Suppress("UNCHECKED_CAST")
             claims[JwtConstants.CLAIM_ROLES] as? List<String> ?: emptyList()
         }
-    }
 
-    fun <T> extractClaim(token: String, claimsResolver: (Claims) -> T): T {
+    fun <T> extractClaim(
+        token: String,
+        claimsResolver: (Claims) -> T,
+    ): T {
         val claims = extractAllClaims(token)
         return claimsResolver(claims)
     }
 
-    private fun extractAllClaims(token: String): Claims {
-        return Jwts.parser()
+    private fun extractAllClaims(token: String): Claims =
+        Jwts
+            .parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .payload
-    }
 
     private fun getSigningKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(secretKey)

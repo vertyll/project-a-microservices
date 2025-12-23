@@ -1,6 +1,5 @@
 package com.vertyll.projecta.auth.infrastructure.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.repository.AuthUserRepository
 import com.vertyll.projecta.auth.domain.repository.AuthUserRoleRepository
 import com.vertyll.projecta.sharedinfrastructure.event.EventSource
@@ -13,13 +12,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
     private val authUserRepository: AuthUserRepository,
     private val authUserRoleRepository: AuthUserRoleRepository,
-    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -33,10 +33,11 @@ class UserEventConsumer(
             logger.info("Received user registration event with key: ${record.key()}")
 
             // Deserialize the message payload
-            val event = objectMapper.readValue(
-                record.value(),
-                UserRegisteredEvent::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    record.value(),
+                    UserRegisteredEvent::class.java,
+                )
             logger.info("Deserialized event for user: ${event.email}")
 
             // Only process events from User Service (ignore our own events)
@@ -60,10 +61,11 @@ class UserEventConsumer(
             logger.info("Received role assigned event with key: ${record.key()}")
 
             // Deserialize the event using the structured class
-            val event = objectMapper.readValue(
-                record.value(),
-                RoleAssignedEvent::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    record.value(),
+                    RoleAssignedEvent::class.java,
+                )
 
             logger.info("Received role assignment: User ID ${event.userId}, Role ${event.roleName} (${event.roleId})")
 
@@ -100,10 +102,11 @@ class UserEventConsumer(
             logger.info("Received role revoked event with key: ${record.key()}")
 
             // Deserialize the event using the structured class
-            val event = objectMapper.readValue(
-                record.value(),
-                RoleRevokedEvent::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    record.value(),
+                    RoleRevokedEvent::class.java,
+                )
 
             logger.info("Received role revocation: User ID ${event.userId}, Role ${event.roleName} (${event.roleId})")
 

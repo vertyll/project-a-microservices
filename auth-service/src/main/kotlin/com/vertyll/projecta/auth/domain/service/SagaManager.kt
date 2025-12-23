@@ -1,6 +1,5 @@
 package com.vertyll.projecta.auth.domain.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.model.entity.Saga
 import com.vertyll.projecta.auth.domain.model.entity.SagaStep
 import com.vertyll.projecta.auth.domain.model.enums.SagaCompensationActions
@@ -15,6 +14,7 @@ import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicNames
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -26,36 +26,42 @@ class SagaManager(
     private val sagaRepository: SagaRepository,
     private val sagaStepRepository: SagaStepRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // Define the expected steps for each saga type
-    private val sagaStepDefinitions = mapOf(
-        SagaTypes.USER_REGISTRATION.value to listOf(
-            SagaStepNames.CREATE_AUTH_USER.value,
-            SagaStepNames.CREATE_USER_EVENT.value,
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.PASSWORD_RESET.value to listOf(
-            SagaStepNames.CREATE_RESET_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.EMAIL_VERIFICATION.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value
-        ),
-        SagaTypes.PASSWORD_CHANGE.value to listOf(
-            SagaStepNames.VERIFY_CURRENT_PASSWORD.value,
-            SagaStepNames.UPDATE_PASSWORD.value
-        ),
-        SagaTypes.EMAIL_CHANGE.value to listOf(
-            SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
-            SagaStepNames.CREATE_MAIL_EVENT.value,
-            SagaStepNames.UPDATE_EMAIL.value
+    private val sagaStepDefinitions =
+        mapOf(
+            SagaTypes.USER_REGISTRATION.value to
+                listOf(
+                    SagaStepNames.CREATE_AUTH_USER.value,
+                    SagaStepNames.CREATE_USER_EVENT.value,
+                    SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
+                    SagaStepNames.CREATE_MAIL_EVENT.value,
+                ),
+            SagaTypes.PASSWORD_RESET.value to
+                listOf(
+                    SagaStepNames.CREATE_RESET_TOKEN.value,
+                    SagaStepNames.CREATE_MAIL_EVENT.value,
+                ),
+            SagaTypes.EMAIL_VERIFICATION.value to
+                listOf(
+                    SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
+                    SagaStepNames.CREATE_MAIL_EVENT.value,
+                ),
+            SagaTypes.PASSWORD_CHANGE.value to
+                listOf(
+                    SagaStepNames.VERIFY_CURRENT_PASSWORD.value,
+                    SagaStepNames.UPDATE_PASSWORD.value,
+                ),
+            SagaTypes.EMAIL_CHANGE.value to
+                listOf(
+                    SagaStepNames.CREATE_VERIFICATION_TOKEN.value,
+                    SagaStepNames.CREATE_MAIL_EVENT.value,
+                    SagaStepNames.UPDATE_EMAIL.value,
+                ),
         )
-    )
 
     /**
      * Starts a new saga
@@ -64,16 +70,20 @@ class SagaManager(
      * @return The created saga instance
      */
     @Transactional
-    fun startSaga(sagaType: SagaTypes, payload: Any): Saga {
+    fun startSaga(
+        sagaType: SagaTypes,
+        payload: Any,
+    ): Saga {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
 
-        val saga = Saga(
-            id = UUID.randomUUID().toString(),
-            type = sagaType.value,
-            status = SagaStatus.STARTED,
-            payload = payloadJson,
-            startedAt = Instant.now()
-        )
+        val saga =
+            Saga(
+                id = UUID.randomUUID().toString(),
+                type = sagaType.value,
+                status = SagaStatus.STARTED,
+                payload = payloadJson,
+                startedAt = Instant.now(),
+            )
 
         return sagaRepository.save(saga)
     }
@@ -87,22 +97,30 @@ class SagaManager(
      * @return The created saga step
      */
     @Transactional
-    fun recordSagaStep(sagaId: String, stepName: SagaStepNames, status: SagaStepStatus, payload: Any? = null): SagaStep {
-        val payloadJson = payload?.let {
-            it as? String ?: objectMapper.writeValueAsString(it)
-        }
+    fun recordSagaStep(
+        sagaId: String,
+        stepName: SagaStepNames,
+        status: SagaStepStatus,
+        payload: Any? = null,
+    ): SagaStep {
+        val payloadJson =
+            payload?.let {
+                it as? String ?: objectMapper.writeValueAsString(it)
+            }
 
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
+        val saga =
+            sagaRepository.findById(sagaId).orElseThrow {
+                IllegalArgumentException("Saga with ID $sagaId not found")
+            }
 
-        val step = SagaStep(
-            sagaId = sagaId,
-            stepName = stepName.value,
-            status = status,
-            payload = payloadJson,
-            createdAt = Instant.now()
-        )
+        val step =
+            SagaStep(
+                sagaId = sagaId,
+                stepName = stepName.value,
+                status = status,
+                payload = payloadJson,
+                createdAt = Instant.now(),
+            )
 
         val savedStep = sagaStepRepository.save(step)
 
@@ -141,10 +159,11 @@ class SagaManager(
         val expectedSteps = sagaStepDefinitions[saga.type] ?: return false
 
         // Get all completed steps for this saga
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        )
+        val completedSteps =
+            sagaStepRepository.findBySagaIdAndStatus(
+                saga.id,
+                SagaStepStatus.COMPLETED,
+            )
 
         // Get the step names of completed steps
         val completedStepNames = completedSteps.map { it.stepName }
@@ -162,9 +181,10 @@ class SagaManager(
      */
     @Transactional
     fun completeSaga(sagaId: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
+        val saga =
+            sagaRepository.findById(sagaId).orElseThrow {
+                IllegalArgumentException("Saga with ID $sagaId not found")
+            }
 
         saga.status = SagaStatus.COMPLETED
         saga.completedAt = Instant.now()
@@ -179,10 +199,14 @@ class SagaManager(
      * @return The updated saga
      */
     @Transactional
-    fun failSaga(sagaId: String, error: String): Saga {
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
+    fun failSaga(
+        sagaId: String,
+        error: String,
+    ): Saga {
+        val saga =
+            sagaRepository.findById(sagaId).orElseThrow {
+                IllegalArgumentException("Saga with ID $sagaId not found")
+            }
 
         saga.status = SagaStatus.FAILED
         saga.lastError = error
@@ -203,10 +227,12 @@ class SagaManager(
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        ).sortedByDescending { it.createdAt }
+        val completedSteps =
+            sagaStepRepository
+                .findBySagaIdAndStatus(
+                    saga.id,
+                    SagaStepStatus.COMPLETED,
+                ).sortedByDescending { it.createdAt }
 
         logger.info("Triggering compensation for saga ${saga.id} with ${completedSteps.size} steps to compensate")
 
@@ -228,8 +254,8 @@ class SagaManager(
                         sagaId = saga.id,
                         stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.STARTED,
-                        createdAt = Instant.now()
-                    )
+                        createdAt = Instant.now(),
+                    ),
                 )
             } catch (e: Exception) {
                 logger.error("Failed to create compensation event for step ${step.stepName}: ${e.message}", e)
@@ -248,7 +274,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateCreateAuthUser(sagaId: String, step: SagaStep) {
+    private fun compensateCreateAuthUser(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val authUserId = (payload["authUserId"] as Number).toLong()
@@ -257,13 +286,14 @@ class SagaManager(
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
-                payload = mapOf(
-                    "sagaId" to sagaId,
-                    "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_AUTH_USER.value,
-                    "authUserId" to authUserId
-                ),
-                sagaId = sagaId
+                payload =
+                    mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.DELETE_AUTH_USER.value,
+                        "authUserId" to authUserId,
+                    ),
+                sagaId = sagaId,
             )
         } catch (e: Exception) {
             logger.error("Failed to create compensation event for CreateAuthUser: ${e.message}", e)
@@ -277,7 +307,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateCreateVerificationToken(sagaId: String, step: SagaStep) {
+    private fun compensateCreateVerificationToken(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val tokenId = (payload["tokenId"] as Number).toLong()
@@ -286,13 +319,14 @@ class SagaManager(
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.SAGA_COMPENSATION,
                 key = sagaId,
-                payload = mapOf(
-                    "sagaId" to sagaId,
-                    "stepId" to step.id,
-                    "action" to SagaCompensationActions.DELETE_VERIFICATION_TOKEN.value,
-                    "tokenId" to tokenId
-                ),
-                sagaId = sagaId
+                payload =
+                    mapOf(
+                        "sagaId" to sagaId,
+                        "stepId" to step.id,
+                        "action" to SagaCompensationActions.DELETE_VERIFICATION_TOKEN.value,
+                        "tokenId" to tokenId,
+                    ),
+                sagaId = sagaId,
             )
         } catch (e: Exception) {
             logger.error("Failed to create compensation event for CreateVerificationToken: ${e.message}", e)
@@ -306,7 +340,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateUpdatePassword(sagaId: String, step: SagaStep) {
+    private fun compensateUpdatePassword(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val authUserId = (payload["authUserId"] as Number).toLong()
@@ -317,14 +354,15 @@ class SagaManager(
                 kafkaOutboxProcessor.saveOutboxMessage(
                     topic = KafkaTopicNames.SAGA_COMPENSATION,
                     key = sagaId,
-                    payload = mapOf(
-                        "sagaId" to sagaId,
-                        "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_PASSWORD_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalPasswordHash" to originalPasswordHash
-                    ),
-                    sagaId = sagaId
+                    payload =
+                        mapOf(
+                            "sagaId" to sagaId,
+                            "stepId" to step.id,
+                            "action" to SagaCompensationActions.REVERT_PASSWORD_UPDATE.value,
+                            "authUserId" to authUserId,
+                            "originalPasswordHash" to originalPasswordHash,
+                        ),
+                    sagaId = sagaId,
                 )
             } else {
                 logger.warn("No original password hash available for compensating password update for user $authUserId")
@@ -341,7 +379,10 @@ class SagaManager(
      * @param step The saga step that needs compensation
      * @return Unit
      */
-    private fun compensateUpdateEmail(sagaId: String, step: SagaStep) {
+    private fun compensateUpdateEmail(
+        sagaId: String,
+        step: SagaStep,
+    ) {
         try {
             val payload = objectMapper.readValue(step.payload, Map::class.java)
             val authUserId = (payload["authUserId"] as Number).toLong()
@@ -352,14 +393,15 @@ class SagaManager(
                 kafkaOutboxProcessor.saveOutboxMessage(
                     topic = KafkaTopicNames.SAGA_COMPENSATION,
                     key = sagaId,
-                    payload = mapOf(
-                        "sagaId" to sagaId,
-                        "stepId" to step.id,
-                        "action" to SagaCompensationActions.REVERT_EMAIL_UPDATE.value,
-                        "authUserId" to authUserId,
-                        "originalEmail" to originalEmail
-                    ),
-                    sagaId = sagaId
+                    payload =
+                        mapOf(
+                            "sagaId" to sagaId,
+                            "stepId" to step.id,
+                            "action" to SagaCompensationActions.REVERT_EMAIL_UPDATE.value,
+                            "authUserId" to authUserId,
+                            "originalEmail" to originalEmail,
+                        ),
+                    sagaId = sagaId,
                 )
             } else {
                 logger.warn("No original email available for compensating email update for user $authUserId")

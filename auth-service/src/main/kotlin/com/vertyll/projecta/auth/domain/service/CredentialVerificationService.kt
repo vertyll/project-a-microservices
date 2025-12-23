@@ -10,11 +10,14 @@ import java.util.UUID
 @Service
 class CredentialVerificationService(
     private val authUserRepository: AuthUserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun verifyCredentials(email: String, password: String): CredentialsVerificationResultEvent {
+    fun verifyCredentials(
+        email: String,
+        password: String,
+    ): CredentialsVerificationResultEvent {
         logger.info("Verifying credentials for user: {}", email)
         val requestId = UUID.randomUUID().toString()
 
@@ -26,7 +29,7 @@ class CredentialVerificationService(
                 return CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Invalid email or password. Please try again."
+                    message = "Invalid email or password. Please try again.",
                 )
             }
 
@@ -37,7 +40,7 @@ class CredentialVerificationService(
                 return CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Your account has not been activated. Please check your email for the activation code or request a new one."
+                    message = "Your account has not been activated. Please check your email for the activation code or request a new one.",
                 )
             }
 
@@ -48,7 +51,7 @@ class CredentialVerificationService(
                 CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Invalid email or password. Please try again."
+                    message = "Invalid email or password. Please try again.",
                 )
             } else {
                 logger.info("Credentials verified successfully for user: {}", email)
@@ -58,7 +61,7 @@ class CredentialVerificationService(
                     userId = user.id,
                     email = user.username,
                     roles = user.getRoles().toList(),
-                    message = "Credentials verified successfully"
+                    message = "Credentials verified successfully",
                 )
             }
         } catch (e: Exception) {
@@ -66,7 +69,7 @@ class CredentialVerificationService(
             CredentialsVerificationResultEvent(
                 requestId = requestId,
                 valid = false,
-                message = "Authentication failed. Please try again later."
+                message = "Authentication failed. Please try again later.",
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.vertyll.projecta.user.infrastructure.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.user.domain.model.entity.SagaStep
 import com.vertyll.projecta.user.domain.model.entity.User
 import com.vertyll.projecta.user.domain.model.enums.SagaCompensationActions
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 
 /**
@@ -21,7 +21,7 @@ import java.time.Instant
 class SagaCompensationService(
     private val userRepository: UserRepository,
     private val sagaStepRepository: SagaStepRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -32,10 +32,11 @@ class SagaCompensationService(
     @Transactional
     fun handleCompensationEvent(payload: String) {
         try {
-            val event = objectMapper.readValue(
-                payload,
-                Map::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    payload,
+                    Map::class.java,
+                )
             val sagaId = event["sagaId"] as String
             val actionStr = event["action"] as String
 
@@ -71,14 +72,15 @@ class SagaCompensationService(
             if (stepId != null) {
                 val step = sagaStepRepository.findById(stepId.toLong()).orElse(null)
                 if (step != null) {
-                    val compensationStep = SagaStep(
-                        sagaId = sagaId,
-                        stepName = SagaStepNames.compensationNameFromString(step.stepName),
-                        status = SagaStepStatus.COMPENSATED,
-                        createdAt = Instant.now(),
-                        completedAt = Instant.now(),
-                        compensationStepId = step.id
-                    )
+                    val compensationStep =
+                        SagaStep(
+                            sagaId = sagaId,
+                            stepName = SagaStepNames.compensationNameFromString(step.stepName),
+                            status = SagaStepStatus.COMPENSATED,
+                            createdAt = Instant.now(),
+                            completedAt = Instant.now(),
+                            compensationStepId = step.id,
+                        )
                     sagaStepRepository.save(compensationStep)
                 }
             }
@@ -107,12 +109,16 @@ class SagaCompensationService(
      * Revert a user profile update as part of compensation
      */
     @Transactional
-    fun revertUserProfileUpdate(userId: Long, originalData: Any?) {
+    fun revertUserProfileUpdate(
+        userId: Long,
+        originalData: Any?,
+    ) {
         try {
-            val user = userRepository.findById(userId).orElse(null) ?: run {
-                logger.warn("Cannot compensate - user $userId not found")
-                return
-            }
+            val user =
+                userRepository.findById(userId).orElse(null) ?: run {
+                    logger.warn("Cannot compensate - user $userId not found")
+                    return
+                }
 
             logger.info("Compensating by reverting profile update for user $userId")
 
@@ -123,10 +129,11 @@ class SagaCompensationService(
 
             // Convert originalData back to a User object and update fields
             try {
-                val originalDataMap = originalData as? Map<*, *> ?: run {
-                    logger.error("Original data is not in the expected format")
-                    return
-                }
+                val originalDataMap =
+                    originalData as? Map<*, *> ?: run {
+                        logger.error("Original data is not in the expected format")
+                        return
+                    }
 
                 // Update only the fields that were in the original data
                 originalDataMap["firstName"]?.let { user.firstName = it.toString() }
@@ -150,12 +157,16 @@ class SagaCompensationService(
      * Revert a user email update as part of compensation
      */
     @Transactional
-    fun revertUserEmailUpdate(userId: Long, originalEmail: String?) {
+    fun revertUserEmailUpdate(
+        userId: Long,
+        originalEmail: String?,
+    ) {
         try {
-            val user = userRepository.findById(userId).orElse(null) ?: run {
-                logger.warn("Cannot compensate - user $userId not found")
-                return
-            }
+            val user =
+                userRepository.findById(userId).orElse(null) ?: run {
+                    logger.warn("Cannot compensate - user $userId not found")
+                    return
+                }
 
             logger.info("Compensating by reverting email update for user $userId")
 
@@ -178,7 +189,10 @@ class SagaCompensationService(
      * Recreate a user profile as part of compensation
      */
     @Transactional
-    fun recreateUserProfile(userId: Long, userData: Any?) {
+    fun recreateUserProfile(
+        userId: Long,
+        userData: Any?,
+    ) {
         try {
             // Check if user already exists (idempotency check)
             if (userRepository.existsById(userId)) {
@@ -194,37 +208,42 @@ class SagaCompensationService(
             }
 
             try {
-                val userDataMap = userData as? Map<*, *> ?: run {
-                    logger.error("User data is not in the expected format")
-                    return
-                }
+                val userDataMap =
+                    userData as? Map<*, *> ?: run {
+                        logger.error("User data is not in the expected format")
+                        return
+                    }
 
                 // Extract required fields
-                val firstName = userDataMap["firstName"]?.toString() ?: run {
-                    logger.error("Missing firstName in user data")
-                    return
-                }
+                val firstName =
+                    userDataMap["firstName"]?.toString() ?: run {
+                        logger.error("Missing firstName in user data")
+                        return
+                    }
 
-                val lastName = userDataMap["lastName"]?.toString() ?: run {
-                    logger.error("Missing lastName in user data")
-                    return
-                }
+                val lastName =
+                    userDataMap["lastName"]?.toString() ?: run {
+                        logger.error("Missing lastName in user data")
+                        return
+                    }
 
-                val email = userDataMap["email"]?.toString() ?: run {
-                    logger.error("Missing email in user data")
-                    return
-                }
+                val email =
+                    userDataMap["email"]?.toString() ?: run {
+                        logger.error("Missing email in user data")
+                        return
+                    }
 
                 // Create new user with original data
-                val user = User(
-                    id = userId,
-                    firstName = firstName,
-                    lastName = lastName,
-                    email = email,
-                    profilePicture = userDataMap["profilePicture"]?.toString(),
-                    phoneNumber = userDataMap["phoneNumber"]?.toString(),
-                    address = userDataMap["address"]?.toString()
-                )
+                val user =
+                    User(
+                        id = userId,
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        profilePicture = userDataMap["profilePicture"]?.toString(),
+                        phoneNumber = userDataMap["phoneNumber"]?.toString(),
+                        address = userDataMap["address"]?.toString(),
+                    )
 
                 userRepository.save(user)
                 logger.info("Successfully recreated user $userId")

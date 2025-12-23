@@ -1,6 +1,5 @@
 package com.vertyll.projecta.mail.infrastructure.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.mail.domain.model.entity.SagaStep
 import com.vertyll.projecta.mail.domain.model.enums.SagaCompensationActions
 import com.vertyll.projecta.mail.domain.model.enums.SagaStepNames
@@ -10,6 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Service that handles compensation actions for the Mail Service
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class SagaCompensationService(
     private val sagaStepRepository: SagaStepRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -28,10 +28,11 @@ class SagaCompensationService(
     @Transactional
     fun handleCompensationEvent(payload: String) {
         try {
-            val event = objectMapper.readValue(
-                payload,
-                Map::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    payload,
+                    Map::class.java,
+                )
             val sagaId = event["sagaId"] as String
             val actionStr = event["action"] as String
 
@@ -68,14 +69,15 @@ class SagaCompensationService(
             if (stepId != null) {
                 val step = sagaStepRepository.findById(stepId.toLong()).orElse(null)
                 if (step != null) {
-                    val compensationStep = SagaStep(
-                        sagaId = sagaId,
-                        stepName = SagaStepNames.compensationNameFromString(step.stepName),
-                        status = SagaStepStatus.COMPENSATED,
-                        createdAt = java.time.Instant.now(),
-                        completedAt = java.time.Instant.now(),
-                        compensationStepId = step.id
-                    )
+                    val compensationStep =
+                        SagaStep(
+                            sagaId = sagaId,
+                            stepName = SagaStepNames.compensationNameFromString(step.stepName),
+                            status = SagaStepStatus.COMPENSATED,
+                            createdAt = java.time.Instant.now(),
+                            completedAt = java.time.Instant.now(),
+                            compensationStepId = step.id,
+                        )
                     sagaStepRepository.save(compensationStep)
                 }
             }

@@ -24,7 +24,7 @@ class RoleService(
     private val roleRepository: RoleRepository,
     private val userRoleRepository: UserRoleRepository,
     private val roleEventProducer: RoleEventProducer,
-    private val sagaManager: SagaManager
+    private val sagaManager: SagaManager,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -36,19 +36,21 @@ class RoleService(
         logger.info("Initializing default roles")
         try {
             if (!roleRepository.existsByName(RoleType.USER.value)) {
-                val userRole = Role.create(
-                    name = RoleType.USER.value,
-                    description = "Default role for all users"
-                )
+                val userRole =
+                    Role.create(
+                        name = RoleType.USER.value,
+                        description = "Default role for all users",
+                    )
                 roleRepository.save(userRole)
                 logger.info("Created default ${RoleType.USER.value} role")
             }
 
             if (!roleRepository.existsByName(RoleType.ADMIN.value)) {
-                val adminRole = Role.create(
-                    name = RoleType.ADMIN.value,
-                    description = "Admin role with all privileges"
-                )
+                val adminRole =
+                    Role.create(
+                        name = RoleType.ADMIN.value,
+                        description = "Admin role with all privileges",
+                    )
                 roleRepository.save(adminRole)
                 logger.info("Created default ${RoleType.ADMIN.value} role")
             }
@@ -62,29 +64,31 @@ class RoleService(
         if (roleRepository.existsByName(dto.name)) {
             throw ApiException(
                 message = "Role with name ${dto.name} already exists",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
 
         // Start a saga for role creation
-        val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_CREATION,
-            payload = dto
-        )
+        val saga =
+            sagaManager.startSaga(
+                sagaType = SagaTypes.ROLE_CREATION,
+                payload = dto,
+            )
 
         // Record the start of the role creation step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
             stepName = SagaStepNames.CREATE_ROLE,
-            status = SagaStepStatus.STARTED
+            status = SagaStepStatus.STARTED,
         )
 
         try {
             // Create the role
-            val role = Role.create(
-                name = dto.name,
-                description = dto.description
-            )
+            val role =
+                Role.create(
+                    name = dto.name,
+                    description = dto.description,
+                )
 
             val savedRole = roleRepository.save(role)
 
@@ -93,10 +97,11 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.CREATE_ROLE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "roleId" to savedRole.id,
-                    "name" to savedRole.name
-                )
+                payload =
+                    mapOf(
+                        "roleId" to savedRole.id,
+                        "name" to savedRole.name,
+                    ),
             )
 
             // Send event
@@ -116,7 +121,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.CREATE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error"))
+                payload = mapOf("error" to (e.message ?: "Unknown error")),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role creation failed")
             throw e
@@ -124,19 +129,24 @@ class RoleService(
     }
 
     @Transactional
-    fun updateRole(id: Long, dto: RoleUpdateDto): RoleResponseDto {
-        val role = roleRepository.findById(id)
-            .orElseThrow {
-                ApiException(
-                    message = "Role not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+    fun updateRole(
+        id: Long,
+        dto: RoleUpdateDto,
+    ): RoleResponseDto {
+        val role =
+            roleRepository
+                .findById(id)
+                .orElseThrow {
+                    ApiException(
+                        message = "Role not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
 
         if (dto.name != role.name && roleRepository.existsByName(dto.name)) {
             throw ApiException(
                 message = "Role with name ${dto.name} already exists",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
 
@@ -145,35 +155,38 @@ class RoleService(
         if (roleType != null && role.name != dto.name) {
             throw ApiException(
                 message = "Cannot change name of system role ${role.name}",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
 
         // Start saga for role update
-        val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_UPDATE,
-            payload = mapOf(
-                "roleId" to id,
-                "originalName" to role.name,
-                "originalDescription" to role.description,
-                "newName" to dto.name,
-                "newDescription" to dto.description
+        val saga =
+            sagaManager.startSaga(
+                sagaType = SagaTypes.ROLE_UPDATE,
+                payload =
+                    mapOf(
+                        "roleId" to id,
+                        "originalName" to role.name,
+                        "originalDescription" to role.description,
+                        "newName" to dto.name,
+                        "newDescription" to dto.description,
+                    ),
             )
-        )
 
         // Record start of update step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
             stepName = SagaStepNames.UPDATE_ROLE,
-            status = SagaStepStatus.STARTED
+            status = SagaStepStatus.STARTED,
         )
 
         try {
-            val updatedRole = Role(
-                id = role.id,
-                name = dto.name,
-                description = dto.description
-            )
+            val updatedRole =
+                Role(
+                    id = role.id,
+                    name = dto.name,
+                    description = dto.description,
+                )
 
             val savedRole = roleRepository.save(updatedRole)
 
@@ -182,14 +195,16 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.UPDATE_ROLE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "roleId" to savedRole.id,
-                    "name" to savedRole.name,
-                    "originalData" to mapOf(
-                        "name" to role.name,
-                        "description" to role.description
-                    )
-                )
+                payload =
+                    mapOf(
+                        "roleId" to savedRole.id,
+                        "name" to savedRole.name,
+                        "originalData" to
+                            mapOf(
+                                "name" to role.name,
+                                "description" to role.description,
+                            ),
+                    ),
             )
 
             // Send event
@@ -208,7 +223,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.UPDATE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error"))
+                payload = mapOf("error" to (e.message ?: "Unknown error")),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role update failed")
             throw e
@@ -217,78 +232,89 @@ class RoleService(
 
     @Transactional(readOnly = true)
     fun getRoleById(id: Long): RoleResponseDto {
-        val role = roleRepository.findById(id)
-            .orElseThrow {
-                ApiException(
-                    message = "Role not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val role =
+            roleRepository
+                .findById(id)
+                .orElseThrow {
+                    ApiException(
+                        message = "Role not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
         return mapToDto(role)
     }
 
     @Transactional(readOnly = true)
     fun getRoleByName(name: String): RoleResponseDto {
-        val role = roleRepository.findByName(name)
-            .orElseThrow {
-                ApiException(
-                    message = "Role not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val role =
+            roleRepository
+                .findByName(name)
+                .orElseThrow {
+                    ApiException(
+                        message = "Role not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
         return mapToDto(role)
     }
 
     @Transactional(readOnly = true)
-    fun getAllRoles(): List<RoleResponseDto> {
-        return roleRepository.findAll().map { mapToDto(it) }
-    }
+    fun getAllRoles(): List<RoleResponseDto> = roleRepository.findAll().map { mapToDto(it) }
 
     @Transactional
-    fun assignRoleToUser(userId: Long, roleName: String): UserRole {
+    fun assignRoleToUser(
+        userId: Long,
+        roleName: String,
+    ): UserRole {
         logger.info("Assigning role $roleName to user $userId")
 
-        val role = roleRepository.findByName(roleName)
-            .orElseThrow {
-                ApiException(
-                    message = "Role $roleName not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val role =
+            roleRepository
+                .findByName(roleName)
+                .orElseThrow {
+                    ApiException(
+                        message = "Role $roleName not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
 
         if (userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId already has role $roleName")
-            return userRoleRepository.findByUserIdAndRoleId(userId, role.id)
+            return userRoleRepository
+                .findByUserIdAndRoleId(userId, role.id)
                 .orElseThrow {
                     ApiException(
                         message = "User-role mapping not found",
-                        status = HttpStatus.INTERNAL_SERVER_ERROR
+                        status = HttpStatus.INTERNAL_SERVER_ERROR,
                     )
                 }
         }
 
         // Start saga for role assignment
-        val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_ASSIGNMENT,
-            payload = mapOf(
-                "userId" to userId,
-                "roleId" to role.id,
-                "roleName" to role.name
+        val saga =
+            sagaManager.startSaga(
+                sagaType = SagaTypes.ROLE_ASSIGNMENT,
+                payload =
+                    mapOf(
+                        "userId" to userId,
+                        "roleId" to role.id,
+                        "roleName" to role.name,
+                    ),
             )
-        )
 
         // Record start of assignment step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
             stepName = SagaStepNames.ASSIGN_ROLE,
-            status = SagaStepStatus.STARTED
+            status = SagaStepStatus.STARTED,
         )
 
         try {
-            val userRole = UserRole(
-                userId = userId,
-                roleId = role.id
-            )
+            val userRole =
+                UserRole(
+                    userId = userId,
+                    roleId = role.id,
+                )
 
             val savedUserRole = userRoleRepository.save(userRole)
 
@@ -297,11 +323,12 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.ASSIGN_ROLE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "userId" to userId,
-                    "roleId" to role.id,
-                    "roleName" to role.name
-                )
+                payload =
+                    mapOf(
+                        "userId" to userId,
+                        "roleId" to role.id,
+                        "roleName" to role.name,
+                    ),
             )
 
             // Send role assigned event
@@ -321,7 +348,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.ASSIGN_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error"))
+                payload = mapOf("error" to (e.message ?: "Unknown error")),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role assignment failed")
             throw e
@@ -329,16 +356,21 @@ class RoleService(
     }
 
     @Transactional
-    fun removeRoleFromUser(userId: Long, roleName: String) {
+    fun removeRoleFromUser(
+        userId: Long,
+        roleName: String,
+    ) {
         logger.info("Removing role $roleName from user $userId")
 
-        val role = roleRepository.findByName(roleName)
-            .orElseThrow {
-                ApiException(
-                    message = "Role $roleName not found",
-                    status = HttpStatus.NOT_FOUND
-                )
-            }
+        val role =
+            roleRepository
+                .findByName(roleName)
+                .orElseThrow {
+                    ApiException(
+                        message = "Role $roleName not found",
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
 
         if (!userRoleRepository.existsByUserIdAndRoleId(userId, role.id!!)) {
             logger.info("User $userId doesn't have role $roleName")
@@ -351,26 +383,28 @@ class RoleService(
             if (userRoles.size == 1) {
                 throw ApiException(
                     message = "Cannot remove USER role from user as it's their only role",
-                    status = HttpStatus.BAD_REQUEST
+                    status = HttpStatus.BAD_REQUEST,
                 )
             }
         }
 
         // Start saga for role revocation
-        val saga = sagaManager.startSaga(
-            sagaType = SagaTypes.ROLE_REVOCATION,
-            payload = mapOf(
-                "userId" to userId,
-                "roleId" to role.id,
-                "roleName" to role.name
+        val saga =
+            sagaManager.startSaga(
+                sagaType = SagaTypes.ROLE_REVOCATION,
+                payload =
+                    mapOf(
+                        "userId" to userId,
+                        "roleId" to role.id,
+                        "roleName" to role.name,
+                    ),
             )
-        )
 
         // Record start of revocation step
         sagaManager.recordSagaStep(
             sagaId = saga.id,
             stepName = SagaStepNames.REVOKE_ROLE,
-            status = SagaStepStatus.STARTED
+            status = SagaStepStatus.STARTED,
         )
 
         try {
@@ -384,11 +418,12 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.REVOKE_ROLE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "userId" to userId,
-                    "roleId" to role.id,
-                    "roleName" to role.name
-                )
+                payload =
+                    mapOf(
+                        "userId" to userId,
+                        "roleId" to role.id,
+                        "roleName" to role.name,
+                    ),
             )
 
             // Send role revoked event
@@ -407,7 +442,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.REVOKE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error"))
+                payload = mapOf("error" to (e.message ?: "Unknown error")),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role revocation failed")
             throw e
@@ -432,11 +467,10 @@ class RoleService(
         return userRoles.map { it.userId }
     }
 
-    private fun mapToDto(role: Role): RoleResponseDto {
-        return RoleResponseDto(
+    private fun mapToDto(role: Role): RoleResponseDto =
+        RoleResponseDto(
             id = role.id!!,
             name = role.name,
-            description = role.description
+            description = role.description,
         )
-    }
 }

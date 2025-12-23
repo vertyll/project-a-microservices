@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class EmailSagaService(
     private val sagaManager: SagaManager,
-    private val emailService: EmailService
+    private val emailService: EmailService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -27,18 +27,21 @@ class EmailSagaService(
         subject: String,
         template: EmailTemplate,
         variables: Map<String, String>,
-        replyTo: String? = null
+        replyTo: String? = null,
     ): Boolean {
-        val sagaId = sagaManager.startSaga(
-            sagaType = SagaTypes.EMAIL_SENDING,
-            payload = mapOf(
-                "to" to to,
-                "subject" to subject,
-                "templateName" to template.templateName,
-                "variables" to variables,
-                "replyTo" to replyTo
-            )
-        ).id
+        val sagaId =
+            sagaManager
+                .startSaga(
+                    sagaType = SagaTypes.EMAIL_SENDING,
+                    payload =
+                        mapOf(
+                            "to" to to,
+                            "subject" to subject,
+                            "templateName" to template.templateName,
+                            "variables" to variables,
+                            "replyTo" to replyTo,
+                        ),
+                ).id
 
         try {
             // Process template
@@ -46,10 +49,11 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.PROCESS_TEMPLATE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "templateName" to template.templateName,
-                    "variables" to variables
-                )
+                payload =
+                    mapOf(
+                        "templateName" to template.templateName,
+                        "variables" to variables,
+                    ),
             )
 
             // Send email
@@ -60,11 +64,12 @@ class EmailSagaService(
                     sagaId = sagaId,
                     stepName = SagaStepNames.SEND_EMAIL,
                     status = SagaStepStatus.COMPLETED,
-                    payload = mapOf(
-                        "to" to to,
-                        "subject" to subject,
-                        "emailId" to sagaId
-                    )
+                    payload =
+                        mapOf(
+                            "to" to to,
+                            "subject" to subject,
+                            "emailId" to sagaId,
+                        ),
                 )
                 return true
             } else {
@@ -72,11 +77,12 @@ class EmailSagaService(
                     sagaId = sagaId,
                     stepName = SagaStepNames.SEND_EMAIL,
                     status = SagaStepStatus.FAILED,
-                    payload = mapOf(
-                        "to" to to,
-                        "subject" to subject,
-                        "error" to "Failed to send email"
-                    )
+                    payload =
+                        mapOf(
+                            "to" to to,
+                            "subject" to subject,
+                            "error" to "Failed to send email",
+                        ),
                 )
                 return false
             }
@@ -86,9 +92,10 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.SEND_EMAIL,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf(
-                    "error" to e.message
-                )
+                payload =
+                    mapOf(
+                        "error" to e.message,
+                    ),
             )
             return false
         }
@@ -104,19 +111,22 @@ class EmailSagaService(
         template: EmailTemplate,
         commonVariables: Map<String, String>,
         specificVariables: Map<String, Map<String, String>> = emptyMap(),
-        replyTo: String? = null
+        replyTo: String? = null,
     ): Map<String, Boolean> {
-        val sagaId = sagaManager.startSaga(
-            sagaType = SagaTypes.EMAIL_BATCH_PROCESSING,
-            payload = mapOf(
-                "recipients" to recipients,
-                "subject" to subject,
-                "templateName" to template.templateName,
-                "commonVariables" to commonVariables,
-                "specificVariables" to specificVariables,
-                "replyTo" to replyTo
-            )
-        ).id
+        val sagaId =
+            sagaManager
+                .startSaga(
+                    sagaType = SagaTypes.EMAIL_BATCH_PROCESSING,
+                    payload =
+                        mapOf(
+                            "recipients" to recipients,
+                            "subject" to subject,
+                            "templateName" to template.templateName,
+                            "commonVariables" to commonVariables,
+                            "specificVariables" to specificVariables,
+                            "replyTo" to replyTo,
+                        ),
+                ).id
 
         val results = mutableMapOf<String, Boolean>()
 
@@ -126,10 +136,11 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.PROCESS_TEMPLATE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "templateName" to template.templateName,
-                    "variables" to commonVariables
-                )
+                payload =
+                    mapOf(
+                        "templateName" to template.templateName,
+                        "variables" to commonVariables,
+                    ),
             )
 
             // Send emails to all recipients
@@ -147,10 +158,11 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.RECORD_EMAIL_LOG,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "logId" to sagaId,
-                    "results" to results
-                )
+                payload =
+                    mapOf(
+                        "logId" to sagaId,
+                        "results" to results,
+                    ),
             )
 
             // Record send email step
@@ -158,11 +170,12 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.SEND_EMAIL,
                 status = if (results.values.all { it }) SagaStepStatus.COMPLETED else SagaStepStatus.PARTIALLY_COMPLETED,
-                payload = mapOf(
-                    "recipients" to recipients,
-                    "subject" to subject,
-                    "results" to results
-                )
+                payload =
+                    mapOf(
+                        "recipients" to recipients,
+                        "subject" to subject,
+                        "results" to results,
+                    ),
             )
 
             return results
@@ -172,9 +185,10 @@ class EmailSagaService(
                 sagaId = sagaId,
                 stepName = SagaStepNames.SEND_EMAIL,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf(
-                    "error" to e.message
-                )
+                payload =
+                    mapOf(
+                        "error" to e.message,
+                    ),
             )
             return recipients.associateWith { false }
         }

@@ -1,6 +1,5 @@
 package com.vertyll.projecta.role.infrastructure.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.role.domain.service.RoleService
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
 import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
@@ -9,12 +8,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
     private val roleService: RoleService,
-    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -25,10 +25,11 @@ class UserEventConsumer(
             logger.info("Received user registration event with key: ${record.key()}")
 
             // Deserialize the message payload
-            val event = objectMapper.readValue(
-                record.value(),
-                UserRegisteredEvent::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    record.value(),
+                    UserRegisteredEvent::class.java,
+                )
             logger.info("Deserialized event for user: ${event.email} with roles: ${event.roles}")
 
             handleUserRegisteredEvent(event)

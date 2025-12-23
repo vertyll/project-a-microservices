@@ -9,19 +9,18 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserDetailsServiceImpl(
-    private val authUserRepository: AuthUserRepository
+    private val authUserRepository: AuthUserRepository,
 ) : UserDetailsService {
-
     /**
      * Load user by username (email).
      */
-    override fun loadUserByUsername(username: String): UserDetails {
-        return authUserRepository.findByEmail(username)
+    override fun loadUserByUsername(username: String): UserDetails =
+        authUserRepository
+            .findByEmail(username)
             .orElseThrow {
                 ApiException(
                     message = "User not found",
-                    status = HttpStatus.NOT_FOUND
+                    status = HttpStatus.NOT_FOUND,
                 )
             }
-    }
 }

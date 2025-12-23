@@ -13,9 +13,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
 ) {
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -23,13 +22,17 @@ class SecurityConfig(
             .cors { it.disable() }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/actuator/**").permitAll()
-                    .requestMatchers("/users/admin/**").hasRole(RoleType.ADMIN.value)
-                    .requestMatchers("/users/me").authenticated()
-                    .requestMatchers("/users/{id}").authenticated()
-                    .anyRequest().authenticated()
-            }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
+                    .requestMatchers("/users/admin/**")
+                    .hasRole(RoleType.ADMIN.value)
+                    .requestMatchers("/users/me")
+                    .authenticated()
+                    .requestMatchers("/users/{id}")
+                    .authenticated()
+                    .anyRequest()
+                    .authenticated()
+            }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

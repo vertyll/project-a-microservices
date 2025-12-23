@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Primary
  */
 @Configuration
 class MockBeansConfig {
-
     /**
      * Mock KafkaOutboxProcessor to prevent autowiring issues
      */

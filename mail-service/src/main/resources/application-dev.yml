@@ -4,6 +4,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +13,7 @@ spring:
       hibernate:
         '[format_sql]': true
     database: postgresql
+
   kafka:
     bootstrap-servers: localhost:29092
     producer:
@@ -32,18 +34,20 @@ spring:
         '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
         '[spring.json.use.type.headers]': true
         '[spring.json.type.mapping]': mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+
   mail:
     host: localhost
     port: 1025
     username: ""
     password: ""
-    from: noreply@projecta.dev
+    from: no-reply@projecta.local
     properties:
       mail:
         smtp:
           auth: false
           starttls:
             enable: false
+
   thymeleaf:
     cache: false
     prefix: classpath:/templates/
@@ -60,5 +64,6 @@ logging:
     '[org.hibernate.SQL]': DEBUG
     '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
     '[org.springframework.mail]': DEBUG
+
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

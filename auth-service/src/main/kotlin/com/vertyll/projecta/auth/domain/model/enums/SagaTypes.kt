@@ -1,6 +1,8 @@
 package com.vertyll.projecta.auth.domain.model.enums
 
-enum class SagaTypes(val value: String) {
+enum class SagaTypes(
+    val value: String,
+) {
     // User related sagas
     USER_REGISTRATION("UserRegistration"),
 
@@ -10,11 +12,10 @@ enum class SagaTypes(val value: String) {
 
     // Password related sagas
     PASSWORD_CHANGE("PasswordChange"),
-    PASSWORD_RESET("PasswordReset");
+    PASSWORD_RESET("PasswordReset"),
+    ;
 
     companion object {
-        fun fromString(value: String): SagaTypes? {
-            return SagaTypes.entries.find { it.value == value }
-        }
+        fun fromString(value: String): SagaTypes? = SagaTypes.entries.find { it.value == value }
     }
 }

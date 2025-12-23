@@ -12,33 +12,28 @@ import java.time.Instant
 @Entity
 @Table(
     name = "auth_user_role",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["auth_user_id", "role_id"])]
+    uniqueConstraints = [UniqueConstraint(columnNames = ["auth_user_id", "role_id"])],
 )
 class AuthUserRole(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @Column(name = "auth_user_id", nullable = false)
     val authUserId: Long,
-
     @Column(name = "role_id", nullable = false)
     val roleId: Long,
-
     @Column(name = "role_name", nullable = false, length = 50)
     val roleName: String,
-
     @Column(nullable = false)
     val createdAt: Instant = Instant.now(),
-
     @Column(nullable = false)
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
 ) {
     // No-args constructor for JPA
     constructor() : this(
         id = null,
         authUserId = 0,
         roleId = 0,
-        roleName = ""
+        roleName = "",
     )
 }

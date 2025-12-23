@@ -29,40 +29,46 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Authentication management APIs")
-class AuthController(private val authService: AuthService) {
+class AuthController(
+    private val authService: AuthService,
+) {
     @PostMapping("/register")
     @Operation(summary = "Register new user")
     fun register(
         @RequestBody @Valid
-        request: RegisterRequestDto
+        request: RegisterRequestDto,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.register(request)
         return ApiResponse.buildResponse(
             data = null,
             message = "User registered successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/activate")
     @Operation(summary = "Activate user account with activation code")
-    fun activateAccount(@RequestParam token: String): ResponseEntity<ApiResponse<Any>> {
+    fun activateAccount(
+        @RequestParam token: String,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.activateAccount(token)
         return ApiResponse.buildResponse(
             data = null,
             message = "Account activated successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/resend-activation")
     @Operation(summary = "Resend activation email")
-    fun resendActivationEmail(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
+    fun resendActivationEmail(
+        @RequestParam email: String,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.resendActivationEmail(email)
         return ApiResponse.buildResponse(
             data = null,
             message = "Activation email sent. Please check your inbox.",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -72,7 +78,7 @@ class AuthController(private val authService: AuthService) {
         @RequestBody @Valid
         request: AuthRequestDto,
         response: HttpServletResponse,
-        httpRequest: HttpServletRequest
+        httpRequest: HttpServletRequest,
     ): ResponseEntity<ApiResponse<AuthResponseDto>> {
         val userAgent = httpRequest.getHeader("User-Agent")
         val requestWithUserAgent = request.copy(userAgent = userAgent)
@@ -81,7 +87,7 @@ class AuthController(private val authService: AuthService) {
         return ApiResponse.buildResponse(
             data = authResponse,
             message = "Authentication successful",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -89,35 +95,40 @@ class AuthController(private val authService: AuthService) {
     @Operation(summary = "Refresh access token using refresh token cookie")
     fun refreshToken(
         request: HttpServletRequest,
-        response: HttpServletResponse
+        response: HttpServletResponse,
     ): ResponseEntity<ApiResponse<AuthResponseDto>> {
         val authResponse = authService.refreshToken(request, response)
         return ApiResponse.buildResponse(
             data = authResponse,
             message = "Token refreshed successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Logout from current session")
-    fun logout(request: HttpServletRequest, response: HttpServletResponse): ResponseEntity<ApiResponse<Any>> {
+    fun logout(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.logout(request, response)
         return ApiResponse.buildResponse(
             data = null,
             message = "Logged out successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/reset-password-request")
     @Operation(summary = "Request password reset for a forgotten password")
-    fun requestPasswordReset(@RequestParam email: String): ResponseEntity<ApiResponse<Any>> {
+    fun requestPasswordReset(
+        @RequestParam email: String,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.sendPasswordResetRequest(email)
         return ApiResponse.buildResponse(
             data = null,
             message = "Password reset instructions sent to email",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -126,13 +137,13 @@ class AuthController(private val authService: AuthService) {
     fun resetPassword(
         @RequestParam token: String,
         @RequestBody @Valid
-        request: ResetPasswordRequestDto
+        request: ResetPasswordRequestDto,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.resetPassword(token, request)
         return ApiResponse.buildResponse(
             data = null,
             message = "Password reset successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -141,24 +152,26 @@ class AuthController(private val authService: AuthService) {
     fun requestEmailChange(
         @RequestParam email: String,
         @RequestBody @Valid
-        request: ChangeEmailRequestDto
+        request: ChangeEmailRequestDto,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.requestEmailChange(email, request)
         return ApiResponse.buildResponse(
             data = null,
             message = "Email change instructions sent to email",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/confirm-email-change")
     @Operation(summary = "Confirm email change using token")
-    fun confirmEmailChange(@RequestParam token: String): ResponseEntity<ApiResponse<Any>> {
+    fun confirmEmailChange(
+        @RequestParam token: String,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.confirmEmailChange(token)
         return ApiResponse.buildResponse(
             data = null,
             message = "Email changed successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -167,24 +180,26 @@ class AuthController(private val authService: AuthService) {
     fun changePassword(
         @RequestParam email: String,
         @RequestBody @Valid
-        request: ChangePasswordRequestDto
+        request: ChangePasswordRequestDto,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.changePassword(email, request)
         return ApiResponse.buildResponse(
             data = null,
             message = "Password change confirmation sent to email",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @PostMapping("/confirm-password-change")
     @Operation(summary = "Confirm password change using token")
-    fun confirmPasswordChange(@RequestParam token: String): ResponseEntity<ApiResponse<Any>> {
+    fun confirmPasswordChange(
+        @RequestParam token: String,
+    ): ResponseEntity<ApiResponse<Any>> {
         authService.confirmPasswordChange(token)
         return ApiResponse.buildResponse(
             data = null,
             message = "Password change verification successful. Check your email for further instructions.",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -193,53 +208,56 @@ class AuthController(private val authService: AuthService) {
     fun setNewPassword(
         @RequestParam tokenId: Long,
         @RequestBody @Valid
-        request: ResetPasswordRequestDto
+        request: ResetPasswordRequestDto,
     ): ResponseEntity<ApiResponse<Any>> {
         authService.setNewPassword(tokenId, request)
         return ApiResponse.buildResponse(
             data = null,
             message = "Password changed successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @GetMapping("/me")
     @Operation(summary = "Get current authenticated user details")
     fun getCurrentUser(
-        @AuthenticationPrincipal userDetails: UserDetails?
+        @AuthenticationPrincipal userDetails: UserDetails?,
     ): ResponseEntity<ApiResponse<Map<String, Any>>> {
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = emptyMap(),
                 message = "Not authenticated",
-                status = HttpStatus.UNAUTHORIZED
+                status = HttpStatus.UNAUTHORIZED,
             )
         }
 
-        val userInfo = mapOf(
-            "username" to userDetails.username,
-            "authorities" to userDetails.authorities.map { it.authority },
-            "accountNonExpired" to userDetails.isAccountNonExpired,
-            "accountNonLocked" to userDetails.isAccountNonLocked,
-            "credentialsNonExpired" to userDetails.isCredentialsNonExpired,
-            "enabled" to userDetails.isEnabled
-        )
+        val userInfo =
+            mapOf(
+                "username" to userDetails.username,
+                "authorities" to userDetails.authorities.map { it.authority },
+                "accountNonExpired" to userDetails.isAccountNonExpired,
+                "accountNonLocked" to userDetails.isAccountNonLocked,
+                "credentialsNonExpired" to userDetails.isCredentialsNonExpired,
+                "enabled" to userDetails.isEnabled,
+            )
 
         return ApiResponse.buildResponse(
             data = userInfo,
             message = "User details retrieved successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
     @GetMapping("/sessions")
     @Operation(summary = "Get all active sessions for the current user")
-    fun getSessions(@AuthenticationPrincipal userDetails: UserDetails?): ResponseEntity<ApiResponse<List<SessionDto>>> {
+    fun getSessions(
+        @AuthenticationPrincipal userDetails: UserDetails?,
+    ): ResponseEntity<ApiResponse<List<SessionDto>>> {
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = emptyList(),
                 message = "Not authenticated",
-                status = HttpStatus.UNAUTHORIZED
+                status = HttpStatus.UNAUTHORIZED,
             )
         }
 
@@ -247,7 +265,7 @@ class AuthController(private val authService: AuthService) {
         return ApiResponse.buildResponse(
             data = sessions,
             message = "Active sessions retrieved successfully",
-            status = HttpStatus.OK
+            status = HttpStatus.OK,
         )
     }
 
@@ -255,13 +273,13 @@ class AuthController(private val authService: AuthService) {
     @Operation(summary = "Revoke a specific session")
     fun revokeSession(
         @PathVariable sessionId: Long,
-        @AuthenticationPrincipal userDetails: UserDetails?
+        @AuthenticationPrincipal userDetails: UserDetails?,
     ): ResponseEntity<ApiResponse<Any>> {
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = null,
                 message = "Not authenticated",
-                status = HttpStatus.UNAUTHORIZED
+                status = HttpStatus.UNAUTHORIZED,
             )
         }
 
@@ -270,13 +288,13 @@ class AuthController(private val authService: AuthService) {
             ApiResponse.buildResponse(
                 data = null,
                 message = "Session revoked successfully",
-                status = HttpStatus.OK
+                status = HttpStatus.OK,
             )
         } else {
             ApiResponse.buildResponse(
                 data = null,
                 message = "Failed to revoke session",
-                status = HttpStatus.BAD_REQUEST
+                status = HttpStatus.BAD_REQUEST,
             )
         }
     }

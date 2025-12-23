@@ -13,9 +13,16 @@ interface EmailLogRepository : JpaRepository<EmailLog, Long> {
 
     fun findByTemplateName(templateName: String): List<EmailLog>
 
-    fun findBySentAtBetween(start: Instant, end: Instant): List<EmailLog>
+    fun findBySentAtBetween(
+        start: Instant,
+        end: Instant,
+    ): List<EmailLog>
 
-    fun countByStatusAndSentAtBetween(status: EmailStatus, start: Instant, end: Instant): Long
+    fun countByStatusAndSentAtBetween(
+        status: EmailStatus,
+        start: Instant,
+        end: Instant,
+    ): Long
 
     @Query("SELECT e FROM EmailLog e WHERE e.status = 'FAILED' ORDER BY e.createdAt DESC")
     fun findRecentFailedEmails(limit: Int): List<EmailLog>

@@ -13,11 +13,20 @@ interface UserRoleRepository : JpaRepository<UserRole, Long> {
 
     fun findByRoleId(roleId: Long): List<UserRole>
 
-    fun existsByUserIdAndRoleId(userId: Long, roleId: Long): Boolean
+    fun existsByUserIdAndRoleId(
+        userId: Long,
+        roleId: Long,
+    ): Boolean
 
-    fun findByUserIdAndRoleId(userId: Long, roleId: Long): Optional<UserRole>
+    fun findByUserIdAndRoleId(
+        userId: Long,
+        roleId: Long,
+    ): Optional<UserRole>
 
     @Modifying
     @Query("DELETE FROM UserRole ur WHERE ur.userId = ?1 AND ur.roleId = ?2")
-    fun deleteByUserIdAndRoleId(userId: Long, roleId: Long)
+    fun deleteByUserIdAndRoleId(
+        userId: Long,
+        roleId: Long,
+    )
 }

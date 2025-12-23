@@ -23,15 +23,14 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtAuthenticationFilter(
-    private val sharedConfig: SharedConfigProperties
+    private val sharedConfig: SharedConfigProperties,
 ) : OncePerRequestFilter() {
-
     private val log = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val authHeader = request.getHeader(sharedConfig.security.jwt.authHeaderName)
 
@@ -49,17 +48,20 @@ class JwtAuthenticationFilter(
                 val roles = extractRoles(jwt)
                 val authorities = roles.map { SimpleGrantedAuthority(it) }
 
-                val userDetails: UserDetails = User.builder()
-                    .username(username)
-                    .password("") // Not needed as we're not using password
-                    .authorities(authorities)
-                    .build()
+                val userDetails: UserDetails =
+                    User
+                        .builder()
+                        .username(username)
+                        .password("") // Not needed as we're not using password
+                        .authorities(authorities)
+                        .build()
 
-                val authToken = UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.authorities
-                )
+                val authToken =
+                    UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.authorities,
+                    )
                 authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authToken
 
@@ -74,29 +76,29 @@ class JwtAuthenticationFilter(
         filterChain.doFilter(request, response)
     }
 
-    private fun extractUsername(token: String): String {
-        return extractClaim(token) { it.subject }
-    }
+    private fun extractUsername(token: String): String = extractClaim(token) { it.subject }
 
-    private fun extractRoles(token: String): List<String> {
-        return extractClaim(token) { claims ->
+    private fun extractRoles(token: String): List<String> =
+        extractClaim(token) { claims ->
             @Suppress("UNCHECKED_CAST")
             claims[JwtConstants.CLAIM_ROLES] as? List<String> ?: emptyList()
         }
-    }
 
-    private fun <T> extractClaim(token: String, claimsResolver: (Claims) -> T): T {
+    private fun <T> extractClaim(
+        token: String,
+        claimsResolver: (Claims) -> T,
+    ): T {
         val claims = extractAllClaims(token)
         return claimsResolver(claims)
     }
 
-    private fun extractAllClaims(token: String): Claims {
-        return Jwts.parser()
+    private fun extractAllClaims(token: String): Claims =
+        Jwts
+            .parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .payload
-    }
 
     private fun getSigningKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(sharedConfig.security.jwt.secretKey)

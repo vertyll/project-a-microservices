@@ -21,17 +21,15 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtAuthFilter(
-    private val sharedConfig: SharedConfigProperties
+    private val sharedConfig: SharedConfigProperties,
 ) : WebFilter {
-
     private val logger = LoggerFactory.getLogger(JwtAuthFilter::class.java)
 
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val token = extractTokenFromRequest(exchange.request)
-
-        if (token == null) {
-            return chain.filter(exchange)
-        }
+    override fun filter(
+        exchange: ServerWebExchange,
+        chain: WebFilterChain,
+    ): Mono<Void> {
+        val token = extractTokenFromRequest(exchange.request) ?: return chain.filter(exchange)
 
         return try {
             val claims = extractAllClaims(token)
@@ -45,14 +43,16 @@ class JwtAuthFilter(
             val authorities = roles.map { SimpleGrantedAuthority(it) }
 
             // Create authentication
-            val authentication = UsernamePasswordAuthenticationToken(
-                username,
-                null,
-                authorities
-            )
+            val authentication =
+                UsernamePasswordAuthenticationToken(
+                    username,
+                    null,
+                    authorities,
+                )
 
             // Add authentication to security context
-            chain.filter(exchange)
+            chain
+                .filter(exchange)
                 .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
         } catch (ex: JwtException) {
             logger.debug("Invalid JWT token: {}", ex.message)
@@ -74,13 +74,13 @@ class JwtAuthFilter(
         return authHeader.substring(JwtConstants.BEARER_PREFIX.length)
     }
 
-    private fun extractAllClaims(token: String): Claims {
-        return Jwts.parser()
+    private fun extractAllClaims(token: String): Claims =
+        Jwts
+            .parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .payload
-    }
 
     private fun getSigningKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(sharedConfig.security.jwt.secretKey)

@@ -100,7 +100,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 ### Prerequisites
 
 - Docker and Docker Compose / Podman and Podman Compose
-- JDK 21 (LTS)
+- JDK 25 (LTS)
 - Gradle
 
 ### Getting Started

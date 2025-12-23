@@ -1,9 +1,5 @@
 package com.vertyll.projecta.mail.infrastructure.kafka
 
-import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.service.EmailSagaService
 import com.vertyll.projecta.sharedinfrastructure.event.EventType
@@ -14,13 +10,17 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
 import java.time.Instant
 
 @Component
 class MailEventConsumer(
     private val objectMapper: ObjectMapper,
     private val emailSagaService: EmailSagaService,
-    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -55,23 +55,27 @@ class MailEventConsumer(
     }
 
     @KafkaListener(topics = ["#{@kafkaTopicsConfig.getMailRequestedTopic()}"])
-    fun consume(record: ConsumerRecord<String, String>, @Payload payload: String) {
+    fun consume(
+        record: ConsumerRecord<String, String>,
+        @Payload payload: String,
+    ) {
         try {
             logger.info(MSG_RECEIVED, record.key())
             logger.debug(MSG_PAYLOAD, record.value())
 
             // First try direct deserialization
-            val event = try {
-                objectMapper.readValue<MailRequestedEvent>(payload)
-            } catch (e: JsonProcessingException) {
-                logger.warn(ERR_DESERIALIZE, e.message)
-                // The payload may be wrapped in quotes, so we need to handle that
-                val cleanPayload = cleanJsonPayload(payload)
+            val event =
+                try {
+                    objectMapper.readValue<MailRequestedEvent>(payload)
+                } catch (e: JacksonException) {
+                    logger.warn(ERR_DESERIALIZE, e.message)
+                    // The payload may be wrapped in quotes, so we need to handle that
+                    val cleanPayload = cleanJsonPayload(payload)
 
-                // Create MailRequestedEvent manually from the JSON
-                val jsonNode = objectMapper.readTree(cleanPayload)
-                createMailRequestedEventFromJson(jsonNode)
-            }
+                    // Create MailRequestedEvent manually from the JSON
+                    val jsonNode = objectMapper.readTree(cleanPayload)
+                    createMailRequestedEventFromJson(jsonNode)
+                }
 
             handleEvent(event)
         } catch (e: Exception) {
@@ -83,50 +87,51 @@ class MailEventConsumer(
     /**
      * Removes outer quotes and unescapes inner quotes if necessary
      */
-    private fun cleanJsonPayload(payload: String): String {
-        return if (payload.startsWith("\"") && payload.endsWith("\"")) {
+    private fun cleanJsonPayload(payload: String): String =
+        if (payload.startsWith("\"") && payload.endsWith("\"")) {
             // Remove the outer quotes and unescape any escaped quotes
             payload.substring(1, payload.length - 1).replace("\\\"", "\"")
         } else {
             payload
         }
-    }
 
     private fun createMailRequestedEventFromJson(jsonNode: JsonNode): MailRequestedEvent {
         val variablesNode = jsonNode.get(FIELD_VARIABLES)
-        val variables = if (variablesNode != null) {
-            try {
-                // Convert variables safely with type checking
-                variablesNode.properties().associate { (key, value) ->
-                    key to (value.asText() ?: "")
+        val variables =
+            if (variablesNode != null) {
+                try {
+                    // Convert variables safely with type checking
+                    variablesNode.properties().associate { (key, value) ->
+                        key to (value.asString() ?: "")
+                    }
+                } catch (e: Exception) {
+                    logger.warn(ERR_VARIABLES, e.message)
+                    emptyMap()
                 }
-            } catch (e: Exception) {
-                logger.warn(ERR_VARIABLES, e.message)
+            } else {
                 emptyMap()
             }
-        } else {
-            emptyMap()
-        }
 
         // Get the template name
-        val templateName = jsonNode.get(FIELD_TEMPLATE_NAME)?.asText() ?: ""
+        val templateName = jsonNode.get(FIELD_TEMPLATE_NAME)?.asString() ?: ""
 
         return MailRequestedEvent(
-            eventId = jsonNode.get(FIELD_EVENT_ID)?.asText() ?: "",
-            timestamp = try {
-                objectMapper.convertValue(jsonNode.get(FIELD_TIMESTAMP), Instant::class.java)
-            } catch (e: Exception) {
-                logger.warn(ERR_TIMESTAMP, e.message)
-                Instant.now()
-            },
-            eventType = jsonNode.get(FIELD_EVENT_TYPE)?.asText() ?: DEFAULT_EVENT_TYPE,
-            to = jsonNode.get(FIELD_TO)?.asText() ?: "",
-            subject = jsonNode.get(FIELD_SUBJECT)?.asText() ?: "",
+            eventId = jsonNode.get(FIELD_EVENT_ID)?.asString() ?: "",
+            timestamp =
+                try {
+                    objectMapper.convertValue(jsonNode.get(FIELD_TIMESTAMP), Instant::class.java)
+                } catch (e: Exception) {
+                    logger.warn(ERR_TIMESTAMP, e.message)
+                    Instant.now()
+                },
+            eventType = jsonNode.get(FIELD_EVENT_TYPE)?.asString() ?: DEFAULT_EVENT_TYPE,
+            to = jsonNode.get(FIELD_TO)?.asString() ?: "",
+            subject = jsonNode.get(FIELD_SUBJECT)?.asString() ?: "",
             templateName = templateName,
             variables = variables,
-            replyTo = jsonNode.get(FIELD_REPLY_TO)?.asText(),
+            replyTo = jsonNode.get(FIELD_REPLY_TO)?.asString(),
             priority = jsonNode.get(FIELD_PRIORITY)?.asInt() ?: DEFAULT_PRIORITY,
-            sagaId = jsonNode.get(FIELD_SAGA_ID)?.asText()
+            sagaId = jsonNode.get(FIELD_SAGA_ID)?.asString(),
         )
     }
 
@@ -137,13 +142,14 @@ class MailEventConsumer(
 
         if (template != null) {
             // Use EmailSagaService to track the email sending process
-            val success = emailSagaService.sendEmailWithSaga(
-                to = event.to,
-                subject = event.subject,
-                template = template,
-                variables = event.variables,
-                replyTo = event.replyTo
-            )
+            val success =
+                emailSagaService.sendEmailWithSaga(
+                    to = event.to,
+                    subject = event.subject,
+                    template = template,
+                    variables = event.variables,
+                    replyTo = event.replyTo,
+                )
 
             if (success) {
                 logger.info(MSG_SUCCESS, event.eventId)

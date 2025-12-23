@@ -12,20 +12,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
 ) {
-
     companion object {
         // Public Auth endpoints
-        private val PUBLIC_AUTH_ENDPOINTS = arrayOf(
-            "/auth/register",
-            "/auth/authenticate",
-            "/auth/refresh-token",
-            "/auth/activate",
-            "/auth/reset-password-request",
-            "/auth/confirm-reset-password",
-            "/auth/resend-activation"
-        )
+        private val PUBLIC_AUTH_ENDPOINTS =
+            arrayOf(
+                "/auth/register",
+                "/auth/authenticate",
+                "/auth/refresh-token",
+                "/auth/activate",
+                "/auth/reset-password-request",
+                "/auth/confirm-reset-password",
+                "/auth/resend-activation",
+            )
     }
 
     @Bean
@@ -35,11 +35,13 @@ class SecurityConfig(
             .cors { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/actuator/**").permitAll()
-                    .requestMatchers(*PUBLIC_AUTH_ENDPOINTS).permitAll()
-                    .anyRequest().authenticated()
-            }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
+                    .requestMatchers(*PUBLIC_AUTH_ENDPOINTS)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
+            }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()

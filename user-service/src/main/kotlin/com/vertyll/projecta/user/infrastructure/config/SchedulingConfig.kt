@@ -16,7 +16,7 @@ import java.time.temporal.ChronoUnit
 @Configuration
 @EnableScheduling
 class SchedulingConfig(
-    private val sagaRepository: SagaRepository
+    private val sagaRepository: SagaRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -54,10 +54,11 @@ class SchedulingConfig(
 
         logger.info("Checking for stuck sagas started before {}", cutoffDate)
 
-        val stuckSagas = sagaRepository.findByStatusInAndStartedAtBefore(
-            listOf(SagaStatus.STARTED, SagaStatus.COMPENSATING),
-            cutoffDate
-        )
+        val stuckSagas =
+            sagaRepository.findByStatusInAndStartedAtBefore(
+                listOf(SagaStatus.STARTED, SagaStatus.COMPENSATING),
+                cutoffDate,
+            )
 
         if (stuckSagas.isNotEmpty()) {
             logger.warn("Found {} potentially stuck sagas:", stuckSagas.size)
@@ -67,7 +68,7 @@ class SchedulingConfig(
                     saga.id,
                     saga.type,
                     saga.status,
-                    saga.startedAt
+                    saga.startedAt,
                 )
             }
         } else {

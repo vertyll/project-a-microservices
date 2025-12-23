@@ -1,6 +1,6 @@
 package com.vertyll.projecta.template.infrastructure.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.vertyll.projecta.template.domain.model.entity.SagaStep
 import com.vertyll.projecta.template.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.template.domain.model.enums.SagaStepStatus

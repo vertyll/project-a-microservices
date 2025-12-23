@@ -8,21 +8,31 @@ import java.time.Instant
 
 @Repository
 interface KafkaOutboxRepository : JpaRepository<KafkaOutbox, Long> {
-
     fun findByStatus(status: KafkaOutbox.OutboxStatus): List<KafkaOutbox>
 
     fun findBySagaId(sagaId: String): List<KafkaOutbox>
 
     @Query("SELECT k FROM KafkaOutbox k WHERE k.status = :status AND k.retryCount < :maxRetries")
-    fun findMessagesToProcess(status: KafkaOutbox.OutboxStatus, maxRetries: Int): List<KafkaOutbox>
+    fun findMessagesToProcess(
+        status: KafkaOutbox.OutboxStatus,
+        maxRetries: Int,
+    ): List<KafkaOutbox>
 
     @Modifying
     @Query("UPDATE KafkaOutbox k SET k.status = :newStatus, k.processedAt = :now WHERE k.id = :id")
-    fun updateStatus(id: Long, newStatus: KafkaOutbox.OutboxStatus, now: Instant)
+    fun updateStatus(
+        id: Long,
+        newStatus: KafkaOutbox.OutboxStatus,
+        now: Instant,
+    )
 
     @Modifying
     @Query(
-        "UPDATE KafkaOutbox k SET k.status = :newStatus, k.errorMessage = :errorMessage, k.retryCount = k.retryCount + 1 WHERE k.id = :id"
+        "UPDATE KafkaOutbox k SET k.status = :newStatus, k.errorMessage = :errorMessage, k.retryCount = k.retryCount + 1 WHERE k.id = :id",
     )
-    fun markAsFailed(id: Long, newStatus: KafkaOutbox.OutboxStatus, errorMessage: String)
+    fun markAsFailed(
+        id: Long,
+        newStatus: KafkaOutbox.OutboxStatus,
+        errorMessage: String,
+    )
 }

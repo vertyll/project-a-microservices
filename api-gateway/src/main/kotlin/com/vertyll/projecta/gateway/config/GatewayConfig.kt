@@ -13,29 +13,24 @@ import reactor.core.publisher.Mono
 @Configuration
 class GatewayConfig {
     @Bean
-    fun customGlobalFilter(): GlobalFilter {
-        return HeadersExchangeFilter()
-    }
+    fun customGlobalFilter(): GlobalFilter = HeadersExchangeFilter()
 
-    private class HeadersExchangeFilter : GlobalFilter, Ordered {
+    private class HeadersExchangeFilter :
+        GlobalFilter,
+        Ordered {
         private val log = LoggerFactory.getLogger(HeadersExchangeFilter::class.java)
 
         override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE
 
-        override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
+        override fun filter(
+            exchange: ServerWebExchange,
+            chain: GatewayFilterChain,
+        ): Mono<Void> {
             val request = exchange.request
             val authorization = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
 
             if (authorization != null) {
                 log.debug("Propagating Authorization header to downstream service: {}", request.path)
-
-                /*
-                val mutatedRequest = exchange.request.mutate()
-                    .header("X-Custom-Header", "custom-value")
-                    .build()
-
-                return chain.filter(exchange.mutate().request(mutatedRequest).build())
-                 */
             } else {
                 log.debug("No Authorization header found for path: {}", request.path)
             }

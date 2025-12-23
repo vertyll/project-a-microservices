@@ -11,5 +11,5 @@ data class RoleUpdatedEvent(
     val roleId: Long,
     val name: String,
     val description: String?,
-    override val sagaId: String? = null
+    override val sagaId: String? = null,
 ) : DomainEvent

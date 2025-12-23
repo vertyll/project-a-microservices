@@ -4,6 +4,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +13,7 @@ spring:
       hibernate:
         '[format_sql]': true
     database: postgresql
+
   kafka:
     bootstrap-servers: localhost:29092
     producer:
@@ -40,5 +42,6 @@ logging:
     '[org.springframework.security]': DEBUG
     '[org.hibernate.SQL]': DEBUG
     '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+
   pattern:
     console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

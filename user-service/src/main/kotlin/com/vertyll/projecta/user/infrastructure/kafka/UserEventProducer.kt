@@ -1,6 +1,5 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.sharedinfrastructure.event.EventSource
 import com.vertyll.projecta.sharedinfrastructure.event.user.CredentialsVerificationResultEvent
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
@@ -10,12 +9,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class UserEventProducer(
     private val kafkaTemplate: KafkaTemplate<String, String>,
     private val objectMapper: ObjectMapper,
-    private val kafkaTopicsConfig: KafkaTopicsConfig
+    private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger: Logger = LoggerFactory.getLogger(UserEventProducer::class.java)
 

@@ -1,6 +1,5 @@
 package com.vertyll.projecta.user.infrastructure.kafka
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.sharedinfrastructure.event.EventSource
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserProfileUpdatedEvent
 import com.vertyll.projecta.sharedinfrastructure.event.user.UserRegisteredEvent
@@ -21,6 +20,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 
 @Component
 class UserEventConsumer(
@@ -29,7 +29,7 @@ class UserEventConsumer(
     private val userRepository: UserRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
     private val sagaManager: SagaManager,
-    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig
+    @Suppress("unused") private val kafkaTopicsConfig: KafkaTopicsConfig,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -50,19 +50,21 @@ class UserEventConsumer(
             }
 
             // Get or create saga
-            val sagaId = event.sagaId ?: run {
-                logger.warn("No saga ID provided in event, creating a new saga")
-                sagaManager.startSaga(
-                    SagaTypes.USER_REGISTRATION,
-                    mapOf("event" to event)
-                ).id
-            }
+            val sagaId =
+                event.sagaId ?: run {
+                    logger.warn("No saga ID provided in event, creating a new saga")
+                    sagaManager
+                        .startSaga(
+                            SagaTypes.USER_REGISTRATION,
+                            mapOf("event" to event),
+                        ).id
+                }
 
             // Start a saga step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
                 stepName = SagaStepNames.CREATE_USER_PROFILE,
-                status = SagaStepStatus.STARTED
+                status = SagaStepStatus.STARTED,
             )
 
             // Check if user already exists (idempotency check)
@@ -75,7 +77,7 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.CREATE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
-                    payload = mapOf("userId" to existingUser.id)
+                    payload = mapOf("userId" to existingUser.id),
                 )
 
                 return
@@ -90,7 +92,7 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.CREATE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
-                    payload = mapOf("error" to e.message)
+                    payload = mapOf("error" to e.message),
                 )
 
                 // Send compensation event to notify auth service
@@ -115,16 +117,18 @@ class UserEventConsumer(
             logger.info("Deserialized profile update event for user: ${event.email}, type: ${event.updateType}")
 
             // Get or create saga
-            val sagaId = event.sagaId ?: sagaManager.startSaga(
-                SagaTypes.USER_PROFILE_UPDATE,
-                mapOf("event" to event)
-            ).id
+            val sagaId =
+                event.sagaId ?: sagaManager
+                    .startSaga(
+                        SagaTypes.USER_PROFILE_UPDATE,
+                        mapOf("event" to event),
+                    ).id
 
             // Start a saga step
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
                 stepName = SagaStepNames.UPDATE_USER_PROFILE,
-                status = SagaStepStatus.STARTED
+                status = SagaStepStatus.STARTED,
             )
 
             try {
@@ -136,10 +140,11 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.UPDATE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
-                    payload = mapOf(
-                        "email" to event.email,
-                        "updateType" to event.updateType
-                    )
+                    payload =
+                        mapOf(
+                            "email" to event.email,
+                            "updateType" to event.updateType,
+                        ),
                 )
             } catch (e: Exception) {
                 // Record step as failed
@@ -147,7 +152,7 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.UPDATE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
-                    payload = mapOf("error" to e.message)
+                    payload = mapOf("error" to e.message),
                 )
 
                 // Re-throw to rollback transaction
@@ -174,7 +179,7 @@ class UserEventConsumer(
             sagaManager.recordSagaStep(
                 sagaId = sagaId,
                 stepName = SagaStepNames.DELETE_USER_PROFILE,
-                status = SagaStepStatus.STARTED
+                status = SagaStepStatus.STARTED,
             )
 
             try {
@@ -189,7 +194,7 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.DELETE_USER_PROFILE,
                     status = SagaStepStatus.COMPLETED,
-                    payload = mapOf("userId" to userId)
+                    payload = mapOf("userId" to userId),
                 )
             } catch (e: Exception) {
                 // Record step as failed
@@ -197,7 +202,7 @@ class UserEventConsumer(
                     sagaId = sagaId,
                     stepName = SagaStepNames.DELETE_USER_PROFILE,
                     status = SagaStepStatus.FAILED,
-                    payload = mapOf("error" to e.message)
+                    payload = mapOf("error" to e.message),
                 )
 
                 // Re-throw to rollback transaction
@@ -208,16 +213,20 @@ class UserEventConsumer(
         }
     }
 
-    private fun handleUserRegisteredEvent(event: UserRegisteredEvent, sagaId: String) {
+    private fun handleUserRegisteredEvent(
+        event: UserRegisteredEvent,
+        sagaId: String,
+    ) {
         logger.info("Processing user registration for ${event.email}")
 
         // Convert the event to a UserCreateDto and create the user profile
-        val userCreateDto = UserCreateDto(
-            firstName = event.firstName,
-            lastName = event.lastName,
-            email = event.email,
-            roles = event.roles
-        )
+        val userCreateDto =
+            UserCreateDto(
+                firstName = event.firstName,
+                lastName = event.lastName,
+                email = event.email,
+                roles = event.roles,
+            )
 
         try {
             val createdUser = userService.createUser(userCreateDto)
@@ -228,25 +237,27 @@ class UserEventConsumer(
                 sagaId = sagaId,
                 stepName = SagaStepNames.CREATE_USER_PROFILE,
                 status = SagaStepStatus.COMPLETED,
-                payload = mapOf(
-                    "userId" to createdUser.id,
-                    "email" to createdUser.email
-                )
+                payload =
+                    mapOf(
+                        "userId" to createdUser.id,
+                        "email" to createdUser.email,
+                    ),
             )
 
             // Send event to notify successful user creation
-            val creationConfirmedEvent = mapOf(
-                "userId" to createdUser.id,
-                "email" to createdUser.email,
-                "status" to "CREATED",
-                "sagaId" to sagaId
-            )
+            val creationConfirmedEvent =
+                mapOf(
+                    "userId" to createdUser.id,
+                    "email" to createdUser.email,
+                    "status" to "CREATED",
+                    "sagaId" to sagaId,
+                )
 
             kafkaOutboxProcessor.saveOutboxMessage(
                 topic = KafkaTopicNames.USER_CREATION_CONFIRMED,
                 key = createdUser.id.toString(),
                 payload = creationConfirmedEvent,
-                sagaId = sagaId
+                sagaId = sagaId,
             )
         } catch (e: Exception) {
             logger.error("Failed to create user profile for ${event.email}", e)
@@ -262,16 +273,18 @@ class UserEventConsumer(
             when (event.updateType) {
                 UserProfileUpdatedEvent.UpdateType.EMAIL -> {
                     // Event should contain the new email in updatedFields
-                    val newEmail = event.updatedFields["email"] ?: run {
-                        logger.error("Missing email in update fields for email change event")
-                        return
-                    }
+                    val newEmail =
+                        event.updatedFields["email"] ?: run {
+                            logger.error("Missing email in update fields for email change event")
+                            return
+                        }
 
                     userService.updateEmail(
-                        request = EmailUpdateDto(
-                            currentEmail = event.email,
-                            newEmail = newEmail
-                        )
+                        request =
+                            EmailUpdateDto(
+                                currentEmail = event.email,
+                                newEmail = newEmail,
+                            ),
                     )
                     logger.info("Successfully updated email from ${event.email} to $newEmail")
                 }
@@ -284,7 +297,7 @@ class UserEventConsumer(
                 UserProfileUpdatedEvent.UpdateType.PROFILE -> {
                     // For any other profile fields that need to be updated
                     logger.info(
-                        "Received profile update notification for user ${event.email} with fields: ${event.updatedFields.keys}"
+                        "Received profile update notification for user ${event.email} with fields: ${event.updatedFields.keys}",
                     )
                     // Additional processing for specific fields could be added here
                 }
@@ -295,20 +308,25 @@ class UserEventConsumer(
         }
     }
 
-    private fun sendCompensationEvent(event: UserRegisteredEvent, sagaId: String, errorMessage: String) {
-        val compensationEvent = mapOf(
-            "userId" to event.userId,
-            "email" to event.email,
-            "sagaId" to sagaId,
-            "errorMessage" to errorMessage,
-            "action" to SagaCompensationActions.COMPENSATE_USER_CREATION.value
-        )
+    private fun sendCompensationEvent(
+        event: UserRegisteredEvent,
+        sagaId: String,
+        errorMessage: String,
+    ) {
+        val compensationEvent =
+            mapOf(
+                "userId" to event.userId,
+                "email" to event.email,
+                "sagaId" to sagaId,
+                "errorMessage" to errorMessage,
+                "action" to SagaCompensationActions.COMPENSATE_USER_CREATION.value,
+            )
 
         kafkaOutboxProcessor.saveOutboxMessage(
             topic = KafkaTopicNames.SAGA_COMPENSATION,
             key = sagaId,
             payload = compensationEvent,
-            sagaId = sagaId
+            sagaId = sagaId,
         )
 
         logger.info("Sent compensation event for user ${event.email} in saga $sagaId")

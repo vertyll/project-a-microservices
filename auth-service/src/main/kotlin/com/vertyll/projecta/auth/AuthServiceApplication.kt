@@ -1,7 +1,7 @@
 package com.vertyll.projecta.auth
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -16,32 +16,28 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.auth.domain.repository",
-        "com.vertyll.projecta.sharedinfrastructure.kafka"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure.kafka",
+    ],
 )
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.auth.domain.model",
-        "com.vertyll.projecta.sharedinfrastructure.kafka"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure.kafka",
+    ],
 )
 @EnableKafka
 @ComponentScan(
     basePackages = [
         "com.vertyll.projecta.auth",
-        "com.vertyll.projecta.sharedinfrastructure"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure",
+    ],
 )
 class AuthServiceApplication {
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
-        return config.authenticationManager
-    }
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager = config.authenticationManager
 }
 
 fun main(args: Array<String>) {

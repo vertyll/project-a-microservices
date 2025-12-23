@@ -18,7 +18,6 @@ tasks.jar {
 
 dependencies {
     // Web dependencies
-    api("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-validation")
 
     // Configuration processor
@@ -30,18 +29,21 @@ dependencies {
 
     // Security
     api("org.springframework.boot:spring-boot-starter-security")
-    api("io.jsonwebtoken:jjwt-api:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
+    api("io.jsonwebtoken:jjwt-api:0.13.0")
+    implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
     // Database
     api("org.springframework.boot:spring-boot-starter-data-jpa")
+    api("org.postgresql:postgresql")
 
     // Utilities
-    api("com.fasterxml.jackson.module:jackson-module-kotlin")
+    api("org.springframework.boot:spring-boot-starter-jackson")
+    api("tools.jackson.module:jackson-module-kotlin")
     api("io.github.microutils:kotlin-logging:3.0.5")
     api("org.springframework.boot:spring-boot-starter-actuator")
 
     // OpenAPI documentation
-    api("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+    // Note: webmvc-ui should not be here if shared is used by webflux apps
+    // Moved to individual services that need it
 }

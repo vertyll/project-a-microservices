@@ -1,6 +1,5 @@
 package com.vertyll.projecta.auth.infrastructure.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.vertyll.projecta.auth.domain.model.entity.SagaStep
 import com.vertyll.projecta.auth.domain.model.enums.SagaStepNames
 import com.vertyll.projecta.auth.domain.model.enums.SagaStepStatus
@@ -11,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Service that handles compensation actions for the Auth Service
@@ -20,7 +20,7 @@ class SagaCompensationService(
     private val authUserRepository: AuthUserRepository,
     private val verificationTokenRepository: VerificationTokenRepository,
     private val sagaStepRepository: SagaStepRepository,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -31,18 +31,20 @@ class SagaCompensationService(
     @Transactional
     fun handleCompensationEvent(payload: String) {
         try {
-            val event = objectMapper.readValue(
-                payload,
-                Map::class.java
-            )
+            val event =
+                objectMapper.readValue(
+                    payload,
+                    Map::class.java,
+                )
             val sagaId = event["sagaId"] as String
             val stepId = (event["stepId"] as Number).toLong()
 
             // Find the step that needs compensation
-            val step = sagaStepRepository.findById(stepId).orElse(null) ?: run {
-                logger.error("Cannot find saga step with ID $stepId for compensation")
-                return
-            }
+            val step =
+                sagaStepRepository.findById(stepId).orElse(null) ?: run {
+                    logger.error("Cannot find saga step with ID $stepId for compensation")
+                    return
+                }
 
             logger.info("Processing compensation for saga $sagaId, step ${step.stepName}")
 
@@ -54,14 +56,15 @@ class SagaCompensationService(
             }
 
             // Record that compensation was completed
-            val compensationStep = SagaStep(
-                sagaId = sagaId,
-                stepName = SagaStepNames.compensationNameFromString(step.stepName),
-                status = SagaStepStatus.COMPENSATED,
-                createdAt = java.time.Instant.now(),
-                completedAt = java.time.Instant.now(),
-                compensationStepId = step.id
-            )
+            val compensationStep =
+                SagaStep(
+                    sagaId = sagaId,
+                    stepName = SagaStepNames.compensationNameFromString(step.stepName),
+                    status = SagaStepStatus.COMPENSATED,
+                    createdAt = java.time.Instant.now(),
+                    completedAt = java.time.Instant.now(),
+                    compensationStepId = step.id,
+                )
             sagaStepRepository.save(compensationStep)
         } catch (e: Exception) {
             logger.error("Failed to process compensation event: ${e.message}", e)

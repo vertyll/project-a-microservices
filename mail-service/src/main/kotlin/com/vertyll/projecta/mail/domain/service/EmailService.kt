@@ -18,11 +18,11 @@ import java.time.Instant
 class EmailService(
     private val mailSender: JavaMailSender,
     private val templateEngine: TemplateEngine,
-    private val emailLogRepository: EmailLogRepository
+    private val emailLogRepository: EmailLogRepository,
 ) {
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
 
-    @Value("\${spring.mail.from}")
+    @Value($$"${spring.mail.from}")
     private lateinit var fromEmail: String
 
     companion object {
@@ -48,7 +48,7 @@ class EmailService(
         subject: String,
         template: EmailTemplate,
         variables: Map<String, String>,
-        replyTo: String? = null
+        replyTo: String? = null,
     ): Boolean {
         try {
             logger.info(LOG_SENDING_EMAIL, to, subject)
@@ -82,7 +82,7 @@ class EmailService(
                 templateName = template.templateName,
                 variables = formatVariablesForStorage(variables),
                 replyTo = replyTo,
-                success = true
+                success = true,
             )
 
             return true
@@ -96,7 +96,7 @@ class EmailService(
                 variables = formatVariablesForStorage(variables),
                 replyTo = replyTo,
                 success = false,
-                errorMessage = e.message
+                errorMessage = e.message,
             )
 
             return false
@@ -141,18 +141,19 @@ class EmailService(
         variables: String? = null,
         replyTo: String? = null,
         success: Boolean,
-        errorMessage: String? = null
+        errorMessage: String? = null,
     ) {
-        val emailLog = EmailLog(
-            recipient = recipient,
-            subject = subject,
-            templateName = templateName,
-            variables = variables,
-            replyTo = replyTo,
-            status = if (success) EmailStatus.SENT else EmailStatus.FAILED,
-            errorMessage = errorMessage,
-            sentAt = if (success) Instant.now() else null
-        )
+        val emailLog =
+            EmailLog(
+                recipient = recipient,
+                subject = subject,
+                templateName = templateName,
+                variables = variables,
+                replyTo = replyTo,
+                status = if (success) EmailStatus.SENT else EmailStatus.FAILED,
+                errorMessage = errorMessage,
+                sentAt = if (success) Instant.now() else null,
+            )
 
         emailLogRepository.save(emailLog)
     }

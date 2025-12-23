@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.5.4" apply false
+    id("org.springframework.boot") version "4.0.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
-    kotlin("jvm") version "1.9.23" apply false
-    kotlin("plugin.spring") version "1.9.23" apply false
-    kotlin("plugin.jpa") version "1.9.23" apply false
-    kotlin("kapt") version "1.9.23" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "11.6.1" apply false
+    kotlin("jvm") version "2.3.0" apply false
+    kotlin("plugin.spring") version "2.3.0" apply false
+    kotlin("plugin.jpa") version "2.3.0" apply false
+    kotlin("kapt") version "2.3.0" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1" apply false
 }
 
 allprojects {
@@ -48,17 +48,17 @@ subprojects {
         }
     }
 
-    // Add Spring Cloud dependency management
     the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {
         imports {
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
+            mavenBom("org.testcontainers:testcontainers-bom:1.20.3")
         }
     }
 
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            freeCompilerArgs += "-Xjsr305=strict"
-            jvmTarget = "21"
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.add("-Xjsr305=strict")
+            freeCompilerArgs.add("-Xannotation-default-target=param-property")
         }
     }
 
@@ -78,7 +78,8 @@ subprojects {
                 add("implementation", "org.springframework.boot:spring-boot-starter")
                 add("implementation", "org.jetbrains.kotlin:kotlin-reflect")
                 add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-                add("implementation", "com.fasterxml.jackson.module:jackson-module-kotlin")
+                add("implementation", "org.springframework.boot:spring-boot-starter-jackson")
+                add("implementation", "tools.jackson.module:jackson-module-kotlin")
                 add("implementation", "org.springframework.kafka:spring-kafka")
                 add("implementation", "io.github.microutils:kotlin-logging:3.0.5")
 

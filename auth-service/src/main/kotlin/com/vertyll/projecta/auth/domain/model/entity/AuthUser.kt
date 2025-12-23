@@ -21,32 +21,25 @@ class AuthUser(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @Column(nullable = false, unique = true)
     private var email: String,
-
     @Column(nullable = false)
     private var password: String,
-
     @OneToMany(
         fetch = FetchType.EAGER,
         cascade = [CascadeType.ALL],
-        orphanRemoval = true
+        orphanRemoval = true,
     )
     @JoinColumn(name = "auth_user_id")
     var userRoles: MutableSet<AuthUserRole> = mutableSetOf(),
-
     @Column(nullable = false)
     var enabled: Boolean = false,
-
     @Column(nullable = true)
     var userId: Long? = null,
-
     @Column(nullable = false)
     val createdAt: Instant = Instant.now(),
-
     @Column(nullable = false)
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
 ) : UserDetails {
     // No-args constructor required for JPA
     constructor() : this(
@@ -54,12 +47,10 @@ class AuthUser(
         email = "",
         password = "",
         userRoles = mutableSetOf(),
-        enabled = false
+        enabled = false,
     )
 
-    override fun getAuthorities(): Collection<GrantedAuthority> {
-        return userRoles.map { SimpleGrantedAuthority("ROLE_${it.roleName}") }
-    }
+    override fun getAuthorities(): Collection<GrantedAuthority> = userRoles.map { SimpleGrantedAuthority("ROLE_${it.roleName}") }
 
     override fun getUsername(): String = email
 
@@ -78,14 +69,17 @@ class AuthUser(
     /**
      * Adds a role to this user by creating an AuthUserRole entry
      */
-    fun addRole(roleId: Long, roleName: String) {
+    fun addRole(
+        roleId: Long,
+        roleName: String,
+    ) {
         if (userRoles.none { it.roleId == roleId }) {
             userRoles.add(
                 AuthUserRole(
                     authUserId = id ?: 0,
                     roleId = roleId,
-                    roleName = roleName
-                )
+                    roleName = roleName,
+                ),
             )
             updatedAt = Instant.now()
         }
@@ -105,9 +99,7 @@ class AuthUser(
     /**
      * Get all role names for this user
      */
-    fun getRoles(): Set<String> {
-        return userRoles.map { it.roleName }.toSet()
-    }
+    fun getRoles(): Set<String> = userRoles.map { it.roleName }.toSet()
 
     override fun isAccountNonExpired(): Boolean = true
 
@@ -118,13 +110,19 @@ class AuthUser(
     override fun isEnabled(): Boolean = enabled
 
     companion object {
-        fun create(email: String, password: String, enabled: Boolean = false, userId: Long? = null): AuthUser {
-            val authUser = AuthUser(
-                email = email,
-                password = password,
-                enabled = enabled,
-                userId = userId
-            )
+        fun create(
+            email: String,
+            password: String,
+            enabled: Boolean = false,
+            userId: Long? = null,
+        ): AuthUser {
+            val authUser =
+                AuthUser(
+                    email = email,
+                    password = password,
+                    enabled = enabled,
+                    userId = userId,
+                )
 
             // We'll need to update the roles later when we have role IDs
             // This will be handled by the UserEventConsumer

@@ -7,5 +7,5 @@ data class SessionDto(
     val deviceInfo: String? = null,
     val createdAt: Instant,
     val expiryDate: Instant,
-    val isCurrentSession: Boolean = false
+    val isCurrentSession: Boolean = false,
 )

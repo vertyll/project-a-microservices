@@ -1,6 +1,6 @@
 package com.vertyll.projecta.template.domain.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.template.domain.model.entity.Saga
 import com.vertyll.projecta.template.domain.model.entity.SagaStep
