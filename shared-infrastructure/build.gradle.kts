@@ -33,7 +33,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
 
-    // Database
+    // Database - needed for KafkaOutbox entity
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     api("org.postgresql:postgresql")
 
@@ -42,8 +42,4 @@ dependencies {
     api("tools.jackson.module:jackson-module-kotlin")
     api("io.github.microutils:kotlin-logging:3.0.5")
     api("org.springframework.boot:spring-boot-starter-actuator")
-
-    // OpenAPI documentation
-    // Note: webmvc-ui should not be here if shared is used by webflux apps
-    // Moved to individual services that need it
 }
