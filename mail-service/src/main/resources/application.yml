@@ -5,6 +5,9 @@ spring:
   application:
     name: mail-service
 
+  profiles:
+    active: dev
+
   config:
     import: classpath:shared-config.yml
   datasource:
