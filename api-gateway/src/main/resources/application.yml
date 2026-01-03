@@ -1,9 +1,9 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: api-gateway
+
+  profiles:
+    active: dev
 
   config:
     import: classpath:shared-config.yml
@@ -29,9 +29,6 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
 
-  jpa:
-    open-in-view: false
-
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
@@ -43,52 +40,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        '[spring.json.add.type.headers]': false
+        spring.json.add.type.headers: false
     consumer:
       group-id: api-gateway-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        '[spring.json.trusted.packages]': "com.vertyll.projecta.*"
-        '[spring.json.value.default.type]': "java.util.Map"
-
-# OpenAPI configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-    enabled: true
-
-  swagger-ui:
-    path: /swagger-ui.html
-    disable-swagger-default-url: true
-    url: /api-docs
-    config-url: /api-docs/swagger-config
-    urls:
-      - name: API Gateway
-        url: /api-docs
-      - name: Auth Service
-        url: /api/v1/auth/api-docs
-      - name: User Service
-        url: /api/v1/users/api-docs
-      - name: Role Service
-        url: /api/v1/roles/api-docs
-      - name: Mail Service
-        url: /api/v1/mail/api-docs
-
-# Actuator endpoints configuration
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-
-  endpoint:
-    health:
-      show-details: when-authorized
-      probes:
-        enabled: true
-    metrics:
-      access: read-only
-    prometheus:
-      access: read-only
+        spring.json.trusted.packages: "com.vertyll.projecta.*"
+        spring.json.value.default.type: "java.util.Map"

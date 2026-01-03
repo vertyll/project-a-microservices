@@ -1,39 +1,9 @@
-server:
-  port: 0
-
 spring:
   application:
     name: template-service
 
+  profiles:
+    active: dev
+
   config:
     import: classpath:shared-config.yml
-  datasource:
-    url: jdbc:postgresql://localhost:5436/template_service
-
-# OpenAPI configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-
-  swagger-ui:
-    path: /swagger-ui.html
-    disable-swagger-default-url: true
-    url: /api-docs
-    config-url: /api-docs/swagger-config
-
-# Actuator endpoints configuration
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-
-  endpoint:
-    health:
-      show-details: when-authorized
-      probes:
-        enabled: true
-    metrics:
-      access: read-only
-    prometheus:
-      access: read-only

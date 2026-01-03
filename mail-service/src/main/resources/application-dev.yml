@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: mail-service
+    
   datasource:
     url: jdbc:postgresql://localhost:5435/mail_service
     username: postgres
@@ -9,31 +12,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
-        '[format_sql]': true
-    database: postgresql
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-  kafka:
-    bootstrap-servers: localhost:29092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        '[spring.json.add.type.headers]': true
-        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
-    consumer:
-      group-id: mail-service-group
-      auto-offset-reset: earliest
-      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
-      properties:
-        '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.StringDeserializer
-        '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
-        '[spring.json.trusted.packages]': "com.vertyll.projecta.*"
-        '[spring.json.value.default.type]': "com.vertyll.projecta.sharedinfrastructure.event.DomainEvent"
-        '[spring.json.use.type.headers]': true
-        '[spring.json.type.mapping]': mailRequested:com.vertyll.projecta.sharedinfrastructure.event.mail.MailRequestedEvent
+  kafka.consumer.group-id: mail-service-group
 
   mail:
     host: localhost
@@ -55,15 +40,15 @@ spring:
     mode: HTML
     encoding: UTF-8
 
-# Development logging configuration
+server:
+  port: 8085
+
 logging:
   level:
-    '[com.vertyll.projecta]': DEBUG
-    '[org.springframework.kafka]': INFO
-    '[org.springframework.security]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
-    '[org.springframework.mail]': DEBUG
-
-  pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    ROOT: INFO
+    com.vertyll.projecta: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.mail: DEBUG
