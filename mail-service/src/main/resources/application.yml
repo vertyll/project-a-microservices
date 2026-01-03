@@ -7,3 +7,11 @@ spring:
 
   config:
     import: classpath:shared-config.yml
+
+# Kafka Topics Configuration for Mail Service
+kafka:
+  topics:
+    # Topics that this service subscribes to
+    subscribe:
+      mail-requested: "mail-requested"
+      saga-compensation: "saga-compensation"

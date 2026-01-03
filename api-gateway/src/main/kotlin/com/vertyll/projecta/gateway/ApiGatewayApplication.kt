@@ -22,15 +22,14 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.stereotype.Component
 
 @SpringBootApplication(
-    @Import(
-        SharedConfigAutoConfiguration::class,
-        KafkaConfigAutoConfiguration::class,
-    )
-    exclude
-        = [
-            DataSourceAutoConfiguration::class,
-            HibernateJpaAutoConfiguration::class,
-        ],
+    exclude = [
+        DataSourceAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
+    ],
+)
+@Import(
+    SharedConfigAutoConfiguration::class,
+    KafkaConfigAutoConfiguration::class,
 )
 @ComponentScan(
     basePackages = [

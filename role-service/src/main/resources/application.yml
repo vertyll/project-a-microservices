@@ -7,3 +7,18 @@ spring:
 
   config:
     import: classpath:shared-config.yml
+
+# Kafka Topics Configuration for Role Service
+kafka:
+  topics:
+    # Topics that this service publishes to
+    publish:
+      role-created: "role-created"
+      role-updated: "role-updated"
+      role-assigned: "role-assigned"
+      role-revoked: "role-revoked"
+    
+    # Topics that this service subscribes to
+    subscribe:
+      user-registered: "user-registered"
+      saga-compensation: "saga-compensation"

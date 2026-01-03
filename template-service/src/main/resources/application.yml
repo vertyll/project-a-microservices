@@ -7,3 +7,10 @@ spring:
 
   config:
     import: classpath:shared-config.yml
+
+# Kafka Topics Configuration for Template Service
+kafka:
+  topics:
+    # Topics that this service subscribes to
+    subscribe:
+      saga-compensation: "saga-compensation"

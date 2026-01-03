@@ -7,3 +7,19 @@ spring:
 
   config:
     import: classpath:shared-config.yml
+
+# Kafka Topics Configuration for Auth Service
+kafka:
+  topics:
+    # Topics that this service publishes to
+    publish:
+      user-registered: "user-registered"
+      mail-requested: "mail-requested"
+      user-updated: "user-updated"
+    
+    # Topics that this service subscribes to
+    subscribe:
+      user-registered: "user-registered"
+      role-assigned: "role-assigned"
+      role-revoked: "role-revoked"
+      saga-compensation: "saga-compensation"

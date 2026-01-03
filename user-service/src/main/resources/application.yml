@@ -7,3 +7,19 @@ spring:
 
   config:
     import: classpath:shared-config.yml
+
+# Kafka Topics Configuration for User Service
+kafka:
+  topics:
+    # Topics that this service publishes to
+    publish:
+      user-registered: "user-registered"
+      credentials-verification-result: "credentials-verification-result"
+      user-updated: "user-updated"
+    
+    # Topics that this service subscribes to
+    subscribe:
+      user-registered: "user-registered"
+      user-updated: "user-updated"
+      user-deletion: "user-deletion"
+      saga-compensation: "saga-compensation"

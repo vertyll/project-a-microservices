@@ -5,114 +5,56 @@ import org.springframework.context.annotation.Configuration
 
 /**
  * Configuration class for Kafka topics.
- * This class holds the configuration properties for Kafka topics and type mappings.
+ * Each microservice defines its own topics in application.yml
  */
 @Configuration
-@ConfigurationProperties(prefix = "kafka")
+@ConfigurationProperties(prefix = "kafka.topics")
 class KafkaTopicsConfig {
-    var topics: TopicsConfig = TopicsConfig()
-    var typeMappings: TypeMappingsConfig = TypeMappingsConfig()
+    var publish: Map<String, String> = emptyMap()
+    var subscribe: Map<String, String> = emptyMap()
 
-    /**
-     * Class for holding topic configuration properties.
-     */
-    class TopicsConfig {
-        var auth: Map<String, String> = emptyMap()
-        var user: Map<String, String> = emptyMap()
-        var role: Map<String, String> = emptyMap()
-        var mail: Map<String, String> = emptyMap()
-        var saga: Map<String, String> = emptyMap()
+    // Helper methods to retrieve topics
 
-        /**
-         * Helper method to get a specific topic by domain and topic name.
-         */
-        fun getTopic(
-            domain: String,
-            topicName: String,
-        ): String? =
-            when (domain.lowercase()) {
-                "auth" -> auth[topicName]
-                "user" -> user[topicName]
-                "role" -> role[topicName]
-                "mail" -> mail[topicName]
-                "saga" -> saga[topicName]
-                else -> null
-            }
-    }
+    // Auth/User service topics
+    fun getUserRegisteredTopic(): String = publish["user-registered"] ?: subscribe["user-registered"] ?: "user-registered"
 
-    /**
-     * Class for holding type mapping configuration properties.
-     */
-    class TypeMappingsConfig {
-        var auth: List<String> = emptyList()
-        var user: List<String> = emptyList()
-        var role: List<String> = emptyList()
-        var mail: List<String> = emptyList()
-
-        /**
-         * Helper method to get type mappings for a specific service.
-         * This method returns a list of type mappings based on the service name.
-         */
-        fun getTypeMappings(serviceName: String): List<String> =
-            when (serviceName.lowercase()) {
-                "auth" -> auth
-                "user" -> user
-                "role" -> role
-                "mail" -> mail
-                else -> emptyList()
-            }
-
-        /**
-         * Helper method to get type mappings as a comma-separated string.
-         * This method returns a string of type mappings based on the service name.
-         */
-        fun getTypeMappingsAsString(serviceName: String): String = getTypeMappings(serviceName).joinToString(",")
-    }
-
-    // Helper methods to retrieve common topics
-
-    // Auth service topics
-    fun getUserRegisteredTopic(): String = topics.auth[KafkaTopicNames.USER_REGISTERED.value] ?: KafkaTopicNames.USER_REGISTERED.value
-
-    fun getUserActivatedTopic(): String = topics.auth[KafkaTopicNames.USER_ACTIVATED.value] ?: KafkaTopicNames.USER_ACTIVATED.value
+    fun getUserActivatedTopic(): String = publish["user-activated"] ?: subscribe["user-activated"] ?: "user-activated"
 
     fun getCredentialsVerificationTopic(): String =
-        topics.auth[KafkaTopicNames.CREDENTIALS_VERIFICATION.value] ?: KafkaTopicNames.CREDENTIALS_VERIFICATION.value
+        publish["credentials-verification"] ?: subscribe["credentials-verification"] ?: "credentials-verification"
 
     fun getCredentialsVerificationResultTopic(): String =
-        topics.auth[KafkaTopicNames.CREDENTIALS_VERIFICATION_RESULT.value] ?: KafkaTopicNames.CREDENTIALS_VERIFICATION_RESULT.value
+        publish["credentials-verification-result"] ?: subscribe["credentials-verification-result"] ?: "credentials-verification-result"
 
-    // User service topics
-    fun getUserUpdatedTopic(): String = topics.user[KafkaTopicNames.USER_UPDATED.value] ?: KafkaTopicNames.USER_UPDATED.value
+    fun getUserUpdatedTopic(): String = publish["user-updated"] ?: subscribe["user-updated"] ?: "user-updated"
 
-    fun getUserEmailUpdatedTopic(): String =
-        topics.user[KafkaTopicNames.USER_EMAIL_UPDATED.value] ?: KafkaTopicNames.USER_EMAIL_UPDATED.value
+    fun getUserEmailUpdatedTopic(): String = publish["user-email-updated"] ?: subscribe["user-email-updated"] ?: "user-email-updated"
 
-    fun getUserDeletedTopic(): String = topics.user[KafkaTopicNames.USER_DELETED.value] ?: KafkaTopicNames.USER_DELETED.value
+    fun getUserDeletedTopic(): String = publish["user-deleted"] ?: subscribe["user-deleted"] ?: "user-deleted"
 
-    fun getUserDeletionTopic(): String = topics.user[KafkaTopicNames.USER_DELETION.value] ?: KafkaTopicNames.USER_DELETION.value
+    fun getUserDeletionTopic(): String = publish["user-deletion"] ?: subscribe["user-deletion"] ?: "user-deletion"
 
     fun getUserCreationConfirmedTopic(): String =
-        topics.user[KafkaTopicNames.USER_CREATION_CONFIRMED.value] ?: KafkaTopicNames.USER_CREATION_CONFIRMED.value
+        publish["user-creation-confirmed"] ?: subscribe["user-creation-confirmed"] ?: "user-creation-confirmed"
 
     // Role service topics
-    fun getRoleCreatedTopic(): String = topics.role[KafkaTopicNames.ROLE_CREATED.value] ?: KafkaTopicNames.ROLE_CREATED.value
+    fun getRoleCreatedTopic(): String = publish["role-created"] ?: subscribe["role-created"] ?: "role-created"
 
-    fun getRoleUpdatedTopic(): String = topics.role[KafkaTopicNames.ROLE_UPDATED.value] ?: KafkaTopicNames.ROLE_UPDATED.value
+    fun getRoleUpdatedTopic(): String = publish["role-updated"] ?: subscribe["role-updated"] ?: "role-updated"
 
-    fun getRoleDeletedTopic(): String = topics.role[KafkaTopicNames.ROLE_DELETED.value] ?: KafkaTopicNames.ROLE_DELETED.value
+    fun getRoleDeletedTopic(): String = publish["role-deleted"] ?: subscribe["role-deleted"] ?: "role-deleted"
 
-    fun getRoleAssignedTopic(): String = topics.role[KafkaTopicNames.ROLE_ASSIGNED.value] ?: KafkaTopicNames.ROLE_ASSIGNED.value
+    fun getRoleAssignedTopic(): String = publish["role-assigned"] ?: subscribe["role-assigned"] ?: "role-assigned"
 
-    fun getRoleRevokedTopic(): String = topics.role[KafkaTopicNames.ROLE_REVOKED.value] ?: KafkaTopicNames.ROLE_REVOKED.value
+    fun getRoleRevokedTopic(): String = publish["role-revoked"] ?: subscribe["role-revoked"] ?: "role-revoked"
 
     // Mail service topics
-    fun getMailRequestedTopic(): String = topics.mail[KafkaTopicNames.MAIL_REQUESTED.value] ?: KafkaTopicNames.MAIL_REQUESTED.value
+    fun getMailRequestedTopic(): String = publish["mail-requested"] ?: subscribe["mail-requested"] ?: "mail-requested"
 
-    fun getMailSentTopic(): String = topics.mail[KafkaTopicNames.MAIL_SENT.value] ?: KafkaTopicNames.MAIL_SENT.value
+    fun getMailSentTopic(): String = publish["mail-sent"] ?: subscribe["mail-sent"] ?: "mail-sent"
 
-    fun getMailFailedTopic(): String = topics.mail[KafkaTopicNames.MAIL_FAILED.value] ?: KafkaTopicNames.MAIL_FAILED.value
+    fun getMailFailedTopic(): String = publish["mail-failed"] ?: subscribe["mail-failed"] ?: "mail-failed"
 
     // Saga topics
-    fun getSagaCompensationTopic(): String = topics.saga[KafkaTopicNames.SAGA_COMPENSATION.value] ?: KafkaTopicNames.SAGA_COMPENSATION.value
+    fun getSagaCompensationTopic(): String = publish["saga-compensation"] ?: subscribe["saga-compensation"] ?: "saga-compensation"
 }
