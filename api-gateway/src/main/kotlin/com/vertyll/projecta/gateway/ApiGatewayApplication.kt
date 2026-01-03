@@ -1,6 +1,8 @@
 package com.vertyll.projecta.gateway
 
+import com.vertyll.projecta.sharedinfrastructure.config.SharedConfigAutoConfiguration
 import com.vertyll.projecta.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaConfigAutoConfiguration
 import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -13,16 +15,22 @@ import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.stereotype.Component
 
 @SpringBootApplication(
-    exclude = [
-        DataSourceAutoConfiguration::class,
-        HibernateJpaAutoConfiguration::class,
-    ],
+    @Import(
+        SharedConfigAutoConfiguration::class,
+        KafkaConfigAutoConfiguration::class,
+    )
+    exclude
+        = [
+            DataSourceAutoConfiguration::class,
+            HibernateJpaAutoConfiguration::class,
+        ],
 )
 @ComponentScan(
     basePackages = [
