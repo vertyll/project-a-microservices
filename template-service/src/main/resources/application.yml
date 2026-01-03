@@ -8,6 +8,16 @@ spring:
   config:
     import: classpath:shared-config.yml
 
+# OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    url: /api-docs
+    config-url: /api-docs/swagger-config
+
 # Kafka Topics Configuration for Template Service
 kafka:
   topics:

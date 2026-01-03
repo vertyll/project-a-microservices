@@ -41,6 +41,22 @@ spring:
 server:
   port: 8083
 
+# Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+    metrics:
+      access: read-only
+    prometheus:
+      access: read-only
+
 logging:
   level:
     ROOT: INFO
