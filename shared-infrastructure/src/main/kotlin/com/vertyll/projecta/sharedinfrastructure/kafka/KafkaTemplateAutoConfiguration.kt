@@ -28,7 +28,7 @@ import org.springframework.kafka.core.ProducerFactory
 class KafkaTemplateAutoConfiguration {
     @Bean
     fun producerFactory(
-        @Value("\${spring.kafka.bootstrap-servers:localhost:29092}")
+        @Value($$"${spring.kafka.bootstrap-servers:localhost:29092}")
         bootstrapServers: String,
     ): ProducerFactory<String, String> {
         val configProps =
@@ -45,9 +45,9 @@ class KafkaTemplateAutoConfiguration {
 
     @Bean
     fun consumerFactory(
-        @Value("\${spring.kafka.bootstrap-servers:localhost:29092}")
+        @Value($$"${spring.kafka.bootstrap-servers:localhost:29092}")
         bootstrapServers: String,
-        @Value("\${spring.kafka.consumer.group-id:default-group}")
+        @Value($$"${spring.kafka.consumer.group-id:default-group}")
         groupId: String,
     ): ConsumerFactory<String, String> {
         val configProps =
