@@ -28,7 +28,7 @@ class JwtAuthFilter(
     override fun filter(
         exchange: ServerWebExchange,
         chain: WebFilterChain,
-    ): Mono<Void> {
+    ): Mono<Void> { // NOSONAR
         val token = extractTokenFromRequest(exchange.request) ?: return chain.filter(exchange)
 
         return try {

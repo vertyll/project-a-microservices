@@ -56,6 +56,17 @@ class AuthService(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AuthService::class.java)
 
+    companion object {
+        private const val ERROR_PASSWORD_ENCODING_FAILED = "Password encoding failed"
+        private const val ERROR_INVALID_TOKEN = "Invalid token"
+        private const val ERROR_USER_NOT_FOUND = "User not found"
+        private const val ERROR_INVALID_REFRESH_TOKEN = "Invalid refresh token"
+        private const val HASH_ALGORITHM_SHA256 = "SHA-256"
+        private const val ERROR_TOKEN_ALREADY_USED = "Token already used"
+        private const val ERROR_TOKEN_EXPIRED = "Token expired"
+        private const val ERROR_INVALID_TOKEN_TYPE = "Invalid token type"
+    }
+
     @Transactional
     fun register(request: RegisterRequestDto) {
         val existingUser = authUserRepository.findByEmail(request.email).orElse(null)
@@ -92,7 +103,7 @@ class AuthService(
             )
 
         try {
-            val passwordHash = requireNotNull(passwordEncoder.encode(request.password)) { "Password encoding failed" }
+            val passwordHash = requireNotNull(passwordEncoder.encode(request.password)) { ERROR_PASSWORD_ENCODING_FAILED }
 
             val authUser =
                 AuthUser.create(
@@ -246,21 +257,21 @@ class AuthService(
 
         if (verificationToken.used) {
             throw ApiException(
-                message = "Token already used",
+                message = ERROR_TOKEN_ALREADY_USED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
             throw ApiException(
-                message = "Token expired",
+                message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (!verificationToken.isTokenType(TokenTypes.ACCOUNT_ACTIVATION)) {
             throw ApiException(
-                message = "Invalid token type",
+                message = ERROR_INVALID_TOKEN_TYPE,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -268,7 +279,7 @@ class AuthService(
         val user =
             authUserRepository.findByEmail(verificationToken.username).orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = ERROR_USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }
@@ -317,7 +328,7 @@ class AuthService(
             val user =
                 authUserRepository.findByEmail(request.email).orElseThrow {
                     ApiException(
-                        message = "User not found",
+                        message = ERROR_USER_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -413,28 +424,28 @@ class AuthService(
         val verificationToken =
             verificationTokenRepository.findByToken(token).orElseThrow {
                 ApiException(
-                    message = "Invalid token",
+                    message = ERROR_INVALID_TOKEN,
                     status = HttpStatus.BAD_REQUEST,
                 )
             }
 
         if (verificationToken.used) {
             throw ApiException(
-                message = "Token already used",
+                message = ERROR_TOKEN_ALREADY_USED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
             throw ApiException(
-                message = "Token expired",
+                message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (!verificationToken.isTokenType(TokenTypes.PASSWORD_CHANGE_REQUEST)) {
             throw ApiException(
-                message = "Invalid token type",
+                message = ERROR_INVALID_TOKEN_TYPE,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -450,7 +461,7 @@ class AuthService(
         verificationToken.id?.let { tokenId ->
             authUserRepository.findByEmail(verificationToken.username).orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = ERROR_USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }
@@ -469,7 +480,7 @@ class AuthService(
                 ),
             )
         } ?: throw ApiException(
-            message = "Invalid token",
+            message = ERROR_INVALID_TOKEN,
             status = HttpStatus.BAD_REQUEST,
         )
     }
@@ -482,7 +493,7 @@ class AuthService(
         val verificationToken =
             verificationTokenRepository.findById(tokenId).orElseThrow {
                 ApiException(
-                    message = "Invalid token",
+                    message = ERROR_INVALID_TOKEN,
                     status = HttpStatus.BAD_REQUEST,
                 )
             }
@@ -496,14 +507,14 @@ class AuthService(
 
         if (verificationToken.updatedAt.plusSeconds(1800).isBefore(Instant.now())) {
             throw ApiException(
-                message = "Token expired",
+                message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (!verificationToken.isTokenType(TokenTypes.PASSWORD_CHANGE_REQUEST)) {
             throw ApiException(
-                message = "Invalid token type",
+                message = ERROR_INVALID_TOKEN_TYPE,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -519,12 +530,12 @@ class AuthService(
         val user =
             authUserRepository.findByEmail(verificationToken.username).orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = ERROR_USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }
 
-        val newPasswordHash = requireNotNull(passwordEncoder.encode(dto.newPassword)) { "Password encoding failed" }
+        val newPasswordHash = requireNotNull(passwordEncoder.encode(dto.newPassword)) { ERROR_PASSWORD_ENCODING_FAILED }
 
         user.setPassword(newPasswordHash)
         authUserRepository.save(user)
@@ -604,28 +615,28 @@ class AuthService(
         val verificationToken =
             verificationTokenRepository.findByToken(token).orElseThrow {
                 ApiException(
-                    message = "Invalid token",
+                    message = ERROR_INVALID_TOKEN,
                     status = HttpStatus.BAD_REQUEST,
                 )
             }
 
         if (verificationToken.used) {
             throw ApiException(
-                message = "Token already used",
+                message = ERROR_TOKEN_ALREADY_USED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
             throw ApiException(
-                message = "Token expired",
+                message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (!verificationToken.isTokenType(TokenTypes.PASSWORD_RESET)) {
             throw ApiException(
-                message = "Invalid token type",
+                message = ERROR_INVALID_TOKEN_TYPE,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -633,13 +644,13 @@ class AuthService(
         val user =
             authUserRepository.findByEmail(verificationToken.username).orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = ERROR_USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }
 
         // Update password
-        val newPasswordHash = requireNotNull(passwordEncoder.encode(request.newPassword)) { "Password encoding failed" }
+        val newPasswordHash = requireNotNull(passwordEncoder.encode(request.newPassword)) { ERROR_PASSWORD_ENCODING_FAILED }
         user.setPassword(newPasswordHash)
         authUserRepository.save(user)
 
@@ -668,7 +679,7 @@ class AuthService(
     ): String {
         val jwtRefreshToken = jwtService.generateRefreshToken(userDetails)
 
-        val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+        val messageDigest = java.security.MessageDigest.getInstance(HASH_ALGORITHM_SHA256)
         val hashBytes = messageDigest.digest(jwtRefreshToken.toByteArray())
         val hashedToken =
             java.util.Base64
@@ -709,7 +720,7 @@ class AuthService(
         return verificationTokenRepository.save(verificationToken)
     }
 
-    private fun extractDeviceInfo(userAgent: String?): String? {
+    private fun extractDeviceInfo(userAgent: String?): String {
         if (userAgent.isNullOrBlank()) {
             return "Unknown device"
         }
@@ -773,7 +784,7 @@ class AuthService(
                     .findByUsername(username)
                     .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
-            val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+            val messageDigest = java.security.MessageDigest.getInstance(HASH_ALGORITHM_SHA256)
             val hashBytes = messageDigest.digest(refreshTokenString.toByteArray())
             val tokenHash =
                 java.util.Base64
@@ -783,13 +794,13 @@ class AuthService(
             val storedToken =
                 userTokens.find { it.token == tokenHash }
                     ?: throw ApiException(
-                        message = "Invalid refresh token",
+                        message = ERROR_INVALID_REFRESH_TOKEN,
                         status = HttpStatus.UNAUTHORIZED,
                     )
 
             if (username != storedToken.username) {
                 throw ApiException(
-                    message = "Invalid refresh token",
+                    message = ERROR_INVALID_REFRESH_TOKEN,
                     status = HttpStatus.UNAUTHORIZED,
                 )
             }
@@ -797,7 +808,7 @@ class AuthService(
             val user =
                 authUserRepository.findByEmail(username).orElseThrow {
                     ApiException(
-                        message = "User not found",
+                        message = ERROR_USER_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -819,7 +830,7 @@ class AuthService(
         } catch (e: io.jsonwebtoken.JwtException) {
             logger.error("Invalid JWT refresh token: {}", e.message)
             throw ApiException(
-                message = "Invalid refresh token",
+                message = ERROR_INVALID_REFRESH_TOKEN,
                 status = HttpStatus.UNAUTHORIZED,
             )
         }
@@ -842,7 +853,7 @@ class AuthService(
                         .findByUsername(username)
                         .filter { !it.isRevoked && it.expiryDate.isAfter(Instant.now()) }
 
-                val messageDigest = java.security.MessageDigest.getInstance("SHA-256")
+                val messageDigest = java.security.MessageDigest.getInstance(HASH_ALGORITHM_SHA256)
                 val hashBytes = messageDigest.digest(refreshTokenString.toByteArray())
                 val tokenHash =
                     java.util.Base64
@@ -1001,28 +1012,28 @@ class AuthService(
         val verificationToken =
             verificationTokenRepository.findByToken(token).orElseThrow {
                 ApiException(
-                    message = "Invalid token",
+                    message = ERROR_INVALID_TOKEN,
                     status = HttpStatus.BAD_REQUEST,
                 )
             }
 
         if (verificationToken.used) {
             throw ApiException(
-                message = "Token already used",
+                message = ERROR_TOKEN_ALREADY_USED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
             throw ApiException(
-                message = "Token expired",
+                message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
 
         if (!verificationToken.isTokenType(TokenTypes.EMAIL_CHANGE)) {
             throw ApiException(
-                message = "Invalid token type",
+                message = ERROR_INVALID_TOKEN_TYPE,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -1042,7 +1053,7 @@ class AuthService(
         val user =
             authUserRepository.findByEmail(oldEmail).orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = ERROR_USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }

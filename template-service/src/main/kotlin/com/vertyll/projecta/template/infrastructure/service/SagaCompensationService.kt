@@ -37,7 +37,7 @@ class SagaCompensationService(
 
             logger.info("Processing compensation action: $actionStr for saga $sagaId")
 
-            when (actionStr) {
+            when (actionStr) { // NOSONAR
                 // TODO: Define the expected compensation actions
                 else -> {
                     logger.warn("Unknown compensation action: $actionStr")

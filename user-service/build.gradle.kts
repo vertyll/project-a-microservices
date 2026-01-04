@@ -1,3 +1,5 @@
+val springdocOpenApiVersion = "2.3.0"
+
 dependencies {
     apply(plugin = "kotlin-jpa")
 
@@ -9,17 +11,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
-    // Database
-    runtimeOnly("org.postgresql:postgresql")
-
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")
 
     // OpenAPI documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenApiVersion")
 
     // Actuator for health checks
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Database
+    runtimeOnly("org.postgresql:postgresql")
 
     // Dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")

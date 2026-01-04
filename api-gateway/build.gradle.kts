@@ -16,6 +16,10 @@ java {
     }
 }
 
+val springdocOpenApiVersion = "2.3.0"
+val jjwtVersion = "0.13.0"
+val kotlinLoggingVersion = "3.0.5"
+
 dependencies {
     implementation(project(":shared-infrastructure"))
     implementation("org.springframework.cloud:spring-cloud-gateway-server-webflux")
@@ -29,12 +33,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
 
     // OpenAPI documentation
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springdocOpenApiVersion")
 
     // Security dependencies
-    implementation("io.jsonwebtoken:jjwt-api:0.13.0")
-    implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
     // Kotlin specifics
     implementation("tools.jackson.module:jackson-module-kotlin")
@@ -42,7 +46,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion")
 
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")

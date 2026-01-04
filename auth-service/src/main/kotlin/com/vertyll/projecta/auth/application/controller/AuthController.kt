@@ -32,6 +32,10 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val authService: AuthService,
 ) {
+    companion object {
+        private const val MESSAGE_NOT_AUTHENTICATED = "Not authenticated"
+    }
+
     @PostMapping("/register")
     @Operation(summary = "Register new user")
     fun register(
@@ -226,7 +230,7 @@ class AuthController(
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = emptyMap(),
-                message = "Not authenticated",
+                message = MESSAGE_NOT_AUTHENTICATED,
                 status = HttpStatus.UNAUTHORIZED,
             )
         }
@@ -256,7 +260,7 @@ class AuthController(
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = emptyList(),
-                message = "Not authenticated",
+                message = MESSAGE_NOT_AUTHENTICATED,
                 status = HttpStatus.UNAUTHORIZED,
             )
         }
@@ -278,7 +282,7 @@ class AuthController(
         if (userDetails == null) {
             return ApiResponse.buildResponse(
                 data = null,
-                message = "Not authenticated",
+                message = MESSAGE_NOT_AUTHENTICATED,
                 status = HttpStatus.UNAUTHORIZED,
             )
         }

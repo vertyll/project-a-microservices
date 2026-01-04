@@ -25,7 +25,7 @@ class GatewayConfig {
         override fun filter(
             exchange: ServerWebExchange,
             chain: GatewayFilterChain,
-        ): Mono<Void> {
+        ): Mono<Void> { // NOSONAR
             val request = exchange.request
             val authorization = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
 

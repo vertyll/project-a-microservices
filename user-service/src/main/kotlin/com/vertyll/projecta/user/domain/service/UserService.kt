@@ -18,6 +18,10 @@ class UserService(
     private val userRepository: UserRepository,
     private val userEventProducer: UserEventProducer,
 ) {
+    companion object {
+        private const val USER_NOT_FOUND = "User not found"
+    }
+
     @Transactional
     fun createUser(dto: UserCreateDto): UserResponseDto {
         if (userRepository.existsByEmail(dto.email)) {
@@ -61,7 +65,7 @@ class UserService(
                 .findById(id)
                 .orElseThrow {
                     ApiException(
-                        message = "User not found",
+                        message = USER_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -75,7 +79,7 @@ class UserService(
                 .findByEmail(email)
                 .orElseThrow {
                     ApiException(
-                        message = "User not found",
+                        message = USER_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -96,7 +100,7 @@ class UserService(
                 .findByEmail(request.currentEmail)
                 .orElseThrow {
                     ApiException(
-                        message = "User not found",
+                        message = USER_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }

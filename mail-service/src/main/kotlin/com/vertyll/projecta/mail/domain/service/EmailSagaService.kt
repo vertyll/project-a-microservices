@@ -59,33 +59,30 @@ class EmailSagaService(
             // Send email
             val success = emailService.sendEmail(to, subject, template, variables, replyTo)
 
-            if (success) {
-                sagaManager.recordSagaStep(
-                    sagaId = sagaId,
-                    stepName = SagaStepNames.SEND_EMAIL,
-                    status = SagaStepStatus.COMPLETED,
-                    payload =
-                        mapOf(
-                            "to" to to,
-                            "subject" to subject,
-                            "emailId" to sagaId,
-                        ),
-                )
-                return true
-            } else {
-                sagaManager.recordSagaStep(
-                    sagaId = sagaId,
-                    stepName = SagaStepNames.SEND_EMAIL,
-                    status = SagaStepStatus.FAILED,
-                    payload =
-                        mapOf(
-                            "to" to to,
-                            "subject" to subject,
-                            "error" to "Failed to send email",
-                        ),
-                )
-                return false
-            }
+            val status = if (success) SagaStepStatus.COMPLETED else SagaStepStatus.FAILED
+            val payload =
+                if (success) {
+                    mapOf(
+                        "to" to to,
+                        "subject" to subject,
+                        "emailId" to sagaId,
+                    )
+                } else {
+                    mapOf(
+                        "to" to to,
+                        "subject" to subject,
+                        "error" to "Failed to send email",
+                    )
+                }
+
+            sagaManager.recordSagaStep(
+                sagaId = sagaId,
+                stepName = SagaStepNames.SEND_EMAIL,
+                status = status,
+                payload = payload,
+            )
+
+            return success
         } catch (e: Exception) {
             logger.error("Error in email saga: ${e.message}", e)
             sagaManager.recordSagaStep(

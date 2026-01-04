@@ -16,30 +16,35 @@ tasks.jar {
     enabled = true
 }
 
+val jjwtVersion = "0.13.0"
+val kotlinLoggingVersion = "3.0.5"
+
 dependencies {
-    // Web dependencies
+    // Web dependencies - api
     api("org.springframework.boot:spring-boot-starter-validation")
 
-    // Configuration processor
+    // Configuration processor - kapt
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    api("org.springframework.boot:spring-boot-autoconfigure")
 
-    // Event bus
+    // Spring Boot - api
+    api("org.springframework.boot:spring-boot-autoconfigure")
+    api("org.springframework.boot:spring-boot-starter-jackson")
+    api("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Event bus - api
     api("org.springframework.kafka:spring-kafka")
 
-    // Security
+    // Security - api & implementation
     api("org.springframework.boot:spring-boot-starter-security")
-    api("io.jsonwebtoken:jjwt-api:0.13.0")
-    implementation("io.jsonwebtoken:jjwt-impl:0.13.0")
-    implementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    api("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    implementation("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-    // Database - needed for KafkaOutbox entity
+    // Database - api (needed for KafkaOutbox entity)
     api("org.springframework.boot:spring-boot-starter-data-jpa")
     api("org.postgresql:postgresql")
 
-    // Utilities
-    api("org.springframework.boot:spring-boot-starter-jackson")
+    // Utilities - api
     api("tools.jackson.module:jackson-module-kotlin")
-    api("io.github.microutils:kotlin-logging:3.0.5")
-    api("org.springframework.boot:spring-boot-starter-actuator")
+    api("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
 }

@@ -28,6 +28,11 @@ class RoleService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    companion object {
+        private const val ERROR_UNKNOWN = "Unknown error"
+        private const val ERROR_ROLE_NOT_FOUND = "Role not found"
+    }
+
     /**
      * Initialize default roles on startup
      */
@@ -121,7 +126,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.CREATE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error")),
+                payload = mapOf("error" to (e.message ?: ERROR_UNKNOWN)),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role creation failed")
             throw e
@@ -138,7 +143,7 @@ class RoleService(
                 .findById(id)
                 .orElseThrow {
                     ApiException(
-                        message = "Role not found",
+                        message = ERROR_ROLE_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -223,7 +228,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.UPDATE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error")),
+                payload = mapOf("error" to (e.message ?: ERROR_UNKNOWN)),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role update failed")
             throw e
@@ -237,7 +242,7 @@ class RoleService(
                 .findById(id)
                 .orElseThrow {
                     ApiException(
-                        message = "Role not found",
+                        message = ERROR_ROLE_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -251,7 +256,7 @@ class RoleService(
                 .findByName(name)
                 .orElseThrow {
                     ApiException(
-                        message = "Role not found",
+                        message = ERROR_ROLE_NOT_FOUND,
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
@@ -348,7 +353,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.ASSIGN_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error")),
+                payload = mapOf("error" to (e.message ?: ERROR_UNKNOWN)),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role assignment failed")
             throw e
@@ -408,9 +413,6 @@ class RoleService(
         )
 
         try {
-            // Store the user role data before deletion for potential compensation
-            val userRole = userRoleRepository.findByUserIdAndRoleId(userId, role.id).orElse(null)
-
             userRoleRepository.deleteByUserIdAndRoleId(userId, role.id)
 
             // Record successful completion of role revocation step
@@ -442,7 +444,7 @@ class RoleService(
                 sagaId = saga.id,
                 stepName = SagaStepNames.REVOKE_ROLE,
                 status = SagaStepStatus.FAILED,
-                payload = mapOf("error" to (e.message ?: "Unknown error")),
+                payload = mapOf("error" to (e.message ?: ERROR_UNKNOWN)),
             )
             sagaManager.failSaga(saga.id, e.message ?: "Role revocation failed")
             throw e

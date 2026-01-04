@@ -96,7 +96,7 @@ class MailEventConsumer(
         }
 
     private fun createMailRequestedEventFromJson(jsonNode: JsonNode): MailRequestedEvent {
-        val variablesNode = jsonNode.get(FIELD_VARIABLES)
+        val variablesNode = jsonNode[FIELD_VARIABLES]
         val variables =
             if (variablesNode != null) {
                 try {
@@ -113,25 +113,25 @@ class MailEventConsumer(
             }
 
         // Get the template name
-        val templateName = jsonNode.get(FIELD_TEMPLATE_NAME)?.asString() ?: ""
+        val templateName = jsonNode[FIELD_TEMPLATE_NAME]?.asString() ?: ""
 
         return MailRequestedEvent(
-            eventId = jsonNode.get(FIELD_EVENT_ID)?.asString() ?: "",
+            eventId = jsonNode[FIELD_EVENT_ID]?.asString() ?: "",
             timestamp =
                 try {
-                    objectMapper.convertValue(jsonNode.get(FIELD_TIMESTAMP), Instant::class.java)
+                    objectMapper.convertValue(jsonNode[FIELD_TIMESTAMP], Instant::class.java)
                 } catch (e: Exception) {
                     logger.warn(ERR_TIMESTAMP, e.message)
                     Instant.now()
                 },
-            eventType = jsonNode.get(FIELD_EVENT_TYPE)?.asString() ?: DEFAULT_EVENT_TYPE,
-            to = jsonNode.get(FIELD_TO)?.asString() ?: "",
-            subject = jsonNode.get(FIELD_SUBJECT)?.asString() ?: "",
+            eventType = jsonNode[FIELD_EVENT_TYPE]?.asString() ?: DEFAULT_EVENT_TYPE,
+            to = jsonNode[FIELD_TO]?.asString() ?: "",
+            subject = jsonNode[FIELD_SUBJECT]?.asString() ?: "",
             templateName = templateName,
             variables = variables,
-            replyTo = jsonNode.get(FIELD_REPLY_TO)?.asString(),
-            priority = jsonNode.get(FIELD_PRIORITY)?.asInt() ?: DEFAULT_PRIORITY,
-            sagaId = jsonNode.get(FIELD_SAGA_ID)?.asString(),
+            replyTo = jsonNode[FIELD_REPLY_TO]?.asString(),
+            priority = jsonNode[FIELD_PRIORITY]?.asInt() ?: DEFAULT_PRIORITY,
+            sagaId = jsonNode[FIELD_SAGA_ID]?.asString(),
         )
     }
 

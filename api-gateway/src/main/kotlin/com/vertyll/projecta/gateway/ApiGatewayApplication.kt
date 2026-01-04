@@ -220,7 +220,7 @@ class AuthHeaderGatewayFilterFactory : AbstractGatewayFilterFactory<AuthHeaderGa
 
             val authHeader = exchange.request.headers.getFirst(config.headerName)
 
-            if (authHeader.isNullOrBlank()) {
+            if (authHeader.isNullOrBlank()) { // NOSONAR
                 // Optionally handle missing auth header
                 chain.filter(exchange)
             } else {

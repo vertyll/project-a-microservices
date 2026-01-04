@@ -155,7 +155,7 @@ class SagaManager(
                 when (step.stepName) {
                     // TODO: Define the compensation actions for each step
                 }
-                when (step.stepName) {
+                when (step.stepName) { // NOSONAR
                     else -> logger.warn("No compensation defined for step ${step.stepName}")
                 }
 
