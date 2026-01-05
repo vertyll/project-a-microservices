@@ -83,15 +83,3 @@ subprojects {
         useJUnitPlatform()
     }
 }
-
-tasks.register("formatKotlin") {
-    group = "formatting"
-    description = "Format all Kotlin files in the project"
-    dependsOn(subprojects.map { it.tasks.named("ktlintFormat") })
-}
-
-tasks.register("checkKotlin") {
-    group = "verification"
-    description = "Check all Kotlin files in the project"
-    dependsOn(subprojects.map { it.tasks.named("ktlintCheck") })
-}

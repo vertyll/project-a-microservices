@@ -6,10 +6,10 @@ ktlint-plugin = "14.0.1"
 kotlin = "2.3.0"
 
 # Dependencies
-springdoc = "2.3.0"
+springdoc = "3.0.1"
 testcontainers = "1.21.3"
 jjwt = "0.13.0"
-kotlin-logging = "3.0.5"
+kotlin-logging = "7.0.14"
 springframework-cloud = "2025.1.0"
 
 [libraries]
@@ -48,8 +48,8 @@ jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
-kotlin-logging = { module = "io.github.microutils:kotlin-logging", version.ref = "kotlin-logging" }
-kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
+kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
 
 # Kotlin Coroutines & Reactor
 kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor" }
