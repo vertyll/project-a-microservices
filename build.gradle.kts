@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    java
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
     alias(libs.plugins.kotlin.jvm) apply false
@@ -21,7 +20,6 @@ allprojects {
     
     repositories {
         mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -34,7 +32,7 @@ subprojects {
         plugin("org.jlleitschuh.gradle.ktlint")
     }
 
-    java {
+    configure<JavaPluginExtension> {
         toolchain {
             languageVersion = JavaLanguageVersion.of(25)
         }
@@ -44,8 +42,9 @@ subprojects {
 
     configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${rootProject.libs.versions.springframework.cloud.get()}")
-            mavenBom("org.testcontainers:testcontainers-bom:${rootProject.libs.versions.testcontainers.get()}")
+            mavenBom(rootProject.libs.spring.boot.dependencies.get().toString())
+            mavenBom(rootProject.libs.spring.cloud.dependencies.get().toString())
+            mavenBom(rootProject.libs.testcontainers.bom.get().toString())
         }
     }
 
@@ -73,13 +72,11 @@ subprojects {
 
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.add("-Xjsr305=strict")
-            freeCompilerArgs.add("-Xannotation-default-target=param-property")
+            freeCompilerArgs.addAll(
+                "-Xjsr305=strict", 
+                "-Xannotation-default-target=param-property"
+            )
         }
-    }
-
-    tasks.withType<JavaCompile> {
-        options.compilerArgs.add("-parameters")
     }
 
     tasks.withType<Test> {

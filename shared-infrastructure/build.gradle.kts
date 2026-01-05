@@ -1,10 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.kotlin.jpa)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.spring.boot) apply false
-    alias(libs.plugins.spring.dependency.management)
 }
 
 // This creates a JAR without a main class (library)
