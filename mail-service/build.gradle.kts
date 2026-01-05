@@ -1,35 +1,30 @@
-val springdocOpenApiVersion = "2.3.0"
+plugins {
+    alias(libs.plugins.kotlin.jpa)
+}
 
 dependencies {
-    apply(plugin = "kotlin-jpa")
-
     // Project dependencies
     implementation(project(":shared-infrastructure"))
 
-    // Spring Boot - implementation
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // Spring Boot
+    implementation(libs.bundles.spring.boot.webmvc)
 
-    // Thymeleaf - implementation
-    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    // Mail & Thymeleaf
+    implementation(libs.bundles.spring.boot.mail)
 
-    // Kafka - implementation
-    implementation("org.springframework.kafka:spring-kafka")
+    // JWT
+    implementation(libs.bundles.jjwt)
 
-    // OpenAPI documentation - implementation
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocOpenApiVersion")
+    // OpenAPI documentation
+    implementation(libs.springdoc.openapi.starter.webmvc.ui)
 
-    // Database - runtimeOnly
-    runtimeOnly("org.postgresql:postgresql")
+    // Database
+    runtimeOnly(libs.postgresql)
 
-    // Dev tools - developmentOnly
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    // Dev tools
+    developmentOnly(libs.spring.boot.devtools)
 
-    // Testing - testImplementation
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.kafka:spring-kafka-test")
+    // Testing
+    testImplementation(libs.bundles.test.mail)
+    testImplementation(libs.springframework.kafka.test)
 }

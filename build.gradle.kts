@@ -1,22 +1,24 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "4.0.1" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
-    kotlin("jvm") version "2.3.0" apply false
-    kotlin("plugin.spring") version "2.3.0" apply false
-    kotlin("plugin.jpa") version "2.3.0" apply false
-    kotlin("kapt") version "2.3.0" apply false
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1" apply false
+    java
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.kotlin.jpa) apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
 allprojects {
     group = "com.vertyll.projecta"
     version = "0.0.1-SNAPSHOT"
-
+    description = "Microservices architecture based on Apache Kafka"
+    
     extra["author"] = "Mikołaj Gawron"
     extra["email"] = "gawrmiko@gmail.com"
-
+    
     repositories {
         mavenCentral()
         gradlePluginPortal()
@@ -30,6 +32,27 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("io.spring.dependency-management")
         plugin("org.jlleitschuh.gradle.ktlint")
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
+    }
+
+    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
+        imports {
+            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${rootProject.libs.versions.springframework.cloud.get()}")
+            mavenBom("org.testcontainers:testcontainers-bom:${rootProject.libs.versions.testcontainers.get()}")
+        }
+    }
+
+    // Common dependencies for all subprojects
+    dependencies {
+        add("implementation", rootProject.libs.bundles.spring.boot.common)
+        add("testImplementation", rootProject.libs.bundles.test.common)
     }
 
     // Configure ktlint
@@ -48,13 +71,6 @@ subprojects {
         }
     }
 
-    the<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension>().apply {
-        imports {
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.1.0")
-            mavenBom("org.testcontainers:testcontainers-bom:1.20.3")
-        }
-    }
-
     tasks.withType<KotlinCompile>().configureEach {
         compilerOptions {
             freeCompilerArgs.add("-Xjsr305=strict")
@@ -68,29 +84,6 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
-    }
-
-    configurations {
-        all {
-            // Common dependencies for all subprojects
-            dependencies {
-                // Common dependencies for all subprojects
-                add("implementation", "org.springframework.boot:spring-boot-starter")
-                add("implementation", "org.jetbrains.kotlin:kotlin-reflect")
-                add("implementation", "org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-                add("implementation", "org.springframework.boot:spring-boot-starter-jackson")
-                add("implementation", "tools.jackson.module:jackson-module-kotlin")
-                add("implementation", "org.springframework.kafka:spring-kafka")
-                add("implementation", "io.github.microutils:kotlin-logging:3.0.5")
-
-                // Test dependencies
-                add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
-                add("testImplementation", "org.springframework.kafka:spring-kafka-test")
-                add("testImplementation", "org.testcontainers:junit-jupiter")
-                add("testImplementation", "org.testcontainers:kafka")
-                add("testImplementation", "org.testcontainers:postgresql")
-            }
-        }
     }
 }
 
