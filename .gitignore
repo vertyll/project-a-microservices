@@ -1,3 +1,4 @@
+### General ###
 HELP.md
 
 ### Gradle ###
@@ -6,6 +7,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+.kotlin
 
 ### Maven ###
 target/
@@ -13,7 +15,16 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -24,15 +35,6 @@ target/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -48,9 +50,6 @@ out/
 .DS_Store
 Thumbs.db
 
-### Kotlin ###
-.kotlin
-
 ### Logs ###
 *.log
 logs/
@@ -62,6 +61,3 @@ logs/
 
 ### Compiled class files ###
 *.class
-
-### Docker volumes ###
-docker-volumes/
