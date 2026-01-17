@@ -56,7 +56,7 @@ class AuthService(
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AuthService::class.java)
 
-    companion object {
+    private companion object {
         private const val ERROR_PASSWORD_ENCODING_FAILED = "Password encoding failed"
         private const val ERROR_INVALID_TOKEN = "Invalid token"
         private const val ERROR_USER_NOT_FOUND = "User not found"

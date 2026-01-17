@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(
     private val userService: UserService,
 ) {
+    private companion object {
+        private const val USER_RETRIEVED_SUCCESSFULLY = "User retrieved successfully"
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID")
     fun getUserById(
@@ -26,7 +30,7 @@ class UserController(
         val user = userService.getUserById(id)
         return ApiResponse.buildResponse(
             data = user,
-            message = "User retrieved successfully",
+            message = USER_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -39,7 +43,7 @@ class UserController(
         val user = userService.getUserByEmail(email)
         return ApiResponse.buildResponse(
             data = user,
-            message = "User retrieved successfully",
+            message = USER_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }

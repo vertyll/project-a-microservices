@@ -24,7 +24,7 @@ class MailEventConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    companion object {
+    private companion object {
         // Event field names
         private const val FIELD_EVENT_ID = "eventId"
         private const val FIELD_TIMESTAMP = "timestamp"
@@ -40,18 +40,6 @@ class MailEventConsumer(
         // Default values
         private val DEFAULT_EVENT_TYPE = EventType.MAIL_REQUESTED.value
         private const val DEFAULT_PRIORITY = 0
-
-        // Log messages
-        private const val MSG_RECEIVED = "Received mail request message: {}"
-        private const val MSG_PAYLOAD = "Message payload: {}"
-        private const val ERR_DESERIALIZE = "Could not directly deserialize payload, attempting manual parsing: {}"
-        private const val ERR_VARIABLES = "Could not convert variables to Map<String, String>, using empty map: {}"
-        private const val ERR_TIMESTAMP = "Could not convert timestamp, using current time: {}"
-        private const val ERR_PROCESSING = "Error processing message from topic {}"
-        private const val ERR_FAILED_PAYLOAD = "Failed payload: {}"
-        private const val MSG_PROCESSING = "Processing mail request: {}"
-        private const val MSG_SUCCESS = "Successfully processed mail request: {}"
-        private const val ERR_INV_TEMPLATE = "Received request with invalid template name: {}. Email will not be sent."
     }
 
     @KafkaListener(topics = ["#{@kafkaTopicsConfig.getMailRequestedTopic()}"])
@@ -60,15 +48,15 @@ class MailEventConsumer(
         @Payload payload: String,
     ) {
         try {
-            logger.info(MSG_RECEIVED, record.key())
-            logger.debug(MSG_PAYLOAD, record.value())
+            logger.info("Received mail request message: {}", record.key())
+            logger.debug("Message payload: {}", record.value())
 
             // First try direct deserialization
             val event =
                 try {
                     objectMapper.readValue<MailRequestedEvent>(payload)
                 } catch (e: JacksonException) {
-                    logger.warn(ERR_DESERIALIZE, e.message)
+                    logger.warn("Could not directly deserialize payload, attempting manual parsing: {}", e.message)
                     // The payload may be wrapped in quotes, so we need to handle that
                     val cleanPayload = cleanJsonPayload(payload)
 
@@ -79,8 +67,8 @@ class MailEventConsumer(
 
             handleEvent(event)
         } catch (e: Exception) {
-            logger.error(ERR_PROCESSING, record.topic(), e)
-            logger.error(ERR_FAILED_PAYLOAD, payload)
+            logger.error("Error processing message from topic {}", record.topic(), e)
+            logger.error("Failed payload: {}", payload)
         }
     }
 
@@ -105,7 +93,7 @@ class MailEventConsumer(
                         key to (value.asString() ?: "")
                     }
                 } catch (e: Exception) {
-                    logger.warn(ERR_VARIABLES, e.message)
+                    logger.warn("Could not convert variables to Map<String, String>, using empty map: {}", e.message)
                     emptyMap()
                 }
             } else {
@@ -121,7 +109,7 @@ class MailEventConsumer(
                 try {
                     objectMapper.convertValue(jsonNode[FIELD_TIMESTAMP], Instant::class.java)
                 } catch (e: Exception) {
-                    logger.warn(ERR_TIMESTAMP, e.message)
+                    logger.warn("Could not convert timestamp, using current time: {}", e.message)
                     Instant.now()
                 },
             eventType = jsonNode[FIELD_EVENT_TYPE]?.asString() ?: DEFAULT_EVENT_TYPE,
@@ -136,7 +124,7 @@ class MailEventConsumer(
     }
 
     private fun handleEvent(event: MailRequestedEvent) {
-        logger.info(MSG_PROCESSING, event.eventId)
+        logger.info("Processing mail request: {}", event.eventId)
 
         val template = EmailTemplate.fromTemplateName(event.templateName)
 
@@ -152,10 +140,10 @@ class MailEventConsumer(
                 )
 
             if (success) {
-                logger.info(MSG_SUCCESS, event.eventId)
+                logger.info("Successfully processed mail request: {}", event.eventId)
             }
         } else {
-            logger.error(ERR_INV_TEMPLATE, event.templateName)
+            logger.error("Received request with invalid template name: {}. Email will not be sent.", event.templateName)
         }
     }
 }

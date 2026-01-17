@@ -21,12 +21,16 @@ class JwtAuthenticationFilter(
 ) : OncePerRequestFilter() {
     private val log = LoggerFactory.getLogger(JwtAuthenticationFilter::class.java)
 
+    companion object {
+        private const val AUTH_HEADER_NAME = "Authorization"
+    }
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val authHeader = request.getHeader("Authorization")
+        val authHeader = request.getHeader(AUTH_HEADER_NAME)
 
         if (authHeader == null || !authHeader.startsWith(JwtConstants.BEARER_PREFIX)) {
             filterChain.doFilter(request, response)

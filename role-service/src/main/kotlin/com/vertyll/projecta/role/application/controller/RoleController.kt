@@ -25,6 +25,16 @@ import org.springframework.web.bind.annotation.RestController
 class RoleController(
     private val roleService: RoleService,
 ) {
+    private companion object {
+        private const val ROLE_CREATED_SUCCESSFULLY = "Role created successfully"
+        private const val ROLE_UPDATED_SUCCESSFULLY = "Role updated successfully"
+        private const val ROLE_RETRIEVED_SUCCESSFULLY = "Role retrieved successfully"
+        private const val USER_ROLES_RETRIEVED_SUCCESSFULLY = "User roles retrieved successfully"
+        private const val ROLE_ASSIGNED_SUCCESSFULLY = "Role assigned successfully"
+        private const val ROLE_REMOVED_SUCCESSFULLY = "Role removed successfully"
+        private const val ROLE_USER_RETRIEVED_SUCCESSFULLY = "Role users retrieved successfully"
+    }
+
     @PostMapping
     @Operation(summary = "Create a new role")
     fun createRole(
@@ -34,7 +44,7 @@ class RoleController(
         val createdRole = roleService.createRole(dto)
         return ApiResponse.buildResponse(
             data = createdRole,
-            message = "Role created successfully",
+            message = ROLE_CREATED_SUCCESSFULLY,
             status = HttpStatus.CREATED,
         )
     }
@@ -49,7 +59,7 @@ class RoleController(
         val updatedRole = roleService.updateRole(id, dto)
         return ApiResponse.buildResponse(
             data = updatedRole,
-            message = "Role updated successfully",
+            message = ROLE_UPDATED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -62,7 +72,7 @@ class RoleController(
         val role = roleService.getRoleById(id)
         return ApiResponse.buildResponse(
             data = role,
-            message = "Role retrieved successfully",
+            message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -75,7 +85,7 @@ class RoleController(
         val role = roleService.getRoleByName(name)
         return ApiResponse.buildResponse(
             data = role,
-            message = "Role retrieved successfully",
+            message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -86,7 +96,7 @@ class RoleController(
         val roles = roleService.getAllRoles()
         return ApiResponse.buildResponse(
             data = roles,
-            message = "Roles retrieved successfully",
+            message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -99,7 +109,7 @@ class RoleController(
         val roles = roleService.getRolesForUser(userId)
         return ApiResponse.buildResponse(
             data = roles,
-            message = "User roles retrieved successfully",
+            message = USER_ROLES_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -113,7 +123,7 @@ class RoleController(
         roleService.assignRoleToUser(userId, roleName)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Role assigned successfully",
+            message = ROLE_ASSIGNED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -127,7 +137,7 @@ class RoleController(
         roleService.removeRoleFromUser(userId, roleName)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Role removed successfully",
+            message = ROLE_REMOVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -140,7 +150,7 @@ class RoleController(
         val users = roleService.getUsersForRole(roleId)
         return ApiResponse.buildResponse(
             data = users,
-            message = "Role users retrieved successfully",
+            message = ROLE_USER_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }

@@ -25,7 +25,7 @@ class EmailService(
     @Value($$"${spring.mail.from}")
     private lateinit var fromEmail: String
 
-    companion object {
+    private companion object {
         private const val CHARSET_UTF8 = "UTF-8"
 
         // Log messages

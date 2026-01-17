@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service
 class UserDetailsServiceImpl(
     private val authUserRepository: AuthUserRepository,
 ) : UserDetailsService {
+    private companion object {
+        private const val USER_NOT_FOUND = "User not found"
+    }
+
     /**
      * Load user by username (email).
      */
@@ -19,7 +23,7 @@ class UserDetailsServiceImpl(
             .findByEmail(username)
             .orElseThrow {
                 ApiException(
-                    message = "User not found",
+                    message = USER_NOT_FOUND,
                     status = HttpStatus.NOT_FOUND,
                 )
             }

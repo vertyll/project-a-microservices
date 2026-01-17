@@ -14,6 +14,14 @@ class CredentialVerificationService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    private companion object {
+        private const val INVALID_EMAIL_OR_PASSWORD_MESSAGE = "Invalid email or password. Please try again."
+        private const val YOUR_ACCOUNT_NOT_ACTIVATED_MESSAGE = "Your account has not been activated."
+        private const val INVALID_EMAIL_OR_PASSWORD = "Invalid email or password."
+        private const val CREDENTIALS_VERIFIED_SUCCESSFULLY = "Credentials verified successfully"
+        private const val AUTHENTICATION_FAILED = "Authentication failed. Please try again later."
+    }
+
     fun verifyCredentials(
         email: String,
         password: String,
@@ -29,7 +37,7 @@ class CredentialVerificationService(
                 return CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Invalid email or password. Please try again.",
+                    message = INVALID_EMAIL_OR_PASSWORD_MESSAGE,
                 )
             }
 
@@ -40,7 +48,7 @@ class CredentialVerificationService(
                 return CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Your account has not been activated. Please check your email for the activation code or request a new one.",
+                    message = YOUR_ACCOUNT_NOT_ACTIVATED_MESSAGE,
                 )
             }
 
@@ -51,7 +59,7 @@ class CredentialVerificationService(
                 CredentialsVerificationResultEvent(
                     requestId = requestId,
                     valid = false,
-                    message = "Invalid email or password. Please try again.",
+                    message = INVALID_EMAIL_OR_PASSWORD,
                 )
             } else {
                 logger.info("Credentials verified successfully for user: {}", email)
@@ -61,7 +69,7 @@ class CredentialVerificationService(
                     userId = user.id,
                     email = user.username,
                     roles = user.getRoles().toList(),
-                    message = "Credentials verified successfully",
+                    message = CREDENTIALS_VERIFIED_SUCCESSFULLY,
                 )
             }
         } catch (e: Exception) {
@@ -69,7 +77,7 @@ class CredentialVerificationService(
             CredentialsVerificationResultEvent(
                 requestId = requestId,
                 valid = false,
-                message = "Authentication failed. Please try again later.",
+                message = AUTHENTICATION_FAILED,
             )
         }
     }

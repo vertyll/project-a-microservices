@@ -21,6 +21,10 @@ class KafkaOutboxProcessor(
     private val logger = LoggerFactory.getLogger(javaClass)
     private val maxRetries = 3
 
+    private companion object {
+        private const val UNKNOWN_ERROR = "Unknown error"
+    }
+
     /**
      * Scheduled job that processes pending messages from the outbox table
      */
@@ -66,7 +70,7 @@ class KafkaOutboxProcessor(
                 kafkaOutboxRepository.markAsFailed(
                     message.id!!,
                     KafkaOutbox.OutboxStatus.FAILED,
-                    e.message ?: "Unknown error",
+                    e.message ?: UNKNOWN_ERROR,
                 )
             }
         }

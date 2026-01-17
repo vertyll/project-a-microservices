@@ -18,15 +18,16 @@ class UserService(
     private val userRepository: UserRepository,
     private val userEventProducer: UserEventProducer,
 ) {
-    companion object {
+    private companion object {
         private const val USER_NOT_FOUND = "User not found"
+        private const val EMAIL_ALREADY_EXISTS = "Email already exists"
     }
 
     @Transactional
     fun createUser(dto: UserCreateDto): UserResponseDto {
         if (userRepository.existsByEmail(dto.email)) {
             throw ApiException(
-                message = "Email already exists",
+                message = EMAIL_ALREADY_EXISTS,
                 status = HttpStatus.BAD_REQUEST,
             )
         }
@@ -90,7 +91,7 @@ class UserService(
     fun updateEmail(request: EmailUpdateDto): UserResponseDto {
         if (userRepository.existsByEmail(request.newEmail)) {
             throw ApiException(
-                message = "Email already exists",
+                message = EMAIL_ALREADY_EXISTS,
                 status = HttpStatus.BAD_REQUEST,
             )
         }

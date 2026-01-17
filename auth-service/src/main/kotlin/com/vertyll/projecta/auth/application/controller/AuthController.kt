@@ -32,8 +32,25 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val authService: AuthService,
 ) {
-    companion object {
+    private companion object {
+        private const val ACCOUNT_ACTIVATED_SUCCESSFULLY = "Account activated successfully"
+        private const val USER_REGISTERED_SUCCESSFULLY = "User registered successfully"
         private const val MESSAGE_NOT_AUTHENTICATED = "Not authenticated"
+        private const val ACTIVATION_EMAIL_SENT = "Activation email sent. Please check your inbox."
+        private const val AUTHENTICATION_SUCCESSFUL = "Authentication successful"
+        private const val TOKEN_REFRESHED_SUCCESSFULLY = "Token refreshed successfully"
+        private const val LOGGED_OUT_SUCCESSFULLY = "Logged out successfully"
+        private const val PASSWORD_RESET_INSTRUCTIONS_SENT_TO_EMAIL = "Password reset instructions sent to email"
+        private const val PASSWORD_RESET_SUCCESSFULLY = "Password reset successfully"
+        private const val EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL = "Email change instructions sent to email"
+        private const val EMAIL_CHANGED_SUCCESSFULLY = "Email changed successfully"
+        private const val PASSWORD_CHANGE_CONFIRMATION_SENT = "Password change confirmation sent to email"
+        private const val PASSWORD_CHANGE_VERIFICATION_SUCCESSFUL = "Password change verification successful."
+        private const val PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully"
+        private const val USER_DETAILS_RETRIEVED_SUCCESSFULLY = "User details retrieved successfully"
+        private const val ACTIVE_SESSIONS_RETRIEVED_SUCCESSFULLY = "Active sessions retrieved successfully"
+        private const val SESSION_REVOKED_SUCCESSFULLY = "Session revoked successfully"
+        private const val FAILED_TO_REVOKE_SESSION = "Failed to revoke session"
     }
 
     @PostMapping("/register")
@@ -45,7 +62,7 @@ class AuthController(
         authService.register(request)
         return ApiResponse.buildResponse(
             data = null,
-            message = "User registered successfully",
+            message = USER_REGISTERED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -58,7 +75,7 @@ class AuthController(
         authService.activateAccount(token)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Account activated successfully",
+            message = ACCOUNT_ACTIVATED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -71,7 +88,7 @@ class AuthController(
         authService.resendActivationEmail(email)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Activation email sent. Please check your inbox.",
+            message = ACTIVATION_EMAIL_SENT,
             status = HttpStatus.OK,
         )
     }
@@ -90,7 +107,7 @@ class AuthController(
         val authResponse = authService.authenticate(requestWithUserAgent, response)
         return ApiResponse.buildResponse(
             data = authResponse,
-            message = "Authentication successful",
+            message = AUTHENTICATION_SUCCESSFUL,
             status = HttpStatus.OK,
         )
     }
@@ -104,7 +121,7 @@ class AuthController(
         val authResponse = authService.refreshToken(request, response)
         return ApiResponse.buildResponse(
             data = authResponse,
-            message = "Token refreshed successfully",
+            message = TOKEN_REFRESHED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -118,7 +135,7 @@ class AuthController(
         authService.logout(request, response)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Logged out successfully",
+            message = LOGGED_OUT_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -131,7 +148,7 @@ class AuthController(
         authService.sendPasswordResetRequest(email)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Password reset instructions sent to email",
+            message = PASSWORD_RESET_INSTRUCTIONS_SENT_TO_EMAIL,
             status = HttpStatus.OK,
         )
     }
@@ -146,7 +163,7 @@ class AuthController(
         authService.resetPassword(token, request)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Password reset successfully",
+            message = PASSWORD_RESET_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -161,7 +178,7 @@ class AuthController(
         authService.requestEmailChange(email, request)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Email change instructions sent to email",
+            message = EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL,
             status = HttpStatus.OK,
         )
     }
@@ -174,7 +191,7 @@ class AuthController(
         authService.confirmEmailChange(token)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Email changed successfully",
+            message = EMAIL_CHANGED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -189,7 +206,7 @@ class AuthController(
         authService.changePassword(email, request)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Password change confirmation sent to email",
+            message = PASSWORD_CHANGE_CONFIRMATION_SENT,
             status = HttpStatus.OK,
         )
     }
@@ -202,7 +219,7 @@ class AuthController(
         authService.confirmPasswordChange(token)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Password change verification successful. Check your email for further instructions.",
+            message = PASSWORD_CHANGE_VERIFICATION_SUCCESSFUL,
             status = HttpStatus.OK,
         )
     }
@@ -217,7 +234,7 @@ class AuthController(
         authService.setNewPassword(tokenId, request)
         return ApiResponse.buildResponse(
             data = null,
-            message = "Password changed successfully",
+            message = PASSWORD_CHANGED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -247,7 +264,7 @@ class AuthController(
 
         return ApiResponse.buildResponse(
             data = userInfo,
-            message = "User details retrieved successfully",
+            message = USER_DETAILS_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -268,7 +285,7 @@ class AuthController(
         val sessions = authService.getActiveSessions(userDetails.username)
         return ApiResponse.buildResponse(
             data = sessions,
-            message = "Active sessions retrieved successfully",
+            message = ACTIVE_SESSIONS_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
     }
@@ -291,13 +308,13 @@ class AuthController(
         return if (success) {
             ApiResponse.buildResponse(
                 data = null,
-                message = "Session revoked successfully",
+                message = SESSION_REVOKED_SUCCESSFULLY,
                 status = HttpStatus.OK,
             )
         } else {
             ApiResponse.buildResponse(
                 data = null,
-                message = "Failed to revoke session",
+                message = FAILED_TO_REVOKE_SESSION,
                 status = HttpStatus.BAD_REQUEST,
             )
         }

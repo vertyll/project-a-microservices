@@ -28,9 +28,13 @@ class RoleService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    companion object {
+    private companion object {
         private const val ERROR_UNKNOWN = "Unknown error"
         private const val ERROR_ROLE_NOT_FOUND = "Role not found"
+        private const val DEFAULT_ROLE_FOR_ALL_USERS = "Default role for all users"
+        private const val ADMIN_ROLE_WITH_ALL_PRIVILEGES = "Admin role with all privileges"
+        private const val USER_ROLE_MAPPING_NOT_FOUND = "User-role mapping not found"
+        private const val CANNOT_REMOVE_USER_ROLE = "Cannot remove USER role from user as it's their only role"
     }
 
     /**
@@ -44,7 +48,7 @@ class RoleService(
                 val userRole =
                     Role.create(
                         name = RoleType.USER.value,
-                        description = "Default role for all users",
+                        description = DEFAULT_ROLE_FOR_ALL_USERS,
                     )
                 roleRepository.save(userRole)
                 logger.info("Created default ${RoleType.USER.value} role")
@@ -54,7 +58,7 @@ class RoleService(
                 val adminRole =
                     Role.create(
                         name = RoleType.ADMIN.value,
-                        description = "Admin role with all privileges",
+                        description = ADMIN_ROLE_WITH_ALL_PRIVILEGES,
                     )
                 roleRepository.save(adminRole)
                 logger.info("Created default ${RoleType.ADMIN.value} role")
@@ -289,7 +293,7 @@ class RoleService(
                 .findByUserIdAndRoleId(userId, role.id)
                 .orElseThrow {
                     ApiException(
-                        message = "User-role mapping not found",
+                        message = USER_ROLE_MAPPING_NOT_FOUND,
                         status = HttpStatus.INTERNAL_SERVER_ERROR,
                     )
                 }
@@ -387,7 +391,7 @@ class RoleService(
             val userRoles = userRoleRepository.findByUserId(userId)
             if (userRoles.size == 1) {
                 throw ApiException(
-                    message = "Cannot remove USER role from user as it's their only role",
+                    message = CANNOT_REMOVE_USER_ROLE,
                     status = HttpStatus.BAD_REQUEST,
                 )
             }

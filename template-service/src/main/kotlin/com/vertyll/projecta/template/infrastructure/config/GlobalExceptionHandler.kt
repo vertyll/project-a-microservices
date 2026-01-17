@@ -17,6 +17,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
+    private companion object {
+        private const val INVALID_VALUE = "Invalid value"
+        private const val VALIDATION_FAILED = "Validation failed"
+        private const val AN_UNEXPECTED_ERROR_OCCURRED = "An unexpected error occurred"
+    }
+
     @ExceptionHandler(ApiException::class)
     fun handleApiException(ex: ApiException): ResponseEntity<ApiResponse<Any>> {
         logger.error("API Exception: {}", ex.message)
@@ -34,12 +40,12 @@ class GlobalExceptionHandler {
         logger.error("Validation Exception: {}", ex.message)
 
         val errors = ex.bindingResult.fieldErrors.associate { error ->
-            error.field to (error.defaultMessage ?: "Invalid value")
+            error.field to (error.defaultMessage ?: INVALID_VALUE)
         }
 
         return ApiResponse.buildResponse(
             data = errors,
-            message = "Validation failed",
+            message = VALIDATION_FAILED,
             status = HttpStatus.BAD_REQUEST
         )
     }
@@ -49,7 +55,7 @@ class GlobalExceptionHandler {
         logger.error("Unhandled exception", ex)
         return ApiResponse.buildResponse(
             data = null,
-            message = "An unexpected error occurred",
+            message = AN_UNEXPECTED_ERROR_OCCURRED,
             status = HttpStatus.INTERNAL_SERVER_ERROR
         )
     }

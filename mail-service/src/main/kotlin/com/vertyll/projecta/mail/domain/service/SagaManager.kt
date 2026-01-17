@@ -30,6 +30,11 @@ class SagaManager(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    private companion object {
+        private const val EMAIL_CANNOT_BE_UNSENT = "Email cannot be unsent, compensation logged for auditing purposes"
+        private const val TEMPLATE_UPDATE_COMPENSATION_LOGGED = "Template update compensation logged"
+    }
+
     // Define the expected steps for each saga type
     private val sagaStepDefinitions =
         mapOf(
@@ -237,7 +242,7 @@ class SagaManager(
                         "action" to SagaCompensationActions.LOG_EMAIL_COMPENSATION.value,
                         "emailId" to emailId,
                         "to" to to,
-                        "message" to "Email cannot be unsent, compensation logged for auditing purposes",
+                        "message" to EMAIL_CANNOT_BE_UNSENT,
                     ),
                 sagaId = sagaId,
             )
@@ -304,7 +309,7 @@ class SagaManager(
                         "stepId" to step.id,
                         "action" to SagaCompensationActions.LOG_TEMPLATE_COMPENSATION.value,
                         "templateName" to templateName,
-                        "message" to "Template update compensation logged",
+                        "message" to TEMPLATE_UPDATE_COMPENSATION_LOGGED,
                     ),
                 sagaId = sagaId,
             )

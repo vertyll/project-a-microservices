@@ -19,6 +19,11 @@ class AuthEventProducer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    companion object {
+        private const val HEADER = "__TypeId__"
+        private const val HEADER_VALUE = "mailRequested"
+    }
+
     /**
      * Sends a user registration event to the Kafka topic.
      */
@@ -42,7 +47,7 @@ class AuthEventProducer(
                 .withPayload(eventJson)
                 .setHeader(KafkaHeaders.KEY, event.eventId)
                 .setHeader(KafkaHeaders.TOPIC, kafkaTopicsConfig.getMailRequestedTopic())
-                .setHeader("__TypeId__", "mailRequested")
+                .setHeader(HEADER, HEADER_VALUE)
                 .build()
         kafkaTemplate.send(message)
         logger.info("Sent mail request to: ${event.to}")
