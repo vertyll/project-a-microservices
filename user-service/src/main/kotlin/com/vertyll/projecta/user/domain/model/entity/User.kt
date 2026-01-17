@@ -1,5 +1,6 @@
 package com.vertyll.projecta.user.domain.model.entity
 
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -44,13 +45,13 @@ class User(
 
     // Roles are stored in the Role Service
     @Transient
-    private var cachedRoles: Set<String>? = null
+    private var cachedRoles: Set<RoleType>? = null
 
-    fun setCachedRoles(roles: Set<String>) {
+    fun setCachedRoles(roles: Set<RoleType>) {
         this.cachedRoles = roles
     }
 
-    fun getCachedRoles(): Set<String> = cachedRoles ?: emptySet()
+    fun getCachedRoles(): Set<RoleType> = cachedRoles ?: emptySet()
 
     fun getEmail(): String = email
 
@@ -64,7 +65,7 @@ class User(
             firstName: String,
             lastName: String,
             email: String,
-            roles: Set<String> = setOf("USER"),
+            roles: Set<RoleType> = setOf(RoleType.USER),
             profilePicture: String? = null,
             phoneNumber: String? = null,
             address: String? = null,

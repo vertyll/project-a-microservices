@@ -9,6 +9,7 @@ import com.vertyll.projecta.role.domain.model.enums.SagaStepStatus
 import com.vertyll.projecta.role.domain.repository.RoleRepository
 import com.vertyll.projecta.role.domain.repository.SagaStepRepository
 import com.vertyll.projecta.role.domain.repository.UserRoleRepository
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
@@ -195,11 +196,18 @@ class SagaCompensationService(
                         return
                     }
 
+                val nameStr = originalDataMap["name"]?.toString() ?: role.name.value
+                val roleType =
+                    RoleType.fromString(nameStr) ?: run {
+                        logger.error("Invalid role type: $nameStr")
+                        return
+                    }
+
                 // Since Role properties are val, we need to create a new Role object
                 val updatedRole =
                     Role(
                         id = role.id,
-                        name = originalDataMap["name"]?.toString() ?: role.name,
+                        name = roleType,
                         description = originalDataMap["description"]?.toString() ?: role.description,
                         createdAt = role.createdAt,
                         updatedAt = Instant.now(),
@@ -246,10 +254,15 @@ class SagaCompensationService(
                         return
                     }
 
-                // Create new role with original ID and values
-                val name =
+                val nameStr =
                     originalDataMap["name"]?.toString() ?: run {
                         logger.error("Missing name in original data")
+                        return
+                    }
+
+                val roleType =
+                    RoleType.fromString(nameStr) ?: run {
+                        logger.error("Invalid role type: $nameStr")
                         return
                     }
 
@@ -258,7 +271,7 @@ class SagaCompensationService(
                 val role =
                     Role(
                         id = roleId,
-                        name = name,
+                        name = roleType,
                         description = description,
                     )
 

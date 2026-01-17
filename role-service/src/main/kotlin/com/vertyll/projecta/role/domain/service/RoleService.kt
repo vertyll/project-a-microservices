@@ -44,20 +44,20 @@ class RoleService(
     fun initializeDefaultRoles() {
         logger.info("Initializing default roles")
         try {
-            if (!roleRepository.existsByName(RoleType.USER.value)) {
+            if (!roleRepository.existsByName(RoleType.USER)) {
                 val userRole =
                     Role.create(
-                        name = RoleType.USER.value,
+                        name = RoleType.USER,
                         description = DEFAULT_ROLE_FOR_ALL_USERS,
                     )
                 roleRepository.save(userRole)
                 logger.info("Created default ${RoleType.USER.value} role")
             }
 
-            if (!roleRepository.existsByName(RoleType.ADMIN.value)) {
+            if (!roleRepository.existsByName(RoleType.ADMIN)) {
                 val adminRole =
                     Role.create(
-                        name = RoleType.ADMIN.value,
+                        name = RoleType.ADMIN,
                         description = ADMIN_ROLE_WITH_ALL_PRIVILEGES,
                     )
                 roleRepository.save(adminRole)
@@ -160,8 +160,7 @@ class RoleService(
         }
 
         // Prevent updating of system roles
-        val roleType = RoleType.fromString(role.name)
-        if (roleType != null && role.name != dto.name) {
+        if (role.name != dto.name) {
             throw ApiException(
                 message = "Cannot change name of system role ${role.name}",
                 status = HttpStatus.BAD_REQUEST,
@@ -254,7 +253,7 @@ class RoleService(
     }
 
     @Transactional(readOnly = true)
-    fun getRoleByName(name: String): RoleResponseDto {
+    fun getRoleByName(name: RoleType): RoleResponseDto {
         val role =
             roleRepository
                 .findByName(name)
@@ -273,7 +272,7 @@ class RoleService(
     @Transactional
     fun assignRoleToUser(
         userId: Long,
-        roleName: String,
+        roleName: RoleType,
     ): UserRole {
         logger.info("Assigning role $roleName to user $userId")
 
@@ -367,7 +366,7 @@ class RoleService(
     @Transactional
     fun removeRoleFromUser(
         userId: Long,
-        roleName: String,
+        roleName: RoleType,
     ) {
         logger.info("Removing role $roleName from user $userId")
 
@@ -387,7 +386,7 @@ class RoleService(
         }
 
         // If it's the USER role, check if it's the only role the user has
-        if (roleName == RoleType.USER.value) {
+        if (roleName == RoleType.USER) {
             val userRoles = userRoleRepository.findByUserId(userId)
             if (userRoles.size == 1) {
                 throw ApiException(

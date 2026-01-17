@@ -1,7 +1,10 @@
 package com.vertyll.projecta.role.domain.model.entity
 
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -15,7 +18,8 @@ class Role(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     @Column(nullable = false, unique = true)
-    val name: String,
+    @Enumerated(EnumType.STRING)
+    val name: RoleType,
     @Column(nullable = true)
     val description: String? = null,
     @Column(nullable = false)
@@ -26,13 +30,13 @@ class Role(
     // No-args constructor required by JPA
     constructor() : this(
         id = null,
-        name = "",
+        name = RoleType.USER,
         description = null,
     )
 
     companion object {
         fun create(
-            name: String,
+            name: RoleType,
             description: String? = null,
         ): Role =
             Role(

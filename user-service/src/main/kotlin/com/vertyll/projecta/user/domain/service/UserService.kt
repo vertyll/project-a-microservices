@@ -37,7 +37,7 @@ class UserService(
                 firstName = dto.firstName,
                 lastName = dto.lastName,
                 email = dto.email,
-                roles = dto.roles.ifEmpty { setOf(RoleType.USER.value) },
+                roles = dto.roles.ifEmpty { setOf(RoleType.USER) },
                 profilePicture = dto.profilePicture,
                 phoneNumber = dto.phoneNumber,
                 address = dto.address,

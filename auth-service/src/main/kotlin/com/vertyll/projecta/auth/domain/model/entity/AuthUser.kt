@@ -1,5 +1,6 @@
 package com.vertyll.projecta.auth.domain.model.entity
 
+import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -71,7 +72,7 @@ class AuthUser(
      */
     fun addRole(
         roleId: Long,
-        roleName: String,
+        roleName: RoleType,
     ) {
         if (userRoles.none { it.roleId == roleId }) {
             userRoles.add(
@@ -99,7 +100,7 @@ class AuthUser(
     /**
      * Get all role names for this user
      */
-    fun getRoles(): Set<String> = userRoles.map { it.roleName }.toSet()
+    fun getRoles(): Set<RoleType> = userRoles.map { it.roleName }.toSet()
 
     override fun isAccountNonExpired(): Boolean = true
 
