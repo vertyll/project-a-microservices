@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.vertyll.projecta.sharedinfrastructure.event.DomainEvent
 import com.vertyll.projecta.sharedinfrastructure.event.EventType
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import java.time.Instant
 
 data class CredentialsVerificationResultEvent
@@ -25,7 +24,7 @@ data class CredentialsVerificationResultEvent
         @JsonProperty("email")
         val email: String? = null,
         @JsonProperty("roles")
-        val roles: List<RoleType> = emptyList(),
+        val roles: List<String> = emptyList(),
         @JsonProperty("message")
         val message: String? = null,
         @JsonProperty("sagaId")

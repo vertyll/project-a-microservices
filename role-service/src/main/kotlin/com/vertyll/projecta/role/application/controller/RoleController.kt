@@ -5,7 +5,6 @@ import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
 import com.vertyll.projecta.role.domain.service.RoleService
 import com.vertyll.projecta.role.infrastructure.response.ApiResponse
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -81,7 +80,7 @@ class RoleController(
     @GetMapping("/name/{name}")
     @Operation(summary = "Get role by name")
     fun getRoleByName(
-        @PathVariable name: RoleType,
+        @PathVariable name: String,
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleByName(name)
         return ApiResponse.buildResponse(
@@ -119,7 +118,7 @@ class RoleController(
     @Operation(summary = "Assign a role to a user")
     fun assignRoleToUser(
         @PathVariable userId: Long,
-        @PathVariable roleName: RoleType,
+        @PathVariable roleName: String,
     ): ResponseEntity<ApiResponse<Any>> {
         roleService.assignRoleToUser(userId, roleName)
         return ApiResponse.buildResponse(
@@ -133,7 +132,7 @@ class RoleController(
     @Operation(summary = "Remove a role from a user")
     fun removeRoleFromUser(
         @PathVariable userId: Long,
-        @PathVariable roleName: RoleType,
+        @PathVariable roleName: String,
     ): ResponseEntity<ApiResponse<Any>> {
         roleService.removeRoleFromUser(userId, roleName)
         return ApiResponse.buildResponse(

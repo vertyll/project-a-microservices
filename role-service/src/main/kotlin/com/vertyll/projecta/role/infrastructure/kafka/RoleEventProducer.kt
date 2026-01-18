@@ -7,7 +7,6 @@ import com.vertyll.projecta.sharedinfrastructure.event.role.RoleCreatedEvent
 import com.vertyll.projecta.sharedinfrastructure.event.role.RoleRevokedEvent
 import com.vertyll.projecta.sharedinfrastructure.event.role.RoleUpdatedEvent
 import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaTopicsConfig
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
@@ -66,7 +65,7 @@ class RoleEventProducer(
      */
     fun sendRoleAssignedEvent(
         userRole: UserRole,
-        roleName: RoleType,
+        roleName: String,
     ) {
         val event =
             RoleAssignedEvent(
@@ -90,7 +89,7 @@ class RoleEventProducer(
     fun sendRoleRevokedEvent(
         userId: Long,
         roleId: Long,
-        roleName: RoleType,
+        roleName: String,
     ) {
         val event =
             RoleRevokedEvent(

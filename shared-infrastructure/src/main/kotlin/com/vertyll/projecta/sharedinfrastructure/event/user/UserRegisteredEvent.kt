@@ -26,7 +26,7 @@ data class UserRegisteredEvent
         @JsonProperty("lastName")
         val lastName: String,
         @JsonProperty("roles")
-        val roles: Set<RoleType> = setOf(RoleType.USER),
+        val roles: Set<String> = setOf(RoleType.USER.value),
         @JsonProperty("eventSource")
         val eventSource: String = EventSource.AUTH_SERVICE.value,
         @JsonProperty("sagaId")

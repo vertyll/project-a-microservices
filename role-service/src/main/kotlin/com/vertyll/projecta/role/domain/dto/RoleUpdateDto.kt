@@ -1,8 +1,9 @@
 package com.vertyll.projecta.role.domain.dto
 
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
+import jakarta.validation.constraints.NotBlank
 
 data class RoleUpdateDto(
-    val name: RoleType,
+    @field:NotBlank(message = "Role name is required")
+    val name: String,
     val description: String? = null,
 )

@@ -2,7 +2,6 @@ package com.vertyll.projecta.sharedinfrastructure.event.role
 
 import com.vertyll.projecta.sharedinfrastructure.event.DomainEvent
 import com.vertyll.projecta.sharedinfrastructure.event.EventType
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import java.time.Instant
 
 data class RoleUpdatedEvent(
@@ -10,7 +9,7 @@ data class RoleUpdatedEvent(
     override val timestamp: Instant = DomainEvent.now(),
     override val eventType: String = EventType.ROLE_UPDATED.value,
     val roleId: Long,
-    val name: RoleType,
+    val name: String,
     val description: String?,
     override val sagaId: String? = null,
 ) : DomainEvent

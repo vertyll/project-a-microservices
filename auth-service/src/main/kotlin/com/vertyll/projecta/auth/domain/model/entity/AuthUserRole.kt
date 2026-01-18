@@ -1,6 +1,5 @@
 package com.vertyll.projecta.auth.domain.model.entity
 
-import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -24,7 +23,7 @@ class AuthUserRole(
     @Column(name = "role_id", nullable = false)
     val roleId: Long,
     @Column(name = "role_name", nullable = false, length = 50)
-    val roleName: RoleType,
+    val roleName: String,
     @Column(nullable = false)
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
@@ -35,6 +34,6 @@ class AuthUserRole(
         id = null,
         authUserId = 0,
         roleId = 0,
-        roleName = RoleType.USER,
+        roleName = "",
     )
 }
