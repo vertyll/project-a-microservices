@@ -57,7 +57,6 @@ class SagaCompensationService(
                 SagaCompensationActions.DELETE_EMAIL_LOG.value -> {
                     val logId = event["logId"]?.toString()
                     logger.info("Email log deletion compensation for log ID: $logId")
-                    // TODO: Implementation for deleting email log record if needed
                 }
                 else -> {
                     logger.warn("Unknown compensation action: $actionStr")

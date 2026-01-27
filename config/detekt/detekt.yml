@@ -1,0 +1,37 @@
+config:
+  validation: true
+  warningsAsErrors: true
+
+complexity:
+  active: true
+  TooManyFunctions:
+    active: false
+  LargeClass:
+    active: false
+  LongMethod:
+    active: false
+  CyclomaticComplexMethod:
+    active: false
+
+style:
+  active: true
+  MaxLineLength:
+    active: false
+  ThrowsCount:
+    active: false
+  ReturnCount:
+    active: false
+
+empty-blocks:
+  active: true
+  EmptyFunctionBlock:
+    active: false
+
+exceptions:
+    active: true
+    SwallowedException:
+        active: false
+    TooGenericExceptionThrown:
+        active: false
+    TooGenericExceptionCaught:
+        active: false

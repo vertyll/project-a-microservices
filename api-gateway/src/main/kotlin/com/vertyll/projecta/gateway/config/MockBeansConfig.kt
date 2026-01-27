@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary
  * Configuration that provides mock beans for components required by * dependencies that we can't fully exclude.
  */
 @Configuration
+@Suppress("FunctionOnlyReturningConstant")
 class MockBeansConfig {
     /**
      * Mock KafkaOutboxProcessor to prevent autowiring issues

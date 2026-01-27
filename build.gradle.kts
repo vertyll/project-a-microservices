@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import dev.detekt.gradle.Detekt
 
 plugins {
     alias(libs.plugins.spring.boot) apply false
@@ -8,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa) apply false
     alias(libs.plugins.kotlin.kapt) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.detekt) apply false
 }
 
 allprojects {
@@ -30,6 +32,7 @@ subprojects {
         plugin("org.springframework.boot")
         plugin("io.spring.dependency-management")
         plugin("org.jlleitschuh.gradle.ktlint")
+        plugin("dev.detekt")
     }
 
     configure<JavaPluginExtension> {
@@ -68,6 +71,15 @@ subprojects {
             include("**/src/**/*.kt")
             include("**/src/**/*.kts")
         }
+    }
+
+    tasks.withType<Detekt>().configureEach {
+        config.setFrom(files("${rootProject.projectDir}/config/detekt/detekt.yml"))
+        buildUponDefaultConfig = true
+    }
+
+    tasks.named("check") {
+        dependsOn("detekt")
     }
 
     tasks.withType<KotlinCompile>().configureEach {

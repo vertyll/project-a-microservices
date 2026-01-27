@@ -27,6 +27,7 @@ class EmailService(
 
     private companion object {
         private const val CHARSET_UTF8 = "UTF-8"
+        private const val MAX_VARIABLE_VALUE_LENGTH = 50
 
         // Log messages
         private const val LOG_SENDING_EMAIL = "Sending email to {} with subject: {}"
@@ -115,8 +116,8 @@ class EmailService(
         }
 
         return variables.entries.joinToString(", ") { (key, value) ->
-            if (value.length > 50) {
-                "$key: ${value.take(50)}..."
+            if (value.length > MAX_VARIABLE_VALUE_LENGTH) {
+                "$key: ${value.take(MAX_VARIABLE_VALUE_LENGTH)}..."
             } else {
                 "$key: $value"
             }

@@ -65,6 +65,9 @@ class AuthService(
         private const val ERROR_TOKEN_ALREADY_USED = "Token already used"
         private const val ERROR_TOKEN_EXPIRED = "Token expired"
         private const val ERROR_INVALID_TOKEN_TYPE = "Invalid token type"
+        private const val PASSWORD_RESET_VERIFICATION_EXPIRATION_SECONDS = 1800L
+        private const val DEFAULT_VERIFICATION_TOKEN_EXPIRY_HOURS = 24L
+        private const val MILLIS_PER_SECOND = 1000
     }
 
     @Transactional
@@ -505,7 +508,7 @@ class AuthService(
             )
         }
 
-        if (verificationToken.updatedAt.plusSeconds(1800).isBefore(Instant.now())) {
+        if (verificationToken.updatedAt.plusSeconds(PASSWORD_RESET_VERIFICATION_EXPIRATION_SECONDS).isBefore(Instant.now())) {
             throw ApiException(
                 message = ERROR_TOKEN_EXPIRED,
                 status = HttpStatus.BAD_REQUEST,
@@ -711,7 +714,7 @@ class AuthService(
             VerificationToken(
                 token = token,
                 username = email,
-                expiryDate = LocalDateTime.now().plusHours(24),
+                expiryDate = LocalDateTime.now().plusHours(DEFAULT_VERIFICATION_TOKEN_EXPIRY_HOURS),
                 used = false,
                 tokenType = tokenType,
                 additionalData = additionalData,
@@ -924,7 +927,7 @@ class AuthService(
         cookie.isHttpOnly = true
         cookie.secure = true
         cookie.path = "/"
-        cookie.maxAge = (jwtService.getRefreshTokenExpirationTime() / 1000).toInt()
+        cookie.maxAge = (jwtService.getRefreshTokenExpirationTime() / MILLIS_PER_SECOND).toInt()
         response.addCookie(cookie)
     }
 

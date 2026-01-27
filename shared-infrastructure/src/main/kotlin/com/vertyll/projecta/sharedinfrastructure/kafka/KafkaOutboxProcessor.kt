@@ -19,9 +19,9 @@ class KafkaOutboxProcessor(
     private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val maxRetries = 3
 
     private companion object {
+        private const val MAX_RETRIES = 3
         private const val UNKNOWN_ERROR = "Unknown error"
     }
 
@@ -34,7 +34,7 @@ class KafkaOutboxProcessor(
         val pendingMessages =
             kafkaOutboxRepository.findMessagesToProcess(
                 KafkaOutbox.OutboxStatus.PENDING,
-                maxRetries,
+                MAX_RETRIES,
             )
 
         logger.info("Found ${pendingMessages.size} pending messages to process")
