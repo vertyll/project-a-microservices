@@ -2,6 +2,9 @@ config:
   validation: true
   warningsAsErrors: true
 
+comments:
+  active: true
+
 complexity:
   active: true
   TooManyFunctions:
@@ -13,6 +16,32 @@ complexity:
   CyclomaticComplexMethod:
     active: false
 
+coroutines:
+  active: true
+
+empty-blocks:
+  active: true
+  EmptyFunctionBlock:
+    active: false
+
+exceptions:
+  active: true
+  SwallowedException:
+    active: false
+  TooGenericExceptionThrown:
+    active: false
+  TooGenericExceptionCaught:
+    active: false
+
+naming:
+  active: true
+
+performance:
+  active: true
+
+potential-bugs:
+  active: true
+
 style:
   active: true
   MaxLineLength:
@@ -21,17 +50,3 @@ style:
     active: false
   ReturnCount:
     active: false
-
-empty-blocks:
-  active: true
-  EmptyFunctionBlock:
-    active: false
-
-exceptions:
-    active: true
-    SwallowedException:
-        active: false
-    TooGenericExceptionThrown:
-        active: false
-    TooGenericExceptionCaught:
-        active: false
