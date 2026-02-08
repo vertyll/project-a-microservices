@@ -2,10 +2,12 @@ package com.vertyll.projecta.sharedinfrastructure.event.mail
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.vertyll.projecta.sharedinfrastructure.event.DomainEvent
 import com.vertyll.projecta.sharedinfrastructure.event.EventType
 import java.time.Instant
 
+@JsonTypeName("MAIL_REQUESTED")
 data class MailRequestedEvent
     @JsonCreator
     constructor(

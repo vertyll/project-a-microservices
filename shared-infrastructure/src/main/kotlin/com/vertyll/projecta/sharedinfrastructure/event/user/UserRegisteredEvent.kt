@@ -2,12 +2,14 @@ package com.vertyll.projecta.sharedinfrastructure.event.user
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonTypeName
 import com.vertyll.projecta.sharedinfrastructure.event.DomainEvent
 import com.vertyll.projecta.sharedinfrastructure.event.EventSource
 import com.vertyll.projecta.sharedinfrastructure.event.EventType
 import com.vertyll.projecta.sharedinfrastructure.role.RoleType
 import java.time.Instant
 
+@JsonTypeName("USER_REGISTERED")
 data class UserRegisteredEvent
     @JsonCreator
     constructor(
