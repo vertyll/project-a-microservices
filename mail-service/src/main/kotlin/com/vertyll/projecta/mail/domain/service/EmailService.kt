@@ -4,9 +4,9 @@ import com.vertyll.projecta.mail.domain.model.entity.EmailLog
 import com.vertyll.projecta.mail.domain.model.enums.EmailStatus
 import com.vertyll.projecta.mail.domain.model.enums.EmailTemplate
 import com.vertyll.projecta.mail.domain.repository.EmailLogRepository
+import com.vertyll.projecta.mail.infrastructure.config.MailProperties
 import jakarta.mail.internet.MimeMessage
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
@@ -19,11 +19,9 @@ class EmailService(
     private val mailSender: JavaMailSender,
     private val templateEngine: TemplateEngine,
     private val emailLogRepository: EmailLogRepository,
+    private val mailProperties: MailProperties,
 ) {
     private val logger = LoggerFactory.getLogger(EmailService::class.java)
-
-    @Value($$"${spring.mail.from}")
-    private lateinit var fromEmail: String
 
     private companion object {
         private const val CHARSET_UTF8 = "UTF-8"
@@ -57,7 +55,7 @@ class EmailService(
             val message: MimeMessage = mailSender.createMimeMessage()
             val helper = MimeMessageHelper(message, true, CHARSET_UTF8)
 
-            helper.setFrom(fromEmail)
+            helper.setFrom(mailProperties.from)
             helper.setTo(to)
             helper.setSubject(subject)
 
