@@ -17,20 +17,8 @@ spring:
         format_sql: true
 
   kafka:
-    bootstrap-servers: localhost:29092
     consumer:
       group-id: api-gateway-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "com.vertyll.projecta.*"
-        spring.json.value.default.type: "java.util.Map"
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring.json.add.type.headers: false
 
   cloud:
     gateway:
@@ -64,15 +52,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
   endpoint:
     health:
       show-details: when-authorized
       probes:
         enabled: true
     metrics:
-      access: read-only
-    prometheus:
       access: read-only
 
 logging:

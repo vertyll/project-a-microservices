@@ -4,24 +4,3 @@ spring:
 
   profiles:
     active: dev
-
-  config:
-    import: classpath:shared-config.yml
-
-# OpenAPI configuration
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    disable-swagger-default-url: true
-    url: /api-docs
-    config-url: /api-docs/swagger-config
-
-# Kafka Topics Configuration for Mail Service
-kafka:
-  topics:
-    # Topics that this service subscribes to
-    subscribe:
-      mail-requested: "mail-requested"
-      saga-compensation: "saga-compensation"

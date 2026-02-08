@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Configuration
  * Each microservice defines its own topics in application.yml
  */
 @Configuration
-@ConfigurationProperties(prefix = "kafka.topics")
+@ConfigurationProperties(prefix = "projecta.shared.kafka.topics")
 class KafkaTopicsConfig {
+    var all: Map<String, String> = emptyMap()
     var publish: Map<String, String> = emptyMap()
     var subscribe: Map<String, String> = emptyMap()
 
@@ -43,49 +44,45 @@ class KafkaTopicsConfig {
 
     // Helper methods to retrieve topics
 
+    private fun getTopic(topicKey: String): String = publish[topicKey] ?: subscribe[topicKey] ?: all[topicKey] ?: topicKey
+
     // Auth/User service topics
-    fun getUserRegisteredTopic(): String = publish[TOPIC_USER_REGISTERED] ?: subscribe[TOPIC_USER_REGISTERED] ?: TOPIC_USER_REGISTERED
+    fun getUserRegisteredTopic(): String = getTopic(TOPIC_USER_REGISTERED)
 
-    fun getUserActivatedTopic(): String = publish[TOPIC_USER_ACTIVATED] ?: subscribe[TOPIC_USER_ACTIVATED] ?: TOPIC_USER_ACTIVATED
+    fun getUserActivatedTopic(): String = getTopic(TOPIC_USER_ACTIVATED)
 
-    fun getCredentialsVerificationTopic(): String =
-        publish[TOPIC_CREDENTIALS_VERIFICATION] ?: subscribe[TOPIC_CREDENTIALS_VERIFICATION] ?: TOPIC_CREDENTIALS_VERIFICATION
+    fun getCredentialsVerificationTopic(): String = getTopic(TOPIC_CREDENTIALS_VERIFICATION)
 
-    fun getCredentialsVerificationResultTopic(): String =
-        publish[TOPIC_CREDENTIALS_VERIFICATION_RESULT] ?: subscribe[TOPIC_CREDENTIALS_VERIFICATION_RESULT]
-            ?: TOPIC_CREDENTIALS_VERIFICATION_RESULT
+    fun getCredentialsVerificationResultTopic(): String = getTopic(TOPIC_CREDENTIALS_VERIFICATION_RESULT)
 
-    fun getUserUpdatedTopic(): String = publish[TOPIC_USER_UPDATED] ?: subscribe[TOPIC_USER_UPDATED] ?: TOPIC_USER_UPDATED
+    fun getUserUpdatedTopic(): String = getTopic(TOPIC_USER_UPDATED)
 
-    fun getUserEmailUpdatedTopic(): String =
-        publish[TOPIC_USER_EMAIL_UPDATED] ?: subscribe[TOPIC_USER_EMAIL_UPDATED] ?: TOPIC_USER_EMAIL_UPDATED
+    fun getUserEmailUpdatedTopic(): String = getTopic(TOPIC_USER_EMAIL_UPDATED)
 
-    fun getUserDeletedTopic(): String = publish[TOPIC_USER_DELETED] ?: subscribe[TOPIC_USER_DELETED] ?: TOPIC_USER_DELETED
+    fun getUserDeletedTopic(): String = getTopic(TOPIC_USER_DELETED)
 
-    fun getUserDeletionTopic(): String = publish[TOPIC_USER_DELETION] ?: subscribe[TOPIC_USER_DELETION] ?: TOPIC_USER_DELETION
+    fun getUserDeletionTopic(): String = getTopic(TOPIC_USER_DELETION)
 
-    fun getUserCreationConfirmedTopic(): String =
-        publish[TOPIC_USER_CREATION_CONFIRMED] ?: subscribe[TOPIC_USER_CREATION_CONFIRMED] ?: TOPIC_USER_CREATION_CONFIRMED
+    fun getUserCreationConfirmedTopic(): String = getTopic(TOPIC_USER_CREATION_CONFIRMED)
 
     // Role service topics
-    fun getRoleCreatedTopic(): String = publish[TOPIC_ROLE_CREATED] ?: subscribe[TOPIC_ROLE_CREATED] ?: TOPIC_ROLE_CREATED
+    fun getRoleCreatedTopic(): String = getTopic(TOPIC_ROLE_CREATED)
 
-    fun getRoleUpdatedTopic(): String = publish[TOPIC_ROLE_UPDATED] ?: subscribe[TOPIC_ROLE_UPDATED] ?: TOPIC_ROLE_UPDATED
+    fun getRoleUpdatedTopic(): String = getTopic(TOPIC_ROLE_UPDATED)
 
-    fun getRoleDeletedTopic(): String = publish[TOPIC_ROLE_DELETED] ?: subscribe[TOPIC_ROLE_DELETED] ?: TOPIC_ROLE_DELETED
+    fun getRoleDeletedTopic(): String = getTopic(TOPIC_ROLE_DELETED)
 
-    fun getRoleAssignedTopic(): String = publish[TOPIC_ROLE_ASSIGNED] ?: subscribe[TOPIC_ROLE_ASSIGNED] ?: TOPIC_ROLE_ASSIGNED
+    fun getRoleAssignedTopic(): String = getTopic(TOPIC_ROLE_ASSIGNED)
 
-    fun getRoleRevokedTopic(): String = publish[TOPIC_ROLE_REVOKED] ?: subscribe[TOPIC_ROLE_REVOKED] ?: TOPIC_ROLE_REVOKED
+    fun getRoleRevokedTopic(): String = getTopic(TOPIC_ROLE_REVOKED)
 
     // Mail service topics
-    fun getMailRequestedTopic(): String = publish[TOPIC_MAIL_REQUESTED] ?: subscribe[TOPIC_MAIL_REQUESTED] ?: TOPIC_MAIL_REQUESTED
+    fun getMailRequestedTopic(): String = getTopic(TOPIC_MAIL_REQUESTED)
 
-    fun getMailSentTopic(): String = publish[TOPIC_MAIL_SENT] ?: subscribe[TOPIC_MAIL_SENT] ?: TOPIC_MAIL_SENT
+    fun getMailSentTopic(): String = getTopic(TOPIC_MAIL_SENT)
 
-    fun getMailFailedTopic(): String = publish[TOPIC_MAIL_FAILED] ?: subscribe[TOPIC_MAIL_FAILED] ?: TOPIC_MAIL_FAILED
+    fun getMailFailedTopic(): String = getTopic(TOPIC_MAIL_FAILED)
 
     // Saga topics
-    fun getSagaCompensationTopic(): String =
-        publish[TOPIC_SAGA_COMPENSATION] ?: subscribe[TOPIC_SAGA_COMPENSATION] ?: TOPIC_SAGA_COMPENSATION
+    fun getSagaCompensationTopic(): String = getTopic(TOPIC_SAGA_COMPENSATION)
 }
