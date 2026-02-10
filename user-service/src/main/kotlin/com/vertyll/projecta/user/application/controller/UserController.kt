@@ -3,6 +3,7 @@ package com.vertyll.projecta.user.application.controller
 import com.vertyll.projecta.user.domain.dto.UserResponseDto
 import com.vertyll.projecta.user.domain.service.UserService
 import com.vertyll.projecta.user.infrastructure.response.ApiResponse
+import com.vertyll.projecta.sharedinfrastructure.http.ETagUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
@@ -28,11 +29,13 @@ class UserController(
         @PathVariable id: Long,
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserById(id)
-        return ApiResponse.buildResponse(
+        val etag = ETagUtil.buildWeakETag(user.version)
+        val response = ApiResponse.buildResponse(
             data = user,
             message = USER_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping("/email/{email}")
@@ -41,10 +44,12 @@ class UserController(
         @PathVariable email: String,
     ): ResponseEntity<ApiResponse<UserResponseDto>> {
         val user = userService.getUserByEmail(email)
-        return ApiResponse.buildResponse(
+        val etag = ETagUtil.buildWeakETag(user.version)
+        val response = ApiResponse.buildResponse(
             data = user,
             message = USER_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 }

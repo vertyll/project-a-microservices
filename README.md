@@ -239,6 +239,63 @@ Services communicate asynchronously through Kafka events, implemented as externa
 
 Event publishing and consuming are handled by dedicated adapters, keeping the domain core focused on business logic.
 
+## Optimistic Locking and Concurrency Control
+
+This project uses a combination of HTTP ETags (at API boundaries) and JPA Optimistic Locking (within services) to prevent lost updates and to ensure safe concurrency across microservices and asynchronous processing.
+
+### Summary
+- API layer: ETag/If-Match for conditional updates from clients (front-end, API consumers).
+- Persistence layer: JPA `@Version` on entities + the load → mutate → save pattern inside a single transaction.
+- Sagas and Outbox: Internal consistency ensured by JPA Optimistic Locking and idempotency safeguards — no HTTP ETags here.
+
+### API: ETag / If-Match
+- Role Service
+  - `PUT /roles/{id}` requires `If-Match` header with the ETag received from a prior GET.
+    - Missing `If-Match` → `428 Precondition Required`.
+    - Version mismatch (precondition failed) → `412 Precondition Failed`.
+  - `GET /roles/{id}`, `GET /roles/name/{name}` return `ETag: W/"<version>"`.
+  - Collections (e.g., `GET /roles`, `GET /roles/user/{userId}`) return a collection ETag derived from item versions (hash-based weak ETag) for efficient caching.
+- User Service
+  - `GET /users/{id}`, `GET /users/email/{email}` return `ETag: W/"<version>"` for clients that want to track staleness. (Updates to user profile are event-driven and do not use If-Match directly.)
+
+Example client flow (Role update):
+1. Read current state
+```
+curl -i http://localhost:8084/roles/1
+# Response contains: ETag: W/"<version>"
+```
+2. Update with precondition
+```
+curl -i -X PUT http://localhost:8084/roles/1 \
+  -H 'Content-Type: application/json' \
+  -H 'If-Match: W/"<version>"' \
+  -d '{"name": "MANAGER", "description": "Updated"}'
+```
+- If the resource changed meanwhile, the server returns `412`. If the header is missing, it returns `428`.
+
+Error semantics at the API layer:
+- `428 Precondition Required` — missing `If-Match` on required endpoints.
+- `412 Precondition Failed` — ETag/If-Match does not match current version.
+- `409 Conflict` — last-resort handler for JPA `ObjectOptimisticLockingFailureException` (race detected at commit time).
+
+### Persistence: JPA Optimistic Locking
+- Entities use `@Version` to enable Optimistic Locking (e.g., `AuthUser`, `User`, `Role`, `KafkaOutbox`, and Saga/SagaStep entities where applicable).
+- Services follow the pattern: load the entity → apply changes → `save(...)` inside `@Transactional`. Hibernate includes `WHERE version = ?` and raises a conflict if data changed concurrently.
+
+### Sagas (Internal, no ETag)
+- Sagas are backend-internal processes (event-driven), not HTTP resources — therefore **ETag/If-Match is not used in Sagas**.
+- Concurrency control:
+  - `@Version` on Saga and/or SagaStep where applicable, persisted via load → mutate → save.
+  - Idempotency for steps:
+    - Database-level unique constraint on `(sagaId, stepName)` prevents duplicate step insertion.
+    - Service-level soft check in `recordSagaStep` returns the existing step if already present (safe retries/duplicates).
+- Compensation steps are recorded and published through Outbox when needed.
+
+### Outbox Pattern
+- `KafkaOutbox` has `@Version`.
+- The `KafkaOutboxProcessor` updates message status by mutating the loaded entity and calling `save(...)` (no bulk JPQL updates). This leverages Optimistic Locking to avoid races between processor instances.
+- On failure, the processor increments `retryCount`, stores the error, and persists via `save(...)` again.
+
 ## API Documentation
 
 Each service provides its own Swagger UI for API documentation:

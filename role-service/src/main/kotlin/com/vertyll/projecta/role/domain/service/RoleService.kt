@@ -142,6 +142,7 @@ class RoleService(
     fun updateRole(
         id: Long,
         dto: RoleUpdateDto,
+        headerVersion: Long? = null,
     ): RoleResponseDto {
         val role =
             roleRepository
@@ -153,10 +154,10 @@ class RoleService(
                     )
                 }
 
-        if (dto.version != null && role.version != dto.version) {
+        if (headerVersion != null && role.version != headerVersion) {
             throw ApiException(
                 message = OPTIMISTIC_LOCKING_FAILURE,
-                status = HttpStatus.CONFLICT,
+                status = HttpStatus.PRECONDITION_FAILED,
             )
         }
 
@@ -203,7 +204,7 @@ class RoleService(
                     id = role.id,
                     name = dto.name,
                     description = dto.description,
-                    version = dto.version ?: role.version,
+                    version = headerVersion ?: role.version,
                 )
 
             val savedRole = roleRepository.save(updatedRole)

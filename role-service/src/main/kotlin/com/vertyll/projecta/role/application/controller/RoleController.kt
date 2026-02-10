@@ -5,6 +5,7 @@ import com.vertyll.projecta.role.domain.dto.RoleResponseDto
 import com.vertyll.projecta.role.domain.dto.RoleUpdateDto
 import com.vertyll.projecta.role.domain.service.RoleService
 import com.vertyll.projecta.role.infrastructure.response.ApiResponse
+import com.vertyll.projecta.sharedinfrastructure.http.ETagUtil
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -55,13 +57,22 @@ class RoleController(
         @PathVariable id: Long,
         @RequestBody @Valid
         dto: RoleUpdateDto,
+        @RequestHeader(name = "If-Match", required = false)
+        ifMatch: String?,
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
-        val updatedRole = roleService.updateRole(id, dto)
-        return ApiResponse.buildResponse(
+        val headerVersion = ETagUtil.parseIfMatchToVersion(ifMatch) ?: return ApiResponse.buildResponse(
+            data = null,
+            message = "Missing If-Match header",
+            status = HttpStatus.PRECONDITION_REQUIRED,
+        )
+        val updatedRole = roleService.updateRole(id, dto, headerVersion)
+        val etag = ETagUtil.buildWeakETag(updatedRole.version)
+        val response = ApiResponse.buildResponse(
             data = updatedRole,
             message = ROLE_UPDATED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping("/{id}")
@@ -70,11 +81,13 @@ class RoleController(
         @PathVariable id: Long,
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleById(id)
-        return ApiResponse.buildResponse(
+        val etag = ETagUtil.buildWeakETag(role.version)
+        val response = ApiResponse.buildResponse(
             data = role,
             message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping("/name/{name}")
@@ -83,22 +96,29 @@ class RoleController(
         @PathVariable name: String,
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleByName(name)
-        return ApiResponse.buildResponse(
+        val etag = ETagUtil.buildWeakETag(role.version)
+        val response = ApiResponse.buildResponse(
             data = role,
             message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping
     @Operation(summary = "Get all roles")
     fun getAllRoles(): ResponseEntity<ApiResponse<List<RoleResponseDto>>> {
         val roles = roleService.getAllRoles()
-        return ApiResponse.buildResponse(
+        // Compute collection ETag based on versions of all roles
+        val collectionVersion = roles.mapNotNull { it.version }.hashCode().toLong()
+        val etag = ETagUtil.buildWeakETag(collectionVersion)
+        
+        val response = ApiResponse.buildResponse(
             data = roles,
             message = ROLE_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping("/user/{userId}")
@@ -107,11 +127,16 @@ class RoleController(
         @PathVariable userId: Long,
     ): ResponseEntity<ApiResponse<List<RoleResponseDto>>> {
         val roles = roleService.getRolesForUser(userId)
-        return ApiResponse.buildResponse(
+        // Compute collection ETag based on versions of all roles
+        val collectionVersion = roles.mapNotNull { it.version }.hashCode().toLong()
+        val etag = ETagUtil.buildWeakETag(collectionVersion)
+
+        val response = ApiResponse.buildResponse(
             data = roles,
             message = USER_ROLES_RETRIEVED_SUCCESSFULLY,
             status = HttpStatus.OK,
         )
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @PostMapping("/user/{userId}/role/{roleName}")
