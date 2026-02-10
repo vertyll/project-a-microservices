@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
+import jakarta.persistence.Version
 import java.time.Instant
 
 @Entity
@@ -28,12 +29,14 @@ class AuthUserRole(
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) {
-    // No-args constructor for JPA
     constructor() : this(
         id = null,
         authUserId = 0,
         roleId = 0,
         roleName = "",
+        version = null,
     )
 }

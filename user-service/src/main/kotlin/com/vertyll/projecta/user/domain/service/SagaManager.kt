@@ -95,6 +95,16 @@ class SagaManager(
         status: SagaStepStatus,
         payload: Any? = null,
     ): SagaStep {
+        // Idempotency check: if step already exists, return it
+        val existingSteps = sagaStepRepository.findBySagaIdAndStepName(sagaId, stepName.value)
+        if (existingSteps.isNotEmpty()) {
+            val existingStep = existingSteps.first()
+            // If status changed or needs update, you might want to handle it, 
+            // but for idempotency usually we return the existing one if it's already success/fail
+            logger.info("Saga step $stepName already exists for saga $sagaId, status: ${existingStep.status}")
+            return existingStep
+        }
+
         val payloadJson =
             payload?.let {
                 it as? String ?: objectMapper.writeValueAsString(it)

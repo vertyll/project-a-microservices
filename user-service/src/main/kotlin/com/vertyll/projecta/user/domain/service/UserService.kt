@@ -21,6 +21,7 @@ class UserService(
     private companion object {
         private const val USER_NOT_FOUND = "User not found"
         private const val EMAIL_ALREADY_EXISTS = "Email already exists"
+        private const val OPTIMISTIC_LOCKING_FAILURE = "Data has been modified by another transaction. Please refresh and try again."
     }
 
     @Transactional
@@ -96,7 +97,16 @@ class UserService(
             )
         }
 
-        val user =
+        val user = if (request.userId != null) {
+            userRepository
+                .findById(request.userId)
+                .orElseThrow {
+                    ApiException(
+                        message = USER_NOT_FOUND,
+                        status = HttpStatus.NOT_FOUND,
+                    )
+                }
+        } else {
             userRepository
                 .findByEmail(request.currentEmail)
                 .orElseThrow {
@@ -105,6 +115,14 @@ class UserService(
                         status = HttpStatus.NOT_FOUND,
                     )
                 }
+        }
+
+        if (request.version != null && user.version != request.version) {
+            throw ApiException(
+                message = OPTIMISTIC_LOCKING_FAILURE,
+                status = HttpStatus.CONFLICT,
+            )
+        }
 
         user.setEmail(request.newEmail)
         val savedUser = userRepository.save(user)
@@ -123,5 +141,6 @@ class UserService(
             address = user.address,
             createdAt = user.createdAt.toString(),
             updatedAt = user.updatedAt.toString(),
+            version = user.version,
         )
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 
 @Entity
@@ -30,6 +31,8 @@ class User(
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) {
     // No-args constructor required for JPA
     constructor() : this(
@@ -40,6 +43,7 @@ class User(
         profilePicture = null,
         phoneNumber = null,
         address = null,
+        version = null,
     )
 
     // Roles are stored in the Role Service

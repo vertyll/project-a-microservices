@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 
 @Entity
@@ -22,12 +23,15 @@ class Role(
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) {
     // No-args constructor required by JPA
     constructor() : this(
         id = null,
         name = "",
         description = null,
+        version = null,
     )
 
     companion object {

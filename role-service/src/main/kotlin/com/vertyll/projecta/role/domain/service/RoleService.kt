@@ -35,6 +35,7 @@ class RoleService(
         private const val ADMIN_ROLE_WITH_ALL_PRIVILEGES = "Admin role with all privileges"
         private const val USER_ROLE_MAPPING_NOT_FOUND = "User-role mapping not found"
         private const val CANNOT_REMOVE_USER_ROLE = "Cannot remove USER role from user as it's their only role"
+        private const val OPTIMISTIC_LOCKING_FAILURE = "Data has been modified by another transaction. Please refresh and try again."
     }
 
     /**
@@ -152,6 +153,13 @@ class RoleService(
                     )
                 }
 
+        if (dto.version != null && role.version != dto.version) {
+            throw ApiException(
+                message = OPTIMISTIC_LOCKING_FAILURE,
+                status = HttpStatus.CONFLICT,
+            )
+        }
+
         if (dto.name != role.name && roleRepository.existsByName(dto.name)) {
             throw ApiException(
                 message = "Role with name ${dto.name} already exists",
@@ -195,6 +203,7 @@ class RoleService(
                     id = role.id,
                     name = dto.name,
                     description = dto.description,
+                    version = dto.version ?: role.version,
                 )
 
             val savedRole = roleRepository.save(updatedRole)
@@ -478,5 +487,6 @@ class RoleService(
             id = role.id!!,
             name = role.name,
             description = role.description,
+            version = role.version,
         )
 }

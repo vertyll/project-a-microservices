@@ -6,4 +6,5 @@ data class RoleUpdateDto(
     @field:NotBlank(message = "Role name is required")
     val name: String,
     val description: String? = null,
+    val version: Long? = null,
 )

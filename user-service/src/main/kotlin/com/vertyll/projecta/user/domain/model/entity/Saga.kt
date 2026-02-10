@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 
 /**
@@ -32,6 +33,8 @@ class Saga(
     var completedAt: Instant? = null,
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) {
     // No-args constructor required by JPA
     constructor() : this(
@@ -42,5 +45,6 @@ class Saga(
         lastError = null,
         startedAt = Instant.now(),
         completedAt = null,
+        version = null,
     )
 }

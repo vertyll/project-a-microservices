@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -32,8 +33,9 @@ class VerificationToken(
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) {
-    // No-arg constructor for JPA
     constructor() :
         this(
             id = null,
@@ -43,6 +45,7 @@ class VerificationToken(
             used = false,
             tokenType = "",
             additionalData = null,
+            version = null,
         )
 
     /**

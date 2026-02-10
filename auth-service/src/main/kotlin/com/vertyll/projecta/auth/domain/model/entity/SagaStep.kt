@@ -9,13 +9,21 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
+
+import jakarta.persistence.UniqueConstraint
 
 /**
  * Represents a step in a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "auth_saga_step")
+@Table(
+    name = "auth_saga_step",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["sagaId", "stepName"]),
+    ],
+)
 class SagaStep(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +45,9 @@ class SagaStep(
     var completedAt: Instant? = null,
     @Column(nullable = true)
     var compensationStepId: Long? = null,
+    @Version
+    val version: Long? = null,
 ) {
-    // No-args constructor required by JPA
     constructor() : this(
         id = null,
         sagaId = "",
@@ -49,5 +58,6 @@ class SagaStep(
         createdAt = Instant.now(),
         completedAt = null,
         compensationStepId = null,
+        version = null,
     )
 }

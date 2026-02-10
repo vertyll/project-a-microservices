@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.time.Instant
 import java.util.UUID
 
@@ -39,6 +40,8 @@ class KafkaOutbox(
     var retryCount: Int = 0,
     @Column(nullable = true)
     var sagaId: String? = null,
+    @Version
+    val version: Long? = null,
 ) {
     // No-args constructor required by JPA
     constructor() : this(
@@ -51,6 +54,7 @@ class KafkaOutbox(
         processedAt = null,
         retryCount = 0,
         sagaId = null,
+        version = null,
     )
 
     enum class OutboxStatus {

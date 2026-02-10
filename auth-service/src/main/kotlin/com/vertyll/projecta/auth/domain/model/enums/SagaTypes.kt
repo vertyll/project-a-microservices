@@ -3,14 +3,20 @@ package com.vertyll.projecta.auth.domain.model.enums
 enum class SagaTypes(
     val value: String,
 ) {
-    // User related sagas
+    /**
+     * User related sagas
+     */
     USER_REGISTRATION("UserRegistration"),
 
-    // Email related sagas
+    /**
+     * Email related sagas
+     */
     EMAIL_CHANGE("EmailChange"),
     EMAIL_VERIFICATION("EmailVerification"),
 
-    // Password related sagas
+    /**
+     * Password related sagas
+     */
     PASSWORD_CHANGE("PasswordChange"),
     PASSWORD_RESET("PasswordReset"),
     ;

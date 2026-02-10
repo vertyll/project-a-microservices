@@ -11,11 +11,18 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import java.time.Instant
 
+import jakarta.persistence.UniqueConstraint
+
 /**
  * Represents a step in a saga (a distributed transaction across multiple services).
  */
 @Entity
-@Table(name = "role_saga_step")
+@Table(
+    name = "role_saga_step",
+    uniqueConstraints = [
+        UniqueConstraint(columnNames = ["sagaId", "stepName"]),
+    ],
+)
 class SagaStep(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

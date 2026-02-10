@@ -41,12 +41,10 @@ class KafkaOutboxProcessor(
 
         pendingMessages.forEach { message ->
             try {
-                // Mark as processing
-                kafkaOutboxRepository.updateStatus(
-                    message.id!!,
-                    KafkaOutbox.OutboxStatus.PROCESSING,
-                    Instant.now(),
-                )
+                // Mark as processing using OL
+                message.status = KafkaOutbox.OutboxStatus.PROCESSING
+                message.processedAt = Instant.now()
+                kafkaOutboxRepository.save(message)
 
                 // Send to Kafka
                 val result = kafkaTemplate.send(message.topic, message.key, message.payload).get()
@@ -57,21 +55,18 @@ class KafkaOutboxProcessor(
                         "offset=${result.recordMetadata.offset()}",
                 )
 
-                // Mark as completed
-                kafkaOutboxRepository.updateStatus(
-                    message.id,
-                    KafkaOutbox.OutboxStatus.COMPLETED,
-                    Instant.now(),
-                )
+                // Mark as completed using OL
+                message.status = KafkaOutbox.OutboxStatus.COMPLETED
+                message.processedAt = Instant.now()
+                kafkaOutboxRepository.save(message)
             } catch (e: Exception) {
                 logger.error("Failed to process outbox message id=${message.id}: ${e.message}", e)
 
-                // Mark as failed
-                kafkaOutboxRepository.markAsFailed(
-                    message.id!!,
-                    KafkaOutbox.OutboxStatus.FAILED,
-                    e.message ?: UNKNOWN_ERROR,
-                )
+                // Mark as failed using OL
+                message.status = KafkaOutbox.OutboxStatus.FAILED
+                message.errorMessage = e.message ?: UNKNOWN_ERROR
+                message.retryCount = message.retryCount + 1
+                kafkaOutboxRepository.save(message)
             }
         }
     }

@@ -5,14 +5,11 @@ import com.vertyll.projecta.auth.infrastructure.response.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-/**
- * Global exception handler for auth service.
- * Provides consistent error responses across the auth service.
- */
 @RestControllerAdvice(basePackages = ["com.vertyll.projecta.auth"])
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
@@ -21,6 +18,7 @@ class GlobalExceptionHandler {
         private const val INVALID_VALUE = "Invalid value"
         private const val VALIDATION_FAILED = "Validation failed"
         private const val AN_UNEXPECTED_ERROR_OCCURRED = "An unexpected error occurred"
+        private const val OPTIMISTIC_LOCKING_FAILURE = "Data has been modified by another transaction. Please refresh and try again."
     }
 
     @ExceptionHandler(ApiException::class)
@@ -46,6 +44,16 @@ class GlobalExceptionHandler {
             data = errors,
             message = VALIDATION_FAILED,
             status = HttpStatus.BAD_REQUEST,
+        )
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException::class)
+    fun handleOptimisticLockingFailure(ex: ObjectOptimisticLockingFailureException): ResponseEntity<ApiResponse<Any>> {
+        logger.error("Optimistic Locking Exception: {}", ex.message)
+        return ApiResponse.buildResponse(
+            data = null,
+            message = OPTIMISTIC_LOCKING_FAILURE,
+            status = HttpStatus.CONFLICT,
         )
     }
 

@@ -11,4 +11,5 @@ data class UserResponseDto(
     val address: String? = null,
     val createdAt: String? = null,
     val updatedAt: String? = null,
+    val version: Long? = null,
 )

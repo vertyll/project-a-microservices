@@ -10,6 +10,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -40,14 +41,16 @@ class AuthUser(
     val createdAt: Instant = Instant.now(),
     @Column(nullable = false)
     var updatedAt: Instant = Instant.now(),
+    @Version
+    val version: Long? = null,
 ) : UserDetails {
-    // No-args constructor required for JPA
     constructor() : this(
         id = null,
         email = "",
         password = "",
         userRoles = mutableSetOf(),
         enabled = false,
+        version = null,
     )
 
     override fun getAuthorities(): Collection<GrantedAuthority> = userRoles.map { SimpleGrantedAuthority("ROLE_${it.roleName}") }
