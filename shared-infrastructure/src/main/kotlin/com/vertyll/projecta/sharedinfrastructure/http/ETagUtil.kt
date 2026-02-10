@@ -11,13 +11,14 @@ object ETagUtil {
     fun parseIfMatchToVersion(ifMatch: String?): Long? {
         if (ifMatch.isNullOrBlank()) return null
         val trimmed = ifMatch.trim()
-        val raw = when {
-            trimmed.startsWith("W/\"") && trimmed.endsWith('"') ->
-                trimmed.removePrefix("W/").trim()
-            trimmed.startsWith('"') && trimmed.endsWith('"') ->
-                trimmed
-            else -> trimmed
-        }
+        val raw =
+            when {
+                trimmed.startsWith("W/\"") && trimmed.endsWith('"') ->
+                    trimmed.removePrefix("W/").trim()
+                trimmed.startsWith('"') && trimmed.endsWith('"') ->
+                    trimmed
+                else -> trimmed
+            }
         val unquoted = raw.trim().trimStart(STRONG_QUOTE).trimEnd(STRONG_QUOTE)
         return unquoted.toLongOrNull()
     }

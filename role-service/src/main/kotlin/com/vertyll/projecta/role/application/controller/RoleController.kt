@@ -60,18 +60,20 @@ class RoleController(
         @RequestHeader(name = "If-Match", required = false)
         ifMatch: String?,
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
-        val headerVersion = ETagUtil.parseIfMatchToVersion(ifMatch) ?: return ApiResponse.buildResponse(
-            data = null,
-            message = "Missing If-Match header",
-            status = HttpStatus.PRECONDITION_REQUIRED,
-        )
+        val headerVersion =
+            ETagUtil.parseIfMatchToVersion(ifMatch) ?: return ApiResponse.buildResponse(
+                data = null,
+                message = "Missing If-Match header",
+                status = HttpStatus.PRECONDITION_REQUIRED,
+            )
         val updatedRole = roleService.updateRole(id, dto, headerVersion)
         val etag = ETagUtil.buildWeakETag(updatedRole.version)
-        val response = ApiResponse.buildResponse(
-            data = updatedRole,
-            message = ROLE_UPDATED_SUCCESSFULLY,
-            status = HttpStatus.OK,
-        )
+        val response =
+            ApiResponse.buildResponse(
+                data = updatedRole,
+                message = ROLE_UPDATED_SUCCESSFULLY,
+                status = HttpStatus.OK,
+            )
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -82,11 +84,12 @@ class RoleController(
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleById(id)
         val etag = ETagUtil.buildWeakETag(role.version)
-        val response = ApiResponse.buildResponse(
-            data = role,
-            message = ROLE_RETRIEVED_SUCCESSFULLY,
-            status = HttpStatus.OK,
-        )
+        val response =
+            ApiResponse.buildResponse(
+                data = role,
+                message = ROLE_RETRIEVED_SUCCESSFULLY,
+                status = HttpStatus.OK,
+            )
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -97,11 +100,12 @@ class RoleController(
     ): ResponseEntity<ApiResponse<RoleResponseDto>> {
         val role = roleService.getRoleByName(name)
         val etag = ETagUtil.buildWeakETag(role.version)
-        val response = ApiResponse.buildResponse(
-            data = role,
-            message = ROLE_RETRIEVED_SUCCESSFULLY,
-            status = HttpStatus.OK,
-        )
+        val response =
+            ApiResponse.buildResponse(
+                data = role,
+                message = ROLE_RETRIEVED_SUCCESSFULLY,
+                status = HttpStatus.OK,
+            )
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -112,12 +116,13 @@ class RoleController(
         // Compute collection ETag based on versions of all roles
         val collectionVersion = roles.mapNotNull { it.version }.hashCode().toLong()
         val etag = ETagUtil.buildWeakETag(collectionVersion)
-        
-        val response = ApiResponse.buildResponse(
-            data = roles,
-            message = ROLE_RETRIEVED_SUCCESSFULLY,
-            status = HttpStatus.OK,
-        )
+
+        val response =
+            ApiResponse.buildResponse(
+                data = roles,
+                message = ROLE_RETRIEVED_SUCCESSFULLY,
+                status = HttpStatus.OK,
+            )
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -131,11 +136,12 @@ class RoleController(
         val collectionVersion = roles.mapNotNull { it.version }.hashCode().toLong()
         val etag = ETagUtil.buildWeakETag(collectionVersion)
 
-        val response = ApiResponse.buildResponse(
-            data = roles,
-            message = USER_ROLES_RETRIEVED_SUCCESSFULLY,
-            status = HttpStatus.OK,
-        )
+        val response =
+            ApiResponse.buildResponse(
+                data = roles,
+                message = USER_ROLES_RETRIEVED_SUCCESSFULLY,
+                status = HttpStatus.OK,
+            )
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
