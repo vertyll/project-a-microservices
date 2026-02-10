@@ -9,9 +9,8 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.Instant
-
 import jakarta.persistence.UniqueConstraint
+import java.time.Instant
 
 /**
  * Represents a step in a saga (a distributed transaction across multiple services).

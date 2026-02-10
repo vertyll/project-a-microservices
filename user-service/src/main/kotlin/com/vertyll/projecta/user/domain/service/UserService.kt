@@ -97,25 +97,26 @@ class UserService(
             )
         }
 
-        val user = if (request.userId != null) {
-            userRepository
-                .findById(request.userId)
-                .orElseThrow {
-                    ApiException(
-                        message = USER_NOT_FOUND,
-                        status = HttpStatus.NOT_FOUND,
-                    )
-                }
-        } else {
-            userRepository
-                .findByEmail(request.currentEmail)
-                .orElseThrow {
-                    ApiException(
-                        message = USER_NOT_FOUND,
-                        status = HttpStatus.NOT_FOUND,
-                    )
-                }
-        }
+        val user =
+            if (request.userId != null) {
+                userRepository
+                    .findById(request.userId)
+                    .orElseThrow {
+                        ApiException(
+                            message = USER_NOT_FOUND,
+                            status = HttpStatus.NOT_FOUND,
+                        )
+                    }
+            } else {
+                userRepository
+                    .findByEmail(request.currentEmail)
+                    .orElseThrow {
+                        ApiException(
+                            message = USER_NOT_FOUND,
+                            status = HttpStatus.NOT_FOUND,
+                        )
+                    }
+            }
 
         if (request.version != null && user.version != request.version) {
             throw ApiException(
