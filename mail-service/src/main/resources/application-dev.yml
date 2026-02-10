@@ -31,9 +31,9 @@ spring:
       mail:
         smtp:
           trust: "*"
-          auth: true
+          auth: fasle
           starttls:
-            enable: true
+            enable: false
           connectiontimeout: 5000
           timeout: 3000
           writetimeout: 5000
