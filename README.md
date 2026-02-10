@@ -27,6 +27,11 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 
 ### Detailed Description of Components
 
+#### Kafka KRaft Mode
+- The system uses Kafka in KRaft mode (Kafka Raft), eliminating the need for Zookeeper.
+- Configuration is handled via `KAFKA_PROCESS_ROLES` (broker,controller) and `KAFKA_CONTROLLER_QUORUM_VOTERS`.
+- A static `CLUSTER_ID` is provided in `docker-compose.yml` for simplified setup.
+
 #### Shared Infrastructure
 - Provides shared code, DTOs, event definitions, and utilities for all microservices
 - Implements shared patterns like Outbox pattern
@@ -89,7 +94,7 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
 
 - **Back-end**: Spring Boot, Kotlin, Gradle Kotlin DSL
 - **Database**: PostgreSQL (separate instance for each service)
-- **Message Broker**: Apache Kafka (for event-driven communication)
+- **Message Broker**: Apache Kafka KRaft (Zookeeper-less)
 - **API Documentation**: OpenAPI (Swagger)
 - **Containerization**: Docker/Podman, Docker Compose/Podman Compose
 - **Authentication**: JWT and refresh tokens (http only secure cookie)
