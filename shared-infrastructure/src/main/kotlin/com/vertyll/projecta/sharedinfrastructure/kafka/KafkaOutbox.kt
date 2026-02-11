@@ -2,6 +2,8 @@ package com.vertyll.projecta.sharedinfrastructure.kafka
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -29,6 +31,7 @@ class KafkaOutbox(
     @Column(nullable = false, columnDefinition = "TEXT")
     val payload: String,
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     var status: OutboxStatus = OutboxStatus.PENDING,
     @Column(nullable = true)
     var errorMessage: String? = null,
