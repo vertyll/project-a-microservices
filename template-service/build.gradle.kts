@@ -14,6 +14,12 @@ dependencies {
     
     // OpenAPI documentation
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
+
+    // Implementation - Database Migration
+    implementation(libs.spring.boot.starter.flyway) {
+        exclude(group = "org.flywaydb", module = "flyway-core")
+    }
+    implementation(libs.bundles.flyway)
     
     // Database
     runtimeOnly(libs.postgresql)
