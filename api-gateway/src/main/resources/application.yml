@@ -16,15 +16,6 @@ spring:
     service-registry:
       auto-registration:
         enabled: false
-    gateway:
-      # Routes are defined in ApiGatewayApplication.customRouteLocator
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:4200"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-            allowCredentials: true
 
   autoconfigure:
     exclude:

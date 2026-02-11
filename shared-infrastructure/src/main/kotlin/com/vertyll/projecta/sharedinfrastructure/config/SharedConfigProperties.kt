@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "projecta.shared")
 class SharedConfigProperties(
     val security: SecurityProperties = SecurityProperties(),
-    val services: ServicesProperties = ServicesProperties(),
 ) {
     class SecurityProperties(
         val jwt: JwtProperties = JwtProperties(),
@@ -16,17 +15,6 @@ class SharedConfigProperties(
             val refreshTokenExpiration: Long = 604800000L,
             val refreshTokenCookieName: String = "refresh_token",
             val authHeaderName: String = "Authorization",
-        )
-    }
-
-    class ServicesProperties(
-        val authService: ServiceProperties = ServiceProperties("http://localhost:8082"),
-        val userService: ServiceProperties = ServiceProperties("http://localhost:8083"),
-        val roleService: ServiceProperties = ServiceProperties("http://localhost:8084"),
-        val mailService: ServiceProperties = ServiceProperties("http://localhost:8085"),
-    ) {
-        class ServiceProperties(
-            val url: String,
         )
     }
 }

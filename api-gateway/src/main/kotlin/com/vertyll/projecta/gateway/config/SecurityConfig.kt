@@ -21,13 +21,13 @@ class SecurityConfig(
         // Public Auth endpoints
         private val PUBLIC_AUTH_ENDPOINTS =
             arrayOf(
-                "/api/v1/auth/register",
-                "/api/v1/auth/authenticate",
-                "/api/v1/auth/refresh-token",
-                "/api/v1/auth/activate",
-                "/api/v1/auth/reset-password-request",
-                "/api/v1/auth/confirm-reset-password",
-                "/api/v1/auth/resend-activation",
+                "/auth/register",
+                "/auth/authenticate",
+                "/auth/refresh-token",
+                "/auth/activate",
+                "/auth/reset-password-request",
+                "/auth/confirm-reset-password",
+                "/auth/resend-activation",
             )
 
         // Swagger documentation endpoints
@@ -45,27 +45,27 @@ class SecurityConfig(
         // Protected Auth endpoints
         private val PROTECTED_AUTH_ENDPOINTS =
             arrayOf(
-                "/api/v1/auth/me",
-                "/api/v1/auth/logout",
-                "/api/v1/auth/change-password-request",
-                "/api/v1/auth/change-email-request",
-                "/api/v1/auth/confirm-email-change",
-                "/api/v1/auth/confirm-password-change",
-                "/api/v1/auth/set-new-password",
-                "/api/v1/auth/sessions/**",
+                "/auth/me",
+                "/auth/logout",
+                "/auth/change-password-request",
+                "/auth/change-email-request",
+                "/auth/confirm-email-change",
+                "/auth/confirm-password-change",
+                "/auth/set-new-password",
+                "/auth/sessions/**",
             )
 
         // Role endpoints
-        private const val ROLE_ADMIN_ENDPOINTS = "/api/v1/roles/admin/**"
-        private const val ROLE_USER_ENDPOINTS = "/api/v1/roles/**"
+        private const val ROLE_ADMIN_ENDPOINTS = "/roles/admin/**"
+        private const val ROLE_USER_ENDPOINTS = "/roles/**"
 
         // User endpoints
-        private const val USER_ADMIN_ENDPOINTS = "/api/v1/users/admin/**"
-        private const val USER_PROFILE_ENDPOINT = "/api/v1/users/me"
-        private const val USER_ID_ENDPOINT = "/api/v1/users/{id}"
+        private const val USER_ADMIN_ENDPOINTS = "/users/admin/**"
+        private const val USER_PROFILE_ENDPOINT = "/users/me"
+        private const val USER_ID_ENDPOINT = "/users/{id}"
 
         // Mail endpoints
-        private const val MAIL_ENDPOINTS = "/api/v1/mail/**"
+        private const val MAIL_ENDPOINTS = "/mail/**"
     }
 
     @Bean

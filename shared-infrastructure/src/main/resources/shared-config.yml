@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     consumer:
       auto-offset-reset: earliest
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
@@ -22,9 +22,9 @@ projecta:
   shared:
     security:
       jwt:
-        secret-key: CbIKeXKAkneVUn5me1nHZ+V74qpmZ36InUDFEXsg6YY=
-        access-token-expiration: 900000  # 15 minutes in milliseconds
-        refresh-token-expiration: 604800000  # 7 days in milliseconds
+        secret-key: ${JWT_SECRET_KEY:CbIKeXKAkneVUn5me1nHZ+V74qpmZ36InUDFEXsg6YY=}
+        access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:900000}  # 15 minutes in milliseconds
+        refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}  # 7 days in milliseconds
         refresh-token-cookie-name: refresh_token
         auth-header-name: Authorization
         cookie:
@@ -33,14 +33,6 @@ projecta:
           sameSite: Strict
           path: "/"
     services:
-      auth-service:
-        url: http://localhost:8082
-      user-service:
-        url: http://localhost:8083
-      role-service:
-        url: http://localhost:8084
-      mail-service:
-        url: http://localhost:8085
       topics:
         # Topics that services publish to or subscribe from
         all:
