@@ -80,14 +80,13 @@ jobs:
             cd ~/podman/compose
             
             echo "Logging into GitHub Container Registry..."
-            echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u ${{ github.actor }} --password-stdin > /dev/null 2>&1
             
             echo "Pulling latest image..."
-            podman pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            podman pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest > /dev/null 2>&1
             
             echo "Recreating container..."
-            # Using specific compose file for microservices
-            podman-compose -f microservices.yml up -d --force-recreate --no-deps project-a-user-service
+            podman-compose -f microservices.yml up -d --force-recreate --no-deps project-a-user-service > /dev/null 2>&1
             
             echo "Waiting for container to start..."
             sleep 10
@@ -99,7 +98,6 @@ jobs:
             podman logs --tail 50 project-a-user-service
             
             echo "=== Health check ==="
-            # Adjust port if needed, user-service is usually 8080 or 8081
             podman exec project-a-user-service curl -f http://localhost:8080/actuator/health && \
               echo "✓ User Service is running!" || \
               echo "✗ User Service health check failed"
