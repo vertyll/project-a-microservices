@@ -18,21 +18,21 @@ import org.springframework.kafka.annotation.EnableKafka
 @EnableJpaRepositories(
     basePackages = [
         "com.vertyll.projecta.template.domain.repository",
-        "com.vertyll.projecta.sharedinfrastructure.kafka"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure.kafka",
+    ],
 )
 @EntityScan(
     basePackages = [
         "com.vertyll.projecta.template.domain.model",
-        "com.vertyll.projecta.sharedinfrastructure.kafka"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure.kafka",
+    ],
 )
 @EnableKafka
 @ComponentScan(
     basePackages = [
         "com.vertyll.projecta.template",
-        "com.vertyll.projecta.sharedinfrastructure"
-    ]
+        "com.vertyll.projecta.sharedinfrastructure",
+    ],
 )
 class TemplateServiceApplication
 

@@ -1,6 +1,5 @@
 package com.vertyll.projecta.template.domain.service
 
-import tools.jackson.databind.ObjectMapper
 import com.vertyll.projecta.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import com.vertyll.projecta.template.domain.model.entity.Saga
 import com.vertyll.projecta.template.domain.model.entity.SagaStep
@@ -13,6 +12,7 @@ import com.vertyll.projecta.template.domain.repository.SagaStepRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.ObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -24,19 +24,21 @@ class SagaManager(
     private val sagaRepository: SagaRepository,
     private val sagaStepRepository: SagaStepRepository,
     private val kafkaOutboxProcessor: KafkaOutboxProcessor,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     // Define the expected steps for each saga type
     // TODO: Define the expected steps for each saga type
-    private val sagaStepDefinitions = mapOf(
-        "TemplateExampleSaga" to listOf(
-            "Step1",
-            "Step2",
-            "Step3"
+    private val sagaStepDefinitions =
+        mapOf(
+            "TemplateExampleSaga" to
+                listOf(
+                    "Step1",
+                    "Step2",
+                    "Step3",
+                ),
         )
-    )
 
     /**
      * Starts a new saga
@@ -45,16 +47,20 @@ class SagaManager(
      * @return The created saga instance
      */
     @Transactional
-    fun startSaga(sagaType: SagaTypes, payload: Any): Saga {
+    fun startSaga(
+        sagaType: SagaTypes,
+        payload: Any,
+    ): Saga {
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
 
-        val saga = Saga(
-            id = UUID.randomUUID().toString(),
-            type = sagaType.value,
-            status = SagaStatus.STARTED,
-            payload = payloadJson,
-            startedAt = Instant.now()
-        )
+        val saga =
+            Saga(
+                id = UUID.randomUUID().toString(),
+                type = sagaType.value,
+                status = SagaStatus.STARTED,
+                payload = payloadJson,
+                startedAt = Instant.now(),
+            )
 
         return sagaRepository.save(saga)
     }
@@ -68,22 +74,30 @@ class SagaManager(
      * @return The created saga step
      */
     @Transactional
-    fun recordSagaStep(sagaId: String, stepName: SagaStepNames, status: SagaStepStatus, payload: Any? = null): SagaStep {
-        val payloadJson = payload?.let {
-            it as? String ?: objectMapper.writeValueAsString(it)
-        }
+    fun recordSagaStep(
+        sagaId: String,
+        stepName: SagaStepNames,
+        status: SagaStepStatus,
+        payload: Any? = null,
+    ): SagaStep {
+        val payloadJson =
+            payload?.let {
+                it as? String ?: objectMapper.writeValueAsString(it)
+            }
 
-        val saga = sagaRepository.findById(sagaId).orElseThrow {
-            IllegalArgumentException("Saga with ID $sagaId not found")
-        }
+        val saga =
+            sagaRepository.findById(sagaId).orElseThrow {
+                IllegalArgumentException("Saga with ID $sagaId not found")
+            }
 
-        val step = SagaStep(
-            sagaId = sagaId,
-            stepName = stepName.value,
-            status = status,
-            payload = payloadJson,
-            createdAt = Instant.now()
-        )
+        val step =
+            SagaStep(
+                sagaId = sagaId,
+                stepName = stepName.value,
+                status = status,
+                payload = payloadJson,
+                createdAt = Instant.now(),
+            )
 
         val savedStep = sagaStepRepository.save(step)
 
@@ -120,10 +134,11 @@ class SagaManager(
         val expectedSteps = sagaStepDefinitions[saga.type] ?: return false
 
         // Get all completed steps for this saga
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        )
+        val completedSteps =
+            sagaStepRepository.findBySagaIdAndStatus(
+                saga.id,
+                SagaStepStatus.COMPLETED,
+            )
 
         // Get the step names of completed steps
         val completedStepNames = completedSteps.map { it.stepName }
@@ -141,10 +156,12 @@ class SagaManager(
      */
     private fun triggerCompensation(saga: Saga) {
         // Get all completed steps for this saga in reverse order
-        val completedSteps = sagaStepRepository.findBySagaIdAndStatus(
-            saga.id,
-            SagaStepStatus.COMPLETED
-        ).sortedByDescending { it.createdAt }
+        val completedSteps =
+            sagaStepRepository
+                .findBySagaIdAndStatus(
+                    saga.id,
+                    SagaStepStatus.COMPLETED,
+                ).sortedByDescending { it.createdAt }
 
         logger.info("Triggering compensation for saga ${saga.id} with ${completedSteps.size} steps to compensate")
 
@@ -165,8 +182,8 @@ class SagaManager(
                         sagaId = saga.id,
                         stepName = SagaStepNames.compensationNameFromString(step.stepName),
                         status = SagaStepStatus.STARTED,
-                        createdAt = Instant.now()
-                    )
+                        createdAt = Instant.now(),
+                    ),
                 )
             } catch (e: Exception) {
                 logger.error("Failed to create compensation event for step ${step.stepName}: ${e.message}", e)

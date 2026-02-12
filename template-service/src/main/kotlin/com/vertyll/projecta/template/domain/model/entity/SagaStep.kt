@@ -20,31 +20,23 @@ class SagaStep(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @Column(nullable = false)
     val sagaId: String,
-
     @Column(nullable = false)
     val stepName: String,
-
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     var status: SagaStepStatus,
-
     @Column(nullable = true, columnDefinition = "TEXT")
     val payload: String? = null,
-
     @Column(nullable = true)
     var errorMessage: String? = null,
-
     @Column(nullable = false)
     val createdAt: Instant,
-
     @Column(nullable = true)
     var completedAt: Instant? = null,
-
     @Column(nullable = true)
-    var compensationStepId: Long? = null
+    var compensationStepId: Long? = null,
 ) {
     // No-args constructor required by JPA
     constructor() : this(
@@ -56,6 +48,6 @@ class SagaStep(
         errorMessage = null,
         createdAt = Instant.now(),
         completedAt = null,
-        compensationStepId = null
+        compensationStepId = null,
     )
 }

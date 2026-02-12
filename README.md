@@ -117,23 +117,36 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
    cd project-a-microservices
    ```
 
-2. Start the infrastructure using Docker Compose or locally start the microservice:
-
-   Docker:
+2. Start the infrastructure:
    ```bash
    docker-compose up -d
    ```
-   Locally
+
+3. Build and run microservices:
+   Each microservice is now an independent Gradle project. To build or run a specific service, navigate to its directory:
+
+   **Building:**
    ```bash
-   ./gradlew :<service-name>:build
-   # or
+   cd <service-name>
    ./gradlew build
    ```
+
+   **Local Running:**
    ```bash
-   ./gradlew :<service-name>:bootRun --args='--spring.profiles.active=dev'
+   cd <service-name>
+   ./gradlew bootRun --args='--spring.profiles.active=dev'
    ```
 
-3. Access the services:
+   **Available Services:**
+   - `api-gateway`
+   - `auth-service`
+   - `user-service`
+   - `role-service`
+   - `mail-service`
+   - `template-service`
+   - `shared-infrastructure` (library)
+
+4. Access the services:
    - API Gateway: http://localhost:8080
    - Auth Service: http://localhost:8082
    - User Service: http://localhost:8083
@@ -142,20 +155,29 @@ Each microservice follows Hexagonal Architecture principles with a three-layer s
    - Kafka UI: http://localhost:8090
    - MailDev: http://localhost:1080
 
+### Global Management (Convenience)
+
+For convenience, you can use the provided `Makefile` in the root directory:
+
+- Build all services: `make build-all`
+- Run tests in all services: `make test-all`
+- Clean all services: `make clean-all`
+- Run all services: `make run-all`
+- Stop all services: `make stop-all`
+
 ### Development Workflow
 
 1. Make changes to the relevant service code
-2. Build the service/services:
+2. Build the service:
    ```bash
-   ./gradlew :<service-name>:build
-   # or
+   cd <service-name>
    ./gradlew build
    ```
 3. Restart the service container or locally start the microservice:
    ```bash
    docker-compose up -d --build <service-name>
    # or
-   ./gradlew :<service-name>:bootRun --args='--spring.profiles.active=dev'
+   ./gradlew bootRun --args='--spring.profiles.active=dev'
    ```
 
 ## Architecture Design
@@ -318,7 +340,7 @@ Each service provides its own Swagger UI for API documentation:
 
 ## Formatting and code style
 
-The project using ktlint for code formatting and style checks. To format the code, run:
+The project uses ktlint for code formatting and style checks. Go to the service directory and run:
 
 ```bash
 ./gradlew ktlintFormat
@@ -328,3 +350,5 @@ To check the code style, run:
 ```bash
 ./gradlew ktlintCheck
 ```
+
+You can also use `make format-all` and `make check-style-all` from the root directory.

@@ -7,4 +7,4 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/template")
 @Tag(name = "Template", description = "Template management API")
-class TemplateController()
+class TemplateController

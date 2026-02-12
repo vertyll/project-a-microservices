@@ -29,24 +29,23 @@ class GlobalExceptionHandler {
         return ApiResponse.buildResponse(
             data = null,
             message = ex.message,
-            status = ex.status
+            status = ex.status,
         )
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationExceptions(
-        ex: MethodArgumentNotValidException
-    ): ResponseEntity<ApiResponse<Map<String, String>>> {
+    fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<ApiResponse<Map<String, String>>> {
         logger.error("Validation Exception: {}", ex.message)
 
-        val errors = ex.bindingResult.fieldErrors.associate { error ->
-            error.field to (error.defaultMessage ?: INVALID_VALUE)
-        }
+        val errors =
+            ex.bindingResult.fieldErrors.associate { error ->
+                error.field to (error.defaultMessage ?: INVALID_VALUE)
+            }
 
         return ApiResponse.buildResponse(
             data = errors,
             message = VALIDATION_FAILED,
-            status = HttpStatus.BAD_REQUEST
+            status = HttpStatus.BAD_REQUEST,
         )
     }
 
@@ -56,7 +55,7 @@ class GlobalExceptionHandler {
         return ApiResponse.buildResponse(
             data = null,
             message = AN_UNEXPECTED_ERROR_OCCURRED,
-            status = HttpStatus.INTERNAL_SERVER_ERROR
+            status = HttpStatus.INTERNAL_SERVER_ERROR,
         )
     }
 }
