@@ -103,7 +103,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_LOG_DIRS: /var/lib/kafka/data
-      # Generate a random UUID for cluster ID: CLUSTER_ID: $(kafka-storage uuid)
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka-data:/var/lib/kafka/data
