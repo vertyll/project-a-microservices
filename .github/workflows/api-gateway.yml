@@ -1,23 +1,18 @@
-name: Build and Deploy API Gateway
-
+name: Build and Publish API Gateway
 on:
   push:
+    tags: ["v*"]
+  pull_request:
     branches: [main]
     paths:
       - 'api-gateway/**'
       - 'shared-infrastructure/**'
       - '.github/workflows/api-gateway.yml'
       - '.github/workflows/code-quality.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'api-gateway/**'
-      - 'shared-infrastructure/**'
   workflow_dispatch:
-
 env:
-  REGISTRY: ghcr.io
-
+  REGISTRY: zot.vertyll.dev
+  IMAGE_NAME: vertyll/veds-api-gateway
 jobs:
   quality:
     uses: ./.github/workflows/code-quality.yml
@@ -26,102 +21,35 @@ jobs:
 
   build-and-push:
     needs: quality
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
+    runs-on: ubuntu-24.04-arm
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set lowercase image name
+      - uses: actions/checkout@v4
+      - name: Derive version from tag
+        id: vars
         run: |
-          IMAGE_NAME="${GITHUB_REPOSITORY}-api-gateway"
-          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Container Registry
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=pr-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to Zot
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+          username: ${{ secrets.ZOT_USERNAME }}
+          password: ${{ secrets.ZOT_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./api-gateway/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Set lowercase image name
-        run: |
-          IMAGE_NAME="${GITHUB_REPOSITORY}-api-gateway"
-          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> ${GITHUB_ENV}
-
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v1.2.0
-        env:
-          CONTAINER_REGISTRY: ${{ env.REGISTRY }}
-          IMAGE: ${{ env.IMAGE_NAME }}
-          GH_ACTOR: ${{ github.actor }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
-          envs: CONTAINER_REGISTRY,IMAGE,GH_ACTOR,GH_TOKEN
-          script: |
-            cd ~/podman/compose
-            
-            echo "Logging into GitHub Container Registry..."
-            echo "$GH_TOKEN" | podman login "$CONTAINER_REGISTRY" -u "$GH_ACTOR" --password-stdin > /dev/null 2>&1
-            
-            echo "Pulling latest image..."
-            podman pull "$CONTAINER_REGISTRY/$IMAGE:latest" > /dev/null 2>&1
-            
-            echo "Recreating container..."
-            podman-compose -f veds.yml up -d --force-recreate --no-deps veds-api-gateway > /dev/null 2>&1
-            
-            echo "Waiting for container to start..."
-            sleep 15
-            
-            echo "=== Container status ==="
-            podman ps | grep veds-api-gateway || echo "Container is not running!"
-            
-            echo "=== Last logs ==="
-            podman logs --tail 50 veds-api-gateway
-            
-            sleep 5
-            
-            echo "=== Health check ==="
-            podman exec veds-api-gateway curl -f http://localhost:8080/actuator/health && \
-              echo "✓ API Gateway is running!" || \
-              echo "✗ API Gateway health check failed"
+          platforms: linux/arm64
+          push: ${{ github.ref_type == 'tag' }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha,scope=api-gateway
+          cache-to: type=gha,mode=max,scope=api-gateway
