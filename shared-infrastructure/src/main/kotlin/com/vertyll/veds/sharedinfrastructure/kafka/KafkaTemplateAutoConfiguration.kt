@@ -1,7 +1,9 @@
 package com.vertyll.veds.sharedinfrastructure.kafka
 
+import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -58,8 +60,35 @@ internal class KafkaTemplateAutoConfiguration {
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to properties.bootstrapServers,
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to ByteArraySerializer::class.java,
-            )
+            ) + securityProps(properties)
         return DefaultKafkaProducerFactory(configProps)
+    }
+
+    /**
+     * Connection-security properties shared by every Kafka client built here.
+     * Empty for PLAINTEXT (local dev); for SSL adds the protocol and - when
+     * configured - the CA truststore (server-cert verification only, no
+     * client certificates / mTLS).
+     */
+    private fun securityProps(properties: KafkaInfraProperties): Map<String, Any> {
+        if (properties.security.protocol.equals("PLAINTEXT", ignoreCase = true)) {
+            return emptyMap()
+        }
+        val props =
+            mutableMapOf<String, Any>(
+                CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to properties.security.protocol,
+            )
+        if (properties.ssl.trustStoreLocation.isNotBlank()) {
+            props[SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG] = properties.ssl.trustStoreLocation
+            props[SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG] = properties.ssl.trustStoreType
+            props[SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG] = properties.ssl.trustStorePassword
+        }
+        logger.info(
+            "Kafka clients configured with security.protocol={} (truststore: {})",
+            properties.security.protocol,
+            properties.ssl.trustStoreLocation.ifBlank { "none" },
+        )
+        return props
     }
 
     /** Shared [KafkaTemplate] used by [KafkaOutboxProcessor]. */
@@ -79,7 +108,7 @@ internal class KafkaTemplateAutoConfiguration {
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to ByteArrayDeserializer::class.java,
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to properties.consumer.autoOffsetReset,
-            )
+            ) + securityProps(properties)
         return DefaultKafkaConsumerFactory(configProps)
     }
 

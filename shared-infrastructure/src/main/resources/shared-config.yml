@@ -2,6 +2,12 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     schema-registry-url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+    security:
+      protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
+    ssl:
+      trust-store-location: ${KAFKA_SSL_TRUSTSTORE_LOCATION:}
+      trust-store-type: ${KAFKA_SSL_TRUSTSTORE_TYPE:PKCS12}
+      trust-store-password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
     consumer:
       auto-offset-reset: earliest
   security:
@@ -17,9 +23,9 @@ veds:
       server-url: ${KEYCLOAK_SERVER_URL:http://localhost:9000}
       realm: ${KEYCLOAK_REALM:veds}
       admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:veds-service-account}
-      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:1kCxHDIfqpAcMAUo16R0n8AkVqncFUJc}
+      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
       gateway-client-id: ${KEYCLOAK_GATEWAY_CLIENT_ID:veds-api-gateway}
-      gateway-client-secret: ${KEYCLOAK_GATEWAY_CLIENT_SECRET:fs5p2w6m9ry4qqoJzKpYTc1FzEAH7ugN}
+      gateway-client-secret: ${KEYCLOAK_GATEWAY_CLIENT_SECRET:}
       roles-claim-path: realm_access.roles
       cookie:
         refresh-token-cookie-name: KEYCLOAK_REFRESH_TOKEN

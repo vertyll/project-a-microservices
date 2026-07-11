@@ -4,6 +4,18 @@ variable "bootstrap_servers" {
   default     = ["localhost:29092"]
 }
 
+variable "tls_enabled" {
+  type        = bool
+  description = "Connect to the broker over TLS (SSL listener :9094)"
+  default     = false
+}
+
+variable "ca_cert_file" {
+  type        = string
+  description = "Path to the PEM of the CA that signed the broker cert (empty = plain/system trust)"
+  default     = ""
+}
+
 variable "partitions" {
   type        = number
   description = "Default partition count for topics"

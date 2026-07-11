@@ -25,8 +25,30 @@ echo "==> [1/2] Provisioning Kafka topics via Terraform"
 TF_VAR_bootstrap_servers="$(python3 -c "import json,os; print(json.dumps([s.strip() for s in os.environ['KAFKA_BOOTSTRAP_SERVERS'].split(',') if s.strip()]))")"
 export TF_VAR_bootstrap_servers
 
+# Broker TLS (SSL listener). KAFKA_TLS_ENABLED=true + KAFKA_CA_CERT_FILE point
+# the provider at the cluster's internal CA (see infra/kafka/main.tf).
+export TF_VAR_tls_enabled="${KAFKA_TLS_ENABLED:-false}"
+export TF_VAR_ca_cert_file="${KAFKA_CA_CERT_FILE:-}"
+
 cd /workspace/tf
 terraform init -input=false
+
+# Adopt topics that already exist on the broker but are missing from the
+# state (e.g. state lost or created before the /state backend existed).
+# `terraform import` on a missing topic just fails -> `|| true` lets apply
+# create it; import on an already-managed address is skipped by state check.
+import_if_missing() {
+    local addr="$1" topic="$2"
+    if ! terraform state show "$addr" >/dev/null 2>&1; then
+        echo "  importing pre-existing topic ${topic} into state (${addr})"
+        terraform import -input=false "$addr" "$topic" >/dev/null 2>&1 || true
+    fi
+}
+for topic in mail-requested mail-sent mail-failed saga-compensation-iam saga-compensation-mail; do
+    import_if_missing "kafka_topic.business[\"${topic}\"]" "${topic}"
+    import_if_missing "kafka_topic.dlt[\"${topic}\"]" "${topic}-dlt"
+done
+
 terraform apply -auto-approve -input=false
 
 # ----------------------------------------------------------------------------

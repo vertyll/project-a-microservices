@@ -15,5 +15,8 @@ terraform {
 
 provider "kafka" {
   bootstrap_servers = var.bootstrap_servers
-  tls_enabled       = false
+  # TLS toward the broker's SSL listener (:9094). ca_cert holds the PEM of
+  # the cluster's internal CA (k8s: mounted internal-ca-cert ConfigMap).
+  tls_enabled = var.tls_enabled
+  ca_cert     = var.ca_cert_file != "" ? file(var.ca_cert_file) : null
 }
