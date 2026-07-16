@@ -1,0 +1,27 @@
+name: Shared Infrastructure Checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "shared-infrastructure/**"
+      - ".github/workflows/code-quality-shared-infrastructure.yml"
+      - ".github/workflows/code-quality.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "shared-infrastructure/**"
+      - ".github/workflows/code-quality-shared-infrastructure.yml"
+      - ".github/workflows/code-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: shared-infrastructure

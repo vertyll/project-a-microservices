@@ -1,46 +1,44 @@
-name: Code Quality
+name: Quality Checks
 
 on:
   workflow_call:
     inputs:
       service:
-        description: "Gradle subproject directory (e.g. iam-service)"
+        description: Gradle subproject directory, for example iam-service
         required: true
         type: string
-      runs-on:
-        description: "GitHub runner label (e.g. ubuntu-latest, ubuntu-24.04-arm)"
+      runner:
+        description: GitHub runner label
         required: false
         type: string
-        default: "ubuntu-latest"
+        default: ubuntu-24.04
+
+permissions:
+  contents: read
 
 jobs:
   ktlint:
     name: ktlint
-    runs-on: ${{ inputs.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
+    runs-on: ${{ inputs.runner }}
 
-      - name: Set up JDK 25 (Zulu)
-        uses: actions/setup-java@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: "25"
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ inputs.service }}-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml') }}
-          restore-keys: |
-            gradle-${{ inputs.service }}-
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Make gradlew executable
+      - name: Make Gradle wrapper executable
         working-directory: ${{ inputs.service }}
         run: chmod +x ./gradlew
 
-      - name: ktlintCheck
+      - name: Run ktlint
         working-directory: ${{ inputs.service }}
         run: ./gradlew --no-daemon ktlintCheck
 
@@ -56,31 +54,26 @@ jobs:
 
   detekt:
     name: detekt
-    runs-on: ${{ inputs.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
+    runs-on: ${{ inputs.runner }}
 
-      - name: Set up JDK 25 (Zulu)
-        uses: actions/setup-java@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: "25"
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ inputs.service }}-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml') }}
-          restore-keys: |
-            gradle-${{ inputs.service }}-
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Make gradlew executable
+      - name: Make Gradle wrapper executable
         working-directory: ${{ inputs.service }}
         run: chmod +x ./gradlew
 
-      - name: detekt
+      - name: Run detekt
         working-directory: ${{ inputs.service }}
         run: ./gradlew --no-daemon detekt
 
@@ -96,31 +89,26 @@ jobs:
 
   test:
     name: test
-    runs-on: ${{ inputs.runs-on }}
-    steps:
-      - uses: actions/checkout@v4
+    runs-on: ${{ inputs.runner }}
 
-      - name: Set up JDK 25 (Zulu)
-        uses: actions/setup-java@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: "25"
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ inputs.service }}-${{ hashFiles('**/*.gradle.kts', '**/libs.versions.toml') }}
-          restore-keys: |
-            gradle-${{ inputs.service }}-
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Make gradlew executable
+      - name: Make Gradle wrapper executable
         working-directory: ${{ inputs.service }}
         run: chmod +x ./gradlew
 
-      - name: Tests
+      - name: Run tests
         working-directory: ${{ inputs.service }}
         run: ./gradlew --no-daemon test
 
