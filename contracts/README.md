@@ -32,8 +32,9 @@ Schemas are registered to Schema Registry using the topic name as the subject:
 
 Dedicated services generates Java `SpecificRecord` classes from `.avsc` files.
 
-Use the generated classes in publishers and consumers via the typed `Builder` API. 
-Do **not** hand-roll `GenericRecord` instances – they defeat the type-safety we get from codegen.
+> [!IMPORTANT]
+> Use the generated classes in publishers and consumers via the typed `Builder` API. 
+> Do **not** hand-roll `GenericRecord` instances – they defeat the type-safety we get from codegen.
 
 ## Compatibility mode
 

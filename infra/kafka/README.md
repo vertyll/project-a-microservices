@@ -24,7 +24,7 @@ Apply the configuration. By default, it uses `["localhost:29092"]` as the broker
 terraform apply
 ```
 
-> **Note on overriding variables:**  
+> [!IMPORTANT]
 > If you need to target a different environment, override the `bootstrap_servers` variable. Since it expects a `list(string)`, use the following syntax:
 >
 > ```bash

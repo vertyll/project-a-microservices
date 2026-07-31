@@ -21,7 +21,8 @@ The project is split into the following components:
 5. **Each `*-contracts`** – Per-bounded-context Avro Published Language modules. Each holds only Avro schemas and the Java `SpecificRecord` classes generated from them.
 6. **Template Service** – Baseline configuration for future microservices.
 
-Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing reliable event publication.
+> [!NOTE]
+> Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing reliable event publication.
 
 ## Components
 
@@ -102,8 +103,6 @@ A baseline skeleton for spinning up a new microservice.
 
 ### Hexagonal Architecture (Ports & Adapters)
 
-Each microservice implements Hexagonal Architecture to achieve clean separation of concerns.
-
 Benefits:
 - **Testability**: Core business logic can be tested independently.
 - **Flexibility**: Easy to swap external dependencies without affecting business logic.
@@ -136,7 +135,8 @@ The codebase adheres to:
 - **Interface Segregation Principle**: Specific interfaces rather than general ones.
 - **Dependency Inversion Principle**: Depends on abstractions (ports), not concretions (adapters).
 
-The hexagonal architecture naturally enforces these principles by isolating business logic from external concerns, using dependency inversion through ports and adapters, and maintaining clear boundaries between layers.
+> [!NOTE]
+> The hexagonal architecture naturally enforces these principles by isolating business logic from external concerns, using dependency inversion through ports and adapters, and maintaining clear boundaries between layers.
 
 ### Choreography Pattern for Service Coordination
 
@@ -146,4 +146,9 @@ The system uses a choreography-based approach for service coordination:
 - No central orchestrator is needed, making the system more decentralized and resilient.
 - Services maintain autonomy and can evolve independently.
 
-Benefits: reduced coupling, flexible and scalable architecture, easier to add/modify services, better resilience (no single point of failure), and natural alignment with hexagonal architecture.
+Benefits: 
+- Reduced coupling.
+- Flexible and scalable architecture.
+- Easier to add/modify services.
+- Better resilience (no single point of failure).
+- Natural alignment with hexagonal architecture.

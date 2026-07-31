@@ -7,7 +7,8 @@ Keycloak is the identity provider (IdP) for the application. It handles:
 - Token issuance (access tokens + refresh tokens, JWT format).
 - Role management (mirrored from the app's IAM service).
 
-> **Note:** The realm JSON export: `keycloak/realm-config/realm-export.json` is automatically imported **on first startup** via Docker Compose volume mount. You do **not** need to configure Keycloak manually.
+> [!IMPORTANT]
+> The realm JSON export: `keycloak/realm-config/realm-export.json` is automatically imported **on first startup** via Docker Compose volume mount. You do **not** need to configure Keycloak manually.
 
 ## What the Realm Export Creates
 
@@ -58,7 +59,8 @@ Role names are owned by **two places only**:
 | **Bounded Context Conflict**  | A role's *meaning* (what `ADMIN` is allowed to do) belongs to the service that owns the resource, not to a global enum.                  |
 | **Source of Truth Drift**     | The IdP is already the source of truth; an in-code mirror would inevitably drift from Keycloak.                                          |
 
-What stays in `shared-infrastructure/security/` is **only** the technical JWT → `Authentication` adapter (`KeycloakJwtAuthenticationConverter` / `ReactiveKeycloakJwtAuthenticationConverter`). It is role-name-agnostic — it maps *whatever* strings sit in the configured claim path onto `ROLE_*` authorities. Each service then decides which of those it cares about, in its own `SecurityConfig`.
+> [!NOTE]
+> What stays in `shared-infrastructure/security/` is **only** the technical JWT → `Authentication` adapter (`KeycloakJwtAuthenticationConverter` / `ReactiveKeycloakJwtAuthenticationConverter`). It is role-name-agnostic — it maps *whatever* strings sit in the configured claim path onto `ROLE_*` authorities. Each service then decides which of those it cares about, in its own `SecurityConfig`.
 
 ## Useful Keycloak URLs (Local Dev)
 
