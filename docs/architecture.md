@@ -23,7 +23,8 @@ The project is split into the following components:
 
 > [!NOTE]
 >
-> Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing reliable event publication.
+> Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other
+> asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing reliable event publication.
 
 ## Components
 
@@ -138,7 +139,8 @@ The codebase adheres to:
 
 > [!NOTE]
 >
-> The hexagonal architecture naturally enforces these principles by isolating business logic from external concerns, using dependency inversion through ports and adapters, and maintaining clear boundaries between layers.
+> The hexagonal architecture naturally enforces these principles by isolating business logic from external concerns,
+> using dependency inversion through ports and adapters, and maintaining clear boundaries between layers.
 
 ### Choreography Pattern for Service Coordination
 
