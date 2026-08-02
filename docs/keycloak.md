@@ -50,7 +50,9 @@ Role names are owned by **two places only**:
 | **Keycloak realm** | (`keycloak/realm-config/realm-export.json`) — the runtime source of truth issued in every access token's `realm_access.roles` claim.                                                                                                                                                                           |
 | **iam-service**    | (`iam-service/.../domain/model/RoleType.kt`, `internal`) — a type-safe mirror used solely by the role *administrator* (`RoleInitializer` seeds the DB, `AuthService.register` assigns `USER` via the Keycloak Admin API). The enum is `internal` to the iam-service module and intentionally **not** exported. |
 
-> **Note** Other microservices **do not** depend on iam-service's enum. They check roles as plain strings.
+> [!NOTE]
+>
+> Other microservices **do not** depend on iam-service's enum. They check roles as plain strings.
 
 **Why no `shared-infrastructure.RoleType` enum:**
 
