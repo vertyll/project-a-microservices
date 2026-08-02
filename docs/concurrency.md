@@ -1,6 +1,7 @@
 # Optimistic Locking & Concurrency Control
 
 > [!NOTE]
+>
 > This project uses a combination of HTTP ETags (at API boundaries) and JPA Optimistic Locking (within services) to prevent lost updates and to ensure safe concurrency across microservices and asynchronous processing.
 
 ## Summary

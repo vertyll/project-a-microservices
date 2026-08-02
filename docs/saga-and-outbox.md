@@ -63,6 +63,7 @@ Service-local `SchedulingConfig` wires `@EnableScheduling` so `KafkaOutboxProces
 This example illustrates the choreography between `iam-service` and `mail-service`.
 
 > [!IMPORTANT]
+>
 > Compensation only exists where effects are reversible. A sent email cannot be un-sent, therefore `mail-service` does **not** have a `SagaCompensationService`.
 
 ### Phase 1 — Init (`iam-service`)
@@ -98,6 +99,7 @@ Consumes feedback via `MailFeedbackConsumer`.
 Services communicate asynchronously through Kafka events. Integration events are defined as **Avro** schemas under `contracts/<service>/<topic>/v<n>/*.avsc` and serialized in binary form with Schema Registry.
 
 > [!NOTE]
+>
 > All publishing goes through the Outbox (`KafkaOutboxProcessor`); all consumption goes through `ProcessedEventGuard` for idempotency.
 
 | Event                                 | Publisher      | Consumer       | Details                                                                                                                                                                                                                                                                                                                                               |
