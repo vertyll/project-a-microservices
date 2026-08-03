@@ -8,6 +8,7 @@ import com.vertyll.veds.template.domain.model.Template
  * Reference contract — replace with the real use cases when cloning the
  * template service for a new bounded context.
  */
+@Suppress("kotlin:S6517")
 interface TemplateSagaUseCase {
     fun processTemplateWithSaga(
         name: String,
