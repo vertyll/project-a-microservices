@@ -114,7 +114,8 @@ internal class AuthProxyController(
             return Mono.just(redirectToApp(error))
         }
 
-        if (code == null || state == null || expectedState == null || state != expectedState) {
+        val stateMatches = state != null && expectedState != null && state == expectedState
+        if (code == null || !stateMatches) {
             log.warn("Rejecting callback: state does not match the value issued to this browser")
             return Mono.just(redirectToApp(ERR_STATE_MISMATCH))
         }
