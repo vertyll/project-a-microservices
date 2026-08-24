@@ -21,6 +21,27 @@ import java.util.UUID
 @Component
 @Suppress("LongMethod")
 internal class TaskQueryAdapter : TaskQueryPort {
+    private companion object {
+        private const val COMMENT_ID = 0
+        private const val COMMENT_TASK_ID = 1
+        private const val COMMENT_AUTHOR_ID = 2
+        private const val COMMENT_CONTENT = 3
+        private const val COMMENT_CREATED_AT = 4
+        private const val COMMENT_UPDATED_AT = 5
+        private const val COMMENT_VERSION = 6
+        private const val COMMENT_AUTHOR_EMAIL = 7
+        private const val COMMENT_AUTHOR_FIRST_NAME = 8
+        private const val COMMENT_AUTHOR_LAST_NAME = 9
+        private const val COMMENT_AUTHOR_AVATAR = 10
+
+        private const val ASSIGNEE_TASK_ID = 0
+        private const val ASSIGNEE_USER_ID = 1
+        private const val ASSIGNEE_EMAIL = 2
+        private const val ASSIGNEE_FIRST_NAME = 3
+        private const val ASSIGNEE_LAST_NAME = 4
+        private const val ASSIGNEE_AVATAR = 5
+    }
+
     @PersistenceContext
     private lateinit var entityManager: EntityManager
 
@@ -129,25 +150,25 @@ internal class TaskQueryAdapter : TaskQueryPort {
         val attachments = attachmentsFor(rows.map { it[0] as UUID })
 
         return rows.map { r ->
-            val id = r[0] as UUID
-            val email = r[7] as String?
+            val id = r[COMMENT_ID] as UUID
+            val email = r[COMMENT_AUTHOR_EMAIL] as String?
             TaskCommentResponse(
                 id = id,
-                taskId = r[1] as UUID,
+                taskId = r[COMMENT_TASK_ID] as UUID,
                 author =
                     TaskUserView(
-                        id = r[2] as UUID,
+                        id = r[COMMENT_AUTHOR_ID] as UUID,
                         displayName =
-                            listOfNotNull(r[8] as String?, r[9] as String?)
+                            listOfNotNull(r[COMMENT_AUTHOR_FIRST_NAME] as String?, r[COMMENT_AUTHOR_LAST_NAME] as String?)
                                 .joinToString(" ")
-                                .ifBlank { email ?: (r[2] as UUID).toString() },
-                        avatarFileId = r[10] as UUID?,
+                                .ifBlank { email ?: (r[COMMENT_AUTHOR_ID] as UUID).toString() },
+                        avatarFileId = r[COMMENT_AUTHOR_AVATAR] as UUID?,
                     ),
-                content = r[3] as String,
+                content = r[COMMENT_CONTENT] as String,
                 attachmentIds = attachments[id].orEmpty(),
-                createdAt = r[4] as Instant,
-                updatedAt = r[5] as Instant,
-                version = r[6] as Long?,
+                createdAt = r[COMMENT_CREATED_AT] as Instant,
+                updatedAt = r[COMMENT_UPDATED_AT] as Instant,
+                version = r[COMMENT_VERSION] as Long?,
             )
         }
     }
@@ -202,18 +223,18 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 .resultList as List<Array<Any?>>
 
         return rows
-            .groupBy { it[0] as UUID }
+            .groupBy { it[ASSIGNEE_TASK_ID] as UUID }
             .mapValues { (_, group) ->
                 group.map { r ->
-                    val userId = r[1] as UUID
-                    val email = r[2] as String?
+                    val userId = r[ASSIGNEE_USER_ID] as UUID
+                    val email = r[ASSIGNEE_EMAIL] as String?
                     TaskUserView(
                         id = userId,
                         displayName =
-                            listOfNotNull(r[3] as String?, r[4] as String?)
+                            listOfNotNull(r[ASSIGNEE_FIRST_NAME] as String?, r[ASSIGNEE_LAST_NAME] as String?)
                                 .joinToString(" ")
                                 .ifBlank { email ?: userId.toString() },
-                        avatarFileId = r[5] as UUID?,
+                        avatarFileId = r[ASSIGNEE_AVATAR] as UUID?,
                     )
                 }
             }

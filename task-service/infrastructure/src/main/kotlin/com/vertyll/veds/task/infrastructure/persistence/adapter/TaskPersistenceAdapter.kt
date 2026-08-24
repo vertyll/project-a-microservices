@@ -45,7 +45,7 @@ internal class TaskPersistenceAdapter(
 
         val rows =
             entityManager
-                .createQuery("SELECT FROM TaskJpaEntity t $where ORDER BY $order", TaskJpaEntity::class.java)
+                .createQuery("SELECT t FROM TaskJpaEntity t $where ORDER BY $order", TaskJpaEntity::class.java)
                 .applyCriteria(criteria)
                 .setFirstResult(pageRequest.offset.toInt())
                 .setMaxResults(pageRequest.size)

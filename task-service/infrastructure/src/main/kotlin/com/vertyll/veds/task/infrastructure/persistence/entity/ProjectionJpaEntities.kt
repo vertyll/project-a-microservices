@@ -76,7 +76,11 @@ internal class ProjectStatusRefJpaEntity(
 internal data class ProjectMembershipRefId(
     var projectId: UUID? = null,
     var userId: UUID? = null,
-) : Serializable
+) : Serializable {
+    companion object {
+        private const val serialVersionUID: Long = 1L
+    }
+}
 
 @Entity
 @Table(
