@@ -14,9 +14,6 @@ import com.vertyll.veds.iam.domain.repository.UserRepository
 class UserService(
     private val userRepository: UserRepository,
 ) : UserUseCase {
-    private companion object {
-    }
-
     override fun getAllUsers(pageRequest: PageRequest): PageResult<UserResponse> = userRepository.findAll(pageRequest).map(::mapToDto)
 
     override fun getUserById(id: Long): UserResponse {
