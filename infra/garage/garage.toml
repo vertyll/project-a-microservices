@@ -1,7 +1,7 @@
 # Garage configuration for local development.
 #
-# Single node, replication factor 1: this is a laptop, not a cluster. Production
-# overrides this file — nothing here is meant to survive a real deployment.
+# Single node, replication factor 1. Production overrides this file — nothing
+# here is meant to survive a real deployment.
 
 metadata_dir = "/var/lib/garage/meta"
 data_dir     = "/var/lib/garage/data"
