@@ -105,32 +105,6 @@ services:
       retries: 5
       start_period: 10s
 
-  # Session store for the API Gateway's Token Handler (BFF).
-  gateway-session-store:
-    image: redis:8-alpine
-    container_name: gateway-session-store
-    restart: always
-    command:
-      - "redis-server"
-      - "--appendonly"
-      - "yes"
-      - "--requirepass"
-      - "${REDIS_PASSWORD:?set REDIS_PASSWORD}"
-      - "--maxmemory-policy"
-      - "noeviction"
-    volumes:
-      - gateway-session-data:/data
-    ports:
-      - "127.0.0.1:6379:6379"
-    networks:
-      - microservices-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
-
   translation-db:
     image: postgres:18-alpine
     container_name: translation-db
@@ -172,6 +146,42 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+
+  # Session store for the API Gateway's Token Handler (BFF).
+  gateway-session-store:
+    image: redis:8-alpine
+    container_name: gateway-session-store
+    restart: always
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?set REDIS_PASSWORD}"
+      - "--maxmemory-policy"
+      - "noeviction"
+    volumes:
+      - gateway-session-data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # RedisInsight
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    restart: always
+    ports:
+      - "8001:5540"
+    networks:
+      - microservices-network
 
   # Object storage.
   object-storage:
@@ -218,7 +228,7 @@ services:
 
   # Browser console for the object store.
   object-storage-ui:
-    image: khairul169/garage-webui:1.0.9
+    image: noooste/garage-ui:latest
     container_name: object-storage-ui
     restart: always
     depends_on:
@@ -227,11 +237,11 @@ services:
     volumes:
       - ./infra/garage/garage.toml:/etc/garage.toml:ro
     environment:
-      API_BASE_URL: http://object-storage:3903
-      S3_ENDPOINT_URL: http://object-storage:3900
-      CONFIG_PATH: /etc/garage.toml
+      GARAGE_UI_GARAGE_TOML: /etc/garage.toml
+      GARAGE_UI_GARAGE_ENDPOINT: http://object-storage:3900
+      GARAGE_UI_GARAGE_ADMIN_ENDPOINT: http://object-storage:3903
     ports:
-      - "9101:3909"
+      - "9101:8080"
     networks:
       - microservices-network
 
@@ -396,10 +406,10 @@ services:
       retries: 5
       start_period: 10s
 
-  # Kafka UI tool
-  kafka-ui:
-    image: docker.io/provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
+  # Kafbat UI
+  kafbat-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    container_name: kafbat-ui
     depends_on:
       kafka:
         condition: service_healthy
