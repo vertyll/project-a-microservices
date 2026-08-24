@@ -42,7 +42,6 @@ services:
       retries: 5
       start_period: 10s
 
-
   project-db:
     image: postgres:18-alpine
     container_name: project-db
@@ -107,7 +106,6 @@ services:
       start_period: 10s
 
   # Session store for the API Gateway's Token Handler (BFF).
-  # Tokens never reach the browser; the browser only holds an opaque session id.
   gateway-session-store:
     image: redis:8-alpine
     container_name: gateway-session-store
@@ -118,16 +116,11 @@ services:
       - "yes"
       - "--requirepass"
       - "${REDIS_PASSWORD:?set REDIS_PASSWORD}"
-      # Never evict session keys under memory pressure: silent eviction would log
-      # users out at random with nothing in the logs. Fail the write instead.
       - "--maxmemory-policy"
       - "noeviction"
     volumes:
       - gateway-session-data:/data
     ports:
-      # Bound to loopback: the session store is only ever reached by the gateway
-      # over the internal network. Publishing it on 0.0.0.0 exposed every
-      # session record to anything that could reach the host.
       - "127.0.0.1:6379:6379"
     networks:
       - microservices-network
@@ -180,17 +173,7 @@ services:
       retries: 5
       start_period: 10s
 
-  # Object storage. The browser uploads and downloads here directly with
-  # pre-signed URLs, so file bytes never pass through a JVM.
-  #
-  # Garage rather than MinIO, to match the deployment target. It speaks the S3
-  # API with SigV4, which is all file-service uses — `pathStyleAccessEnabled` is
-  # set in ObjectStorageConfig because Garage does not serve virtual-host style
-  # buckets without wildcard DNS.
-  #
-  # The bucket stays **private**. Nothing is readable without a signed URL, which
-  # is what makes "my files, served by my application" work without exposing the
-  # store to the internet.
+  # Object storage.
   object-storage:
     image: dxflrs/garage:v1.0.1
     container_name: object-storage
@@ -214,11 +197,6 @@ services:
       start_period: 15s
 
   # One-shot bootstrap.
-  #
-  # A fresh Garage node has no layout, no bucket and no keys, and none of that can
-  # be expressed in the config file — it is cluster state applied through the CLI.
-  # Running it here means `docker compose up` produces a working store rather than
-  # one that needs a page of manual commands.
   object-storage-init:
     image: dxflrs/garage:v1.0.1
     container_name: object-storage-init
@@ -232,8 +210,6 @@ services:
       OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-veds-files}
       OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-veds-local-access-key}
       OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-veds-local-secret-key}
-      # The SPA writes straight to the store, so its origin has to be allowed on
-      # the bucket. Without this every upload fails the browser preflight.
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
       GARAGE_RPC_HOST: object-storage
     entrypoint: ["/bin/sh", "/bootstrap.sh"]
