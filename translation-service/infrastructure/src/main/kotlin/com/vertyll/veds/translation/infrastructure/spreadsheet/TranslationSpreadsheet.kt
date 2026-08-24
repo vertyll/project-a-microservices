@@ -58,18 +58,20 @@ internal class TranslationSpreadsheet {
             val sheet = workbook.getSheetAt(0) ?: return emptyList()
             val commands = mutableListOf<ImportedTranslationCommand>()
 
-            for (rowIndex in 1..sheet.lastRowNum) {
-                val row = sheet.getRow(rowIndex) ?: continue
-                val key = row.stringAt(KEY_COLUMN)?.trim().orEmpty()
-                if (key.isEmpty()) continue
-
-                languages.forEachIndexed { languageIndex, language ->
-                    val value = row.stringAt(FIRST_LANGUAGE_COLUMN + languageIndex)?.trim()
-                    if (!value.isNullOrEmpty()) {
-                        commands += ImportedTranslationCommand(key = key, language = language, value = value)
+            (1..sheet.lastRowNum)
+                .mapNotNull { sheet.getRow(it) }
+                .map { row -> row to row.stringAt(KEY_COLUMN)?.trim().orEmpty() }
+                .filter { (_, key) -> key.isNotEmpty() }
+                .forEach { (row, key) ->
+                    languages.forEachIndexed { languageIndex, language ->
+                        val value = row.stringAt(FIRST_LANGUAGE_COLUMN + languageIndex)?.trim()
+                        // A blank cell means "unchanged", not "clear this translation".
+                        if (!value.isNullOrEmpty()) {
+                            commands += ImportedTranslationCommand(key = key, language = language, value = value)
+                        }
                     }
                 }
-            }
+
             return commands
         }
     }

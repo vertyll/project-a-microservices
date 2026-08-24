@@ -37,7 +37,7 @@ internal class TranslationController(
 
         return ResponseEntity
             .ok()
-            .eTag("\"${'$'}{snapshot.version}\"")
+            .eTag("\"${snapshot.version}\"")
             .cacheControl(CacheControl.maxAge(CACHE_MINUTES, TimeUnit.MINUTES).cachePublic())
             .body(body)
     }
