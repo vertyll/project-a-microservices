@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
+
 /**
  * Registers the service's declared keys with `translation-service` at start-up.
  *
