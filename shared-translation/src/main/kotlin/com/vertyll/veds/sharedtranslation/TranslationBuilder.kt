@@ -24,7 +24,12 @@ class TranslationCatalogueBuilder(
         values.forEach { (language, pattern) ->
             IcuPatternValidator.requireValid(key, language, pattern)
         }
-        definitions += TranslationKeyDefinition(key = key, defaultValues = values, description = description)
+        definitions +=
+            TranslationKeyDefinition(
+                key = key,
+                defaultValues = values,
+                description = description,
+            )
     }
 
     internal fun build(): TranslationCatalogue = TranslationCatalogue(sourceService = sourceService, definitions = definitions.toList())

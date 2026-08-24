@@ -29,7 +29,9 @@ object IcuPatternValidator {
             MessageFormat(pattern, Locale.forLanguageTag(language))
             null
         } catch (e: IllegalArgumentException) {
-            e.message ?: "malformed ICU pattern"
+            // The message is the whole point: it is shown to whoever tried to save
+            // the pattern, so it is returned rather than logged and discarded.
+            e.message ?: e.toString()
         }
 
     fun argumentsOf(
@@ -38,7 +40,9 @@ object IcuPatternValidator {
     ): Set<String> =
         try {
             MessageFormat(pattern, Locale.forLanguageTag(language)).argumentNames.toSet()
-        } catch (e: IllegalArgumentException) {
+        } catch (ignored: IllegalArgumentException) {
+            // A pattern that does not compile has no arguments to report, and the
+            // reason is surfaced by `validate` on the same path.
             emptySet()
         }
 }

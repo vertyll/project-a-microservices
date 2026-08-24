@@ -27,7 +27,9 @@ class MessageResolver(
 
         return try {
             MessageFormat(pattern, Locale.forLanguageTag(language)).format(arguments)
-        } catch (e: IllegalArgumentException) {
+        } catch (ignored: IllegalArgumentException) {
+            // A stored pattern that will not format is a data defect, not a caller
+            // error. The key on screen names exactly which translation to fix.
             key
         }
     }
