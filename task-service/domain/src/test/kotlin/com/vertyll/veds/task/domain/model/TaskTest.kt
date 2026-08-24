@@ -12,8 +12,7 @@ class TaskTest {
     private val creator = UUID.randomUUID()
     private val statusId = UUID.randomUUID()
 
-    private fun task() =
-        Task(projectId = UUID.randomUUID(), description = "Write the thing", createdBy = creator)
+    private fun task() = Task(projectId = UUID.randomUUID(), description = "Write the thing", createdBy = creator)
 
     @Test
     fun `moving to the same status returns the very same instance`() {
