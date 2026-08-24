@@ -6,7 +6,6 @@ Getting the whole system running locally, from a fresh clone.
 
 - Docker or Podman, with Compose
 - JDK 25 LTS
-- Node 20+ and pnpm — only for the front end, which lives in the separate `fastdo` repository
 - Python 3 — only for registering Avro schemas
 
 ## 1. Clone and configure
@@ -106,35 +105,6 @@ keys are republished on the next restart.
 | `file-service`         | 8088 |
 
 `template-service` is a reference for cloning and is not meant to be run.
-
-## 6. Run the front end
-
-The UI lives in the separate [fastdo](https://github.com/vertyll/fastdo) repository:
-
-```bash
-cd ../fastdo
-pnpm install
-pnpm dev
-```
-
-It expects the gateway on `http://localhost:8080` and serves on `http://localhost:4200` — the
-origin the object store was told to allow in step 2.
-
-## 7. Create an account
-
-There are no seeded users: the realm ships with a service account only.
-
-1. Open `http://localhost:4200` and register
-2. Open MailDev at `http://localhost:1080` and click the activation link — no mail leaves the
-   machine, every message lands there
-3. Sign in
-
-To make that account for an administrator, assign the `ADMIN` realm role in the Keycloak console
-(`http://localhost:9000`, `admin` / `admin`). Without it the `/admin` section is hidden and the
-gateway refuses its endpoints.
-
-Two-factor authentication is optional and configured from the account's security settings; it
-redirects to Keycloak's own pages.
 
 ## Service URLs
 

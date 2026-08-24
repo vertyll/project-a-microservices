@@ -8,7 +8,7 @@ locals {
     "saga-compensation-iam",
     "saga-compensation-mail",
 
-    # fastdo migration - project bounded context
+    # project bounded context
     "project-created",
     "project-updated",
     "project-archived",
@@ -19,7 +19,7 @@ locals {
     "project-status-changed",
     "saga-compensation-project",
 
-    # fastdo migration — task bounded context
+    # task bounded context
     "task-created",
     "task-assigned",
     "task-status-changed",
@@ -27,7 +27,7 @@ locals {
     "task-comment-added",
     "saga-compensation-task",
 
-    # fastdo migration — notification bounded context
+    # notification bounded context
     #
     # No integration events of its own: notification-service is a pure consumer
     # that turns other contexts' events into notifications. The only thing it
