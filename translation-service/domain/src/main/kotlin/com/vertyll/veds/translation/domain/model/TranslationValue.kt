@@ -33,8 +33,7 @@ data class TranslationValue(
         return copy(overrideValue = value, updatedBy = editor, updatedAt = Instant.now())
     }
 
-    fun overrideCleared(editor: UUID): TranslationValue =
-        copy(overrideValue = null, updatedBy = editor, updatedAt = Instant.now())
+    fun overrideCleared(editor: UUID): TranslationValue = copy(overrideValue = null, updatedBy = editor, updatedAt = Instant.now())
 
     companion object {
         fun seeded(
