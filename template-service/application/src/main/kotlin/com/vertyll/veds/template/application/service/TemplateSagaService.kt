@@ -3,13 +3,11 @@ package com.vertyll.veds.template.application.service
 import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
 import com.vertyll.veds.template.application.port.inbound.TemplateSagaUseCase
 import com.vertyll.veds.template.application.port.outbound.SagaProcessPort
+import com.vertyll.veds.template.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.template.application.saga.model.SagaStepNames
 import com.vertyll.veds.template.application.saga.model.SagaTypes
 import com.vertyll.veds.template.domain.model.Template
 import com.vertyll.veds.template.domain.repository.TemplateRepository
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 /**
  * Reference implementation of a saga-driven use case for the template service.
@@ -17,14 +15,11 @@ import org.springframework.transaction.annotation.Transactional
  * Mirrors the structure of `EmailSagaService` in mail-service — replace the
  * domain calls with your real business logic when cloning this service.
  */
-@Service
-internal class TemplateSagaService(
+class TemplateSagaService(
     private val sagaProcess: SagaProcessPort,
     private val templateRepository: TemplateRepository,
+    private val logger: UseCaseLogger,
 ) : TemplateSagaUseCase {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    @Transactional
     override fun processTemplateWithSaga(
         name: String,
         payload: String,
