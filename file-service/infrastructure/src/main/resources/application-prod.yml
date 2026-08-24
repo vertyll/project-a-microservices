@@ -55,7 +55,5 @@ veds:
       bucket: ${OBJECT_STORAGE_BUCKET:veds-files}
       access-key: ${OBJECT_STORAGE_ACCESS_KEY:veds-local-access-key}
       secret-key: ${OBJECT_STORAGE_SECRET_KEY:veds-local-secret-key}
-      # Long enough for a slow connection to finish a 25 MB attachment.
       upload-url-validity: 15m
-      # Shorter: a download link is often pasted into a chat.
       download-url-validity: 5m
