@@ -4,6 +4,7 @@ import com.vertyll.veds.project.application.dto.ProjectCategoryResponse
 import com.vertyll.veds.project.domain.model.LanguageTag
 import java.util.UUID
 
+@Suppress("kotlin:S6517")
 interface ProjectCategoryQueryUseCase {
     fun getCategories(
         projectId: UUID,
