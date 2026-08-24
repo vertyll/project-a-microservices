@@ -21,9 +21,11 @@ data class NotificationSettings(
 
     fun unmute(type: NotificationType): NotificationSettings = copy(mutedTypes = mutedTypes - type)
 
-    fun enableEmail(type: NotificationType): NotificationSettings = copy(emailEnabledTypes = emailEnabledTypes + type)
+    fun enableEmail(type: NotificationType): NotificationSettings =
+        copy(emailEnabledTypes = emailEnabledTypes + type)
 
-    fun disableEmail(type: NotificationType): NotificationSettings = copy(emailEnabledTypes = emailEnabledTypes - type)
+    fun disableEmail(type: NotificationType): NotificationSettings =
+        copy(emailEnabledTypes = emailEnabledTypes - type)
 
     companion object {
         val DEFAULT_EMAIL_TYPES: Set<NotificationType> =
