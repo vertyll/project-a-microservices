@@ -32,8 +32,10 @@ class TranslationCatalogueBuilder(
             )
     }
 
-    internal fun build(): TranslationCatalogue =
-        TranslationCatalogue(sourceService = sourceService, definitions = definitions.toList())
+    internal fun build(): TranslationCatalogue = TranslationCatalogue(
+        sourceService = sourceService,
+        definitions = definitions.toList()
+    )
 }
 
 /**
