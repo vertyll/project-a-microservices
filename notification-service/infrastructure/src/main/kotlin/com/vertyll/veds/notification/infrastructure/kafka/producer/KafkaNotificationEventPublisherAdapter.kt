@@ -1,12 +1,12 @@
 package com.vertyll.veds.notification.infrastructure.kafka.producer
 
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.notification.NotificationFailedEvent
 import com.vertyll.veds.notification.NotificationProcessedEvent
 import com.vertyll.veds.notification.application.port.outbound.NotificationEventPublisherPort
 import com.vertyll.veds.notification.infrastructure.kafka.NotificationKafkaTopics
+import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
+import com.vertyll.veds.sharedinfrastructure.event.Events
+import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

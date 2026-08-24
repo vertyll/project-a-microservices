@@ -16,8 +16,7 @@ data class Notification(
     val createdAt: Instant = Instant.now(),
     val version: Long? = null,
 ) {
-    fun markRead(at: Instant = Instant.now()): Notification =
-        if (isRead) this else copy(isRead = true, readAt = at)
+    fun markRead(at: Instant = Instant.now()): Notification = if (isRead) this else copy(isRead = true, readAt = at)
 
     fun markUnread(): Notification = if (!isRead) this else copy(isRead = false, readAt = null)
 

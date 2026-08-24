@@ -11,7 +11,8 @@ class UserPermissionsTest {
     private val viewer = Role(id = 1, name = "viewer", permissions = setOf(read))
     private val admin = Role(id = 2, name = "admin", permissions = setOf(read, write))
 
-    private fun user(vararg roles: Role) = User(id = 1, email = "a@example.com", roles = roles.toSet())
+    private fun user(vararg roles: Role) =
+        User(id = 1, email = "a@example.com", firstName = "John", lastName = "Doe", roles = roles.toSet())
 
     @Test
     fun `a user with no roles has no permissions`() {
