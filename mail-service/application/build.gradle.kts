@@ -53,11 +53,13 @@ val checkHexagonalDependencies by tasks.registering {
                 .get()
                 .resolvedConfiguration
                 .resolvedArtifacts
+                .asSequence()
                 .map { it.moduleVersion.id }
                 .filter { id -> forbiddenOnApplicationClasspath.any { id.group.startsWith(it) } }
                 .map { "${it.group}:${it.name}" }
                 .distinct()
                 .sorted()
+                .toList()
 
         if (offenders.isNotEmpty()) {
             throw GradleException(
