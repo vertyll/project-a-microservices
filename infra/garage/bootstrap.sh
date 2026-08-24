@@ -19,7 +19,7 @@ done
 NODE_ID="$(/garage node id -q | cut -d@ -f1)"
 
 # A node with no layout accepts no writes. One zone, one node, 1G of capacity —
-# enough for local attachments and avatars.
+# enough for local development.
 if ! /garage layout show | grep -q "$NODE_ID"; then
     echo "Assigning cluster layout to node $NODE_ID"
     /garage layout assign -z local -c 1G "$NODE_ID"
