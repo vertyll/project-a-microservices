@@ -37,13 +37,11 @@ data class Project(
 
     fun isOwnedBy(userId: UUID): Boolean = ownerId == userId
 
-    private companion object {
+    companion object {
         private const val MAX_NAME_LENGTH = 255
         private const val NAME_BLANK = "project name must not be blank"
         private const val NAME_TOO_LONG = "project name must not exceed 255 characters"
-    }
 
-    companion object {
         fun create(
             name: String,
             description: String?,
