@@ -23,10 +23,10 @@ internal class UserPersistenceAdapter(
         val managedRoles: MutableSet<RoleJpaEntity> =
             user.roles
                 .map { role ->
-                    val id = role.id ?: error("cannot assign an unsaved role '${'$'}{role.name}' to a user")
+                    val id = role.id ?: error("cannot assign an unsaved role '${role.name}' to a user")
                     roleJpaRepository
                         .findById(id)
-                        .orElseThrow { IllegalStateException("role ${'$'}id no longer exists") }
+                        .orElseThrow { IllegalStateException("role $id no longer exists") }
                 }.toMutableSet()
         val entity =
             UserJpaEntity(

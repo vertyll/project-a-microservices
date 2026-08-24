@@ -22,10 +22,10 @@ internal class RolePersistenceAdapter(
                 .map { permission ->
                     val id =
                         permission.id
-                            ?: error($$"cannot grant an unsaved permission '${permission.name}' to a role")
+                            ?: error("cannot grant an unsaved permission '${permission.name}' to a role")
                     permissionRepository
                         .findById(id)
-                        .orElseThrow { IllegalStateException($$"permission $id no longer exists") }
+                        .orElseThrow { IllegalStateException("permission $id no longer exists") }
                 }.toMutableSet()
         return repository.save(role.toJpaEntity(managedPermissions)).toDomain()
     }
