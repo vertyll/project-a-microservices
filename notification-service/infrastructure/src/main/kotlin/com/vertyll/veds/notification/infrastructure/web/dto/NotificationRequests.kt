@@ -17,5 +17,6 @@ data class UpdateSettingsRequest(
     val mutedTypes: Set<NotificationType> = emptySet(),
     val emailEnabledTypes: Set<NotificationType> = emptySet(),
 ) {
-    fun toCommand(): UpdateSettingsCommand = UpdateSettingsCommand(mutedTypes = mutedTypes, emailEnabledTypes = emailEnabledTypes)
+    fun toCommand(): UpdateSettingsCommand =
+        UpdateSettingsCommand(mutedTypes = mutedTypes, emailEnabledTypes = emailEnabledTypes)
 }

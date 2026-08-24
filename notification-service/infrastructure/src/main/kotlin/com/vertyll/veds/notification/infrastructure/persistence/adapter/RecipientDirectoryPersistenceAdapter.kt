@@ -26,7 +26,8 @@ internal class RecipientDirectoryPersistenceAdapter(
 
     override fun findById(userId: UUID): RecipientRef? = repository.findByIdOrNull(userId)?.toDomain()
 
-    override fun findByEmail(email: String): RecipientRef? = repository.findByEmailIgnoreCase(email).orElse(null)?.toDomain()
+    override fun findByEmail(email: String): RecipientRef? =
+        repository.findByEmailIgnoreCase(email).orElse(null)?.toDomain()
 }
 
 private fun RecipientRefJpaEntity.toDomain() =

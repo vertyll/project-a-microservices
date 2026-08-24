@@ -9,6 +9,7 @@ data class CreateNotificationRequest(
     @field:NotBlank
     val payload: String,
 ) {
+
     fun toCommand(): CreateNotificationCommand =
         CreateNotificationCommand(
             name = name,
