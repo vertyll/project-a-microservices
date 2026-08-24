@@ -40,7 +40,8 @@ object TaskAccessPolicy {
         }
     }
 
-    fun permissionsOf(membership: ProjectMembershipRef?): Set<TaskPermission> = membership?.let { ROLE_PERMISSIONS[it.roleCode] }.orEmpty()
+    fun permissionsOf(membership: ProjectMembershipRef?): Set<TaskPermission> =
+        membership?.let { ROLE_PERMISSIONS[it.roleCode] }.orEmpty()
 
     fun canSeeRestrictedTask(
         task: Task,

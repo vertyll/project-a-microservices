@@ -42,7 +42,8 @@ data class Task(
 
     // Returns `this` unchanged for a no-op move, so a board drag that lands a card
     // back in its own column emits no event. Not an oversight.
-    fun moveTo(newStatusId: UUID?): Task = if (statusId == newStatusId) this else copy(statusId = newStatusId, updatedAt = Instant.now())
+    fun moveTo(newStatusId: UUID?): Task =
+        if (statusId == newStatusId) this else copy(statusId = newStatusId, updatedAt = Instant.now())
 
     fun categoriseAs(newCategoryIds: Set<UUID>): Task = copy(categoryIds = newCategoryIds, updatedAt = Instant.now())
 
@@ -50,7 +51,8 @@ data class Task(
 
     fun restrictTo(roleId: UUID?): Task = copy(accessRoleId = roleId, updatedAt = Instant.now())
 
-    fun withAttachments(newAttachmentIds: Set<UUID>): Task = copy(attachmentIds = newAttachmentIds, updatedAt = Instant.now())
+    fun withAttachments(newAttachmentIds: Set<UUID>): Task =
+        copy(attachmentIds = newAttachmentIds, updatedAt = Instant.now())
 
     fun withoutAttachment(attachmentId: UUID): Task =
         if (attachmentId in attachmentIds) {
