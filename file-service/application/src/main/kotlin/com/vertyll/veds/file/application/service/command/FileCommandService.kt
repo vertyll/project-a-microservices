@@ -166,6 +166,6 @@ class FileCommandService(
     ): String {
         val extension = originalName.substringAfterLast('.', "").lowercase().filter { it.isLetterOrDigit() }
         val suffix = if (extension.isEmpty()) "" else ".$extension"
-        return "${'$'}{scope.lowercase()}/${'$'}fileId${'$'}suffix"
+        return "${scope.lowercase()}/$fileId$suffix"
     }
 }
