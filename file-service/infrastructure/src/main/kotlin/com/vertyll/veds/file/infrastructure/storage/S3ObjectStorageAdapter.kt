@@ -62,7 +62,7 @@ internal class S3ObjectStorageAdapter(
                 .bucket(properties.bucket)
                 .key(objectKey)
                 .responseContentType(contentType)
-                .responseContentDisposition("attachment; filename=\"${'$'}originalName\"")
+                .responseContentDisposition("attachment; filename=\"$originalName\"")
                 .build()
 
         val presigned =
