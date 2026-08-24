@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 internal class SupportedLanguagesAdapter(
-    @Value($$"${veds.translation.supported-languages}") private val configured: List<String>,
+    @Value("\${veds.translation.supported-languages}") private val configured: List<String>,
 ) : SupportedLanguagesPort {
     private val languages: Set<LanguageTag> =
         configured

@@ -20,6 +20,20 @@ import java.util.UUID
 
 @Component
 internal class ProjectQueryAdapter : ProjectQueryPort {
+    private companion object {
+        private const val MEMBER_ID = 0
+        private const val MEMBER_PROJECT_ID = 1
+        private const val MEMBER_USER_ID = 2
+        private const val MEMBER_EMAIL = 3
+        private const val MEMBER_FIRST_NAME = 4
+        private const val MEMBER_LAST_NAME = 5
+        private const val MEMBER_AVATAR_FILE_ID = 6
+        private const val MEMBER_ROLE_ID = 7
+        private const val MEMBER_ROLE_CODE = 8
+        private const val MEMBER_ASSIGNED_AT = 9
+        private const val MEMBER_VERSION = 10
+    }
+
     @PersistenceContext
     private lateinit var entityManager: EntityManager
 
@@ -153,22 +167,22 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
         val roleNames = translationsOf("project_role_translation", "project_role_id", language)
 
         return rows.map { r ->
-            val roleId = r[7] as UUID
+            val roleId = r[MEMBER_ROLE_ID] as UUID
             ProjectMemberResponse(
-                id = r[0] as UUID,
-                projectId = r[1] as UUID,
-                userId = r[2] as UUID,
-                email = r[3] as String,
+                id = r[MEMBER_ID] as UUID,
+                projectId = r[MEMBER_PROJECT_ID] as UUID,
+                userId = r[MEMBER_USER_ID] as UUID,
+                email = r[MEMBER_EMAIL] as String,
                 displayName =
-                    listOfNotNull(r[4] as String?, r[5] as String?)
+                    listOfNotNull(r[MEMBER_FIRST_NAME] as String?, r[MEMBER_LAST_NAME] as String?)
                         .joinToString(" ")
-                        .ifBlank { r[3] as String },
-                avatarFileId = r[6] as UUID?,
+                        .ifBlank { r[MEMBER_EMAIL] as String },
+                avatarFileId = r[MEMBER_AVATAR_FILE_ID] as UUID?,
                 roleId = roleId,
-                roleCode = r[8] as com.vertyll.veds.project.domain.model.ProjectRoleCode,
+                roleCode = r[MEMBER_ROLE_CODE] as com.vertyll.veds.project.domain.model.ProjectRoleCode,
                 roleName = roleNames[roleId]?.name ?: error("missing $language translation for role $roleId"),
-                assignedAt = r[9] as Instant,
-                version = r[10] as Long?,
+                assignedAt = r[MEMBER_ASSIGNED_AT] as Instant,
+                version = r[MEMBER_VERSION] as Long?,
             )
         }
     }
