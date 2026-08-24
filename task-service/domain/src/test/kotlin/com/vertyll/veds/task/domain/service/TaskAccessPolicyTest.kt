@@ -19,7 +19,8 @@ class TaskAccessPolicyTest {
     private val clientId = UUID.randomUUID()
     private val strangerId = UUID.randomUUID()
 
-    private fun project(isActive: Boolean = true) = ProjectRef(projectId = projectId, name = "Apollo", isActive = isActive)
+    private fun project(isActive: Boolean = true) =
+        ProjectRef(projectId = projectId, name = "Apollo", isActive = isActive)
 
     private fun membership(
         userId: UUID,
