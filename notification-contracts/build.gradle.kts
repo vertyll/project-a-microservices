@@ -25,7 +25,7 @@ configure<JavaPluginExtension> {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
-val avroVersion = "1.12.1"
+val avroVersion = "1.12.2"
 
 val avroTools: Configuration by configurations.creating
 val avroContractsDir = file("$rootDir/../contracts/notification-service")
