@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "ProjectMemberRemovedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a user's project membership is revoked.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    }
+  ]
+}

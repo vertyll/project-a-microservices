@@ -1,0 +1,43 @@
+package com.vertyll.veds.project.domain.model
+
+import java.time.Instant
+import java.util.UUID
+
+data class ProjectCategory(
+    val id: UUID = UUID.randomUUID(),
+    val projectId: UUID,
+    val color: String,
+    val isActive: Boolean = true,
+    val translations: Set<Translation> = emptySet(),
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = Instant.now(),
+    val version: Long? = null,
+) {
+    init {
+        require(color.isNotBlank()) { "category color must not be blank" }
+        requireAtLeastOneTranslation(translations)
+    }
+
+    fun translationFor(language: LanguageTag): Translation = translations.resolveFor(language)
+
+    fun recolor(newColor: String): ProjectCategory = copy(color = newColor, updatedAt = Instant.now())
+
+    fun retranslate(newTranslations: Set<Translation>): ProjectCategory = copy(translations = newTranslations, updatedAt = Instant.now())
+
+    fun deactivate(): ProjectCategory = copy(isActive = false, updatedAt = Instant.now())
+
+    fun activate(): ProjectCategory = copy(isActive = true, updatedAt = Instant.now())
+
+    companion object {
+        fun create(
+            projectId: UUID,
+            color: String,
+            translations: Set<Translation>,
+        ): ProjectCategory =
+            ProjectCategory(
+                projectId = projectId,
+                color = color,
+                translations = translations,
+            )
+    }
+}

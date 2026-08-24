@@ -20,7 +20,6 @@ import java.time.Instant
 interface BaseSagaRepository<T : BaseSaga<T>> :
     JpaRepository<T, String>,
     SagaRepositoryPort<T> {
-    // Spring Data JPA derives implementations for these query methods.
     override fun findByType(type: String): List<T>
 
     override fun findByStatus(status: SagaStatus): List<T>

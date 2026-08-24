@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: notification-service
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    validate-on-migrate: true
+    clean-disabled: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    consumer:
+      group-id: notification-service-group
+
+server:
+  port: ${SERVER_PORT:8086}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    ROOT: WARN
+    com.vertyll.veds: INFO
+    org.springframework.security: INFO
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
+veds:
+  translation:
+    client:
+      # Where this service publishes its declared keys at start-up.
+      base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}

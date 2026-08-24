@@ -66,6 +66,16 @@ tasks.jar {
 }
 
 dependencies {
+    // `api`, not `implementation`: the saga contract types are part of
+    // this module's public surface, and services that depend on
+    // shared-infrastructure must keep seeing them.
+    api("com.vertyll.veds:shared-contracts")
+
+    // The key-declaration DSL and the ICU renderer are part of what a
+    // service gets from this module: registration and message rendering
+    // are the same boilerplate everywhere.
+    api("com.vertyll.veds:shared-translation")
+
     // --- Common ---
     implementation(libs.bundles.spring.boot.common)
 

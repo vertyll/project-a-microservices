@@ -3,33 +3,31 @@ package com.vertyll.veds.iam.infrastructure.persistence.adapter
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.domain.model.User
 import com.vertyll.veds.iam.domain.repository.UserRepository
-import com.vertyll.veds.iam.infrastructure.persistence.entity.PermissionJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.RoleJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.UserJpaEntity
-import com.vertyll.veds.iam.infrastructure.persistence.repository.PermissionJpaRepository
 import com.vertyll.veds.iam.infrastructure.persistence.repository.RoleJpaRepository
 import com.vertyll.veds.iam.infrastructure.persistence.repository.UserJpaRepository
 import org.springframework.stereotype.Component
 import java.util.UUID
-import com.vertyll.veds.iam.domain.model.PageRequest as DomainPageRequest
-import org.springframework.data.domain.PageRequest as SpringPageRequest
 
 @Component
 internal class UserPersistenceAdapter(
     private val repository: UserJpaRepository,
     private val roleJpaRepository: RoleJpaRepository,
-    private val permissionJpaRepository: PermissionJpaRepository,
 ) : UserRepository {
     override fun save(user: User): User {
+        // Re-read as managed entities so the join table is the only thing this write
+        // touches. A role that cannot be found is an error, not something to drop:
+        // silently saving a user with fewer roles than asked for is a privilege
+        // change nobody requested and nobody can see.
         val managedRoles: MutableSet<RoleJpaEntity> =
             user.roles
-                .mapNotNull { it.id?.let { id -> roleJpaRepository.findById(id).orElse(null) } }
-                .toMutableSet()
-        val managedPermissions: MutableSet<PermissionJpaEntity> =
-            user.permissions
-                .mapNotNull { it.id?.let { id -> permissionJpaRepository.findById(id).orElse(null) } }
-                .toMutableSet()
-
+                .map { role ->
+                    val id = role.id ?: error("cannot assign an unsaved role '${'$'}{role.name}' to a user")
+                    roleJpaRepository
+                        .findById(id)
+                        .orElseThrow { IllegalStateException("role ${'$'}id no longer exists") }
+                }.toMutableSet()
         val entity =
             UserJpaEntity(
                 id = user.id,
@@ -38,8 +36,7 @@ internal class UserPersistenceAdapter(
                 firstName = user.firstName,
                 lastName = user.lastName,
                 roles = managedRoles,
-                permissions = managedPermissions,
-                profilePicture = user.profilePicture,
+                avatarFileId = user.avatarFileId,
                 phoneNumber = user.phoneNumber,
                 address = user.address,
                 createdAt = user.createdAt,
@@ -81,8 +78,7 @@ private fun UserJpaEntity.toDomain(): User =
         firstName = this.firstName,
         lastName = this.lastName,
         roles = this.roles.map { it.toDomain() }.toSet(),
-        permissions = this.permissions.map { it.toDomain() }.toSet(),
-        profilePicture = this.profilePicture,
+        avatarFileId = this.avatarFileId,
         phoneNumber = this.phoneNumber,
         address = this.address,
         createdAt = this.createdAt,

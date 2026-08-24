@@ -3,10 +3,8 @@ package com.vertyll.veds.mail.application.service
 import com.vertyll.veds.mail.application.port.inbound.EmailBatchUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.domain.model.EmailTemplate
-import org.springframework.stereotype.Service
 
-@Service
-internal class EmailBatchService(
+class EmailBatchService(
     private val emailService: EmailUseCase,
 ) : EmailBatchUseCase {
     override fun processEmailBatch(

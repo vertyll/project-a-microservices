@@ -1,13 +1,14 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
-import com.vertyll.veds.iam.application.dto.ChangeEmailRequest
-import com.vertyll.veds.iam.application.dto.ChangePasswordRequest
-import com.vertyll.veds.iam.application.dto.ConfirmPasswordChangeRequest
-import com.vertyll.veds.iam.application.dto.RegisterRequest
-import com.vertyll.veds.iam.application.dto.ResetPasswordRequest
-import com.vertyll.veds.iam.application.exception.ApiException
-import com.vertyll.veds.iam.application.port.inbound.AuthUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
+import com.vertyll.veds.iam.infrastructure.web.dto.ChangeEmailRequest
+import com.vertyll.veds.iam.infrastructure.web.dto.ChangePasswordRequest
+import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
+import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
+import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
+import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
 import com.vertyll.veds.sharedinfrastructure.utils.KeycloakJwtUtils
 import io.swagger.v3.oas.annotations.Operation
@@ -29,7 +30,8 @@ import java.util.UUID
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Authentication management APIs")
 internal class AuthController(
-    private val authService: AuthUseCase,
+    private val authServiceCommands: AuthCommandUseCase,
+    private val authServiceQueries: AuthQueryUseCase,
     private val sharedConfigProperties: SharedConfigProperties,
 ) {
     private companion object {
@@ -45,8 +47,6 @@ internal class AuthController(
         private const val PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully"
         private const val USER_DETAILS_RETRIEVED_SUCCESSFULLY = "User details retrieved successfully"
         private const val PERMISSIONS_RETRIEVED_SUCCESSFULLY = "Permissions retrieved successfully"
-        private const val EMAIL_CLAIM_MISSING = "Authenticated token does not contain a valid email claim"
-        private const val SUBJECT_CLAIM_MISSING = "Authenticated token does not contain a valid subject claim"
     }
 
     @PostMapping("/register")
@@ -55,7 +55,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: RegisterRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.register(request)
+        authServiceCommands.register(request.toCommand())
         return ApiResponse.buildResponse(null, USER_REGISTERED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -64,7 +64,7 @@ internal class AuthController(
     fun activateAccount(
         @RequestParam token: String,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.activateAccount(token)
+        authServiceCommands.activateAccount(token)
         return ApiResponse.buildResponse(null, ACCOUNT_ACTIVATED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -73,7 +73,7 @@ internal class AuthController(
     fun resendActivationEmail(
         @RequestParam email: String,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.resendActivationEmail(email)
+        authServiceCommands.resendActivationEmail(email)
         return ApiResponse.buildResponse(null, ACTIVATION_EMAIL_SENT, HttpStatus.OK)
     }
 
@@ -82,7 +82,7 @@ internal class AuthController(
     fun requestPasswordReset(
         @RequestParam email: String,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.sendPasswordResetRequest(email)
+        authServiceCommands.sendPasswordResetRequest(email)
         return ApiResponse.buildResponse(null, PASSWORD_RESET_INSTRUCTIONS_SENT_TO_EMAIL, HttpStatus.OK)
     }
 
@@ -93,7 +93,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: ResetPasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.resetPassword(token, request)
+        authServiceCommands.resetPassword(token, request)
         return ApiResponse.buildResponse(null, PASSWORD_RESET_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -104,10 +104,8 @@ internal class AuthController(
         @RequestBody @Valid
         request: ChangeEmailRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        val email =
-            jwt.getClaimAsString("email")
-                ?: throw ApiException(EMAIL_CLAIM_MISSING, HttpStatus.UNAUTHORIZED)
-        authService.requestEmailChange(email, request)
+        val email = CurrentUser.emailOf(jwt)
+        authServiceCommands.requestEmailChange(email, request)
         return ApiResponse.buildResponse(null, EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL, HttpStatus.OK)
     }
 
@@ -116,7 +114,7 @@ internal class AuthController(
     fun confirmEmailChange(
         @RequestParam token: String,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.confirmEmailChange(token)
+        authServiceCommands.confirmEmailChange(token)
         return ApiResponse.buildResponse(null, EMAIL_CHANGED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -127,10 +125,8 @@ internal class AuthController(
         @RequestBody @Valid
         request: ChangePasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        val email =
-            jwt.getClaimAsString("email")
-                ?: throw ApiException(EMAIL_CLAIM_MISSING, HttpStatus.UNAUTHORIZED)
-        authService.changePassword(email, request)
+        val email = CurrentUser.emailOf(jwt)
+        authServiceCommands.changePassword(email, request)
         return ApiResponse.buildResponse(null, PASSWORD_CHANGE_CONFIRMATION_SENT, HttpStatus.OK)
     }
 
@@ -141,7 +137,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: ConfirmPasswordChangeRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.confirmPasswordChange(token, request.newPassword)
+        authServiceCommands.confirmPasswordChange(token, request.newPassword)
         return ApiResponse.buildResponse(null, PASSWORD_CHANGED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -152,7 +148,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: ResetPasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authService.setNewPassword(tokenId, request)
+        authServiceCommands.setNewPassword(tokenId, request)
         return ApiResponse.buildResponse(null, PASSWORD_CHANGED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -166,12 +162,8 @@ internal class AuthController(
         }
 
         val roles = KeycloakJwtUtils.extractRoles(jwt, sharedConfigProperties.keycloak.rolesClaimPath)
-        val subject =
-            jwt.subject
-                ?: throw ApiException(SUBJECT_CLAIM_MISSING, HttpStatus.UNAUTHORIZED)
-        val email =
-            jwt.getClaimAsString("email")
-                ?: throw ApiException(EMAIL_CLAIM_MISSING, HttpStatus.UNAUTHORIZED)
+        val subject = CurrentUser.keycloakIdOf(jwt).toString()
+        val email = CurrentUser.emailOf(jwt)
         val userInfo =
             mapOf<String, Any>(
                 "sub" to subject,
@@ -192,7 +184,7 @@ internal class AuthController(
         }
 
         val keycloakId = UUID.fromString(jwt.subject)
-        val permissions = authService.getUserPermissions(keycloakId)
+        val permissions = authServiceQueries.getUserPermissions(keycloakId)
 
         return ApiResponse.buildResponse(permissions, PERMISSIONS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }

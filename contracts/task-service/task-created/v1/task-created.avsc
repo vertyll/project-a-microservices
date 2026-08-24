@@ -1,0 +1,43 @@
+{
+  "type": "record",
+  "name": "TaskCreatedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "doc": "Published when a task is created. Notification-service turns it into an in-app notification for each assignee.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "taskId",
+      "type": "string"
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "description",
+      "type": "string"
+    },
+    {
+      "name": "createdBy",
+      "type": "string"
+    },
+    {
+      "name": "assigneeIds",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "default": []
+    }
+  ]
+}

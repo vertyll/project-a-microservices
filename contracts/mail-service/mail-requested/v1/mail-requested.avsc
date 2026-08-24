@@ -1,0 +1,59 @@
+{
+  "type": "record",
+  "name": "MailRequestedEvent",
+  "namespace": "com.vertyll.veds.mail.mail",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "to",
+      "type": "string"
+    },
+    {
+      "name": "subject",
+      "type": "string"
+    },
+    {
+      "name": "templateName",
+      "type": "string"
+    },
+    {
+      "name": "variables",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    },
+    {
+      "name": "replyTo",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "priority",
+      "type": "int",
+      "default": 0
+    },
+    {
+      "name": "sagaId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ],
+  "doc": "Command asking mail-service to deliver a message. Owned by mail-service, not by any producer: it defines what the consumer accepts, and several services now produce it (iam-service for account mail, notification-service for notification mail)."
+}

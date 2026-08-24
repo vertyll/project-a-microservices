@@ -1,8 +1,8 @@
 package com.vertyll.veds.iam.application.exception
 
-import org.springframework.http.HttpStatus
+import com.vertyll.veds.iam.domain.error.IamError
 
 class ApiException(
-    message: String,
-    val status: HttpStatus,
-) : RuntimeException(message)
+    val error: IamError,
+    val params: Map<String, Any> = emptyMap(),
+) : RuntimeException(error.key)

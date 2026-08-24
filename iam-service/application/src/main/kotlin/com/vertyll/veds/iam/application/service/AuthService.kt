@@ -1,16 +1,18 @@
 package com.vertyll.veds.iam.application.service
 
-import com.vertyll.veds.iam.application.dto.ChangeEmailRequest
-import com.vertyll.veds.iam.application.dto.ChangePasswordRequest
-import com.vertyll.veds.iam.application.dto.RegisterRequest
-import com.vertyll.veds.iam.application.dto.ResetPasswordRequest
+import com.vertyll.veds.iam.application.command.ChangeEmailCommand
+import com.vertyll.veds.iam.application.command.ChangePasswordCommand
+import com.vertyll.veds.iam.application.command.RegisterCommand
+import com.vertyll.veds.iam.application.command.ResetPasswordCommand
 import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.inbound.AuthUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
+import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.iam.application.saga.model.SagaStepNames
 import com.vertyll.veds.iam.application.saga.model.SagaTypes
+import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.EmailTemplate
 import com.vertyll.veds.iam.domain.model.RoleType
 import com.vertyll.veds.iam.domain.model.TokenTypes
@@ -19,38 +21,20 @@ import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
 import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 import com.vertyll.veds.iam.domain.model.User as DomainUser
 
-@Service
-internal class AuthService(
+class AuthService(
     private val verificationTokenRepository: VerificationTokenRepository,
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
     private val identityProvider: IdentityProviderPort,
     private val authEventPublisher: AuthEventPublisherPort,
     private val sagaProcessPort: SagaProcessPort,
+    private val logger: UseCaseLogger,
 ) : AuthUseCase {
-    private val logger: Logger = LoggerFactory.getLogger(AuthService::class.java)
-
     private companion object {
-        private const val USER_NOT_FOUND = "User not found"
-        private const val INVALID_TOKEN = "Invalid token"
-        private const val TOKEN_EXPIRED_OR_USED = "Token expired or already used"
-        private const val INVALID_PASSWORD = "Invalid password"
-        private const val MISSING_NEW_EMAIL_DATA = "Missing new email data"
-        private const val INVALID_CONFIRMATION_CODE = "Invalid confirmation code"
-        private const val INVALID_TOKEN_ID = "Invalid token ID"
-        private const val INVALID_CURRENT_PASSWORD = "Invalid current password"
-        private const val REGISTRATION_FAILED = "Registration failed. Please check your information and try again."
-        private const val CANNOT_CHANGE_EMAIL = "Cannot change to this email address"
-        private const val DEFAULT_ROLE_NOT_FOUND = "Default USER role not found in system"
         private const val SUBJECT_ACTIVATE_ACCOUNT = "Activate your account"
         private const val SUBJECT_PASSWORD_RESET_REQUEST = "Password Reset Request"
         private const val SUBJECT_CONFIRM_EMAIL_CHANGE = "Confirm Email Change"
@@ -58,11 +42,10 @@ internal class AuthService(
         private const val DEFAULT_VERIFICATION_TOKEN_EXPIRY_HOURS = 24L
     }
 
-    @Transactional
-    override fun register(request: RegisterRequest) {
+    override fun register(request: RegisterCommand) {
         if (userRepository.existsByEmail(request.email)) {
             logger.warn("Registration attempted with existing email: {}", request.email)
-            throw ApiException(REGISTRATION_FAILED, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.REGISTRATION_FAILED)
         }
 
         val saga =
@@ -90,7 +73,7 @@ internal class AuthService(
 
             val userRole =
                 roleRepository.findByName(RoleType.USER.value)
-                    ?: throw ApiException(DEFAULT_ROLE_NOT_FOUND, HttpStatus.INTERNAL_SERVER_ERROR)
+                    ?: throw ApiException(IamError.DEFAULT_ROLE_NOT_CONFIGURED)
 
             val newUser =
                 DomainUser
@@ -160,24 +143,22 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun activateAccount(token: String) {
         val verificationToken =
             verificationTokenRepository.findByToken(token)
-                ?: throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+                ?: throw ApiException(IamError.INVALID_TOKEN)
 
         validateVerificationToken(verificationToken)
 
         val user =
             userRepository.findByEmail(verificationToken.username)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         user.keycloakId?.let { identityProvider.enableUser(it) }
 
         verificationTokenRepository.save(verificationToken.markUsed())
     }
 
-    @Transactional
     override fun resendActivationEmail(email: String) {
         val user = userRepository.findByEmail(email)
         if (user == null) {
@@ -235,7 +216,6 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun sendPasswordResetRequest(email: String) {
         val user = userRepository.findByEmail(email)
         if (user == null) {
@@ -293,45 +273,43 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun resetPassword(
         token: String,
-        request: ResetPasswordRequest,
+        request: ResetPasswordCommand,
     ) {
         val verificationToken =
             verificationTokenRepository.findByToken(token)
-                ?: throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+                ?: throw ApiException(IamError.INVALID_TOKEN)
         if (verificationToken.tokenType != TokenTypes.PASSWORD_RESET.value) {
-            throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.INVALID_TOKEN)
         }
 
         validateVerificationToken(verificationToken)
 
         val user =
             userRepository.findByEmail(verificationToken.username)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         user.keycloakId?.let { identityProvider.resetPassword(it, request.newPassword) }
 
         verificationTokenRepository.save(verificationToken.markUsed())
     }
 
-    @Transactional
     override fun requestEmailChange(
         email: String,
-        request: ChangeEmailRequest,
+        request: ChangeEmailCommand,
     ) {
         val user =
             userRepository.findByEmail(email)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         if (!identityProvider.validatePassword(email, request.password)) {
-            throw ApiException(INVALID_PASSWORD, HttpStatus.UNAUTHORIZED)
+            throw ApiException(IamError.INVALID_CREDENTIALS)
         }
 
         if (userRepository.existsByEmail(request.newEmail)) {
             logger.warn("Email change requested to already existing email: {}", request.newEmail)
-            throw ApiException(CANNOT_CHANGE_EMAIL, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.EMAIL_NOT_CHANGEABLE)
         }
 
         val saga =
@@ -386,24 +364,23 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun confirmEmailChange(token: String) {
         val verificationToken =
             verificationTokenRepository.findByToken(token)
-                ?: throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+                ?: throw ApiException(IamError.INVALID_TOKEN)
         if (verificationToken.tokenType != TokenTypes.EMAIL_CHANGE.value) {
-            throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.INVALID_TOKEN)
         }
 
         validateVerificationToken(verificationToken)
 
         val user =
             userRepository.findByEmail(verificationToken.username)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         val newEmail =
             verificationToken.additionalData
-                ?: throw ApiException(MISSING_NEW_EMAIL_DATA, HttpStatus.INTERNAL_SERVER_ERROR)
+                ?: throw ApiException(IamError.MISSING_NEW_EMAIL_DATA)
 
         val originalEmail = user.email
 
@@ -428,14 +405,13 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun changePassword(
         email: String,
-        request: ChangePasswordRequest,
+        request: ChangePasswordCommand,
     ) {
         val user =
             userRepository.findByEmail(email)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         val saga =
             sagaProcessPort.startSaga(
@@ -449,7 +425,7 @@ internal class AuthService(
 
         try {
             if (!identityProvider.validatePassword(email, request.currentPassword)) {
-                throw ApiException(INVALID_CURRENT_PASSWORD, HttpStatus.UNAUTHORIZED)
+                throw ApiException(IamError.INVALID_CURRENT_PASSWORD)
             }
 
             sagaProcessPort.recordSagaStep(
@@ -498,23 +474,22 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun confirmPasswordChange(
         token: String,
         newPassword: String,
     ) {
         val verificationToken =
             verificationTokenRepository.findByToken(token)
-                ?: throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+                ?: throw ApiException(IamError.INVALID_TOKEN)
         if (verificationToken.tokenType != TokenTypes.PASSWORD_CHANGE_REQUEST.value) {
-            throw ApiException(INVALID_TOKEN, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.INVALID_TOKEN)
         }
 
         validateVerificationToken(verificationToken)
 
         val user =
             userRepository.findByEmail(verificationToken.username)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         user.keycloakId?.let { identityProvider.resetPassword(it, newPassword) }
 
@@ -534,35 +509,33 @@ internal class AuthService(
         }
     }
 
-    @Transactional
     override fun setNewPassword(
         tokenId: Long,
-        request: ResetPasswordRequest,
+        request: ResetPasswordCommand,
     ) {
         val verificationToken =
             verificationTokenRepository.findById(tokenId)
-                ?: throw ApiException(INVALID_TOKEN_ID, HttpStatus.BAD_REQUEST)
+                ?: throw ApiException(IamError.INVALID_TOKEN_ID)
 
         if (verificationToken.token != request.confirmationCode) {
-            throw ApiException(INVALID_CONFIRMATION_CODE, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.INVALID_CONFIRMATION_CODE)
         }
 
         validateVerificationToken(verificationToken)
 
         val user =
             userRepository.findByEmail(verificationToken.username)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
 
         user.keycloakId?.let { identityProvider.resetPassword(it, request.newPassword) }
 
         verificationTokenRepository.save(verificationToken.markUsed())
     }
 
-    @Transactional(readOnly = true)
     override fun getUserPermissions(keycloakId: UUID): List<String> {
         val user =
             userRepository.findByKeycloakId(keycloakId)
-                ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+                ?: throw ApiException(IamError.USER_NOT_FOUND)
         return user.permissions.map { it.name }
     }
 
@@ -588,7 +561,7 @@ internal class AuthService(
 
     private fun validateVerificationToken(verificationToken: VerificationToken) {
         if (verificationToken.used || verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
-            throw ApiException(TOKEN_EXPIRED_OR_USED, HttpStatus.BAD_REQUEST)
+            throw ApiException(IamError.TOKEN_EXPIRED_OR_USED)
         }
     }
 

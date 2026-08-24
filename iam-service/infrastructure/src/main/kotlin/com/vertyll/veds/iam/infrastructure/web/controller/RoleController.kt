@@ -1,7 +1,8 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
 import com.vertyll.veds.iam.application.dto.RoleResponse
-import com.vertyll.veds.iam.application.port.inbound.RoleUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.query.RoleQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/roles")
 @Tag(name = "Roles", description = "Role management APIs")
 internal class RoleController(
-    private val roleService: RoleUseCase,
+    private val roleServiceCommands: RoleCommandUseCase,
+    private val roleServiceQueries: RoleQueryUseCase,
 ) {
     private companion object {
         private const val ROLE_RETRIEVED_SUCCESSFULLY = "Role retrieved successfully"
@@ -36,7 +38,7 @@ internal class RoleController(
     fun getRoleById(
         @PathVariable id: Long,
     ): ResponseEntity<ApiResponse<RoleResponse>> {
-        val role = roleService.getRoleById(id)
+        val role = roleServiceQueries.getRoleById(id)
         val etag = ETagUtils.buildWeakETag(role.version)
         val response = ApiResponse.buildResponse(role, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
@@ -47,7 +49,7 @@ internal class RoleController(
     fun getRoleByName(
         @PathVariable name: String,
     ): ResponseEntity<ApiResponse<RoleResponse>> {
-        val role = roleService.getRoleByName(name)
+        val role = roleServiceQueries.getRoleByName(name)
         val etag = ETagUtils.buildWeakETag(role.version)
         val response = ApiResponse.buildResponse(role, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
@@ -56,7 +58,7 @@ internal class RoleController(
     @GetMapping
     @Operation(summary = "Get all roles")
     fun getAllRoles(): ResponseEntity<ApiResponse<List<RoleResponse>>> {
-        val roles = roleService.getAllRoles()
+        val roles = roleServiceQueries.getAllRoles()
         return ApiResponse.buildResponse(roles, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -66,7 +68,7 @@ internal class RoleController(
     fun getRolesForUser(
         @PathVariable userId: Long,
     ): ResponseEntity<ApiResponse<List<RoleResponse>>> {
-        val roles = roleService.getRolesForUser(userId)
+        val roles = roleServiceQueries.getRolesForUser(userId)
         return ApiResponse.buildResponse(roles, USER_ROLES_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -79,7 +81,7 @@ internal class RoleController(
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<ApiResponse<Any>> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
-        roleService.assignRoleToUser(userId, roleName, version)
+        roleServiceCommands.assignRoleToUser(userId, roleName, version)
         return ApiResponse.buildResponse(null, ROLE_ASSIGNED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -92,7 +94,7 @@ internal class RoleController(
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<ApiResponse<Any>> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
-        roleService.removeRoleFromUser(userId, roleName, version)
+        roleServiceCommands.removeRoleFromUser(userId, roleName, version)
         return ApiResponse.buildResponse(null, ROLE_REMOVED_SUCCESSFULLY, HttpStatus.OK)
     }
 }

@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "TaskFailedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "sagaId", "type": "string" },
+    { "name": "taskId", "type": ["null", "long"], "default": null },
+    { "name": "error", "type": "string" }
+  ]
+}

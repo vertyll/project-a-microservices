@@ -1,9 +1,22 @@
 rootProject.name = "veds"
 
+// Order is documentation only — Gradle resolves composite builds by dependency, not by declaration order.
+includeBuild("shared-contracts")
+includeBuild("shared-translation")
 includeBuild("shared-infrastructure")
 includeBuild("iam-contracts")
 includeBuild("mail-contracts")
+includeBuild("project-contracts")
+includeBuild("task-contracts")
+includeBuild("notification-contracts")
+includeBuild("template-contracts")
+includeBuild("file-contracts")
 includeBuild("api-gateway")
 includeBuild("iam-service")
 includeBuild("mail-service")
+includeBuild("project-service")
+includeBuild("task-service")
+includeBuild("notification-service")
+includeBuild("translation-service")
+includeBuild("file-service")
 includeBuild("template-service")

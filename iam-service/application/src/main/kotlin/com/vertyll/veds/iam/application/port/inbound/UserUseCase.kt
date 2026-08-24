@@ -1,12 +1,12 @@
 package com.vertyll.veds.iam.application.port.inbound
 
-import com.vertyll.veds.iam.application.dto.UpdateProfileRequest
+import com.vertyll.veds.iam.application.command.UpdateProfileCommand
 import com.vertyll.veds.iam.application.dto.UserResponse
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import com.vertyll.veds.iam.domain.model.PageRequest
+import com.vertyll.veds.iam.domain.model.PageResult
 
 interface UserUseCase {
-    fun getAllUsers(pageable: Pageable): Page<UserResponse>
+    fun getAllUsers(pageRequest: PageRequest): PageResult<UserResponse>
 
     fun getUserById(id: Long): UserResponse
 
@@ -14,7 +14,7 @@ interface UserUseCase {
 
     fun updateProfile(
         id: Long,
-        request: UpdateProfileRequest,
+        request: UpdateProfileCommand,
         version: Long? = null,
     ): UserResponse
 }

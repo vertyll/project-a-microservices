@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "TaskStatusChangedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "doc": "Published on a real status transition only - a move that lands a task back in its own column emits nothing.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "taskId",
+      "type": "string"
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "statusId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "changedBy",
+      "type": "string"
+    }
+  ]
+}

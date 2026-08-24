@@ -15,4 +15,11 @@ dependencyManagement {
 
 dependencies {
     implementation(libs.kotlin.stdlib.jdk8)
+
+    testImplementation(libs.bundles.test.unit)
+    testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

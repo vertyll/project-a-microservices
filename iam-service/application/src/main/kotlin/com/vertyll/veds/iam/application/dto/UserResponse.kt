@@ -1,5 +1,7 @@
 package com.vertyll.veds.iam.application.dto
 
+import java.util.UUID
+
 data class UserResponse(
     val id: Long,
     val keycloakId: String? = null,
@@ -8,7 +10,7 @@ data class UserResponse(
     val email: String,
     val roles: Set<String>,
     val permissions: Set<String> = emptySet(),
-    val profilePicture: String? = null,
+    val avatarFileId: UUID? = null,
     val phoneNumber: String? = null,
     val address: String? = null,
     val createdAt: String? = null,

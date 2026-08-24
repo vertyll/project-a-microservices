@@ -1,7 +1,9 @@
 package com.vertyll.veds.iam
 
 import com.vertyll.veds.sharedinfrastructure.config.SharedConfigAutoConfiguration
+import com.vertyll.veds.sharedinfrastructure.translation.TranslationClientProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.ComponentScan
@@ -24,6 +26,7 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.iam.infrastructure.persistence.entity",
 )
 @EnableKafka
+@EnableConfigurationProperties(TranslationClientProperties::class)
 class IAMServiceApplication
 
 fun main(args: Array<String>) {

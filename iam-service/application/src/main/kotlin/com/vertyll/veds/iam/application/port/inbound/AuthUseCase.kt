@@ -1,13 +1,13 @@
 package com.vertyll.veds.iam.application.port.inbound
 
-import com.vertyll.veds.iam.application.dto.ChangeEmailRequest
-import com.vertyll.veds.iam.application.dto.ChangePasswordRequest
-import com.vertyll.veds.iam.application.dto.RegisterRequest
-import com.vertyll.veds.iam.application.dto.ResetPasswordRequest
+import com.vertyll.veds.iam.application.command.ChangeEmailCommand
+import com.vertyll.veds.iam.application.command.ChangePasswordCommand
+import com.vertyll.veds.iam.application.command.RegisterCommand
+import com.vertyll.veds.iam.application.command.ResetPasswordCommand
 import java.util.UUID
 
 interface AuthUseCase {
-    fun register(request: RegisterRequest)
+    fun register(request: RegisterCommand)
 
     fun activateAccount(token: String)
 
@@ -17,19 +17,19 @@ interface AuthUseCase {
 
     fun resetPassword(
         token: String,
-        request: ResetPasswordRequest,
+        request: ResetPasswordCommand,
     )
 
     fun requestEmailChange(
         email: String,
-        request: ChangeEmailRequest,
+        request: ChangeEmailCommand,
     )
 
     fun confirmEmailChange(token: String)
 
     fun changePassword(
         email: String,
-        request: ChangePasswordRequest,
+        request: ChangePasswordCommand,
     )
 
     fun confirmPasswordChange(
@@ -39,7 +39,7 @@ interface AuthUseCase {
 
     fun setNewPassword(
         tokenId: Long,
-        request: ResetPasswordRequest,
+        request: ResetPasswordCommand,
     )
 
     fun getUserPermissions(keycloakId: UUID): List<String>

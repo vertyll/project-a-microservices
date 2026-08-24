@@ -1,7 +1,10 @@
 package com.vertyll.veds.template.infrastructure.config
 
 import com.vertyll.veds.template.application.exception.ApiException
+import com.vertyll.veds.template.domain.error.ErrorKind
 import com.vertyll.veds.template.infrastructure.response.ApiResponse
+import com.vertyll.veds.template.infrastructure.web.error.ErrorDetails
+import com.vertyll.veds.template.infrastructure.web.error.ErrorHttpStatusMapper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -20,12 +23,19 @@ internal class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ApiException::class)
-    fun handleApiException(ex: ApiException): ResponseEntity<ApiResponse<Any>> {
-        logger.error("API Exception: {}", ex.message)
+    fun handleApiException(ex: ApiException): ResponseEntity<ApiResponse<ErrorDetails>> {
+        val status = ErrorHttpStatusMapper.toStatus(ex.error.kind)
+
+        if (ex.error.kind == ErrorKind.MISCONFIGURED) {
+            logger.error("Misconfiguration: {} params={}", ex.error.key, ex.params, ex)
+        } else {
+            logger.debug("Rejected request: {} params={}", ex.error.key, ex.params)
+        }
+
         return ApiResponse.buildResponse(
-            data = null,
-            message = ex.message,
-            status = ex.status,
+            data = ErrorDetails(code = ex.error.key, params = ex.params),
+            message = ex.error.key,
+            status = status,
         )
     }
 

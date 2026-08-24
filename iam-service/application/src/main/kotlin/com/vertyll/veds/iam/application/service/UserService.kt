@@ -1,67 +1,43 @@
 package com.vertyll.veds.iam.application.service
 
-import com.vertyll.veds.iam.application.dto.UpdateProfileRequest
+import com.vertyll.veds.iam.application.command.UpdateProfileCommand
 import com.vertyll.veds.iam.application.dto.UserResponse
 import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.inbound.UserUseCase
+import com.vertyll.veds.iam.domain.error.IamError
+import com.vertyll.veds.iam.domain.model.PageRequest
+import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.domain.model.User
+import com.vertyll.veds.iam.domain.model.VersionGuard
 import com.vertyll.veds.iam.domain.repository.UserRepository
-import com.vertyll.veds.sharedinfrastructure.utils.OptimisticLockingValidatorUtils
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import com.vertyll.veds.iam.domain.model.PageRequest as DomainPageRequest
 
-@Service
-internal class UserService(
+class UserService(
     private val userRepository: UserRepository,
 ) : UserUseCase {
     private companion object {
-        private const val USER_NOT_FOUND = "User not found"
-        private const val USER_VERSION_MISMATCH = "Precondition Failed: User version mismatch"
     }
 
-    @Transactional(readOnly = true)
-    override fun getAllUsers(pageable: Pageable): Page<UserResponse> {
-        val domainResult =
-            userRepository.findAll(
-                DomainPageRequest(
-                    page = pageable.pageNumber,
-                    size = pageable.pageSize,
-                ),
-            )
-        return PageImpl(
-            domainResult.content.map(::mapToDto),
-            pageable,
-            domainResult.totalElements,
-        )
-    }
+    override fun getAllUsers(pageRequest: PageRequest): PageResult<UserResponse> = userRepository.findAll(pageRequest).map(::mapToDto)
 
-    @Transactional(readOnly = true)
     override fun getUserById(id: Long): UserResponse {
-        val user = userRepository.findById(id) ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+        val user = userRepository.findById(id) ?: throw ApiException(IamError.USER_NOT_FOUND)
         return mapToDto(user)
     }
 
-    @Transactional(readOnly = true)
     override fun getUserByEmail(email: String): UserResponse {
-        val user = userRepository.findByEmail(email) ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+        val user = userRepository.findByEmail(email) ?: throw ApiException(IamError.USER_NOT_FOUND)
         return mapToDto(user)
     }
 
-    @Transactional
     override fun updateProfile(
         id: Long,
-        request: UpdateProfileRequest,
+        request: UpdateProfileCommand,
         version: Long?,
     ): UserResponse {
-        val user = userRepository.findById(id) ?: throw ApiException(USER_NOT_FOUND, HttpStatus.NOT_FOUND)
+        val user = userRepository.findById(id) ?: throw ApiException(IamError.USER_NOT_FOUND)
 
-        OptimisticLockingValidatorUtils.validate(user.version, version) {
-            ApiException(USER_VERSION_MISMATCH, HttpStatus.PRECONDITION_FAILED)
+        VersionGuard.requireMatch(user.version, version) {
+            ApiException(IamError.USER_VERSION_MISMATCH)
         }
 
         val updated =

@@ -2,6 +2,7 @@ package com.vertyll.veds.iam.infrastructure.security.keycloak
 
 import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
+import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
 import jakarta.ws.rs.core.Response
 import org.keycloak.admin.client.KeycloakBuilder
@@ -61,21 +62,30 @@ internal class KeycloakIdentityProviderAdapter(
 
         return when (response.status) {
             HttpStatus.CREATED.value() -> {
-                val locationHeader = response.location?.path ?: ""
-                val keycloakUserId = UUID.fromString(locationHeader.substringAfterLast("/"))
+                // 201 without a Location header means Keycloak did not tell us which
+                // user it created. Reported as a failure rather than parsed out of an
+                // empty string, where UUID.fromString would throw something that names
+                // neither the cause nor the account.
+                val location =
+                    response.location?.path
+                        ?: throw ApiException(
+                            IamError.IDENTITY_PROVIDER_FAILED,
+                            mapOf("reason" to "created without a Location header", "email" to email),
+                        )
+                val keycloakUserId = UUID.fromString(location.substringAfterLast("/"))
                 logger.info("Created Keycloak user: {} with id: {}", email, keycloakUserId)
                 assignRole(keycloakUserId.toString(), roleName)
                 keycloakUserId
             }
             HttpStatus.CONFLICT.value() -> {
                 logger.warn("User already exists in Keycloak: {}", email)
-                throw ApiException("User already exists", HttpStatus.CONFLICT)
+                throw ApiException(IamError.USER_ALREADY_EXISTS, mapOf("email" to email))
             }
             else -> {
                 logger.error("Failed to create Keycloak user: {} - status: {}", email, response.status)
                 throw ApiException(
-                    "Failed to create user in Keycloak (status: ${response.status})",
-                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    IamError.IDENTITY_PROVIDER_FAILED,
+                    mapOf("status" to response.status),
                 )
             }
         }
@@ -138,6 +148,25 @@ internal class KeycloakIdentityProviderAdapter(
             .realmLevel()
             .remove(listOf(role))
         logger.info("Removed role {} from Keycloak user: {}", roleName, keycloakUserId)
+    }
+
+    override fun credentialTypes(keycloakId: UUID): Set<String> =
+        realmResource
+            .users()
+            .get(keycloakId.toString())
+            .credentials()
+            .mapNotNull { it.type?.lowercase() }
+            .toSet()
+
+    override fun removeCredential(
+        keycloakId: UUID,
+        credentialType: String,
+    ) {
+        val userResource = realmResource.users().get(keycloakId.toString())
+        userResource
+            .credentials()
+            .filter { it.type?.equals(credentialType, ignoreCase = true) == true }
+            .forEach { credential -> credential.id?.let { userResource.removeCredential(it) } }
     }
 
     override fun validatePassword(

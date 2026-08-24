@@ -1,0 +1,32 @@
+# Integration-test profile.
+#
+# The datasource and Kafka addresses are injected by IntegrationTestBase from the
+# Testcontainers instances, so nothing here points at a fixed host.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+      # A fresh group per run, so a test never replays another run's offsets.
+      group-id: project-service-test
+    properties:
+      schema.registry.url: mock://project-service-test
+
+veds:
+  saga:
+    # Short enough that a watchdog test does not have to wait, long enough that
+    # a slow container start does not trip it.
+    await-response-timeout: 30s
+    compensation-retry-cooldown: 5s
+
+logging:
+  level:
+    com.vertyll.veds: DEBUG
+    org.testcontainers: INFO

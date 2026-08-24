@@ -1,8 +1,8 @@
 package com.vertyll.veds.template.application.exception
 
-import org.springframework.http.HttpStatus
+import com.vertyll.veds.template.domain.error.TemplateError
 
 class ApiException(
-    message: String,
-    val status: HttpStatus,
-) : RuntimeException(message)
+    val error: TemplateError,
+    val params: Map<String, Any> = emptyMap(),
+) : RuntimeException(error.key)

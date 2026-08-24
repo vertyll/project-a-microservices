@@ -19,7 +19,50 @@ The project is split into the following components:
 3. **Mail Service** – Handles email sending operations and templates.
 4. **Shared Infrastructure** – Engines, contracts, and utilities used across all microservices.
 5. **Each `*-contracts`** – Per-bounded-context Avro Published Language modules. Each holds only Avro schemas and the Java `SpecificRecord` classes generated from them.
-6. **Template Service** – Baseline configuration for future microservices.
+6. **Project Service** – Owns projects, project types, categories, statuses, project roles and memberships.
+7. **Task Service** – Owns tasks, comments and the board.
+8. **Notification Service** – Owns in-app notifications, delivery settings and the STOMP push transport.
+9. **Translation Service** – Owns the translation catalogue: keys, languages and their text.
+10. **File Service** – Owns file metadata and issues pre-signed URLs; the bytes live in object storage.
+11. **Template Service** – Baseline configuration for future microservices.
+
+Each service documents its own decisions in its `README.md`; this page covers what is true
+across all of them.
+
+### Where the reasoning lives
+
+| Kind                      | Where                                 |
+|---------------------------|---------------------------------------|
+| Cross-cutting decisions   | `docs/`                               |
+| A service's own decisions | that service's `README.md`            |
+| Library API contracts     | KDoc, published with `./gradlew docs` |
+
+| Where                                | What a reasonable edit would break                                                             |
+|--------------------------------------|------------------------------------------------------------------------------------------------|
+| `SessionTokenRelayFilter.getOrder`   | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                   |
+| `ProjectAccessPolicy.RULES`          | Reordering lets an owner edit an archived project                                              |
+| `TaskAccessPolicy.ROLE_PERMISSIONS`  | Adding a default for unknown codes grants new project roles task permissions nobody decided on |
+| `Task.moveTo`                        | "Fixing" the `this` return makes every board drag notify every watcher                         |
+| `TranslationValue.withSeededDefault` | Merging the two columns makes each redeploy revert administrators' edits                       |
+| `IamError.INVALID_CREDENTIALS`       | Splitting it into two codes is a user-enumeration oracle                                       |
+| `FileCommandService.delete`          | Deleting the object first loses the key on a rollback                                          |
+| `ObjectStorageConfig`                | Removing path-style access breaks against Garage                                               |
+
+Anything that is merely *interesting* goes in a README instead.
+
+### Shared modules
+
+| Module                  | Contains                                                              | Depends on         |
+|-------------------------|-----------------------------------------------------------------------|--------------------|
+| `shared-contracts`      | Saga protocol types (`SagaTypeValue`, `SagaStatus`, `SagaStepStatus`) | Kotlin stdlib only |
+| `shared-translation`    | Translation key DSL, ICU renderer, pattern validation                 | ICU4J              |
+| `shared-infrastructure` | Saga engine, outbox, Avro, Keycloak converter, ETag helpers           | Spring, Kafka, JPA |
+
+`shared-contracts` exists so that a service's **application layer can reference saga
+statuses without putting Spring on its compile classpath** — those types previously lived
+in `shared-infrastructure`, and importing a single enum pulled in the whole framework. The
+package names were kept (`com.vertyll.veds.sharedinfrastructure.saga.*`), so only the module
+boundary moved; no import changed.
 
 > [!NOTE]
 >
@@ -156,3 +199,36 @@ Benefits:
 - Easier to add/modify services.
 - Better resilience (no single point of failure).
 - Natural alignment with hexagonal architecture.
+
+## Two levels of authorization
+
+They are different mechanisms and must not be mixed.
+
+| Level    | Question it answers                         | Where                                     |
+|----------|---------------------------------------------|-------------------------------------------|
+| Platform | may this person administer the application? | realm roles + `Permission` in iam-service |
+| Project  | may this person edit *this* project?        | `ProjectRole` + `ProjectAccessPolicy`     |
+
+The project level is attribute-based: `ProjectAccessPolicy` reads attributes of the resource
+(`isPublic`, `isActive`), not only the subject's role, which is why "nobody may edit an archived
+project, not even its owner" is expressible there.
+
+The platform level is plain RBAC, deliberately. There is no resource attribute an
+administration decision could depend on — editing translations is not something one can be
+allowed to do inside one project and not another.
+
+### Permissions belong to roles
+
+They used to hang off users in iam-service (`user_permission_mapping`), which is not RBAC:
+granting access became a list of tick boxes per person, and "what can a manager do" had no
+answer. project-service already modeled this correctly, so IAM was the outlier.
+
+`V4__Role_permission_mapping.sql` carries the existing grants over and drops the user table.
+Per-user exceptions were **not** kept: two sources of truth mean an audit has to consult both,
+and the administration screen could only ever show half the picture.
+
+This also matters for what comes next. With several organizations, per-user permissions are
+unauditable — nobody could say who holds a given right, or why. The organization level, when it
+arrives, is a copy of the project pattern one floor up: a role scoped to the organization, plus
+a policy object. The decision already flows through a policy object, so adding an organization
+attribute is one file rather than a review of every use case.

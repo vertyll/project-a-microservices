@@ -1,8 +1,8 @@
 package com.vertyll.veds.mail.application.exception
 
-import org.springframework.http.HttpStatus
+import com.vertyll.veds.mail.domain.error.MailError
 
 class ApiException(
-    message: String,
-    val status: HttpStatus,
-) : RuntimeException(message)
+    val error: MailError,
+    val params: Map<String, Any> = emptyMap(),
+) : RuntimeException(error.key)

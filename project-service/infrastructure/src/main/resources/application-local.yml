@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: project-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5435/project_service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    validate-on-migrate: true
+
+  kafka:
+    consumer:
+      group-id: project-service-group
+
+server:
+  port: 8084
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    url: /api-docs
+    config-url: /api-docs/swagger-config
+
+logging:
+  level:
+    ROOT: INFO
+    com.vertyll.veds: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+veds:
+  translation:
+    client:
+      # Where this service publishes its declared keys at start-up.
+      base-url: http://localhost:8087
+    # Seeded language catalogue. Moves to translation-service once it owns the
+    # catalogue; SupportedLanguagesAdapter is the only file that changes.
+    supported-languages: ${SUPPORTED_LANGUAGES:pl,en}

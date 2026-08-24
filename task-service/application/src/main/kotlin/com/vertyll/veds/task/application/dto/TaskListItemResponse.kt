@@ -1,0 +1,34 @@
+package com.vertyll.veds.task.application.dto
+
+import com.vertyll.veds.task.domain.model.TaskPriority
+import java.time.Instant
+import java.util.UUID
+
+data class TaskListItemResponse(
+    val id: UUID,
+    val projectId: UUID,
+    val description: String,
+    val priority: TaskPriority,
+    val statusId: UUID?,
+    val statusName: String?,
+    val statusColor: String?,
+    val categories: List<TaskCategoryView>,
+    val assignees: List<TaskUserView>,
+    val commentCount: Int,
+    val workedTime: Int,
+    val createdAt: Instant,
+    val version: Long?,
+)
+
+data class TaskCategoryView(
+    val id: UUID,
+    val name: String,
+    val nameLanguage: String,
+    val color: String,
+)
+
+data class TaskUserView(
+    val id: UUID,
+    val displayName: String,
+    val avatarFileId: UUID?,
+)

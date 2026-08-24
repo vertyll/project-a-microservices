@@ -1,0 +1,119 @@
+package com.vertyll.veds.project.application.service.command
+
+import com.vertyll.veds.project.application.command.CreateProjectCommand
+import com.vertyll.veds.project.application.command.UpdateProjectCommand
+import com.vertyll.veds.project.application.dto.Actor
+import com.vertyll.veds.project.application.dto.ProjectResponse
+import com.vertyll.veds.project.application.exception.ApiException
+import com.vertyll.veds.project.application.port.inbound.command.ProjectCommandUseCase
+import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
+import com.vertyll.veds.project.domain.error.ProjectError
+import com.vertyll.veds.project.domain.model.Project
+import com.vertyll.veds.project.domain.model.ProjectMember
+import com.vertyll.veds.project.domain.model.ProjectPermission
+import com.vertyll.veds.project.domain.model.ProjectRoleCode
+import com.vertyll.veds.project.domain.model.VersionGuard
+import com.vertyll.veds.project.domain.repository.ProjectMemberRepository
+import com.vertyll.veds.project.domain.repository.ProjectRepository
+import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
+import com.vertyll.veds.project.domain.repository.ProjectTypeRepository
+import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
+import java.util.UUID
+
+@Suppress("LongParameterList")
+class ProjectCommandService(
+    private val projectRepository: ProjectRepository,
+    private val memberRepository: ProjectMemberRepository,
+    private val roleRepository: ProjectRoleRepository,
+    private val typeRepository: ProjectTypeRepository,
+    private val userDirectory: UserDirectoryRepository,
+    private val authorization: ProjectAuthorizationService,
+    private val eventPublisher: ProjectEventPublisherPort,
+) : ProjectCommandUseCase {
+    override fun createProject(
+        request: CreateProjectCommand,
+        actor: Actor,
+    ): ProjectResponse {
+        request.typeId?.let {
+            typeRepository.findById(it) ?: throw ApiException(ProjectError.TYPE_NOT_FOUND)
+        }
+
+        val project =
+            projectRepository.save(
+                Project.create(
+                    name = request.name,
+                    description = request.description,
+                    isPublic = request.isPublic,
+                    typeId = request.typeId,
+                    ownerId = actor.id,
+                    iconFileId = request.iconFileId,
+                ),
+            )
+
+        val managerRole =
+            roleRepository.findByCode(ProjectRoleCode.MANAGER)
+                ?: throw ApiException(ProjectError.ROLE_NOT_CONFIGURED)
+
+        userDirectory.save(actor.toUserRef())
+
+        memberRepository.save(
+            ProjectMember.create(
+                projectId = project.id,
+                userId = actor.id,
+                roleId = managerRole.id,
+            ),
+        )
+
+        eventPublisher.publishProjectCreated(project.id, project.name, actor.id)
+
+        return ProjectResponse.from(project)
+    }
+
+    override fun updateProject(
+        projectId: UUID,
+        request: UpdateProjectCommand,
+        actorId: UUID,
+        version: Long?,
+    ): ProjectResponse {
+        val project = authorization.requirePermission(projectId, actorId, ProjectPermission.EDIT_PROJECT)
+
+        VersionGuard.requireMatch(project.version, version) {
+            ApiException(ProjectError.VERSION_MISMATCH)
+        }
+
+        request.typeId?.let {
+            typeRepository.findById(it) ?: throw ApiException(ProjectError.TYPE_NOT_FOUND)
+        }
+
+        val updated =
+            projectRepository.save(
+                project
+                    .rename(request.name)
+                    .describe(request.description)
+                    .changeVisibility(request.isPublic)
+                    .changeType(request.typeId)
+                    .changeIcon(request.iconFileId),
+            )
+
+        eventPublisher.publishProjectUpdated(updated.id, updated.name)
+
+        return ProjectResponse.from(updated)
+    }
+
+    override fun archiveProject(
+        projectId: UUID,
+        actorId: UUID,
+        version: Long?,
+    ) {
+        val project = authorization.requirePermission(projectId, actorId, ProjectPermission.DELETE_PROJECT)
+
+        VersionGuard.requireMatch(project.version, version) {
+            ApiException(ProjectError.VERSION_MISMATCH)
+        }
+
+        if (!project.isActive) return
+
+        projectRepository.save(project.archive())
+        eventPublisher.publishProjectArchived(project.id)
+    }
+}

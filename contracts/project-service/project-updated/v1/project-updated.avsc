@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "ProjectUpdatedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a project's attributes change.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    }
+  ]
+}

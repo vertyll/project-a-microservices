@@ -1,0 +1,32 @@
+package com.vertyll.veds.iam.infrastructure.web.security
+
+import com.vertyll.veds.iam.application.exception.ApiException
+import com.vertyll.veds.iam.domain.error.IamError
+import org.springframework.security.oauth2.jwt.Jwt
+import java.util.UUID
+
+internal object CurrentUser {
+    private const val CLAIM_PARAM = "claim"
+    private const val EMAIL_CLAIM = "email"
+
+    fun keycloakIdOf(jwt: Jwt?): UUID {
+        val token = jwt ?: throw ApiException(IamError.NOT_AUTHENTICATED)
+        val subject =
+            token.subject ?: throw ApiException(IamError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to "sub"))
+
+        return try {
+            UUID.fromString(subject)
+        } catch (e: IllegalArgumentException) {
+            throw ApiException(
+                IamError.TOKEN_CLAIM_MISSING,
+                mapOf(CLAIM_PARAM to "sub", "reason" to (e.message ?: "not a UUID")),
+            )
+        }
+    }
+
+    fun emailOf(jwt: Jwt?): String {
+        val token = jwt ?: throw ApiException(IamError.NOT_AUTHENTICATED)
+        return token.getClaimAsString(EMAIL_CLAIM)
+            ?: throw ApiException(IamError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to EMAIL_CLAIM))
+    }
+}

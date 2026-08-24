@@ -1,0 +1,19 @@
+package com.vertyll.veds.file.domain.error
+
+enum class FileError(
+    val key: String,
+    val kind: ErrorKind,
+) {
+    FILE_NOT_FOUND("file.not_found", ErrorKind.NOT_FOUND),
+    FILE_NOT_AVAILABLE("file.not_available", ErrorKind.CONFLICT),
+    FILE_ACCESS_DENIED("file.access_denied", ErrorKind.ACCESS_DENIED),
+
+    CONTENT_TYPE_NOT_ALLOWED("file.content_type_not_allowed", ErrorKind.INVALID),
+    FILE_TOO_LARGE("file.too_large", ErrorKind.INVALID),
+    UPLOAD_NOT_PENDING("file.upload_not_pending", ErrorKind.CONFLICT),
+    OBJECT_MISSING_IN_STORAGE("file.object_missing_in_storage", ErrorKind.CONFLICT),
+
+    VERSION_MISMATCH("common.version_mismatch", ErrorKind.PRECONDITION_FAILED),
+    NOT_AUTHENTICATED("common.not_authenticated", ErrorKind.ACCESS_DENIED),
+    TOKEN_CLAIM_MISSING("common.token_claim_missing", ErrorKind.ACCESS_DENIED),
+}

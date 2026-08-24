@@ -1,87 +1,192 @@
 # Development Setup
 
+Getting the whole system running locally, from a fresh clone.
+
 ## Prerequisites
 
-- Docker / Podman.
-- JDK 25 LTS.
-- Gradle.
+- Docker or Podman, with Compose
+- JDK 25 LTS
+- Node 20+ and pnpm — only for the front end, which lives in the separate `fastdo` repository
+- Python 3 — only for registering Avro schemas
 
-## Getting Started
-
-### 1. Clone the repository
+## 1. Clone and configure
 
 ```bash
 git clone https://github.com/vertyll/veds.git
 cd veds
+cp .env.example .env
 ```
 
-### 2. Start the infrastructure
+**The `.env` step is not optional.** Two values have no defaults, deliberately, because both
+protect session tokens and a default would eventually end up in somebody's production
+deployment:
+
+| Variable                         | Without it                            |
+|----------------------------------|---------------------------------------|
+| `REDIS_PASSWORD`                 | `docker compose up` fails immediately |
+| `GATEWAY_SESSION_ENCRYPTION_KEY` | the gateway fails to start            |
+
+`.env.example` ships working local values. For anything beyond local, generate your own:
 
 ```bash
-docker-compose up -d
+openssl rand -base64 32   # GATEWAY_SESSION_ENCRYPTION_KEY, must be 32 bytes
 ```
 
-### 3. Build and run microservices
+## 2. Start the infrastructure
 
-**Building:**
 ```bash
-cd <service-name>
-./gradlew build
+docker compose up -d
 ```
 
-**Local running:**
+This brings up PostgreSQL (one database per service), Keycloak, Kafka with Schema Registry,
+Redis, Garage and MailDev. Two one-shot jobs run automatically and then exit — they are supposed
+to:
+
+- **`topics-init`** applies `infra/kafka/topics.tf`, creating every topic
+- **`object-storage-init`** gives Garage its cluster layout, bucket, access key and CORS rules
+
+Neither can be expressed in a configuration file: both are cluster state applied through a CLI.
+
+Wait for the health checks before moving on:
+
+```bash
+docker compose ps
+```
+
+## 3. Register the Avro schemas
+
+```bash
+python scripts/schema_registry/register_schemas.py --registry-url http://localhost:8081
+```
+
+Producers register on first publish, but doing it up front means an incompatible schema is
+caught now rather than at runtime, and consumers can start in any order.
+
+## 4. Build
+
+```bash
+./gradlew clean build
+```
+
+The root project is a composite build aggregating every module. It also exposes `ktlintCheck`,
+`ktlintFormat`, `detekt` and `test` across all included builds; `check` runs the three
+verification tasks together. `-contracts` modules are excluded from those aggregators because
+they contain only generated Avro classes.
+
+To build one service on its own:
+
+```bash
+cd <service-name> && ./gradlew build
+```
+
+## 5. Run the services
+
+Each in its own terminal, or through the `.run` configurations in IntelliJ
+(`All_services.run.xml` starts everything):
+
 ```bash
 cd <service-name>
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-**Available services:**
-- `api-gateway`.
-- `iam-service`.
-- `mail-service`.
-- `template-service` (reference template service).
-- `shared-infrastructure` (library).
-- `*-contracts` (Apache Avro contracts).
+**Order matters in one place only.** Every service registers its translation keys with
+`translation-service` at start-up, so starting that one first avoids a failed registration in
+the logs. Nothing breaks if you do not: registration failure is deliberately non-fatal, and the
+keys are republished on the next restart.
+
+| Service                | Port |
+|------------------------|------|
+| `api-gateway`          | 8080 |
+| `iam-service`          | 8082 |
+| `mail-service`         | 8083 |
+| `project-service`      | 8084 |
+| `task-service`         | 8085 |
+| `notification-service` | 8086 |
+| `translation-service`  | 8087 |
+| `file-service`         | 8088 |
+
+`template-service` is a reference for cloning and is not meant to be run.
+
+## 6. Run the front end
+
+The UI lives in the separate [fastdo](https://github.com/vertyll/fastdo) repository:
+
+```bash
+cd ../fastdo
+pnpm install
+pnpm dev
+```
+
+It expects the gateway on `http://localhost:8080` and serves on `http://localhost:4200` — the
+origin the object store was told to allow in step 2.
+
+## 7. Create an account
+
+There are no seeded users: the realm ships with a service account only.
+
+1. Open `http://localhost:4200` and register
+2. Open MailDev at `http://localhost:1080` and click the activation link — no mail leaves the
+   machine, every message lands there
+3. Sign in
+
+To make that account for an administrator, assign the `ADMIN` realm role in the Keycloak console
+(`http://localhost:9000`, `admin` / `admin`). Without it the `/admin` section is hidden and the
+gateway refuses its endpoints.
+
+Two-factor authentication is optional and configured from the account's security settings; it
+redirects to Keycloak's own pages.
 
 ## Service URLs
 
-| Service      | URL                   |
-|--------------|-----------------------|
-| API Gateway  | http://localhost:8080 |
-| IAM Service  | http://localhost:8082 |
-| Mail Service | http://localhost:8083 |
-| Keycloak     | http://localhost:9000 |
-| Kafka UI     | http://localhost:8090 |
-| MailDev      | http://localhost:1080 |
+|                        |                       |
+|------------------------|-----------------------|
+| API Gateway            | http://localhost:8080 |
+| Front end              | http://localhost:4200 |
+| Keycloak               | http://localhost:9000 |
+| Kafka UI               | http://localhost:8090 |
+| Schema Registry        | http://localhost:8081 |
+| MailDev                | http://localhost:1080 |
+| Object storage (S3)    | http://localhost:9100 |
+| Object storage console | http://localhost:9101 |
 
-## API Documentation (Swagger UI)
+Databases are exposed on 5432 (iam), 5433 (mail), 5434 (keycloak), 5435 (project), 5436 (task),
+5437 (notification), 5438 (translation), 5439 (file).
 
-Each service provides its own Swagger UI:
+## API documentation
 
-| Service          | URL                                   |
-|------------------|---------------------------------------|
-| IAM Service      | http://localhost:8082/swagger-ui.html |
-| Mail Service     | http://localhost:8083/swagger-ui.html |
-| Template Service | http://localhost:8084/swagger-ui.html |
+Each service serves its own Swagger UI at `/swagger-ui.html` — for example
+`http://localhost:8084/swagger-ui.html` for project-service.
 
-## API Testing (Insomnia)
+Library API documentation is generated with Dokka:
 
-An Insomnia collection is provided at `insomnia-collection.yaml` in the project root.
+```bash
+./gradlew docs   # output in docs/dokka/
+```
+
+An Insomnia collection is provided at `insomnia-collection.yaml`.
 
 ## Monitoring
 
-Each service exposes health and metrics endpoints through Spring Boot Actuator:
-- Health checks: `/actuator/health` on each service.
-- Metrics can be collected for observability and monitoring service health.
+Every service exposes Spring Boot Actuator at `/actuator/health`.
 
-## Code Style & Formatting
-
-The project uses ktlint for code formatting and style checks.
+## Code style
 
 ```bash
-# Format code
-./gradlew ktlintFormat
-
-# Check code style
-./gradlew ktlintCheck
+./gradlew ktlintFormat   # format
+./gradlew ktlintCheck    # verify
+./gradlew detekt         # static analysis
 ```
+
+`check` additionally runs `checkHexagonalDependencies`, which fails the build if a framework
+reaches a service's application layer. See [Hexagonal Layering](./hexagonal-layering.md).
+
+## Troubleshooting
+
+| Symptom                                           | Cause                                                                                               |
+|---------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| `docker compose up` fails on `REDIS_PASSWORD`     | No `.env` — see step 1                                                                              |
+| Gateway exits at start-up complaining about a key | `GATEWAY_SESSION_ENCRYPTION_KEY` missing or not 32 bytes                                            |
+| Uploads fail in the browser with a CORS error     | `FRONTEND_ORIGIN` does not match where the SPA runs; re-run `object-storage-init`                   |
+| The UI shows keys such as `project.not_found`     | `translation-service` is not running, or the services started before it and have not been restarted |
+| A consumer logs a schema error                    | Step 3 was skipped                                                                                  |
+| Login redirects but never returns                 | Keycloak is not healthy yet, or the realm import has not finished                                   |

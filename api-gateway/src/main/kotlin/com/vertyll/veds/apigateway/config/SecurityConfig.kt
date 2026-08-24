@@ -18,7 +18,6 @@ internal class SecurityConfig(
     private val reactiveKeycloakJwtConverter: ReactiveKeycloakJwtAuthenticationConverter,
 ) {
     companion object {
-        // Public Auth endpoints (BFF proxy + registration/activation)
         private val PUBLIC_AUTH_ENDPOINTS =
             arrayOf(
                 "/auth/register",
@@ -26,12 +25,12 @@ internal class SecurityConfig(
                 "/auth/reset-password-request",
                 "/auth/confirm-reset-password",
                 "/auth/resend-activation",
-                "/auth/token",
-                "/auth/refresh-token",
+                "/auth/authorize",
+                "/auth/callback",
+                "/auth/session",
                 "/auth/logout",
             )
 
-        // Swagger documentation endpoints
         private val SWAGGER_ENDPOINTS =
             arrayOf(
                 "/swagger-ui.html",
@@ -40,10 +39,8 @@ internal class SecurityConfig(
                 "/swagger-ui/**",
             )
 
-        // Actuator endpoints
         private const val ACTUATOR_ENDPOINTS = "/actuator/**"
 
-        // Protected Auth endpoints
         private val PROTECTED_AUTH_ENDPOINTS =
             arrayOf(
                 "/auth/me",
@@ -55,7 +52,6 @@ internal class SecurityConfig(
                 "/auth/set-new-password",
             )
 
-        // Role endpoints
         private val ROLE_ADMIN_ENDPOINTS =
             arrayOf(
                 "/roles/user/{userId}/role/{roleName}",
@@ -63,7 +59,8 @@ internal class SecurityConfig(
             )
         private const val ROLE_USER_ENDPOINTS = "/roles/**"
 
-        // User endpoints
+        private const val PERMISSION_ENDPOINTS = "/permissions/**"
+
         private val USER_ADMIN_ENDPOINTS =
             arrayOf(
                 "/users/admin/**",
@@ -77,8 +74,27 @@ internal class SecurityConfig(
                 "/users/email/{email}/",
             )
 
-        // Mail endpoints
         private const val MAIL_ENDPOINTS = "/mail/**"
+
+        private val PROJECT_ENDPOINTS =
+            arrayOf(
+                "/projects/**",
+                "/project-types/**",
+                "/project-roles/**",
+                "/project-user-roles/**",
+            )
+
+        private val TASK_ENDPOINTS = arrayOf("/tasks/**")
+
+        private const val FILE_ENDPOINTS = "/files/**"
+
+        private const val PUBLIC_TRANSLATION_ENDPOINTS = "/translations/**"
+
+        private val NOTIFICATION_ENDPOINTS =
+            arrayOf(
+                "/notifications/**",
+                "/ws/notifications/**",
+            )
     }
 
     @Bean
@@ -91,37 +107,38 @@ internal class SecurityConfig(
                 it.authenticationEntryPoint(jsonAuthenticationEntryPoint)
             }.authorizeExchange { exchanges ->
                 exchanges
-                    // Public endpoints that don't require authentication
                     .pathMatchers(*PUBLIC_AUTH_ENDPOINTS)
                     .permitAll()
-                    // Swagger docs
                     .pathMatchers(*SWAGGER_ENDPOINTS)
                     .permitAll()
-                    // Health and metrics endpoints
                     .pathMatchers(ACTUATOR_ENDPOINTS)
                     .permitAll()
-                    // IAM service - some endpoints need authentication
                     .pathMatchers(*PROTECTED_AUTH_ENDPOINTS)
                     .authenticated()
-                    // IAM service admin endpoints
                     .pathMatchers(*ROLE_ADMIN_ENDPOINTS)
                     .hasRole("ADMIN")
-                    // IAM service regular endpoints
+                    .pathMatchers(PERMISSION_ENDPOINTS)
+                    .hasRole("ADMIN")
                     .pathMatchers(ROLE_USER_ENDPOINTS)
                     .authenticated()
-                    // IAM service admin endpoints
                     .pathMatchers(*USER_ADMIN_ENDPOINTS)
                     .hasRole("ADMIN")
-                    // IAM service user endpoints
                     .pathMatchers(USER_PROFILE_ENDPOINT)
                     .authenticated()
-                    // For user ID paths
                     .pathMatchers(*USER_ID_ENDPOINT)
                     .authenticated()
-                    // Mail service endpoints (admin only)
                     .pathMatchers(MAIL_ENDPOINTS)
                     .hasRole("ADMIN")
-                    // Default policy - deny all
+                    .pathMatchers(PUBLIC_TRANSLATION_ENDPOINTS)
+                    .permitAll()
+                    .pathMatchers(*PROJECT_ENDPOINTS)
+                    .authenticated()
+                    .pathMatchers(*TASK_ENDPOINTS)
+                    .authenticated()
+                    .pathMatchers(FILE_ENDPOINTS)
+                    .authenticated()
+                    .pathMatchers(*NOTIFICATION_ENDPOINTS)
+                    .authenticated()
                     .anyExchange()
                     .authenticated()
             }.oauth2ResourceServer { oauth2 ->

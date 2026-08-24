@@ -34,12 +34,15 @@ tasks.named("check") {
 
 tasks.register("docs") {
     group = "documentation"
-    description = "Generates Dokka HTML docs for shared-infrastructure (output: docs/dokka/index.html)"
+    description = "Generates Dokka HTML docs for the shared libraries (output: docs/dokka/index.html)"
     dependsOn(gradle.includedBuild("shared-infrastructure").task(":dokkaGenerate"))
+    dependsOn(gradle.includedBuild("shared-translation").task(":dokkaGenerate"))
     doLast {
-        val index = rootDir.resolve("docs/dokka/index.html")
-        if (index.exists()) {
-            logger.lifecycle("Dokka HTML docs: ${index.toURI()}")
-        }
+        listOf(
+            "docs/dokka/index.html",
+            "docs/dokka/shared-translation/index.html",
+        ).map(rootDir::resolve)
+            .filter { it.exists() }
+            .forEach { logger.lifecycle("Dokka HTML docs: ${it.toURI()}") }
     }
 }

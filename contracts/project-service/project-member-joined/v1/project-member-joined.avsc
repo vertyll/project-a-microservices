@@ -1,0 +1,35 @@
+{
+  "type": "record",
+  "name": "ProjectMemberJoinedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a user joins a project or has their project role changed. Task-service uses this to maintain the membership read model it authorizes task access against.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "memberId",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "roleCode",
+      "type": "string"
+    }
+  ]
+}

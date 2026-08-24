@@ -44,6 +44,35 @@ A microservices-based architecture following principles:
 
 - [Architecture](./docs/architecture.md) — components and design principles.
 - [Saga Pattern & Transactional Outbox](./docs/saga-and-outbox.md) — saga engine, outbox, idempotent receiver.
+- [Event Catalogue](./docs/events.md) — every topic, its owner and its consumers.
 - [Concurrency Control](./docs/concurrency.md) — optimistic locking, ETags, saga and outbox concurrency.
 - [Keycloak Configuration](./docs/keycloak.md) — realm setup, authentication flow, role management.
-- [Development Setup](./docs/development-setup.md) — prerequisites, getting started, service URLs, API testing, code style.
+- [Development Setup](./docs/development-setup.md) — running the whole system locally, from a fresh clone.
+- [Files](./docs/files.md) — pre-signed uploads, a private bucket, and the two sweeps.
+- [Translations](./docs/translations.md) — key ownership, ICU, and why a missing key renders as the key.
+- [Testing](./docs/testing.md) — the two test tiers and the architecture check.
+- [CQRS](./docs/cqrs.md) — where command/query separation is applied, where it is not, and why.
+- [Hexagonal Layering](./docs/hexagonal-layering.md) — the dependency rule, how it is enforced, and what it cost.
+
+### Per module
+
+Each service documents its own decisions — what it owns, what it deliberately does not, and the
+reasoning behind the parts that look surprising.
+
+| Module                                                     |                                                        |
+|------------------------------------------------------------|--------------------------------------------------------|
+| [api-gateway](./api-gateway/README.md)                     | Token Handler, session encryption, filter ordering     |
+| [iam-service](./iam-service/README.md)                     | users, roles, permissions, registration saga           |
+| [mail-service](./mail-service/README.md)                   | delivery, and why failure is an event                  |
+| [project-service](./project-service/README.md)             | projects, membership, the access policy                |
+| [task-service](./task-service/README.md)                   | tasks, the board query, local projections              |
+| [notification-service](./notification-service/README.md)   | delivery rules, STOMP transport                        |
+| [translation-service](./translation-service/README.md)     | key ownership, ICU, the two-column rule                |
+| [file-service](./file-service/README.md)                   | pre-signed uploads, the two sweeps                     |
+| [template-service](./template-service/README.md)           | the reference service, and what to strip after cloning |
+| [shared-infrastructure](./shared-infrastructure/README.md) | saga engine, outbox, Avro, Keycloak converter          |
+| [shared-translation](./shared-translation/README.md)       | the key DSL and the ICU renderer                       |
+| [shared-contracts](./shared-contracts/README.md)           | saga protocol types, framework-free                    |
+
+Infrastructure directories document themselves too: [contracts](./contracts/README.md),
+[infra/kafka](./infra/kafka/README.md), [infra/garage](./infra/garage/README.md).

@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "TaskArchivedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "doc": "Published when a task is archived. Notification-service retires notifications that point at it.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "taskId",
+      "type": "string"
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    }
+  ]
+}

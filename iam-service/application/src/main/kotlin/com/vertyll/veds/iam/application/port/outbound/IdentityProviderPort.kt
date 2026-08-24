@@ -34,6 +34,28 @@ interface IdentityProviderPort {
         roleName: String,
     )
 
+    /**
+     * Credential types the identity provider holds for this user, lower-cased —
+     * `password`, `otp`, and so on.
+     *
+     * Read from Keycloak rather than stored here, because Keycloak owns
+     * authentication. A copy in this database would be a second answer to the
+     * same question, wrong the moment somebody configures a factor on Keycloak's
+     * own pages.
+     */
+    fun credentialTypes(keycloakId: UUID): Set<String>
+
+    /**
+     * Removes one credential, used to turn a second factor off.
+     *
+     * A password cannot be removed this way: it is the only factor left, and
+     * deleting it would lock the account out with no way back.
+     */
+    fun removeCredential(
+        keycloakId: UUID,
+        credentialType: String,
+    )
+
     fun validatePassword(
         email: String,
         password: String,

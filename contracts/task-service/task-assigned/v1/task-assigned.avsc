@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "TaskAssignedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "doc": "Published when the assignee set changes. Carries the full set rather than a delta, so a consumer that missed an earlier event still converges on the right state.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "taskId",
+      "type": "string"
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "assigneeIds",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "assignedBy",
+      "type": "string"
+    }
+  ]
+}

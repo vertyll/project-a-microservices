@@ -1,0 +1,44 @@
+{
+  "type": "record",
+  "name": "ProjectStatusChangedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published on any status create/update/delete so task-service can refresh its read model.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "statusId",
+      "type": "string"
+    },
+    {
+      "name": "names",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "doc": "Label per supported language, keyed by language code (PL, EN)."
+    },
+    {
+      "name": "color",
+      "type": "string"
+    },
+    {
+      "name": "removed",
+      "type": "boolean",
+      "default": false
+    }
+  ]
+}

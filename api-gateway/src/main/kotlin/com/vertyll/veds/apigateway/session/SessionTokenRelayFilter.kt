@@ -1,0 +1,75 @@
+package com.vertyll.veds.apigateway.session
+
+import org.slf4j.LoggerFactory
+import org.springframework.core.Ordered
+import org.springframework.http.HttpHeaders
+import org.springframework.stereotype.Component
+import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.server.WebFilter
+import org.springframework.web.server.WebFilterChain
+import reactor.core.publisher.Mono
+import java.time.Instant
+
+@Component
+internal class SessionTokenRelayFilter(
+    private val sessionStore: SessionStore,
+    private val sessionCookies: SessionCookies,
+    private val keycloakTokenClient: KeycloakTokenClient,
+) : WebFilter,
+    Ordered {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
+    private companion object {
+        private const val REFRESH_SKEW_SECONDS = 30L
+        private const val BEARER_PREFIX = "Bearer "
+
+        private val EXCLUDED_PREFIXES = listOf("/auth/authorize", "/auth/callback", "/auth/logout", "/auth/session")
+    }
+
+    // Must stay a WebFilter at this order, not a Gateway GlobalFilter: those run
+    // inside the routing handler, after Spring Security, so a token injected there
+    // arrives too late and every request is rejected as anonymous.
+    override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE
+
+    override fun filter(
+        exchange: ServerWebExchange,
+        chain: WebFilterChain,
+    ): Mono<Void> {
+        val path = exchange.request.path.value()
+        if (EXCLUDED_PREFIXES.any { path.startsWith(it) }) return chain.filter(exchange)
+
+        if (exchange.request.headers.getFirst(HttpHeaders.AUTHORIZATION) != null) return chain.filter(exchange)
+
+        val sessionId = sessionCookies.read(exchange) ?: return chain.filter(exchange)
+
+        return sessionStore
+            .find(sessionId)
+            .flatMap { session -> freshen(sessionId, session) }
+            .flatMap { session -> chain.filter(withBearer(exchange, session.accessToken)) }
+            .switchIfEmpty(Mono.defer { chain.filter(exchange) })
+    }
+
+    private fun freshen(
+        sessionId: String,
+        session: AuthSession,
+    ): Mono<AuthSession> {
+        if (!session.needsRefreshAt(Instant.now(), REFRESH_SKEW_SECONDS)) return Mono.just(session)
+
+        return keycloakTokenClient
+            .refresh(session.refreshToken)
+            .flatMap { refreshed -> sessionStore.update(sessionId, refreshed).thenReturn(refreshed) }
+            .onErrorResume { ex ->
+                logger.debug("Refresh failed for session, dropping it: {}", ex.message)
+                sessionStore.delete(sessionId).then(Mono.empty())
+            }
+    }
+
+    private fun withBearer(
+        exchange: ServerWebExchange,
+        accessToken: String,
+    ): ServerWebExchange =
+        exchange
+            .mutate()
+            .request { it.header(HttpHeaders.AUTHORIZATION, "$BEARER_PREFIX$accessToken") }
+            .build()
+}

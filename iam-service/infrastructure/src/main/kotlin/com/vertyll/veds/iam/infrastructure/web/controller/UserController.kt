@@ -1,15 +1,16 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
-import com.vertyll.veds.iam.application.dto.UpdateProfileRequest
 import com.vertyll.veds.iam.application.dto.UserResponse
-import com.vertyll.veds.iam.application.port.inbound.UserUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.UserCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
+import com.vertyll.veds.iam.domain.model.PageRequest
+import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
+import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
 import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -27,7 +28,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/users")
 @Tag(name = "Users", description = "User management API")
 internal class UserController(
-    private val userService: UserUseCase,
+    private val userServiceCommands: UserCommandUseCase,
+    private val userServiceQueries: UserQueryUseCase,
 ) {
     private companion object {
         private const val USER_RETRIEVED_SUCCESSFULLY = "User retrieved successfully"
@@ -41,9 +43,8 @@ internal class UserController(
     fun getAllUsers(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): ResponseEntity<ApiResponse<Page<UserResponse>>> {
-        val pageable = PageRequest.of(page, size)
-        val users = userService.getAllUsers(pageable)
+    ): ResponseEntity<ApiResponse<PageResult<UserResponse>>> {
+        val users = userServiceQueries.getAllUsers(PageRequest(page = page, size = size))
         return ApiResponse.buildResponse(users, USERS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -52,7 +53,7 @@ internal class UserController(
     fun getUserById(
         @PathVariable id: Long,
     ): ResponseEntity<ApiResponse<UserResponse>> {
-        val user = userService.getUserById(id)
+        val user = userServiceQueries.getUserById(id)
         val etag = ETagUtils.buildWeakETag(user.version)
         val response = ApiResponse.buildResponse(user, USER_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
@@ -63,7 +64,7 @@ internal class UserController(
     fun getUserByEmail(
         @PathVariable email: String,
     ): ResponseEntity<ApiResponse<UserResponse>> {
-        val user = userService.getUserByEmail(email)
+        val user = userServiceQueries.getUserByEmail(email)
         val etag = ETagUtils.buildWeakETag(user.version)
         val response = ApiResponse.buildResponse(user, USER_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
@@ -78,7 +79,7 @@ internal class UserController(
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<ApiResponse<UserResponse>> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
-        val user = userService.updateProfile(id, request, version)
+        val user = userServiceCommands.updateProfile(id, request, version)
         val etag = ETagUtils.buildWeakETag(user.version)
         val response = ApiResponse.buildResponse(user, PROFILE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response

@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: project-service
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      data-source-properties:
+        # TLS to the database. `verify-full` also checks the certificate's
+        # hostname; `require` alone encrypts but accepts any certificate, which
+        # leaves the connection open to an active MITM.
+        sslmode: ${DB_SSL_MODE:verify-full}
+        sslrootcert: ${DB_SSL_ROOT_CERT:}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    validate-on-migrate: true
+    clean-disabled: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    properties:
+      # SASL_SSL in production; PLAINTEXT only for local compose.
+      security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
+      sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-512}
+      sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
+      ssl.truststore.location: ${KAFKA_SSL_TRUSTSTORE:}
+      ssl.truststore.password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
+      ssl.endpoint.identification.algorithm: https
+    consumer:
+      group-id: project-service-group
+
+server:
+  port: ${SERVER_PORT:8084}
+  # TLS terminates at the ingress in the default deployment; flip on only if a
+  # service is exposed directly.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:false}
+    bundle: ${SERVER_SSL_BUNDLE:}
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    ROOT: WARN
+    com.vertyll.veds: INFO
+    org.springframework.security: INFO
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO
+
+veds:
+  translation:
+    client:
+      # Where this service publishes its declared keys at start-up.
+      base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}
+    # Seeded language catalogue. Moves to translation-service once it owns the
+    # catalogue; SupportedLanguagesAdapter is the only file that changes.
+    supported-languages: ${SUPPORTED_LANGUAGES:pl,en}

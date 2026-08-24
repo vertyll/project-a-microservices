@@ -4,33 +4,18 @@ import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.application.port.outbound.MailFeedbackEventPublisherPort
 import com.vertyll.veds.mail.application.port.outbound.SagaProcessPort
+import com.vertyll.veds.mail.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.mail.application.saga.model.SagaStepNames
 import com.vertyll.veds.mail.application.saga.model.SagaTypes
 import com.vertyll.veds.mail.domain.model.EmailTemplate
 import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
-/**
- * Application service orchestrating the mail-delivery use case (driven by `mail-requested`).
- *
- * Pure application layer:
- *   - knows the domain ([EmailTemplate], [EmailService], saga state machine);
- *   - knows _what_ feedback events to publish — but **not** _how_, that goes through
- *     [MailFeedbackEventPublisherPort] (Kafka / Avro / Outbox live behind the port).
- *
- * Inbound entry point used by the Kafka adapter (the Kafka inbound adapter).
- */
-@Service
-internal class EmailSagaService(
+class EmailSagaService(
     private val sagaProcess: SagaProcessPort,
     private val emailService: EmailUseCase,
     private val mailFeedbackPublisher: MailFeedbackEventPublisherPort,
+    private val logger: UseCaseLogger,
 ) : EmailSagaUseCase {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    @Transactional
     override fun sendEmailWithSaga(
         to: String,
         subject: String,

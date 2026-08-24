@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "NotificationRequestedEvent",
+  "namespace": "com.vertyll.veds.notification",
+  "fields": [
+    { "name": "eventId", "type": "string" },
+    { "name": "timestamp", "type": { "type": "long", "logicalType": "timestamp-millis" } },
+    { "name": "name", "type": "string" },
+    { "name": "payload", "type": "string" },
+    { "name": "content", "type": ["null", "string"], "default": null },
+    { "name": "sagaId", "type": ["null", "string"], "default": null }
+  ]
+}

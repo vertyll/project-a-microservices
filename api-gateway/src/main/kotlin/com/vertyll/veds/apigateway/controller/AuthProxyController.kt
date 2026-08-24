@@ -1,23 +1,24 @@
 package com.vertyll.veds.apigateway.controller
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.vertyll.veds.apigateway.infrastructure.response.ApiResponse
+import com.vertyll.veds.apigateway.security.AuthTransactionCookies
+import com.vertyll.veds.apigateway.security.Pkce
+import com.vertyll.veds.apigateway.session.KeycloakTokenClient
+import com.vertyll.veds.apigateway.session.SessionCookies
+import com.vertyll.veds.apigateway.session.SessionStore
 import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.reactive.function.BodyInserters
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.bodyToMono
 import org.springframework.web.server.ServerWebExchange
+import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
-import java.time.Duration
+import java.net.URI
 
 /**
  * BFF (Backend-For-Frontend) controller that proxies authentication requests to Keycloak.
@@ -31,136 +32,130 @@ import java.time.Duration
 @RequestMapping("/auth")
 internal class AuthProxyController(
     private val sharedConfig: SharedConfigProperties,
+    private val authTransactionCookies: AuthTransactionCookies,
+    private val sessionCookies: SessionCookies,
+    private val sessionStore: SessionStore,
+    private val keycloakTokenClient: KeycloakTokenClient,
 ) {
     private companion object {
         private val log = LoggerFactory.getLogger(AuthProxyController::class.java)
 
-        private const val MSG_LOGIN_SUCCESS = "Login successful"
-        private const val MSG_LOGIN_FAILED = "Invalid credentials"
-        private const val MSG_TOKEN_REFRESHED = "Token refreshed successfully"
-        private const val MSG_TOKEN_REFRESH_FAILED = "Token refresh failed"
-        private const val MSG_LOGOUT_SUCCESS = "Logged out successfully"
-        private const val MSG_NO_REFRESH_TOKEN = "No refresh token found"
+        private const val MSG_SESSION_ACTIVE = "auth.session_active"
+        private const val MSG_NO_SESSION = "auth.no_session"
+        private const val MSG_LOGOUT_SUCCESS = "auth.logout_successful"
+
+        private const val ERROR_PARAM = "error"
+        private const val ERR_STATE_MISMATCH = "state_mismatch"
+        private const val ERR_MISSING_VERIFIER = "missing_code_verifier"
+        private const val ERR_CODE_EXCHANGE_FAILED = "code_exchange_failed"
+
+        private const val KC_ACTION_PARAM = "kc_action"
+
+        private val ALLOWED_KC_ACTIONS = setOf("CONFIGURE_TOTP", "UPDATE_PASSWORD", "delete_credential")
+
+        private const val SCOPE = "openid profile email"
     }
 
-    private val webClient: WebClient by lazy {
-        WebClient
-            .builder()
-            .baseUrl(keycloakTokenUrl())
-            .build()
-    }
-
-    private val logoutClient: WebClient by lazy {
-        WebClient
-            .builder()
-            .baseUrl(keycloakLogoutUrl())
-            .build()
-    }
-
-    data class LoginRequest(
+    data class SessionResponse(
+        val userId: String,
         val email: String,
-        val password: String,
+        val roles: List<String>,
     )
 
-    data class TokenResponse(
-        val accessToken: String,
-        val expiresIn: Long,
-        val tokenType: String,
-    )
-
-    /**
-     * Login: exchanges user credentials for Keycloak tokens.
-     * Returns access_token in body, sets refresh_token as HttpOnly cookie.
-     */
-    @PostMapping("/token")
-    fun login(
-        @RequestBody request: LoginRequest,
+    @GetMapping("/authorize")
+    fun authorize(
         exchange: ServerWebExchange,
-    ): Mono<ResponseEntity<ApiResponse<TokenResponse>>> =
-        webClient
-            .post()
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(
-                BodyInserters
-                    .fromFormData("grant_type", "password")
-                    .with("client_id", sharedConfig.keycloak.gatewayClientId)
-                    .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
-                    .with("username", request.email)
-                    .with("password", request.password),
-            ).retrieve()
-            .bodyToMono<KeycloakTokenResponse>()
-            .map { keycloakResponse ->
-                addRefreshTokenCookie(exchange, keycloakResponse.refreshToken, keycloakResponse.refreshExpiresIn)
+        @RequestParam(name = "kc_action", required = false) kcAction: String?,
+    ): ResponseEntity<Void> {
+        val state = Pkce.newState()
+        val codeVerifier = Pkce.newCodeVerifier()
+
+        authTransactionCookies.issue(exchange, state = state, codeVerifier = codeVerifier)
+
+        val authorizationUri =
+            UriComponentsBuilder
+                .fromUriString(keycloakAuthorizationUrl())
+                .queryParam("client_id", sharedConfig.keycloak.gatewayClientId)
+                .queryParam("redirect_uri", sharedConfig.keycloak.oauth.redirectUri)
+                .queryParam("response_type", "code")
+                .queryParam("scope", SCOPE)
+                .queryParam("state", state)
+                .queryParam("code_challenge", Pkce.challengeOf(codeVerifier))
+                .queryParam("code_challenge_method", Pkce.CHALLENGE_METHOD)
+                .apply { allowedAction(kcAction)?.let { queryParam(KC_ACTION_PARAM, it) } }
+                .build()
+                .toUriString()
+
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(authorizationUri)).build()
+    }
+
+    // Application-Initiated Actions are relayed, not implemented. Configuring a
+    // second factor happens on Keycloak's pages, so no TOTP secret ever reaches
+    // this service, its logs or the browser's JavaScript.
+    //
+    // The value is checked against a fixed set rather than forwarded as given: an
+    // open kc_action would let a caller push any user into any Keycloak flow,
+    // including ones that change credentials.
+    private fun allowedAction(kcAction: String?): String? = kcAction?.takeIf { it in ALLOWED_KC_ACTIONS }
+
+    @GetMapping("/callback")
+    fun callback(
+        @RequestParam(required = false) code: String?,
+        @RequestParam(required = false) state: String?,
+        @RequestParam(name = ERROR_PARAM, required = false) error: String?,
+        exchange: ServerWebExchange,
+    ): Mono<ResponseEntity<Void>> {
+        val expectedState = authTransactionCookies.read(exchange, AuthTransactionCookies.STATE_COOKIE)
+        val codeVerifier = authTransactionCookies.read(exchange, AuthTransactionCookies.VERIFIER_COOKIE)
+        authTransactionCookies.clear(exchange)
+
+        if (error != null) {
+            log.debug("Keycloak returned an authorization error: {}", error)
+            return Mono.just(redirectToApp(error))
+        }
+
+        if (code == null || state == null || expectedState == null || state != expectedState) {
+            log.warn("Rejecting callback: state does not match the value issued to this browser")
+            return Mono.just(redirectToApp(ERR_STATE_MISMATCH))
+        }
+
+        if (codeVerifier == null) {
+            log.warn("Rejecting callback: no code_verifier cookie present")
+            return Mono.just(redirectToApp(ERR_MISSING_VERIFIER))
+        }
+
+        return keycloakTokenClient
+            .exchangeAuthorizationCode(code, codeVerifier)
+            .flatMap { session -> sessionStore.create(session) }
+            .map { sessionId ->
+                sessionCookies.issue(exchange, sessionId)
+                redirectToApp(null)
+            }.onErrorResume { ex ->
+                log.warn("Authorization code exchange failed: {}", ex.message)
+                Mono.just(redirectToApp(ERR_CODE_EXCHANGE_FAILED))
+            }
+    }
+
+    @GetMapping("/session")
+    fun session(exchange: ServerWebExchange): Mono<ResponseEntity<ApiResponse<SessionResponse>>> {
+        val sessionId =
+            sessionCookies.read(exchange)
+                ?: return Mono.just(noSession())
+
+        return sessionStore
+            .find(sessionId)
+            .map { session ->
                 ApiResponse.buildResponse(
                     data =
-                        TokenResponse(
-                            accessToken = keycloakResponse.accessToken,
-                            expiresIn = keycloakResponse.expiresIn,
-                            tokenType = keycloakResponse.tokenType,
+                        SessionResponse(
+                            userId = session.subject,
+                            email = session.email,
+                            roles = session.roles,
                         ),
-                    message = MSG_LOGIN_SUCCESS,
+                    message = MSG_SESSION_ACTIVE,
                     status = HttpStatus.OK,
                 )
-            }.onErrorResume { ex ->
-                log.debug("Keycloak login failed: {}", ex.message)
-                Mono.just(
-                    ApiResponse.buildResponse(
-                        data = null,
-                        message = MSG_LOGIN_FAILED,
-                        status = HttpStatus.UNAUTHORIZED,
-                    ),
-                )
-            }
-
-    /**
-     * Refresh: uses refresh_token from a cookie to get new tokens.
-     */
-    @PostMapping("/refresh-token")
-    fun refreshToken(exchange: ServerWebExchange): Mono<ResponseEntity<ApiResponse<TokenResponse>>> {
-        val refreshToken =
-            extractRefreshTokenFromCookie(exchange)
-                ?: return Mono.just(
-                    ApiResponse.buildResponse(
-                        data = null,
-                        message = MSG_NO_REFRESH_TOKEN,
-                        status = HttpStatus.UNAUTHORIZED,
-                    ),
-                )
-
-        return webClient
-            .post()
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(
-                BodyInserters
-                    .fromFormData("grant_type", "refresh_token")
-                    .with("client_id", sharedConfig.keycloak.gatewayClientId)
-                    .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
-                    .with("refresh_token", refreshToken),
-            ).retrieve()
-            .bodyToMono<KeycloakTokenResponse>()
-            .map { keycloakResponse ->
-                addRefreshTokenCookie(exchange, keycloakResponse.refreshToken, keycloakResponse.refreshExpiresIn)
-                ApiResponse.buildResponse(
-                    data =
-                        TokenResponse(
-                            accessToken = keycloakResponse.accessToken,
-                            expiresIn = keycloakResponse.expiresIn,
-                            tokenType = keycloakResponse.tokenType,
-                        ),
-                    message = MSG_TOKEN_REFRESHED,
-                    status = HttpStatus.OK,
-                )
-            }.onErrorResume { ex ->
-                log.debug("Keycloak token refresh failed: {}", ex.message)
-                deleteRefreshTokenCookie(exchange)
-                Mono.just(
-                    ApiResponse.buildResponse(
-                        data = null,
-                        message = MSG_TOKEN_REFRESH_FAILED,
-                        status = HttpStatus.UNAUTHORIZED,
-                    ),
-                )
-            }
+            }.switchIfEmpty(Mono.fromCallable { noSession() })
     }
 
     /**
@@ -169,101 +164,47 @@ internal class AuthProxyController(
     @Suppress("kotlin:S6508")
     @PostMapping("/logout")
     fun logout(exchange: ServerWebExchange): Mono<ResponseEntity<ApiResponse<Void>>> {
-        val refreshToken = extractRefreshTokenFromCookie(exchange)
+        val sessionId = sessionCookies.read(exchange)
+        sessionCookies.clear(exchange)
 
-        deleteRefreshTokenCookie(exchange)
+        if (sessionId == null) return Mono.just(loggedOut())
 
-        if (refreshToken == null) {
-            return Mono.just(
-                ApiResponse.buildResponse(
-                    data = null,
-                    message = MSG_LOGOUT_SUCCESS,
-                    status = HttpStatus.NO_CONTENT,
-                ),
-            )
-        }
-
-        return logoutClient
-            .post()
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(
-                BodyInserters
-                    .fromFormData("client_id", sharedConfig.keycloak.gatewayClientId)
-                    .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
-                    .with("refresh_token", refreshToken),
-            ).retrieve()
-            .toBodilessEntity()
-            .map {
-                ApiResponse.buildResponse<Void>(
-                    data = null,
-                    message = MSG_LOGOUT_SUCCESS,
-                    status = HttpStatus.NO_CONTENT,
-                )
-            }.onErrorResume { ex ->
-                log.debug("Keycloak logout failed: {}", ex.message)
-                Mono.just(
-                    ApiResponse.buildResponse(
-                        data = null,
-                        message = MSG_LOGOUT_SUCCESS,
-                        status = HttpStatus.NO_CONTENT,
-                    ),
-                )
+        return sessionStore
+            .find(sessionId)
+            .flatMap { session -> keycloakTokenClient.revoke(session.refreshToken) }
+            .then(sessionStore.delete(sessionId))
+            .thenReturn(loggedOut())
+            .onErrorResume { ex ->
+                log.warn("Keycloak revocation failed, local session destroyed anyway: {}", ex.message)
+                sessionStore.delete(sessionId).thenReturn(loggedOut())
             }
     }
 
-    private fun keycloakTokenUrl(): String =
-        "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/token"
+    private fun noSession(): ResponseEntity<ApiResponse<SessionResponse>> =
+        ApiResponse.buildResponse(
+            data = null,
+            message = MSG_NO_SESSION,
+            status = HttpStatus.UNAUTHORIZED,
+        )
 
-    private fun keycloakLogoutUrl(): String =
-        "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/logout"
+    @Suppress("kotlin:S6508")
+    private fun loggedOut(): ResponseEntity<ApiResponse<Void>> =
+        ApiResponse.buildResponse(
+            data = null,
+            message = MSG_LOGOUT_SUCCESS,
+            status = HttpStatus.NO_CONTENT,
+        )
 
-    private fun addRefreshTokenCookie(
-        exchange: ServerWebExchange,
-        refreshToken: String,
-        maxAgeSeconds: Long,
-    ) {
-        val cookie =
-            ResponseCookie
-                .from(sharedConfig.keycloak.cookie.refreshTokenCookieName, refreshToken)
-                .httpOnly(sharedConfig.keycloak.cookie.httpOnly)
-                .secure(sharedConfig.keycloak.cookie.secure)
-                .sameSite(sharedConfig.keycloak.cookie.sameSite)
-                .path(sharedConfig.keycloak.cookie.path)
-                .maxAge(Duration.ofSeconds(maxAgeSeconds))
+    private fun redirectToApp(error: String?): ResponseEntity<Void> {
+        val target =
+            UriComponentsBuilder
+                .fromUriString(sharedConfig.keycloak.oauth.postLoginRedirectUri)
+                .apply { if (error != null) queryParam(ERROR_PARAM, error) }
                 .build()
-
-        exchange.response.addCookie(cookie)
+                .toUriString()
+        return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(target)).build()
     }
 
-    private fun deleteRefreshTokenCookie(exchange: ServerWebExchange) {
-        val cookie =
-            ResponseCookie
-                .from(sharedConfig.keycloak.cookie.refreshTokenCookieName, "")
-                .httpOnly(sharedConfig.keycloak.cookie.httpOnly)
-                .secure(sharedConfig.keycloak.cookie.secure)
-                .sameSite(sharedConfig.keycloak.cookie.sameSite)
-                .path(sharedConfig.keycloak.cookie.path)
-                .maxAge(Duration.ZERO)
-                .build()
-
-        exchange.response.addCookie(cookie)
-    }
-
-    private fun extractRefreshTokenFromCookie(exchange: ServerWebExchange): String? {
-        val cookieName = sharedConfig.keycloak.cookie.refreshTokenCookieName
-        return exchange.request.cookies
-            .getFirst(cookieName)
-            ?.value
-    }
-
-    /**
-     * Internal DTO mapping Keycloak's OAuth2 token response.
-     */
-    private data class KeycloakTokenResponse(
-        @JsonProperty("access_token") val accessToken: String = "",
-        @JsonProperty("expires_in") val expiresIn: Long = 0,
-        @JsonProperty("refresh_expires_in") val refreshExpiresIn: Long = 0,
-        @JsonProperty("refresh_token") val refreshToken: String = "",
-        @JsonProperty("token_type") val tokenType: String = "",
-    )
+    private fun keycloakAuthorizationUrl(): String =
+        "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/auth"
 }

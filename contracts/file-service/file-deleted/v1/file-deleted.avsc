@@ -1,0 +1,35 @@
+{
+  "type": "record",
+  "name": "FileDeletedEvent",
+  "namespace": "com.vertyll.veds.file",
+  "doc": "Published when a file is deleted, so contexts holding a reference can drop it. Without this a task keeps an attachment that resolves to nothing and offers a broken link.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "fileId",
+      "type": "string"
+    },
+    {
+      "name": "scope",
+      "type": "string"
+    },
+    {
+      "name": "scopeId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

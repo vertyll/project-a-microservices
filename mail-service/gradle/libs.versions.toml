@@ -10,9 +10,14 @@ kotlin = "2.4.10"
 springdoc = "3.0.1"
 testcontainers = "1.21.3"
 kotlin-logging = "8.0.4"
+junit-jupiter = "5.11.4"
 flyway = "13.3.0"
 
 [libraries]
+# Pure unit testing for the domain and application modules.
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 # Spring Boot Starters - Common
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
@@ -102,6 +107,12 @@ spring-boot-mail = [
     "spring-boot-starter-mail",
     "spring-boot-starter-thymeleaf",
     "thymeleaf-extras-springsecurity6"
+]
+
+# Framework-free unit testing, for the domain and application modules
+test-unit = [
+    "kotlin-test-junit5",
+    "junit-jupiter",
 ]
 
 # Common test dependencies

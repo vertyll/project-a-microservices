@@ -2,16 +2,16 @@ package com.vertyll.veds.mail.infrastructure.web.controller
 
 import com.vertyll.veds.mail.application.dto.EmailLogResponse
 import com.vertyll.veds.mail.application.dto.EmailResult
-import com.vertyll.veds.mail.application.dto.SendBatchEmailRequest
 import com.vertyll.veds.mail.application.dto.SendBatchEmailResponse
-import com.vertyll.veds.mail.application.dto.SendEmailRequest
 import com.vertyll.veds.mail.application.dto.SendEmailResponse
 import com.vertyll.veds.mail.application.port.inbound.EmailBatchUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.domain.model.EmailTemplate
+import com.vertyll.veds.mail.domain.model.PageResult
 import com.vertyll.veds.mail.infrastructure.response.ApiResponse
+import com.vertyll.veds.mail.infrastructure.web.dto.SendBatchEmailRequest
+import com.vertyll.veds.mail.infrastructure.web.dto.SendEmailRequest
 import jakarta.validation.Valid
-import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -29,7 +29,7 @@ internal class EmailController(
 ) {
     @GetMapping("/logs")
     @PreAuthorize("hasRole('ADMIN')")
-    fun getEmailLogs(): ResponseEntity<ApiResponse<Page<EmailLogResponse>>> {
+    fun getEmailLogs(): ResponseEntity<ApiResponse<PageResult<EmailLogResponse>>> {
         val logs = emailService.getEmailLogs()
         return ApiResponse.buildResponse(
             data = logs,

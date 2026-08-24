@@ -2,7 +2,9 @@ package com.vertyll.veds.iam.infrastructure.persistence.adapter
 
 import com.vertyll.veds.iam.domain.model.Role
 import com.vertyll.veds.iam.domain.repository.RoleRepository
+import com.vertyll.veds.iam.infrastructure.persistence.entity.PermissionJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.RoleJpaEntity
+import com.vertyll.veds.iam.infrastructure.persistence.repository.PermissionJpaRepository
 import com.vertyll.veds.iam.infrastructure.persistence.repository.RoleJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -10,8 +12,23 @@ import org.springframework.stereotype.Component
 @Component
 internal class RolePersistenceAdapter(
     private val repository: RoleJpaRepository,
+    private val permissionRepository: PermissionJpaRepository,
 ) : RoleRepository {
-    override fun save(role: Role): Role = repository.save(role.toJpaEntity()).toDomain()
+    override fun save(role: Role): Role {
+        // Same reasoning as roles on a user: a permission that cannot be found is an
+        // error. Dropping it would quietly narrow what the role grants.
+        val managedPermissions =
+            role.permissions
+                .map { permission ->
+                    val id =
+                        permission.id
+                            ?: error($$"cannot grant an unsaved permission '${permission.name}' to a role")
+                    permissionRepository
+                        .findById(id)
+                        .orElseThrow { IllegalStateException($$"permission $id no longer exists") }
+                }.toMutableSet()
+        return repository.save(role.toJpaEntity(managedPermissions)).toDomain()
+    }
 
     override fun findById(id: Long): Role? = repository.findByIdOrNull(id)?.toDomain()
 
@@ -22,11 +39,12 @@ internal class RolePersistenceAdapter(
     override fun findAll(): List<Role> = repository.findAll().map { it.toDomain() }
 }
 
-private fun Role.toJpaEntity() =
+private fun Role.toJpaEntity(managedPermissions: MutableSet<PermissionJpaEntity>) =
     RoleJpaEntity(
         id = this.id,
         name = this.name,
         description = this.description,
+        permissions = managedPermissions,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         version = this.version,
@@ -37,6 +55,7 @@ internal fun RoleJpaEntity.toDomain() =
         id = this.id,
         name = this.name,
         description = this.description,
+        permissions = this.permissions.map { it.toDomain() }.toSet(),
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
         version = this.version,

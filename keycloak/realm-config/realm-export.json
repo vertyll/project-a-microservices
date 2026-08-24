@@ -842,11 +842,9 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost:8080/*",
-        "http://localhost:4200/*"
+        "http://localhost:8080/auth/callback"
       ],
       "webOrigins": [
-        "+",
         "http://localhost:4200"
       ],
       "notBefore": 0,
@@ -854,7 +852,7 @@
       "consentRequired": false,
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
-      "directAccessGrantsEnabled": true,
+      "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
       "publicClient": false,
       "frontchannelLogout": true,
@@ -862,7 +860,7 @@
       "attributes": {
         "access.token.lifespan": "300",
         "frontchannel.logout.session.required": "true",
-        "post.logout.redirect.uris": "http://localhost:8080/*##http://localhost:4200/*",
+        "post.logout.redirect.uris": "http://localhost:4200/*",
         "oauth2.device.authorization.grant.enabled": "false",
         "use.jwks.url": "false",
         "use.refresh.tokens": "true",
@@ -885,7 +883,8 @@
         "tls.client.certificate.bound.access.tokens": "false",
         "acr.loa.map": "{}",
         "display.on.consent.screen": "false",
-        "token.response.type.bearer.lower-case": "false"
+        "token.response.type.bearer.lower-case": "false",
+        "pkce.code.challenge.method": "S256"
       },
       "authenticationFlowBindingOverrides": {},
       "fullScopeAllowed": true,

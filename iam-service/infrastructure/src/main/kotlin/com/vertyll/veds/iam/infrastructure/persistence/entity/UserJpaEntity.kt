@@ -42,15 +42,8 @@ internal class UserJpaEntity(
         inverseJoinColumns = [JoinColumn(name = "role_id")],
     )
     var roles: MutableSet<RoleJpaEntity> = mutableSetOf(),
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_permission_mapping",
-        joinColumns = [JoinColumn(name = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "permission_id")],
-    )
-    var permissions: MutableSet<PermissionJpaEntity> = mutableSetOf(),
-    @Column(nullable = true)
-    var profilePicture: String? = null,
+    @Column(name = "avatar_file_id")
+    var avatarFileId: UUID? = null,
     @Column(nullable = true)
     var phoneNumber: String? = null,
     @Column(nullable = true)

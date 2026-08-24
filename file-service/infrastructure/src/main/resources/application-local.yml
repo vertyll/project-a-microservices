@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: file-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5439/file_service
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    validate-on-migrate: true
+
+  kafka:
+    consumer:
+      group-id: file-service-group
+
+server:
+  port: 8088
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    url: /api-docs
+    config-url: /api-docs/swagger-config
+
+logging:
+  level:
+    ROOT: INFO
+    com.vertyll.veds: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+veds:
+  translation:
+    client:
+      base-url: http://localhost:8087
+  file:
+    storage:
+      endpoint: http://localhost:9100
+      region: ${OBJECT_STORAGE_REGION:garage}
+      bucket: ${OBJECT_STORAGE_BUCKET:veds-files}
+      access-key: ${OBJECT_STORAGE_ACCESS_KEY:veds-local-access-key}
+      secret-key: ${OBJECT_STORAGE_SECRET_KEY:veds-local-secret-key}
+      # Long enough for a slow connection to finish a 25 MB attachment.
+      upload-url-validity: 15m
+      # Shorter: a download link is often pasted into a chat.
+      download-url-validity: 5m

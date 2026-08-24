@@ -2,7 +2,7 @@ package com.vertyll.veds.mail.application.port.inbound
 
 import com.vertyll.veds.mail.application.dto.EmailLogResponse
 import com.vertyll.veds.mail.domain.model.EmailTemplate
-import org.springframework.data.domain.Page
+import com.vertyll.veds.mail.domain.model.PageResult
 
 interface EmailUseCase {
     fun sendEmail(
@@ -13,5 +13,5 @@ interface EmailUseCase {
         replyTo: String? = null,
     ): Boolean
 
-    fun getEmailLogs(): Page<EmailLogResponse>
+    fun getEmailLogs(): PageResult<EmailLogResponse>
 }

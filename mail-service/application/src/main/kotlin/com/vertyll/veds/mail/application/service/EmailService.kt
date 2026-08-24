@@ -1,29 +1,25 @@
 package com.vertyll.veds.mail.application.service
 
-import com.vertyll.veds.mail.application.config.MailProperties
 import com.vertyll.veds.mail.application.dto.EmailLogResponse
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.application.port.outbound.MailSenderPort
 import com.vertyll.veds.mail.application.port.outbound.TemplateRendererPort
+import com.vertyll.veds.mail.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.mail.domain.model.EmailLog
 import com.vertyll.veds.mail.domain.model.EmailStatus
 import com.vertyll.veds.mail.domain.model.EmailTemplate
+import com.vertyll.veds.mail.domain.model.PageResult
+import com.vertyll.veds.mail.domain.model.SenderAddress
 import com.vertyll.veds.mail.domain.repository.EmailLogRepository
-import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
-@Service
-internal class EmailService(
+class EmailService(
     private val mailSender: MailSenderPort,
     private val templateRenderer: TemplateRendererPort,
     private val emailLogRepository: EmailLogRepository,
-    private val mailProperties: MailProperties,
+    private val senderAddress: SenderAddress,
+    private val logger: UseCaseLogger,
 ) : EmailUseCase {
-    private val logger = LoggerFactory.getLogger(EmailService::class.java)
-
     private companion object {
         private const val MAX_VARIABLE_VALUE_LENGTH = 50
 
@@ -46,7 +42,7 @@ internal class EmailService(
 
             val htmlContent = templateRenderer.render(template.templateName, variables)
             mailSender.sendHtml(
-                from = mailProperties.from,
+                from = senderAddress.value,
                 to = to,
                 subject = subject,
                 htmlContent = htmlContent,
@@ -118,6 +114,5 @@ internal class EmailService(
         emailLogRepository.save(emailLog)
     }
 
-    @Transactional(readOnly = true)
-    override fun getEmailLogs(): Page<EmailLogResponse> = Page.empty()
+    override fun getEmailLogs(): PageResult<EmailLogResponse> = PageResult(content = emptyList(), page = 0, size = 0, totalElements = 0)
 }

@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "TaskCommentAddedEvent",
+  "namespace": "com.vertyll.veds.task",
+  "doc": "Published when a comment is added. The excerpt spares consumers a call back for the body.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "taskId",
+      "type": "string"
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "commentId",
+      "type": "string"
+    },
+    {
+      "name": "authorId",
+      "type": "string"
+    },
+    {
+      "name": "excerpt",
+      "type": "string"
+    }
+  ]
+}

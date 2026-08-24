@@ -1,0 +1,124 @@
+[versions]
+# Plugins
+spring-boot = "4.1.1"
+spring-dependency-management = "1.1.7"
+ktlint-plugin = "14.2.0"
+detekt-plugin = "2.0.0-alpha.6"
+kotlin = "2.4.10"
+
+# Dependencies
+springdoc = "3.0.1"
+testcontainers = "1.21.3"
+kotlin-logging = "8.0.4"
+junit-jupiter = "5.11.4"
+flyway = "13.3.0"
+aws-sdk = "2.31.19"
+
+[libraries]
+# S3-compatible object storage.
+aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "aws-sdk" }
+# Pure unit testing for the domain and application modules.
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+# Spring Boot Starters - Common
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa" }
+spring-boot-starter-jackson = { module = "org.springframework.boot:spring-boot-starter-jackson" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
+
+# Kafka
+springframework-kafka = { module = "org.springframework.kafka:spring-kafka" }
+springframework-kafka-test = { module = "org.springframework.kafka:spring-kafka-test" }
+
+# Jackson
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
+
+# Kotlin
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
+
+# Database
+postgresql = { module = "org.postgresql:postgresql" }
+
+# OpenAPI/Swagger
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+
+# Spring Boot Test Starters
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-security-test = { module = "org.springframework.security:spring-security-test" }
+spring-boot-starter-flyway-test = { module = "org.springframework.boot:spring-boot-starter-flyway-test" }
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+
+# Testcontainers
+testcontainers-postgresql = { module = "org.testcontainers:postgresql" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter" }
+testcontainers-kafka = { module = "org.testcontainers:kafka" }
+
+# BOMs
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "testcontainers" }
+
+# Flyway
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }
+kotlin-jpa = { id = "org.jetbrains.kotlin.plugin.jpa", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
+detekt = { id = "dev.detekt", version.ref = "detekt-plugin" }
+
+[bundles]
+# Common dependencies
+spring-boot-common = [
+    "spring-boot-starter",
+    "kotlin-reflect",
+    "kotlin-stdlib-jdk8",
+    "spring-boot-starter-jackson",
+    "jackson-module-kotlin",
+    "springframework-kafka",
+    "kotlin-logging",
+]
+
+# Web MVC with security
+spring-boot-webmvc-security = [
+    "spring-boot-starter-webmvc",
+    "spring-boot-starter-data-jpa",
+    "spring-boot-starter-validation",
+    "spring-boot-starter-security",
+    "spring-boot-starter-actuator"
+]
+
+# Framework-free unit testing, for the domain and application modules
+test-unit = [
+    "kotlin-test-junit5",
+    "junit-jupiter",
+]
+
+# Common test dependencies
+test-common = [
+    "spring-boot-starter-test",
+    "springframework-kafka-test",
+    "testcontainers-junit-jupiter",
+    "testcontainers-kafka",
+    "testcontainers-postgresql",
+    "spring-boot-starter-security-test",
+    "springframework-kafka-test",
+    "spring-boot-starter-flyway-test",
+    "spring-boot-testcontainers"
+]
+
+# Flyway dependencies
+flyway = [
+    "flyway-core",
+    "flyway-database-postgresql"
+]

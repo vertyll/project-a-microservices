@@ -1,0 +1,34 @@
+package com.vertyll.veds.notification
+
+import com.vertyll.veds.sharedinfrastructure.config.SharedConfigAutoConfiguration
+import com.vertyll.veds.sharedinfrastructure.translation.TranslationClientProperties
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.persistence.autoconfigure.EntityScan
+import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.annotation.Import
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
+import org.springframework.kafka.annotation.EnableKafka
+
+@SpringBootApplication
+@Import(
+    SharedConfigAutoConfiguration::class,
+)
+@ComponentScan(
+    "com.vertyll.veds.notification",
+    "com.vertyll.veds.sharedinfrastructure",
+)
+@EnableJpaRepositories(
+    "com.vertyll.veds.notification.infrastructure.persistence.repository",
+)
+@EntityScan(
+    "com.vertyll.veds.notification.infrastructure.persistence.entity",
+)
+@EnableKafka
+@EnableConfigurationProperties(TranslationClientProperties::class)
+class NotificationServiceApplication
+
+fun main(args: Array<String>) {
+    runApplication<NotificationServiceApplication>(*args)
+}

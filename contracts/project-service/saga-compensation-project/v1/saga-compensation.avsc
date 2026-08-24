@@ -1,0 +1,55 @@
+{
+  "type": "record",
+  "name": "SagaCompensationEvent",
+  "namespace": "com.vertyll.veds.project.saga",
+  "doc": "Internal compensation event published by project-service to the saga-compensation-project topic. The 'action' field is a tagged union of typed compensation actions - each variant carries the data needed by ProjectCompensationService. No untyped 'extraPayload: map<string>' is used so values keep their domain types end-to-end.",
+  "fields": [
+    {
+      "name": "sagaId",
+      "type": "string"
+    },
+    {
+      "name": "stepId",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "action",
+      "type": [
+        {
+          "type": "record",
+          "name": "RevokeInvitationAction",
+          "doc": "Compensates PersistInvitation step - expires the invitation whose delivery mail failed.",
+          "fields": [
+            {
+              "name": "invitationId",
+              "type": "string"
+            },
+            {
+              "name": "reason",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "type": "record",
+          "name": "RestoreProjectAction",
+          "doc": "Compensates ArchiveProject step - restores a project whose downstream cleanup failed.",
+          "fields": [
+            {
+              "name": "projectId",
+              "type": "string"
+            },
+            {
+              "name": "reason",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

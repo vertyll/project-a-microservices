@@ -19,6 +19,7 @@ spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-s
 spring-boot-starter-jackson = { module = "org.springframework.boot:spring-boot-starter-jackson" }
 spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
+spring-boot-starter-data-redis-reactive = { module = "org.springframework.boot:spring-boot-starter-data-redis-reactive" }
 
 # Spring Cloud
 spring-cloud-gateway-server-webflux = { module = "org.springframework.cloud:spring-cloud-gateway-server-webflux" }
@@ -93,6 +94,7 @@ spring-boot-gateway = [
     "spring-boot-starter-webflux",
     "spring-boot-starter-actuator",
     "spring-boot-starter-security",
+    "spring-boot-starter-data-redis-reactive",
     "caffeine"
 ]
 

@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "FileConfirmedEvent",
+  "namespace": "com.vertyll.veds.file",
+  "doc": "Published once storage confirms the object exists. A context that requested an upload learns from this that the file is safe to reference.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "fileId",
+      "type": "string"
+    },
+    {
+      "name": "scope",
+      "type": "string"
+    },
+    {
+      "name": "scopeId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "ownerId",
+      "type": "string"
+    }
+  ]
+}

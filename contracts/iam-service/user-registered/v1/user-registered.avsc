@@ -1,0 +1,44 @@
+{
+  "type": "record",
+  "name": "UserRegisteredEvent",
+  "namespace": "com.vertyll.veds.iam",
+  "doc": "Published when a user account is created. Every context that displays user names keeps a local projection built from this and user-profile-updated, so a member list does not fail when iam-service is unavailable and costs no call per row.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "userId",
+      "type": "string",
+      "doc": "Keycloak subject - the identity that crosses service boundaries."
+    },
+    {
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "name": "firstName",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
+      "name": "lastName",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

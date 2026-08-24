@@ -2,25 +2,13 @@ package com.vertyll.veds.iam.application.service
 
 import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
 import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
+import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.iam.application.saga.model.SagaTypes
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
-/**
- * Application service handling inbound mail-delivery feedback for IAM sagas.
- *
- * Owns the business rules around what to do when mail-service confirms
- * (`MailSentEvent`) or reports a failure (`MailFailedEvent`) for an IAM saga.
- *
- * Driven by an inbound Kafka adapter; technology-agnostic by contract.
- */
-@Service
-internal class MailFeedbackService(
+class MailFeedbackService(
     private val sagaProcessPort: SagaProcessPort,
+    private val logger: UseCaseLogger,
 ) : MailFeedbackUseCase {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     private companion object {
         /**
          * Saga types where the saga should NOT be completed on mail delivery —
@@ -33,7 +21,6 @@ internal class MailFeedbackService(
             )
     }
 
-    @Transactional
     override fun handleMailSent(
         sagaId: String?,
         to: String,
@@ -60,7 +47,6 @@ internal class MailFeedbackService(
         sagaProcessPort.markSagaCompleted(sagaId)
     }
 
-    @Transactional
     override fun handleMailFailed(
         sagaId: String?,
         to: String,

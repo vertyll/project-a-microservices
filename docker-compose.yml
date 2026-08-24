@@ -42,6 +42,223 @@ services:
       retries: 5
       start_period: 10s
 
+
+  project-db:
+    image: postgres:18-alpine
+    container_name: project-db
+    restart: always
+    volumes:
+      - project-postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: project_service
+    ports:
+      - "5435:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  task-db:
+    image: postgres:18-alpine
+    container_name: task-db
+    restart: always
+    volumes:
+      - task-postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_service
+    ports:
+      - "5436:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  notification-db:
+    image: postgres:18-alpine
+    container_name: notification-db
+    restart: always
+    volumes:
+      - notification-postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: notification_service
+    ports:
+      - "5437:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Session store for the API Gateway's Token Handler (BFF).
+  # Tokens never reach the browser; the browser only holds an opaque session id.
+  gateway-session-store:
+    image: redis:8-alpine
+    container_name: gateway-session-store
+    restart: always
+    command:
+      - "redis-server"
+      - "--appendonly"
+      - "yes"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?set REDIS_PASSWORD}"
+      # Never evict session keys under memory pressure: silent eviction would log
+      # users out at random with nothing in the logs. Fail the write instead.
+      - "--maxmemory-policy"
+      - "noeviction"
+    volumes:
+      - gateway-session-data:/data
+    ports:
+      # Bound to loopback: the session store is only ever reached by the gateway
+      # over the internal network. Publishing it on 0.0.0.0 exposed every
+      # session record to anything that could reach the host.
+      - "127.0.0.1:6379:6379"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  translation-db:
+    image: postgres:18-alpine
+    container_name: translation-db
+    restart: always
+    volumes:
+      - translation-postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: translation_service
+    ports:
+      - "5438:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  file-db:
+    image: postgres:18-alpine
+    container_name: file-db
+    restart: always
+    volumes:
+      - file-postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: file_service
+    ports:
+      - "5439:5432"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Object storage. The browser uploads and downloads here directly with
+  # pre-signed URLs, so file bytes never pass through a JVM.
+  #
+  # Garage rather than MinIO, to match the deployment target. It speaks the S3
+  # API with SigV4, which is all file-service uses — `pathStyleAccessEnabled` is
+  # set in ObjectStorageConfig because Garage does not serve virtual-host style
+  # buckets without wildcard DNS.
+  #
+  # The bucket stays **private**. Nothing is readable without a signed URL, which
+  # is what makes "my files, served by my application" work without exposing the
+  # store to the internet.
+  object-storage:
+    image: dxflrs/garage:v1.0.1
+    container_name: object-storage
+    restart: always
+    volumes:
+      - ./infra/garage/garage.toml:/etc/garage.toml:ro
+      - object-storage-data:/var/lib/garage/data
+      - object-storage-meta:/var/lib/garage/meta
+    ports:
+      # S3 API
+      - "9100:3900"
+      # Admin API, used by the console and by the bootstrap job
+      - "9102:3903"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "/garage", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # One-shot bootstrap.
+  #
+  # A fresh Garage node has no layout, no bucket and no keys, and none of that can
+  # be expressed in the config file — it is cluster state applied through the CLI.
+  # Running it here means `docker compose up` produces a working store rather than
+  # one that needs a page of manual commands.
+  object-storage-init:
+    image: dxflrs/garage:v1.0.1
+    container_name: object-storage-init
+    depends_on:
+      object-storage:
+        condition: service_healthy
+    volumes:
+      - ./infra/garage/garage.toml:/etc/garage.toml:ro
+      - ./infra/garage/bootstrap.sh:/bootstrap.sh:ro
+    environment:
+      OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-veds-files}
+      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-veds-local-access-key}
+      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-veds-local-secret-key}
+      # The SPA writes straight to the store, so its origin has to be allowed on
+      # the bucket. Without this every upload fails the browser preflight.
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
+      GARAGE_RPC_HOST: object-storage
+    entrypoint: ["/bin/sh", "/bootstrap.sh"]
+    networks:
+      - microservices-network
+
+  # Browser console for the object store.
+  object-storage-ui:
+    image: khairul169/garage-webui:1.0.9
+    container_name: object-storage-ui
+    restart: always
+    depends_on:
+      object-storage:
+        condition: service_healthy
+    volumes:
+      - ./infra/garage/garage.toml:/etc/garage.toml:ro
+    environment:
+      API_BASE_URL: http://object-storage:3903
+      S3_ENDPOINT_URL: http://object-storage:3900
+      CONFIG_PATH: /etc/garage.toml
+    ports:
+      - "9101:3909"
+    networks:
+      - microservices-network
+
   # Kafka and Zookeeper for event-driven communication
   kafka:
     image: docker.io/confluentinc/cp-kafka:8.2.2
@@ -245,5 +462,13 @@ networks:
 volumes:
   iam-postgres-data:
   mail-postgres-data:
+  project-postgres-data:
+  task-postgres-data:
+  notification-postgres-data:
+  translation-postgres-data:
+  file-postgres-data:
+  object-storage-data:
+  object-storage-meta:
+  gateway-session-data:
   kafka-data:
   keycloak-postgres-data:

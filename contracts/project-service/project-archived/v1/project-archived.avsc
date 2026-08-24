@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "name": "ProjectArchivedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a project is archived. Downstream contexts archive their dependent data.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "sagaId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

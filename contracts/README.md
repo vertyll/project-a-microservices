@@ -17,8 +17,17 @@ contracts/{service}/{topic-with-dashes}/v{version}/{topic-with-dashes}.avsc
 Example:
 
 ```
-contracts/iam-service/mail-requested/v1/mail-requested.avsc
+contracts/mail-service/mail-requested/v1/mail-requested.avsc
 ```
+
+## Which directory a schema belongs in
+
+The **owning** service, which is not always the producer. For a domain event the owner is the
+producer; for a command it is the consumer, because the consumer defines what it accepts.
+`mail-requested` therefore lives under `mail-service/` even though iam-service and
+notification-service are the ones that publish it.
+
+Who owns and consumes each topic: [Event Catalogue](../docs/events.md).
 
 ## Subject naming
 

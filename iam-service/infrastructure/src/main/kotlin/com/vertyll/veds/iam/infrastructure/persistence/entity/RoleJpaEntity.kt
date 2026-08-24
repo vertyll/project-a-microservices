@@ -2,9 +2,13 @@ package com.vertyll.veds.iam.infrastructure.persistence.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import java.time.Instant
@@ -19,6 +23,13 @@ internal class RoleJpaEntity(
     var name: String,
     @Column(nullable = true)
     var description: String? = null,
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "role_permission_mapping",
+        joinColumns = [JoinColumn(name = "role_id")],
+        inverseJoinColumns = [JoinColumn(name = "permission_id")],
+    )
+    var permissions: MutableSet<PermissionJpaEntity> = mutableSetOf(),
     @Column(nullable = false)
     var createdAt: Instant = Instant.now(),
     @Column(nullable = false)

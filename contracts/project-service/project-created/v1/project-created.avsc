@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "ProjectCreatedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a new project is created. Consumed by task-service to seed its project read model.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "ownerId",
+      "type": "string",
+      "doc": "Keycloak subject of the project owner."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "type": "record",
+  "name": "ProjectMemberInvitedEvent",
+  "namespace": "com.vertyll.veds.project",
+  "doc": "Published when a user is invited to a project. Notification-service turns this into an in-app notification and, subject to the recipient's settings, a mail-requested command.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "projectId",
+      "type": "string"
+    },
+    {
+      "name": "projectName",
+      "type": "string"
+    },
+    {
+      "name": "invitationId",
+      "type": "string"
+    },
+    {
+      "name": "inviteeEmail",
+      "type": "string"
+    },
+    {
+      "name": "inviterId",
+      "type": "string"
+    },
+    {
+      "name": "sagaId",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    }
+  ]
+}

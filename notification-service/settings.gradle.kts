@@ -1,0 +1,15 @@
+rootProject.name = "notification-service"
+
+include(":domain", ":application", ":infrastructure")
+
+project(":domain").name = "notification-domain"
+project(":application").name = "notification-application"
+project(":infrastructure").name = "notification-infrastructure"
+
+includeBuild("../shared-contracts")
+includeBuild("../shared-infrastructure")
+includeBuild("../notification-contracts")
+includeBuild("../project-contracts")
+includeBuild("../task-contracts")
+includeBuild("../mail-contracts")
+includeBuild("../iam-contracts")

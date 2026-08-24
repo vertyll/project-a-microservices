@@ -1,13 +1,16 @@
 package com.vertyll.veds.iam.infrastructure.kafka.producer
 
+import com.vertyll.veds.iam.UserProfileUpdatedEvent
+import com.vertyll.veds.iam.UserRegisteredEvent
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.infrastructure.kafka.IamKafkaTopics
-import com.vertyll.veds.iam.mail.MailRequestedEvent
+import com.vertyll.veds.mail.mail.MailRequestedEvent
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
 import com.vertyll.veds.sharedinfrastructure.event.Events
 import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 internal class KafkaAuthEventPublisherAdapter(
@@ -48,5 +51,63 @@ internal class KafkaAuthEventPublisherAdapter(
             eventId = eventId,
         )
         logger.info("Saved mail request to outbox for: $to (sagaId: $sagaId)")
+    }
+
+    override fun publishUserRegistered(
+        userId: UUID,
+        email: String,
+        firstName: String?,
+        lastName: String?,
+    ) {
+        val eventId = Events.newId()
+        val event =
+            UserRegisteredEvent
+                .newBuilder()
+                .setEventId(eventId)
+                .setTimestamp(Events.now())
+                .setUserId(userId.toString())
+                .setEmail(email)
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .build()
+        enqueueUserEvent(IamKafkaTopics.USER_REGISTERED, userId, eventId, event)
+    }
+
+    override fun publishUserProfileUpdated(
+        userId: UUID,
+        email: String,
+        firstName: String?,
+        lastName: String?,
+        avatarFileId: UUID?,
+    ) {
+        val eventId = Events.newId()
+        val event =
+            UserProfileUpdatedEvent
+                .newBuilder()
+                .setEventId(eventId)
+                .setTimestamp(Events.now())
+                .setUserId(userId.toString())
+                .setEmail(email)
+                .setFirstName(firstName)
+                .setLastName(lastName)
+                .setAvatarFileId(avatarFileId)
+                .build()
+        enqueueUserEvent(IamKafkaTopics.USER_PROFILE_UPDATED, userId, eventId, event)
+    }
+
+    private fun enqueueUserEvent(
+        topic: String,
+        userId: UUID,
+        eventId: String,
+        event: Any,
+    ) {
+        kafkaOutboxProcessor.saveOutboxMessage(
+            topic = topic,
+            key = userId.toString(),
+            payload = avroPayloadSerializer.serialize(topic, event),
+            sagaId = null,
+            eventId = eventId,
+        )
+        logger.debug("Saved {} to outbox for user {}", topic, userId)
     }
 }
