@@ -36,9 +36,6 @@ class ProjectInvitationCommandService(
     private val sagaProcess: SagaProcessPort,
     private val logger: UseCaseLogger,
 ) : ProjectInvitationCommandUseCase {
-    private companion object {
-    }
-
     override fun invite(
         projectId: UUID,
         request: InviteMemberCommand,
