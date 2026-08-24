@@ -91,7 +91,7 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
                 actor.id,
             )
 
-        val sagaId = openSagaIdFor(invitation.id)
+        val sagaId = openSagaId()
 
         mailFeedback.handleMailFailed(
             sagaId = sagaId,
@@ -103,7 +103,7 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
         assertNotNull(saga)
         assertTrue(
             saga.status in setOf(SagaStatus.COMPENSATING, SagaStatus.COMPENSATED, SagaStatus.FAILED),
-            "a bounced invitation must not leave the saga open, was ${'$'}{saga.status}",
+            "a bounced invitation must not leave the saga open, was ${saga.status}",
         )
     }
 
@@ -118,7 +118,7 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
                 InviteMemberCommand(email = "duplicate@example.com", roleId = null),
                 actor.id,
             )
-        val sagaId = openSagaIdFor(invitation.id)
+        val sagaId = openSagaId()
 
         mailFeedback.handleMailSent(sagaId, "duplicate@example.com")
         val afterFirst = sagaProcess.findSagaDomainById(sagaId)?.status
@@ -133,12 +133,12 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
         assertEquals(InvitationStatus.PENDING, stored.status)
     }
 
-    private fun openSagaIdFor(invitationId: UUID): String {
+    private fun openSagaId(): String {
         val message =
             outboxRepository
                 .findAll()
                 .firstOrNull { it.topic == ProjectKafkaTopics.PROJECT_MEMBER_INVITED && it.sagaId != null }
-        assertNotNull(message, "no outbox message carrying a sagaId for invitation ${'$'}invitationId")
+        assertNotNull(message, "no outbox message carries a sagaId")
         return message.sagaId!!
     }
 }

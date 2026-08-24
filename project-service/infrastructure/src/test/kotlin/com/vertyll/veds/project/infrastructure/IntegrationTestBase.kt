@@ -10,7 +10,7 @@ import org.testcontainers.utility.DockerImageName
 
 @SpringBootTest
 @ActiveProfiles("test")
-abstract class IntegrationTestBase {
+abstract class IntegrationTestBase protected constructor() {
     companion object {
         private val postgres: PostgreSQLContainer<*> =
             PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"))
