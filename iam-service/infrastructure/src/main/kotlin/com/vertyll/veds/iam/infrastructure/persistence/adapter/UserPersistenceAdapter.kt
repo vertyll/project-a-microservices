@@ -9,6 +9,8 @@ import com.vertyll.veds.iam.infrastructure.persistence.repository.RoleJpaReposit
 import com.vertyll.veds.iam.infrastructure.persistence.repository.UserJpaRepository
 import org.springframework.stereotype.Component
 import java.util.UUID
+import com.vertyll.veds.iam.domain.model.PageRequest as DomainPageRequest
+import org.springframework.data.domain.PageRequest as SpringPageRequest
 
 @Component
 internal class UserPersistenceAdapter(
@@ -16,7 +18,7 @@ internal class UserPersistenceAdapter(
     private val roleJpaRepository: RoleJpaRepository,
 ) : UserRepository {
     override fun save(user: User): User {
-        // Re-read as managed entities so the join table is the only thing this write
+        // Re-read as managed entities so the join table is the only thing this writes
         // touches. A role that cannot be found is an error, not something to drop:
         // silently saving a user with fewer roles than asked for is a privilege
         // change nobody requested and nobody can see.

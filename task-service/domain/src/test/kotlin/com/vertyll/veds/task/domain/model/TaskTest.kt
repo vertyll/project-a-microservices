@@ -16,10 +16,10 @@ class TaskTest {
 
     @Test
     fun `moving to the same status returns the very same instance`() {
-        val moved = task().moveTo(null)
+        val original = task()
+        assertSame(original, original.moveTo(null))
 
-        assertSame(task().moveTo(null).statusId, moved.statusId)
-        val withStatus = task().moveTo(statusId)
+        val withStatus = original.moveTo(statusId)
         assertSame(withStatus, withStatus.moveTo(statusId))
     }
 
@@ -54,11 +54,12 @@ class TaskTest {
 
     @Test
     fun `archiving keeps the record and can be undone`() {
-        val archived = task().archive()
+        val original = task()
+        val archived = original.archive()
 
         assertFalse(archived.isActive)
         assertTrue(archived.restore().isActive)
-        assertEquals(task().id, task().archive().restore().id)
+        assertEquals(original.id, archived.restore().id)
     }
 
     @Test

@@ -6,6 +6,8 @@ import com.vertyll.veds.project.application.dto.ProjectCategoryResponse
 import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCategoryCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
+import com.vertyll.veds.project.application.service.TranslationCompletenessValidator
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.ProjectCategory
@@ -22,7 +24,7 @@ class ProjectCategoryCommandService(
 ) : ProjectCategoryCommandUseCase {
     override fun createCategory(
         projectId: UUID,
-        request: CreateCategoryCommand,
+        command: CreateCategoryCommand,
         actorId: UUID,
         language: LanguageTag,
     ): ProjectCategoryResponse {
@@ -33,8 +35,8 @@ class ProjectCategoryCommandService(
             categoryRepository.save(
                 ProjectCategory.create(
                     projectId = projectId,
-                    color = request.color,
-                    translations = request.translations,
+                    color = command.color,
+                    translations = command.translations,
                 ),
             )
 
@@ -52,7 +54,7 @@ class ProjectCategoryCommandService(
     override fun updateCategory(
         projectId: UUID,
         categoryId: UUID,
-        request: UpdateCategoryCommand,
+        command: UpdateCategoryCommand,
         actorId: UUID,
         language: LanguageTag,
         version: Long?,
@@ -69,9 +71,9 @@ class ProjectCategoryCommandService(
         val updated =
             categoryRepository.save(
                 category
-                    .recolor(request.color)
-                    .retranslate(request.translations)
-                    .let { if (request.isActive) it.activate() else it.deactivate() },
+                    .recolor(command.color)
+                    .retranslate(command.translations)
+                    .let { if (command.isActive) it.activate() else it.deactivate() },
             )
 
         eventPublisher.publishCategoryChanged(

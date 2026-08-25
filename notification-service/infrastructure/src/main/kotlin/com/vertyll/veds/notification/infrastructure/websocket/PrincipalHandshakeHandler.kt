@@ -10,7 +10,7 @@ import java.security.Principal
 
 @Component
 internal class PrincipalHandshakeHandler : DefaultHandshakeHandler() {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val log = LoggerFactory.getLogger(javaClass)
 
     override fun determineUser(
         request: ServerHttpRequest,
@@ -19,13 +19,13 @@ internal class PrincipalHandshakeHandler : DefaultHandshakeHandler() {
     ): Principal? {
         val authentication = request.principal
         if (authentication !is JwtAuthenticationToken) {
-            logger.warn("Refusing handshake: no validated JWT on the upgrade request")
+            log.warn("Refusing handshake: no validated JWT on the upgrade request")
             return null
         }
 
         val subject = authentication.token.subject
         if (subject.isNullOrBlank()) {
-            logger.warn("Refusing handshake: token carries no subject claim")
+            log.warn("Refusing handshake: token carries no subject claim")
             return null
         }
 

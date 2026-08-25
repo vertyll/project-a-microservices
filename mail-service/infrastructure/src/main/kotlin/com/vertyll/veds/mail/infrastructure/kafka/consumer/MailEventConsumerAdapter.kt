@@ -1,8 +1,8 @@
 package com.vertyll.veds.mail.infrastructure.kafka.consumer
 
-import com.vertyll.veds.iam.mail.MailRequestedEvent
 import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.infrastructure.kafka.MailKafkaTopics
+import com.vertyll.veds.mail.mail.MailRequestedEvent
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
 import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
 import org.apache.kafka.clients.consumer.ConsumerRecord

@@ -1,6 +1,7 @@
 package com.vertyll.veds.project.application.service.query
 
 import com.vertyll.veds.project.application.dto.PagedResponse
+import com.vertyll.veds.project.application.dto.PaginationMeta
 import com.vertyll.veds.project.application.dto.ProjectDetailsResponse
 import com.vertyll.veds.project.application.dto.ProjectListItemResponse
 import com.vertyll.veds.project.application.dto.ProjectResponse
@@ -68,7 +69,7 @@ class ProjectQueryService(
         return PagedResponse(
             items = page.content,
             pagination =
-                com.vertyll.veds.project.application.dto.PaginationMeta(
+                PaginationMeta(
                     total = page.totalElements,
                     page = page.page,
                     pageSize = page.size,

@@ -50,9 +50,9 @@ internal class DomainEventConsumerAdapter(
                 recipientIds = emptySet(),
                 type = NotificationType.PROJECT_INVITATION,
                 params = mapOf(PARAM_PROJECT to event.projectName.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.invitationId.toString()),
-                fallbackEmail = event.inviteeEmail.toString(),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.invitationId),
+                fallbackEmail = event.inviteeEmail,
             ),
         )
     }
@@ -63,15 +63,15 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.PROJECT_MEMBER_JOINED) {
         val event = decode(NotificationKafkaTopics.Consumed.PROJECT_MEMBER_JOINED, payload) as ProjectMemberJoinedEvent
-        val userId = UUID.fromString(event.userId.toString())
+        val userId = UUID.fromString(event.userId)
 
         notifications.raise(
             RaiseNotificationCommand(
                 recipientIds = setOf(userId),
                 type = NotificationType.PROJECT_MEMBER_JOINED,
                 params = mapOf("roleCode" to event.roleCode.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.memberId.toString()),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.memberId),
             ),
         )
     }
@@ -82,15 +82,15 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.TASK_CREATED) {
         val event = decode(NotificationKafkaTopics.Consumed.TASK_CREATED, payload) as TaskCreatedEvent
-        val creator = UUID.fromString(event.createdBy.toString())
+        val creator = UUID.fromString(event.createdBy)
 
         notifications.raise(
             RaiseNotificationCommand(
                 recipientIds = event.assigneeIds.map { UUID.fromString(it.toString()) }.toSet(),
                 type = NotificationType.TASK_CREATED,
-                params = mapOf(PARAM_TASK to event.description.toString(), PARAM_ACTOR to creator.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.taskId.toString()),
+                params = mapOf(PARAM_TASK to event.description, PARAM_ACTOR to creator.toString()),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.taskId),
                 excludeUserId = creator,
             ),
         )
@@ -102,15 +102,15 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.TASK_ASSIGNED) {
         val event = decode(NotificationKafkaTopics.Consumed.TASK_ASSIGNED, payload) as TaskAssignedEvent
-        val actor = UUID.fromString(event.assignedBy.toString())
+        val actor = UUID.fromString(event.assignedBy)
 
         notifications.raise(
             RaiseNotificationCommand(
                 recipientIds = event.assigneeIds.map { UUID.fromString(it.toString()) }.toSet(),
                 type = NotificationType.TASK_ASSIGNED,
                 params = mapOf(PARAM_ACTOR to actor.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.taskId.toString()),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.taskId),
                 excludeUserId = actor,
             ),
         )
@@ -122,15 +122,15 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.TASK_STATUS_CHANGED) {
         val event = decode(NotificationKafkaTopics.Consumed.TASK_STATUS_CHANGED, payload) as TaskStatusChangedEvent
-        val actor = UUID.fromString(event.changedBy.toString())
+        val actor = UUID.fromString(event.changedBy)
 
         notifications.raise(
             RaiseNotificationCommand(
                 recipientIds = emptySet(),
                 type = NotificationType.TASK_STATUS_CHANGED,
                 params = mapOf(PARAM_ACTOR to actor.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.taskId.toString()),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.taskId),
                 excludeUserId = actor,
             ),
         )
@@ -142,15 +142,15 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.TASK_COMMENT_ADDED) {
         val event = decode(NotificationKafkaTopics.Consumed.TASK_COMMENT_ADDED, payload) as TaskCommentAddedEvent
-        val author = UUID.fromString(event.authorId.toString())
+        val author = UUID.fromString(event.authorId)
 
         notifications.raise(
             RaiseNotificationCommand(
                 recipientIds = emptySet(),
                 type = NotificationType.TASK_COMMENT_ADDED,
-                params = mapOf(PARAM_EXCERPT to event.excerpt.toString(), PARAM_ACTOR to author.toString()),
-                projectId = UUID.fromString(event.projectId.toString()),
-                subjectId = UUID.fromString(event.taskId.toString()),
+                params = mapOf(PARAM_EXCERPT to event.excerpt, PARAM_ACTOR to author.toString()),
+                projectId = UUID.fromString(event.projectId),
+                subjectId = UUID.fromString(event.taskId),
                 excludeUserId = author,
             ),
         )
@@ -162,7 +162,7 @@ internal class DomainEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, NotificationKafkaTopics.Consumed.TASK_ARCHIVED) {
         val event = decode(NotificationKafkaTopics.Consumed.TASK_ARCHIVED, payload) as TaskArchivedEvent
-        notifications.retire(RetireNotificationsCommand(UUID.fromString(event.taskId.toString())))
+        notifications.retire(RetireNotificationsCommand(UUID.fromString(event.taskId)))
     }
 
     private fun decode(

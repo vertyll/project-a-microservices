@@ -10,6 +10,7 @@ import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.project.application.saga.model.SagaStepNames
 import com.vertyll.veds.project.application.saga.model.SagaTypes
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.ProjectInvitation
 import com.vertyll.veds.project.domain.model.ProjectMember
@@ -38,17 +39,17 @@ class ProjectInvitationCommandService(
 ) : ProjectInvitationCommandUseCase {
     override fun invite(
         projectId: UUID,
-        request: InviteMemberCommand,
+        command: InviteMemberCommand,
         actorId: UUID,
     ): ProjectInvitationResponse {
         val project = authorization.requirePermission(projectId, actorId, ProjectPermission.INVITE_USERS)
 
-        invitationRepository.findPendingByProjectIdAndEmail(projectId, request.email)?.let {
+        invitationRepository.findPendingByProjectIdAndEmail(projectId, command.email)?.let {
             throw ApiException(ProjectError.INVITATION_ALREADY_SENT)
         }
 
         val role =
-            request.roleId
+            command.roleId
                 ?.let { roleRepository.findById(it) ?: throw ApiException(ProjectError.ROLE_NOT_FOUND) }
                 ?: roleRepository.findByCode(ProjectRoleCode.MEMBER)
                 ?: throw ApiException(ProjectError.ROLE_NOT_CONFIGURED)
@@ -57,7 +58,7 @@ class ProjectInvitationCommandService(
             sagaProcess
                 .startSaga(
                     sagaType = SagaTypes.PROJECT_INVITATION,
-                    payload = mapOf("projectId" to projectId.toString(), "email" to request.email),
+                    payload = mapOf("projectId" to projectId.toString(), "email" to command.email),
                 ).id
 
         return try {
@@ -65,7 +66,7 @@ class ProjectInvitationCommandService(
                 invitationRepository.save(
                     ProjectInvitation.create(
                         projectId = projectId,
-                        inviteeEmail = request.email,
+                        inviteeEmail = command.email,
                         inviterId = actorId,
                         roleId = role.id,
                     ),

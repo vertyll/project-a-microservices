@@ -93,10 +93,9 @@ internal class TaskQueryAdapter : TaskQueryPort {
 
         val total =
             entityManager
-                .createQuery("SELECT COUNT(t) FROM TaskJpaEntity t $where", java.lang.Long::class.java)
+                .createQuery("SELECT COUNT(t) FROM TaskJpaEntity t $where", Long::class.javaObjectType)
                 .applyCriteria(criteria)
                 .singleResult
-                .toLong()
 
         val taskIds = rows.map { it[0] as UUID }
         val categoriesByTask = categoriesFor(taskIds, criteria.projectId, language)

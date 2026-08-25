@@ -17,6 +17,7 @@ import com.vertyll.veds.translation.infrastructure.persistence.repository.Transl
 import com.vertyll.veds.translation.infrastructure.persistence.repository.TranslationValueJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
+import org.springframework.data.domain.PageRequest as SpringPageRequest
 
 @Component
 internal class TranslationKeyPersistenceAdapter(

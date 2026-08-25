@@ -70,7 +70,7 @@ internal class ProjectStatusController(
         val status =
             statusServiceCommands.createStatus(
                 projectId = projectId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
@@ -93,7 +93,7 @@ internal class ProjectStatusController(
             statusServiceCommands.updateStatus(
                 projectId = projectId,
                 statusId = statusId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),

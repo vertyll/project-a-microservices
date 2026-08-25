@@ -93,7 +93,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: ResetPasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authServiceCommands.resetPassword(token, request)
+        authServiceCommands.resetPassword(token, request.toCommand())
         return ApiResponse.buildResponse(null, PASSWORD_RESET_SUCCESSFULLY, HttpStatus.OK)
     }
 
@@ -105,7 +105,7 @@ internal class AuthController(
         request: ChangeEmailRequest,
     ): ResponseEntity<ApiResponse<Any>> {
         val email = CurrentUser.emailOf(jwt)
-        authServiceCommands.requestEmailChange(email, request)
+        authServiceCommands.requestEmailChange(email, request.toCommand())
         return ApiResponse.buildResponse(null, EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL, HttpStatus.OK)
     }
 
@@ -126,7 +126,7 @@ internal class AuthController(
         request: ChangePasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
         val email = CurrentUser.emailOf(jwt)
-        authServiceCommands.changePassword(email, request)
+        authServiceCommands.changePassword(email, request.toCommand())
         return ApiResponse.buildResponse(null, PASSWORD_CHANGE_CONFIRMATION_SENT, HttpStatus.OK)
     }
 
@@ -148,7 +148,7 @@ internal class AuthController(
         @RequestBody @Valid
         request: ResetPasswordRequest,
     ): ResponseEntity<ApiResponse<Any>> {
-        authServiceCommands.setNewPassword(tokenId, request)
+        authServiceCommands.setNewPassword(tokenId, request.toCommand())
         return ApiResponse.buildResponse(null, PASSWORD_CHANGED_SUCCESSFULLY, HttpStatus.OK)
     }
 

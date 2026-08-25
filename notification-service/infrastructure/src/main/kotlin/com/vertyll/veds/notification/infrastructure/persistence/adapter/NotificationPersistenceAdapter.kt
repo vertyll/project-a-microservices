@@ -10,6 +10,7 @@ import com.vertyll.veds.notification.infrastructure.persistence.repository.Notif
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.UUID
+import org.springframework.data.domain.PageRequest as SpringPageRequest
 
 @Component
 internal class NotificationPersistenceAdapter(

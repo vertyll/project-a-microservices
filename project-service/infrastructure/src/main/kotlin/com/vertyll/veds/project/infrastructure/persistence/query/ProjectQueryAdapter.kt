@@ -9,9 +9,11 @@ import com.vertyll.veds.project.application.port.outbound.ProjectQueryPort
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.PageRequest
 import com.vertyll.veds.project.domain.model.PageResult
+import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.ProjectSearchCriteria
 import com.vertyll.veds.project.domain.model.ProjectSortField
 import com.vertyll.veds.project.domain.model.Translation
+import com.vertyll.veds.project.domain.model.resolveFor
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import org.springframework.stereotype.Component
@@ -117,10 +119,9 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
 
         val total =
             entityManager
-                .createQuery("SELECT COUNT(p) FROM ProjectJpaEntity p $where", java.lang.Long::class.java)
+                .createQuery("SELECT COUNT(p) FROM ProjectJpaEntity p $where", Long::class.javaObjectType)
                 .applyCriteria(criteria)
                 .singleResult
-                .toLong()
 
         return PageResult(
             content =
@@ -179,7 +180,7 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                         .ifBlank { r[MEMBER_EMAIL] as String },
                 avatarFileId = r[MEMBER_AVATAR_FILE_ID] as UUID?,
                 roleId = roleId,
-                roleCode = r[MEMBER_ROLE_CODE] as com.vertyll.veds.project.domain.model.ProjectRoleCode,
+                roleCode = r[MEMBER_ROLE_CODE] as ProjectRoleCode,
                 roleName = roleNames[roleId]?.name ?: error("missing $language translation for role $roleId"),
                 assignedAt = r[MEMBER_ASSIGNED_AT] as Instant,
                 version = r[MEMBER_VERSION] as Long?,
@@ -208,12 +209,12 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
         return rows.map { r ->
             val id = r[0] as UUID
             val translations = all[id].orEmpty()
+            val resolved = translations.resolveFor(language)
             ProjectCategoryResponse(
                 id = id,
                 projectId = r[1] as UUID,
-                name =
-                    translations.firstOrNull { it.language == language }?.name
-                        ?: error("missing $language translation for category $id"),
+                name = resolved.name,
+                nameLanguage = resolved.language.value,
                 color = r[2] as String,
                 isActive = r[3] as Boolean,
                 translations = translations,
@@ -243,12 +244,12 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
         return rows.map { r ->
             val id = r[0] as UUID
             val translations = all[id].orEmpty()
+            val resolved = translations.resolveFor(language)
             ProjectStatusResponse(
                 id = id,
                 projectId = r[1] as UUID,
-                name =
-                    translations.firstOrNull { it.language == language }?.name
-                        ?: error("missing $language translation for status $id"),
+                name = resolved.name,
+                nameLanguage = resolved.language.value,
                 color = r[2] as String,
                 isActive = r[3] as Boolean,
                 translations = translations,

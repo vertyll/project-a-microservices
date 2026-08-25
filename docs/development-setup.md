@@ -122,6 +122,18 @@ keys are republished on the next restart.
 Databases are exposed on 5432 (iam), 5433 (mail), 5434 (keycloak), 5435 (project), 5436 (task),
 5437 (notification), 5438 (translation), 5439 (file).
 
+## Tests
+
+`./gradlew build` runs the unit tests only. The integration tests need a container runtime and
+are tagged out of the default build:
+
+```bash
+./gradlew test -PintegrationTests
+```
+
+Under Podman they also need `DOCKER_HOST` and `TESTCONTAINERS_RYUK_DISABLED` — see
+[Testing](./testing.md).
+
 ## API documentation
 
 Each service serves its own Swagger UI at `/swagger-ui.html` — for example

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.util.UUID
+import org.springframework.data.domain.PageRequest as SpringPageRequest
 
 @Component
 internal class ProjectPersistenceAdapter(

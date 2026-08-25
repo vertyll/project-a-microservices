@@ -83,7 +83,7 @@ internal class ProjectMemberController(
             membershipServiceCommands.updateMemberRole(
                 projectId = projectId,
                 memberId = memberId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),

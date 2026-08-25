@@ -27,12 +27,12 @@ configure<JavaPluginExtension> {
 
 val avroVersion = "1.12.2"
 
-val avroTools: Configuration by configurations.creating
+val avroTools: Configuration = configurations.create("avroTools")
 val avroContractsDir = file("$rootDir/../contracts/iam-service")
 val avroGeneratedDir = layout.buildDirectory.dir("generated/sources/avro/main/java")
 val avroSchemas = fileTree(avroContractsDir) { include("**/*.avsc") }
 
-val generateAvroJava by tasks.registering(JavaExec::class) {
+val generateAvroJava = tasks.register<JavaExec>("generateAvroJava") {
     group = "build"
     description = "Generate Java SpecificRecord classes from all Avro schemas owned by the IAM bounded context."
     inputs

@@ -38,7 +38,7 @@ internal class FileEventConsumerAdapter(
 
         try {
             val event = avroPayloadDeserializer.deserialize(FILE_DELETED, payload) as FileDeletedEvent
-            fileProjections.fileDeleted(UUID.fromString(event.fileId.toString()))
+            fileProjections.fileDeleted(UUID.fromString(event.fileId))
         } catch (e: Exception) {
             logger.error("Failed to apply {}: {} - will be retried / sent to DLT", FILE_DELETED, e.message, e)
             throw e

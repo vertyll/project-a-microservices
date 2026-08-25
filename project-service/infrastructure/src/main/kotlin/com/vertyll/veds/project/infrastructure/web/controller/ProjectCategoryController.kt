@@ -70,7 +70,7 @@ internal class ProjectCategoryController(
         val category =
             categoryServiceCommands.createCategory(
                 projectId = projectId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
@@ -93,7 +93,7 @@ internal class ProjectCategoryController(
             categoryServiceCommands.updateCategory(
                 projectId = projectId,
                 categoryId = categoryId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),

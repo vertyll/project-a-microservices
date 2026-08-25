@@ -8,11 +8,13 @@ import com.vertyll.veds.task.domain.model.TaskPermission
 import java.util.UUID
 
 object TaskAccessPolicy {
+    private const val MANAGER_ROLE_CODE = "MANAGER"
+
     // An unmapped role code grants nothing, on purpose: a role added in
     // project-service must be mapped here consciously rather than inherited.
     private val ROLE_PERMISSIONS: Map<String, Set<TaskPermission>> =
         mapOf(
-            "MANAGER" to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),
+            MANAGER_ROLE_CODE to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),
             "MEMBER" to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),
             "CLIENT" to setOf(TaskPermission.VIEW_TASKS, TaskPermission.COMMENT),
         )
@@ -47,8 +49,8 @@ object TaskAccessPolicy {
         membership: ProjectMembershipRef?,
         userId: UUID,
     ): Boolean {
-        val restriction = task.accessRoleId ?: return true
+        task.accessRoleId ?: return true
         if (task.wasCreatedBy(userId) || task.isAssignedTo(userId)) return true
-        return membership != null && membership.roleCode == "MANAGER" && restriction != null
+        return membership?.roleCode == MANAGER_ROLE_CODE
     }
 }

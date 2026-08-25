@@ -93,3 +93,31 @@ Several of these exist to pin down a property that is easy to regress silently:
   test against a real PostgreSQL; nothing else would prove anything about them.
 - **Application services** — everything so far is domain-level. The use cases are constructible
   without Spring by design, so this is a gap in effort rather than in possibility.
+
+## Running the integration tests
+
+They need a container runtime, so `./gradlew build` does **not** run them: every test extending
+`IntegrationTestBase` carries `@Tag("integration")` and the tag is excluded unless asked for.
+
+```bash
+./gradlew test -PintegrationTests
+```
+
+Excluded rather than silently skipped on a missing runtime, deliberately. A suite that skips
+itself looks exactly like a suite that passes, and the first time that matters is the time it
+would have caught something.
+
+### With Podman
+
+Testcontainers looks for a Docker socket. Podman provides a compatible one, but it has to be
+pointed at:
+
+```bash
+podman machine start
+export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
+export TESTCONTAINERS_RYUK_DISABLED=true
+```
+
+Ryuk is disabled because its container needs privileges rootless Podman does not grant; without
+that variable it fails at startup and takes the suite with it. The cost is that stopped
+containers are not reaped automatically — `podman container prune` after a run.

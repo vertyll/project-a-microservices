@@ -79,7 +79,7 @@ internal class UserController(
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<ApiResponse<UserResponse>> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
-        val user = userServiceCommands.updateProfile(id, request, version)
+        val user = userServiceCommands.updateProfile(id, request.toCommand(), version)
         val etag = ETagUtils.buildWeakETag(user.version)
         val response = ApiResponse.buildResponse(user, PROFILE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response

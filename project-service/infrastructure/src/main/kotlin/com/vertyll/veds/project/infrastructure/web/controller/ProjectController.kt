@@ -129,7 +129,7 @@ internal class ProjectController(
         val project =
             projectServiceCommands.updateProject(
                 projectId = projectId,
-                request = request.toCommand(),
+                command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )

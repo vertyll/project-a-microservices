@@ -10,6 +10,11 @@ data class ObjectStorageProperties(
     val bucket: String,
     val accessKey: String,
     val secretKey: String,
-    val uploadUrlValidity: Duration = Duration.ofMinutes(15),
-    val downloadUrlValidity: Duration = Duration.ofMinutes(5),
-)
+    val uploadUrlValidity: Duration = Duration.ofMinutes(DEFAULT_UPLOAD_URL_MINUTES),
+    val downloadUrlValidity: Duration = Duration.ofMinutes(DEFAULT_DOWNLOAD_URL_MINUTES),
+) {
+    companion object {
+        const val DEFAULT_UPLOAD_URL_MINUTES = 15L
+        const val DEFAULT_DOWNLOAD_URL_MINUTES = 5L
+    }
+}

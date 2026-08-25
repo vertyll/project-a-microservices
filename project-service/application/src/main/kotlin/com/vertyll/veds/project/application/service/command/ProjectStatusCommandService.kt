@@ -6,6 +6,8 @@ import com.vertyll.veds.project.application.dto.ProjectStatusResponse
 import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectStatusCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
+import com.vertyll.veds.project.application.service.TranslationCompletenessValidator
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.ProjectPermission
@@ -22,7 +24,7 @@ class ProjectStatusCommandService(
 ) : ProjectStatusCommandUseCase {
     override fun createStatus(
         projectId: UUID,
-        request: CreateStatusCommand,
+        command: CreateStatusCommand,
         actorId: UUID,
         language: LanguageTag,
     ): ProjectStatusResponse {
@@ -33,8 +35,8 @@ class ProjectStatusCommandService(
             statusRepository.save(
                 ProjectStatus.create(
                     projectId = projectId,
-                    color = request.color,
-                    translations = request.translations,
+                    color = command.color,
+                    translations = command.translations,
                 ),
             )
 
@@ -52,7 +54,7 @@ class ProjectStatusCommandService(
     override fun updateStatus(
         projectId: UUID,
         statusId: UUID,
-        request: UpdateStatusCommand,
+        command: UpdateStatusCommand,
         actorId: UUID,
         language: LanguageTag,
         version: Long?,
@@ -69,9 +71,9 @@ class ProjectStatusCommandService(
         val updated =
             statusRepository.save(
                 status
-                    .recolor(request.color)
-                    .retranslate(request.translations)
-                    .let { if (request.isActive) it.activate() else it.deactivate() },
+                    .recolor(command.color)
+                    .retranslate(command.translations)
+                    .let { if (command.isActive) it.activate() else it.deactivate() },
             )
 
         eventPublisher.publishStatusChanged(

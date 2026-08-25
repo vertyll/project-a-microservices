@@ -6,6 +6,9 @@ import com.vertyll.veds.translation.application.port.inbound.query.TranslationQu
 import com.vertyll.veds.translation.application.service.command.TranslationCommandService
 import com.vertyll.veds.translation.application.service.query.TranslationExportService
 import com.vertyll.veds.translation.application.service.query.TranslationQueryService
+import com.vertyll.veds.translation.domain.repository.LanguageRepository
+import com.vertyll.veds.translation.domain.repository.TranslationKeyRepository
+import com.vertyll.veds.translation.domain.repository.TranslationValueRepository
 import com.vertyll.veds.translation.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.translation.infrastructure.transaction.TransactionalUseCaseFactory
 import org.springframework.context.annotation.Bean

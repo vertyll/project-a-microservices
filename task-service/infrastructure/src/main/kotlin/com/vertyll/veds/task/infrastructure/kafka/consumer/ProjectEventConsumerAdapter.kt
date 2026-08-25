@@ -42,7 +42,7 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_CREATED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_CREATED, payload) as ProjectCreatedEvent
         projections.projectChanged(
-            ProjectRef(projectId = UUID.fromString(event.projectId.toString()), name = event.name.toString()),
+            ProjectRef(projectId = UUID.fromString(event.projectId), name = event.name.toString()),
         )
     }
 
@@ -53,7 +53,7 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_UPDATED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_UPDATED, payload) as ProjectUpdatedEvent
         projections.projectChanged(
-            ProjectRef(projectId = UUID.fromString(event.projectId.toString()), name = event.name.toString()),
+            ProjectRef(projectId = UUID.fromString(event.projectId), name = event.name.toString()),
         )
     }
 
@@ -63,7 +63,7 @@ internal class ProjectEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_ARCHIVED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_ARCHIVED, payload) as ProjectArchivedEvent
-        projections.projectArchived(UUID.fromString(event.projectId.toString()))
+        projections.projectArchived(UUID.fromString(event.projectId))
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_CATEGORY_CHANGED])
@@ -73,7 +73,7 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_CATEGORY_CHANGED) {
         val event =
             decode(TaskKafkaTopics.Consumed.PROJECT_CATEGORY_CHANGED, payload) as ProjectCategoryChangedEvent
-        val categoryId = UUID.fromString(event.categoryId.toString())
+        val categoryId = UUID.fromString(event.categoryId)
 
         if (event.removed) {
             projections.categoryRemoved(categoryId)
@@ -81,9 +81,9 @@ internal class ProjectEventConsumerAdapter(
             projections.categoryChanged(
                 ProjectCategoryRef(
                     categoryId = categoryId,
-                    projectId = UUID.fromString(event.projectId.toString()),
+                    projectId = UUID.fromString(event.projectId),
                     names = event.names.entries.associate { it.key.toString() to it.value.toString() },
-                    color = event.color.toString(),
+                    color = event.color,
                 ),
             )
         }
@@ -95,7 +95,7 @@ internal class ProjectEventConsumerAdapter(
         @Header(name = "eventId", required = false) eventId: String?,
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_STATUS_CHANGED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_STATUS_CHANGED, payload) as ProjectStatusChangedEvent
-        val statusId = UUID.fromString(event.statusId.toString())
+        val statusId = UUID.fromString(event.statusId)
 
         if (event.removed) {
             projections.statusRemoved(statusId)
@@ -103,9 +103,9 @@ internal class ProjectEventConsumerAdapter(
             projections.statusChanged(
                 ProjectStatusRef(
                     statusId = statusId,
-                    projectId = UUID.fromString(event.projectId.toString()),
+                    projectId = UUID.fromString(event.projectId),
                     names = event.names.entries.associate { it.key.toString() to it.value.toString() },
-                    color = event.color.toString(),
+                    color = event.color,
                 ),
             )
         }
@@ -119,9 +119,9 @@ internal class ProjectEventConsumerAdapter(
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_MEMBER_JOINED, payload) as ProjectMemberJoinedEvent
         projections.memberJoined(
             ProjectMembershipRef(
-                projectId = UUID.fromString(event.projectId.toString()),
-                userId = UUID.fromString(event.userId.toString()),
-                roleCode = event.roleCode.toString(),
+                projectId = UUID.fromString(event.projectId),
+                userId = UUID.fromString(event.userId),
+                roleCode = event.roleCode,
             ),
         )
     }
@@ -133,8 +133,8 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_MEMBER_REMOVED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_MEMBER_REMOVED, payload) as ProjectMemberRemovedEvent
         projections.memberRemoved(
-            projectId = UUID.fromString(event.projectId.toString()),
-            userId = UUID.fromString(event.userId.toString()),
+            projectId = UUID.fromString(event.projectId),
+            userId = UUID.fromString(event.userId),
         )
     }
 

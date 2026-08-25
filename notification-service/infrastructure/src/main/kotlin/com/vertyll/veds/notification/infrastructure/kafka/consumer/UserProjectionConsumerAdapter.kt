@@ -37,8 +37,8 @@ internal class UserProjectionConsumerAdapter(
         val event = avroPayloadDeserializer.deserialize(USER_REGISTERED, payload) as UserRegisteredEvent
         directory.save(
             RecipientRef(
-                userId = UUID.fromString(event.userId.toString()),
-                email = event.email.toString(),
+                userId = UUID.fromString(event.userId),
+                email = event.email,
                 displayName = listOfNotNull(event.firstName, event.lastName).joinToString(" ").ifBlank { null },
             ),
         )
@@ -54,8 +54,8 @@ internal class UserProjectionConsumerAdapter(
             avroPayloadDeserializer.deserialize(USER_PROFILE_UPDATED, payload) as UserProfileUpdatedEvent
         directory.save(
             RecipientRef(
-                userId = UUID.fromString(event.userId.toString()),
-                email = event.email.toString(),
+                userId = UUID.fromString(event.userId),
+                email = event.email,
                 displayName = listOfNotNull(event.firstName, event.lastName).joinToString(" ").ifBlank { null },
             ),
         )

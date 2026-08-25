@@ -5,6 +5,8 @@ import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectMembershipCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
+import com.vertyll.veds.project.application.service.MemberViewAssembler
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.ProjectMember
@@ -24,7 +26,7 @@ class ProjectMembershipCommandService(
     override fun updateMemberRole(
         projectId: UUID,
         memberId: UUID,
-        request: UpdateMemberRoleCommand,
+        command: UpdateMemberRoleCommand,
         actorId: UUID,
         language: LanguageTag,
         version: Long?,
@@ -42,7 +44,7 @@ class ProjectMembershipCommandService(
         }
 
         val role =
-            roleRepository.findById(request.roleId)
+            roleRepository.findById(command.roleId)
                 ?: throw ApiException(ProjectError.ROLE_NOT_FOUND)
 
         val updated = memberRepository.save(member.reassignTo(role.id))

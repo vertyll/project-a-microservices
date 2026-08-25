@@ -23,6 +23,7 @@ import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
 import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
 import java.time.LocalDateTime
 import java.util.UUID
+import com.vertyll.veds.iam.domain.model.User as DomainUser
 
 class AuthCommandService(
     private val verificationTokenRepository: VerificationTokenRepository,

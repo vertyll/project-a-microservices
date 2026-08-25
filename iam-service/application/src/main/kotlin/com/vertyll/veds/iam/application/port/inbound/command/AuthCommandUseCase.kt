@@ -21,24 +21,24 @@ interface AuthCommandUseCase {
     )
 
     fun requestEmailChange(
-        userId: Long,
+        email: String,
         request: ChangeEmailCommand,
     )
 
     fun confirmEmailChange(token: String)
 
     fun changePassword(
-        userId: Long,
+        email: String,
         request: ChangePasswordCommand,
     )
 
     fun confirmPasswordChange(
-        userId: Long,
-        code: String,
+        token: String,
+        newPassword: String,
     )
 
     fun setNewPassword(
-        userId: Long,
-        newPassword: String,
+        tokenId: Long,
+        request: ResetPasswordCommand,
     )
 }

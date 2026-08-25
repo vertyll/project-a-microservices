@@ -34,7 +34,7 @@ internal class MailFeedbackConsumerAdapter(
         if (!claim(eventId, CONSUMER_GROUP_MAIL_SENT)) return
         try {
             val event = avroPayloadDeserializer.deserialize(MAIL_SENT, payload) as MailSentEvent
-            mailFeedbackService.handleMailSent(sagaId = event.sagaId?.toString(), to = event.to.toString())
+            mailFeedbackService.handleMailSent(sagaId = event.sagaId, to = event.to.toString())
         } catch (e: Exception) {
             logger.error("Failed to process MailSentEvent: {} - will be retried / sent to DLT", e.message, e)
             throw e
@@ -50,9 +50,9 @@ internal class MailFeedbackConsumerAdapter(
         try {
             val event = avroPayloadDeserializer.deserialize(MAIL_FAILED, payload) as MailFailedEvent
             mailFeedbackService.handleMailFailed(
-                sagaId = event.sagaId?.toString(),
-                to = event.to.toString(),
-                error = event.error.toString(),
+                sagaId = event.sagaId,
+                to = event.to,
+                error = event.error,
             )
         } catch (e: Exception) {
             logger.error("Failed to process MailFailedEvent: {} - will be retried / sent to DLT", e.message, e)

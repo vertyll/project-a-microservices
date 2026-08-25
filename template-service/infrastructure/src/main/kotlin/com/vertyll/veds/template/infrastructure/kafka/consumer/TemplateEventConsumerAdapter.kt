@@ -3,7 +3,8 @@ package com.vertyll.veds.template.infrastructure.kafka.consumer
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
 import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
 import com.vertyll.veds.template.TemplateRequestedEvent
-import com.vertyll.veds.template.application.port.inbound.TemplateSagaUseCase
+import com.vertyll.veds.template.application.command.CreateTemplateCommand
+import com.vertyll.veds.template.application.port.inbound.command.TemplateCommandUseCase
 import com.vertyll.veds.template.infrastructure.kafka.TemplateKafkaTopics
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component
 @Component
 internal class TemplateEventConsumerAdapter(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,
-    private val templateSagaService: TemplateSagaUseCase,
+    private val templateCommands: TemplateCommandUseCase,
     private val processedEventGuard: ProcessedEventGuard,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -43,7 +44,7 @@ internal class TemplateEventConsumerAdapter(
             val event = avroPayloadDeserializer.deserialize(TemplateKafkaTopics.TEMPLATE_REQUESTED, payload) as TemplateRequestedEvent
             val name = event.name
             val templatePayload = event.payload ?: event.content ?: ""
-            templateSagaService.processTemplateWithSaga(name, templatePayload)
+            templateCommands.processTemplateWithSaga(CreateTemplateCommand(name = name, payload = templatePayload))
         } catch (e: Exception) {
             logger.error("Error processing message from topic {}", record.topic(), e)
             throw e

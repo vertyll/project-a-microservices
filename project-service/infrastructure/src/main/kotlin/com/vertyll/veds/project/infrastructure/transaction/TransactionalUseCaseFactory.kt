@@ -14,25 +14,14 @@ internal class TransactionalUseCaseFactory(
 
     private val readOnly = TransactionTemplate(transactionManager).apply { isReadOnly = true }
 
-    inline fun <reified T : Any> wrap(
-        target: T,
-        readOnlyMethods: Set<String>,
-    ): T = wrap(T::class.java, target, readOnlyMethods)
-
     fun <T : Any> wrap(
         contract: Class<T>,
         target: T,
-        readOnlyMethods: Set<String>,
+        isReadOnly: (String) -> Boolean,
     ): T {
-        val declared = contract.methods.map { it.name }.toSet()
-        val unknown = readOnlyMethods - declared
-        check(unknown.isEmpty()) {
-            "read-only methods not declared on ${contract.simpleName}: ${unknown.joinToString()}"
-        }
-
         val proxy =
             Proxy.newProxyInstance(contract.classLoader, arrayOf(contract)) { _, method, args ->
-                val template = if (method.name in readOnlyMethods) readOnly else readWrite
+                val template = if (isReadOnly(method.name)) readOnly else readWrite
                 template.execute {
                     try {
                         method.invoke(target, *(args ?: emptyArray()))

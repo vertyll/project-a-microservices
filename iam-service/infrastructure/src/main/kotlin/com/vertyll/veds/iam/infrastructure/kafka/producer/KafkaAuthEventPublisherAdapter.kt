@@ -90,7 +90,7 @@ internal class KafkaAuthEventPublisherAdapter(
                 .setEmail(email)
                 .setFirstName(firstName)
                 .setLastName(lastName)
-                .setAvatarFileId(avatarFileId)
+                .setAvatarFileId(avatarFileId?.toString())
                 .build()
         enqueueUserEvent(IamKafkaTopics.USER_PROFILE_UPDATED, userId, eventId, event)
     }

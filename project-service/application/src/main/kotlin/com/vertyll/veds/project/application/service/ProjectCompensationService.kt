@@ -1,6 +1,7 @@
 package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.port.inbound.ProjectCompensationUseCase
+import com.vertyll.veds.project.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.project.application.saga.model.ProjectCompensationCommand
 import com.vertyll.veds.project.domain.repository.ProjectInvitationRepository
 import com.vertyll.veds.project.domain.repository.ProjectRepository

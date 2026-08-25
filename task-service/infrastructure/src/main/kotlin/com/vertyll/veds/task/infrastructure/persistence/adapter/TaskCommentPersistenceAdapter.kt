@@ -18,10 +18,10 @@ internal class TaskCommentPersistenceAdapter(
     override fun findById(id: UUID): TaskComment? = repository.findByIdOrNull(id)?.toDomain()
 
     override fun saveAll(comments: Collection<TaskComment>): List<TaskComment> =
-        jpaRepository.saveAll(comments.map { it.toEntity() }).map { it.toDomain() }
+        repository.saveAll(comments.map { it.toJpaEntity() }).map { it.toDomain() }
 
     override fun findAllByAttachmentId(attachmentId: UUID): List<TaskComment> =
-        jpaRepository.findAllByAttachmentIdsContaining(attachmentId).map { it.toDomain() }
+        repository.findAllByAttachmentIdsContaining(attachmentId).map { it.toDomain() }
 
     override fun findAllByTaskId(taskId: UUID): List<TaskComment> =
         repository.findAllByTaskIdOrderByCreatedAtAsc(taskId).map { it.toDomain() }

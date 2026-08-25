@@ -17,6 +17,10 @@ data class User(
     val updatedAt: Instant = Instant.now(),
     val version: Long? = null,
 ) {
+    init {
+        require(email.isNotBlank()) { "user email must not be blank" }
+    }
+
     val permissions: Set<Permission>
         get() = roles.flatMap { it.permissions }.toSet()
 

@@ -4,6 +4,7 @@ import com.vertyll.veds.notification.application.port.inbound.NotificationCompen
 import com.vertyll.veds.notification.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.notification.application.saga.model.NotificationCompensationCommand
 import com.vertyll.veds.notification.domain.repository.NotificationRepository
+import java.util.UUID
 
 class NotificationCompensationService(
     private val notificationRepository: NotificationRepository,
@@ -11,20 +12,19 @@ class NotificationCompensationService(
 ) : NotificationCompensationUseCase {
     override fun compensate(command: NotificationCompensationCommand) {
         when (command) {
-            is NotificationCompensationCommand.DeleteNotification -> deleteNotification(command.notificationId)
-            is NotificationCompensationCommand.LogNotificationCompensation -> logCompensation(command.notificationId)
+            is NotificationCompensationCommand.DeleteNotification -> retire(command.notificationId)
+            is NotificationCompensationCommand.LogNotificationCompensation ->
+                logger.info("Compensating notification {} - no state change required", command.notificationId)
         }
     }
 
-    private fun deleteNotification(notificationId: String) {
-        logger.info("Compensating PersistNotification — deleting notification {}", notificationId)
-        notificationRepository.findById(notificationId)?.let { notificationRepository.deleteById(it.id) }
-    }
-
-    private fun logCompensation(notificationId: String) {
-        logger.info(
-            "Compensating PublishNotificationEvent for notification {} — no externally-observable rollback possible",
-            notificationId,
-        )
+    private fun retire(notificationId: String) {
+        val notification = notificationRepository.findById(UUID.fromString(notificationId))
+        if (notification == null) {
+            logger.warn("Nothing to compensate: notification {} no longer exists", notificationId)
+            return
+        }
+        notificationRepository.save(notification.retire())
+        logger.info("Compensated notification {} - retired", notificationId)
     }
 }

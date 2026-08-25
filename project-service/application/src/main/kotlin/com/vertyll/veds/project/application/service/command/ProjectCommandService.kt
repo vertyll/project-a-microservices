@@ -7,6 +7,7 @@ import com.vertyll.veds.project.application.dto.ProjectResponse
 import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.Project
 import com.vertyll.veds.project.domain.model.ProjectMember
@@ -31,22 +32,22 @@ class ProjectCommandService(
     private val eventPublisher: ProjectEventPublisherPort,
 ) : ProjectCommandUseCase {
     override fun createProject(
-        request: CreateProjectCommand,
+        command: CreateProjectCommand,
         actor: Actor,
     ): ProjectResponse {
-        request.typeId?.let {
+        command.typeId?.let {
             typeRepository.findById(it) ?: throw ApiException(ProjectError.TYPE_NOT_FOUND)
         }
 
         val project =
             projectRepository.save(
                 Project.create(
-                    name = request.name,
-                    description = request.description,
-                    isPublic = request.isPublic,
-                    typeId = request.typeId,
+                    name = command.name,
+                    description = command.description,
+                    isPublic = command.isPublic,
+                    typeId = command.typeId,
                     ownerId = actor.id,
-                    iconFileId = request.iconFileId,
+                    iconFileId = command.iconFileId,
                 ),
             )
 
@@ -71,7 +72,7 @@ class ProjectCommandService(
 
     override fun updateProject(
         projectId: UUID,
-        request: UpdateProjectCommand,
+        command: UpdateProjectCommand,
         actorId: UUID,
         version: Long?,
     ): ProjectResponse {
@@ -81,18 +82,18 @@ class ProjectCommandService(
             ApiException(ProjectError.VERSION_MISMATCH)
         }
 
-        request.typeId?.let {
+        command.typeId?.let {
             typeRepository.findById(it) ?: throw ApiException(ProjectError.TYPE_NOT_FOUND)
         }
 
         val updated =
             projectRepository.save(
                 project
-                    .rename(request.name)
-                    .describe(request.description)
-                    .changeVisibility(request.isPublic)
-                    .changeType(request.typeId)
-                    .changeIcon(request.iconFileId),
+                    .rename(command.name)
+                    .describe(command.description)
+                    .changeVisibility(command.isPublic)
+                    .changeType(command.typeId)
+                    .changeIcon(command.iconFileId),
             )
 
         eventPublisher.publishProjectUpdated(updated.id, updated.name)

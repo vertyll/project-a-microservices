@@ -110,7 +110,7 @@ jobs:
 
       - name: Run tests
         working-directory: ${{ inputs.service }}
-        run: ./gradlew --no-daemon test
+        run: ./gradlew --no-daemon test -PintegrationTests
 
       - name: Upload test reports
         if: always()

@@ -2,7 +2,7 @@
   "type": "record",
   "name": "SagaCompensationEvent",
   "namespace": "com.vertyll.veds.task.saga",
-  "doc": "Internal compensation event for task-service. Tagged union of typed actions, so values keep their domain types end-to-end rather than degrading to a map<string>.",
+  "doc": "Internal compensation event for task-service. A tagged union of typed actions, so values keep their domain meaning end-to-end rather than degrading to a map<string>.",
   "fields": [
     {
       "name": "sagaId",
@@ -21,15 +21,22 @@
       "type": [
         {
           "type": "record",
-          "name": "RestoreTaskAction",
-          "doc": "Compensates an archival whose downstream cleanup failed.",
+          "name": "DeleteTaskAction",
+          "doc": "Undoes a task creation whose later step failed.",
           "fields": [
             {
               "name": "taskId",
               "type": "string"
-            },
+            }
+          ]
+        },
+        {
+          "type": "record",
+          "name": "LogTaskCompensationAction",
+          "doc": "Records that a step needed no state change to undo.",
+          "fields": [
             {
-              "name": "reason",
+              "name": "taskId",
               "type": "string"
             }
           ]

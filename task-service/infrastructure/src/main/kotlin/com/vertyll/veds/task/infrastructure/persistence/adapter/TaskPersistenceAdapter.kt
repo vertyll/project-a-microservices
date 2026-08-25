@@ -53,10 +53,9 @@ internal class TaskPersistenceAdapter(
 
         val total =
             entityManager
-                .createQuery("SELECT COUNT(t) FROM TaskJpaEntity t $where", java.lang.Long::class.java)
+                .createQuery("SELECT COUNT(t) FROM TaskJpaEntity t $where", Long::class.javaObjectType)
                 .applyCriteria(criteria)
                 .singleResult
-                .toLong()
 
         return PageResult(
             content = rows.map { it.toDomain() },
@@ -71,7 +70,7 @@ internal class TaskPersistenceAdapter(
     override fun findAllByCategoryId(categoryId: UUID): List<Task> = repository.findAllByCategoryId(categoryId).map { it.toDomain() }
 
     override fun findAllByAttachmentId(attachmentId: UUID): List<Task> =
-        jpaRepository.findAllByAttachmentIdsContaining(attachmentId).map { it.toDomain() }
+        repository.findAllByAttachmentIdsContaining(attachmentId).map { it.toDomain() }
 
     override fun findAllByStatusId(statusId: UUID): List<Task> = repository.findAllByStatusId(statusId).map { it.toDomain() }
 

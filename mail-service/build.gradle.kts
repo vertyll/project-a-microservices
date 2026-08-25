@@ -54,7 +54,11 @@ subprojects {
         }
 
         tasks.withType<Test> {
-            useJUnitPlatform()
+            useJUnitPlatform {
+                if (!project.hasProperty("integrationTests")) {
+                    excludeTags("integration")
+                }
+            }
             maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
         }
     }

@@ -200,7 +200,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD", "/garage", "status"]
+      test: ["CMD", "/garage", "node", "id", "-q"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -208,21 +208,28 @@ services:
 
   # One-shot bootstrap.
   object-storage-init:
-    image: dxflrs/garage:v1.0.1
+    # Alpine, not the Garage image: that one ships the binary on an empty
+    # filesystem with no shell, so a mounted script cannot be executed there.
+    # Podman reports it as `crun: executable file /bin/sh not found`.
+    #
+    # The bootstrap talks to Garage's admin API over HTTP instead of using the
+    # CLI, which also removes the need to mount garage.toml and share the RPC
+    # secret with a second container.
+    image: docker.io/library/alpine:3.20
     container_name: object-storage-init
     depends_on:
       object-storage:
         condition: service_healthy
     volumes:
-      - ./infra/garage/garage.toml:/etc/garage.toml:ro
       - ./infra/garage/bootstrap.sh:/bootstrap.sh:ro
     environment:
       OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-veds-files}
       OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-veds-local-access-key}
       OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-veds-local-secret-key}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
-      GARAGE_RPC_HOST: object-storage
-    entrypoint: ["/bin/sh", "/bootstrap.sh"]
+      GARAGE_ADMIN_URL: http://object-storage:3903
+      GARAGE_ADMIN_TOKEN: veds-local-admin-token
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl jq >/dev/null && sh /bootstrap.sh"]
     networks:
       - microservices-network
 

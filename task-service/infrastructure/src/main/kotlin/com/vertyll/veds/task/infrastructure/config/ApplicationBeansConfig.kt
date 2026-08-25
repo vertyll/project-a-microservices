@@ -1,5 +1,6 @@
 package com.vertyll.veds.task.infrastructure.config
 
+import com.vertyll.veds.task.application.port.inbound.FileProjectionUseCase
 import com.vertyll.veds.task.application.port.inbound.ProjectProjectionUseCase
 import com.vertyll.veds.task.application.port.inbound.TaskCompensationUseCase
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommandUseCase
@@ -8,6 +9,7 @@ import com.vertyll.veds.task.application.port.inbound.query.TaskCommentQueryUseC
 import com.vertyll.veds.task.application.port.inbound.query.TaskQueryUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskEventPublisherPort
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
+import com.vertyll.veds.task.application.service.FileProjectionService
 import com.vertyll.veds.task.application.service.ProjectProjectionService
 import com.vertyll.veds.task.application.service.TaskAuthorizationService
 import com.vertyll.veds.task.application.service.TaskCompensationService
@@ -30,9 +32,24 @@ import org.springframework.context.annotation.Configuration
 internal class ApplicationBeansConfig {
     private companion object {
         private val ALL_METHODS: (String) -> Boolean = { true }
-
         private val NO_METHODS: (String) -> Boolean = { false }
     }
+
+    @Bean
+    fun fileProjectionUseCase(
+        transactions: TransactionalUseCaseFactory,
+        taskRepository: TaskRepository,
+        commentRepository: TaskCommentRepository,
+    ): FileProjectionUseCase =
+        transactions.wrap(
+            FileProjectionUseCase::class.java,
+            FileProjectionService(
+                taskRepository,
+                commentRepository,
+                Slf4jUseCaseLogger(FileProjectionService::class.java),
+            ),
+            NO_METHODS,
+        )
 
     @Bean
     fun projectProjectionUseCase(
@@ -49,15 +66,6 @@ internal class ApplicationBeansConfig {
             ),
             NO_METHODS,
         )
-
-    @Bean
-    fun taskAuthorizationService(
-        projectDirectory: ProjectDirectoryRepository,
-        taskRepository: TaskRepository,
-    ) = TaskAuthorizationService(
-        projectDirectory,
-        taskRepository,
-    )
 
     @Bean
     fun taskCompensationUseCase(
@@ -147,11 +155,5 @@ internal class ApplicationBeansConfig {
                 authorization,
             ),
             ALL_METHODS,
-        )
-
-    @Bean
-    fun taskReferenceValidator(projectDirectory: ProjectDirectoryRepository) =
-        TaskReferenceValidator(
-            projectDirectory,
         )
 }

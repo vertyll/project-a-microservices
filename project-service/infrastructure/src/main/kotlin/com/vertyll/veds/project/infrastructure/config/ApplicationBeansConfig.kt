@@ -21,6 +21,7 @@ import com.vertyll.veds.project.application.service.MailFeedbackService
 import com.vertyll.veds.project.application.service.MemberViewAssembler
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
 import com.vertyll.veds.project.application.service.ProjectCompensationService
+import com.vertyll.veds.project.application.service.TranslationCompletenessValidator
 import com.vertyll.veds.project.application.service.command.ProjectCategoryCommandService
 import com.vertyll.veds.project.application.service.command.ProjectCommandService
 import com.vertyll.veds.project.application.service.command.ProjectInvitationCommandService
@@ -51,7 +52,6 @@ import org.springframework.context.annotation.Configuration
 internal class ApplicationBeansConfig {
     private companion object {
         private val ALL_METHODS: (String) -> Boolean = { true }
-
         private val NO_METHODS: (String) -> Boolean = { false }
     }
 
@@ -68,17 +68,6 @@ internal class ApplicationBeansConfig {
             ),
             NO_METHODS,
         )
-
-    @Bean
-    fun projectAuthorizationService(
-        projectRepository: ProjectRepository,
-        memberRepository: ProjectMemberRepository,
-        roleRepository: ProjectRoleRepository,
-    ) = ProjectAuthorizationService(
-        projectRepository,
-        memberRepository,
-        roleRepository,
-    )
 
     @Bean
     fun projectCompensationUseCase(
@@ -102,6 +91,7 @@ internal class ApplicationBeansConfig {
         categoryRepository: ProjectCategoryRepository,
         authorization: ProjectAuthorizationService,
         eventPublisher: ProjectEventPublisherPort,
+        translationCompleteness: TranslationCompletenessValidator,
     ): ProjectCategoryCommandUseCase =
         transactions.wrap(
             ProjectCategoryCommandUseCase::class.java,
@@ -109,6 +99,7 @@ internal class ApplicationBeansConfig {
                 categoryRepository,
                 authorization,
                 eventPublisher,
+                translationCompleteness,
             ),
             NO_METHODS,
         )
@@ -193,6 +184,7 @@ internal class ApplicationBeansConfig {
         statusRepository: ProjectStatusRepository,
         authorization: ProjectAuthorizationService,
         eventPublisher: ProjectEventPublisherPort,
+        translationCompleteness: TranslationCompletenessValidator,
     ): ProjectStatusCommandUseCase =
         transactions.wrap(
             ProjectStatusCommandUseCase::class.java,
@@ -200,6 +192,7 @@ internal class ApplicationBeansConfig {
                 statusRepository,
                 authorization,
                 eventPublisher,
+                translationCompleteness,
             ),
             NO_METHODS,
         )
@@ -306,13 +299,4 @@ internal class ApplicationBeansConfig {
             ),
             ALL_METHODS,
         )
-
-    @Bean
-    fun memberViewAssembler(
-        roleRepository: ProjectRoleRepository,
-        userDirectory: UserDirectoryRepository,
-    ) = MemberViewAssembler(
-        roleRepository,
-        userDirectory,
-    )
 }
