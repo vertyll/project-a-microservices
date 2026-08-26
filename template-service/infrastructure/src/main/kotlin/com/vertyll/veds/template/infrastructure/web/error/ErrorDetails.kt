@@ -5,7 +5,3 @@ internal data class ErrorDetails(
     val params: Map<String, Any> = emptyMap(),
 )
 
-internal data class ValidationErrorDetails(
-    val code: String,
-    val fields: Map<String, String>,
-)
