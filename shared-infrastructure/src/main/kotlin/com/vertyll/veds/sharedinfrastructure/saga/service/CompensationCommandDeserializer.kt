@@ -18,4 +18,3 @@ fun interface CompensationCommandDeserializer<TCommand : Any> {
      */
     fun deserialize(payload: ByteArray): DecodedCompensationEvent<TCommand>
 }
-
