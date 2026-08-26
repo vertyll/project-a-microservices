@@ -12,25 +12,6 @@ import java.util.UUID
 
 @Entity
 @Table(
-    name = "translation_key",
-    indexes = [Index(name = "idx_translation_key_source", columnList = "source_service")],
-)
-internal class TranslationKeyJpaEntity(
-    @Id
-    @Column(name = "translation_key", nullable = false, updatable = false, length = 255)
-    var key: String,
-    @Column(name = "source_service", nullable = false, length = 64)
-    var sourceService: String,
-    @Column(name = "description", columnDefinition = "TEXT")
-    var description: String? = null,
-    @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: Instant = Instant.now(),
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant = Instant.now(),
-)
-
-@Entity
-@Table(
     name = "translation_value",
     uniqueConstraints = [
         UniqueConstraint(name = "uq_translation_value_key_language", columnNames = ["translation_key", "language"]),
@@ -61,18 +42,4 @@ internal class TranslationValueJpaEntity(
     @Version
     @Column(name = "version")
     var version: Long? = null,
-)
-
-@Entity
-@Table(name = "language")
-internal class LanguageJpaEntity(
-    @Id
-    @Column(name = "tag", nullable = false, updatable = false, length = 16)
-    var tag: String,
-    @Column(name = "display_name", nullable = false, length = 128)
-    var displayName: String,
-    @Column(name = "is_default", nullable = false)
-    var isDefault: Boolean = false,
-    @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: Instant = Instant.now(),
 )
