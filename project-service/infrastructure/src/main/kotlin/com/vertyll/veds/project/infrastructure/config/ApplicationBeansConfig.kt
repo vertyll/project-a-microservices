@@ -17,6 +17,7 @@ import com.vertyll.veds.project.application.port.inbound.query.ProjectTypeQueryU
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.port.outbound.ProjectQueryPort
 import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
+import com.vertyll.veds.project.application.port.outbound.SupportedLanguagesPort
 import com.vertyll.veds.project.application.service.MailFeedbackService
 import com.vertyll.veds.project.application.service.MemberViewAssembler
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -299,4 +300,21 @@ internal class ApplicationBeansConfig {
             ),
             ALL_METHODS,
         )
+
+    @Bean
+    fun projectAuthorizationService(
+        projectRepository: ProjectRepository,
+        memberRepository: ProjectMemberRepository,
+        roleRepository: ProjectRoleRepository,
+    ): ProjectAuthorizationService = ProjectAuthorizationService(projectRepository, memberRepository, roleRepository)
+
+    @Bean
+    fun memberViewAssembler(
+        roleRepository: ProjectRoleRepository,
+        userDirectory: UserDirectoryRepository,
+    ): MemberViewAssembler = MemberViewAssembler(roleRepository, userDirectory)
+
+    @Bean
+    fun translationCompletenessValidator(supportedLanguages: SupportedLanguagesPort): TranslationCompletenessValidator =
+        TranslationCompletenessValidator(supportedLanguages)
 }

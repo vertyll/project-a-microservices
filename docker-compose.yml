@@ -208,13 +208,6 @@ services:
 
   # One-shot bootstrap.
   object-storage-init:
-    # Alpine, not the Garage image: that one ships the binary on an empty
-    # filesystem with no shell, so a mounted script cannot be executed there.
-    # Podman reports it as `crun: executable file /bin/sh not found`.
-    #
-    # The bootstrap talks to Garage's admin API over HTTP instead of using the
-    # CLI, which also removes the need to mount garage.toml and share the RPC
-    # secret with a second container.
     image: docker.io/library/alpine:3.20
     container_name: object-storage-init
     depends_on:
@@ -385,11 +378,11 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: [ "CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      test: [ "CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   # Keycloak database
   keycloak-db:

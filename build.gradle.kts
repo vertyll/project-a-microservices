@@ -11,6 +11,8 @@ fun aggregator(name: String, taskGroup: String, desc: String, dependsOnTask: Str
         description = desc
         gradle.includedBuilds
             .filterNot { it.name.endsWith("-contracts") }
+            .filterNot { it.name.startsWith("shared-") }
+            .filterNot { it.name.contains("api-gateway") }
             .forEach { dependsOn(it.task(":$dependsOnTask")) }
     }
 }
@@ -19,6 +21,7 @@ aggregator("ktlintCheck",  "verification", "Runs ktlintCheck on all included bui
 aggregator("ktlintFormat", "formatting",   "Runs ktlintFormat on all included builds")
 aggregator("detekt",       "verification", "Runs detekt on all included builds")
 aggregator("test",         "verification", "Runs all tests across all included builds")
+aggregator("checkHexagonalDependencies", "verification", "Fails if a framework reaches any application layer")
 
 tasks.named("build") {
     gradle.includedBuilds.forEach { dependsOn(it.task(":build")) }

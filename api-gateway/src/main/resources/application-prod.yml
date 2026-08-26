@@ -4,8 +4,6 @@ spring:
       host: ${REDIS_HOST:gateway-session-store}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD}
-      # Session records are encrypted at rest (SessionCipher), but the password
-      # and the ciphertext still cross the network. TLS closes that leg.
       ssl:
         enabled: ${REDIS_SSL_ENABLED:true}
         bundle: ${REDIS_SSL_BUNDLE:}
@@ -96,13 +94,8 @@ veds:
   shared:
     keycloak:
       cookie:
-        # Non-negotiable in production: a session cookie without Secure can be
-        # sent over plain http and captured.
         secure: true
   gateway:
     session:
-      # Base64-encoded AES-256 key (32 bytes). Generate with:
-      #   openssl rand -base64 32
-      # No default on purpose: a shipped key is the same as no encryption.
       encryption-key: ${GATEWAY_SESSION_ENCRYPTION_KEY}
       ttl: ${GATEWAY_SESSION_TTL:7d}

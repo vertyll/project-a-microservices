@@ -33,7 +33,7 @@ internal class TaskCommentJpaEntity(
     var content: String,
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "task_comment_attachment", joinColumns = [JoinColumn(name = "comment_id")])
-    @Column(name = "file_id", nullable = false)
+    @Column(name = "attachment_id", nullable = false)
     var attachmentIds: MutableSet<UUID> = mutableSetOf(),
     @Column(name = "created_at", nullable = false, updatable = false)
     var createdAt: Instant = Instant.now(),

@@ -44,6 +44,7 @@ A microservices-based architecture following principles:
 
 - [Architecture](./docs/architecture.md) — components and design principles.
 - [Saga Pattern & Transactional Outbox](./docs/saga-and-outbox.md) — saga engine, outbox, idempotent receiver.
+- [Service Dependencies](./docs/service-dependencies.md) — what each service needs to build and to run.
 - [Event Catalogue](./docs/events.md) — every topic, its owner and its consumers.
 - [Concurrency Control](./docs/concurrency.md) — optimistic locking, ETags, saga and outbox concurrency.
 - [Keycloak Configuration](./docs/keycloak.md) — realm setup, authentication flow, role management.

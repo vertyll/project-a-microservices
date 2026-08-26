@@ -42,40 +42,41 @@ val forbiddenOnApplicationClasspath =
         "org.hibernate",
     )
 
-val checkHexagonalDependencies by tasks.registering {
-    group = "verification"
-    description = "Asserts that no framework is on the application layer's compile classpath."
+val checkHexagonalDependencies =
+    tasks.register("checkHexagonalDependencies") {
+        group = "verification"
+        description = "Asserts that no framework is on the application layer's compile classpath."
 
-    val classpath = configurations.named("compileClasspath")
+        val classpath = configurations.named("compileClasspath")
 
-    doLast {
-        val offenders =
-            classpath
-                .get()
-                .resolvedConfiguration
-                .resolvedArtifacts
-                .asSequence()
-                .map { it.moduleVersion.id }
-                .filter { id -> forbiddenOnApplicationClasspath.any { id.group.startsWith(it) } }
-                .map { "${it.group}:${it.name}" }
-                .distinct()
-                .sorted()
-                .toList()
+        doLast {
+            val offenders =
+                classpath
+                    .get()
+                    .resolvedConfiguration
+                    .resolvedArtifacts
+                    .asSequence()
+                    .map { it.moduleVersion.id }
+                    .filter { id -> forbiddenOnApplicationClasspath.any { id.group.startsWith(it) } }
+                    .map { "${it.group}:${it.name}" }
+                    .distinct()
+                    .sorted()
+                    .toList()
 
-        if (offenders.isNotEmpty()) {
-            throw GradleException(
-                buildString {
-                    appendLine("The application layer must not depend on a framework.")
-                    appendLine("Found on its compile classpath:")
-                    offenders.forEach { appendLine("  - $it") }
-                    appendLine()
-                    appendLine("Move the framework concern into `infrastructure` and express it")
-                    appendLine("as a port. See docs/hexagonal-layering.md.")
-                },
-            )
+            if (offenders.isNotEmpty()) {
+                throw GradleException(
+                    buildString {
+                        appendLine("The application layer must not depend on a framework.")
+                        appendLine("Found on its compile classpath:")
+                        offenders.forEach { appendLine("  - $it") }
+                        appendLine()
+                        appendLine("Move the framework concern into `infrastructure` and express it")
+                        appendLine("as a port. See docs/hexagonal-layering.md.")
+                    },
+                )
+            }
         }
     }
-}
 
 tasks.named("check") {
     dependsOn(checkHexagonalDependencies)

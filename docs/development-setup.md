@@ -122,6 +122,19 @@ keys are republished on the next restart.
 Databases are exposed on 5432 (iam), 5433 (mail), 5434 (keycloak), 5435 (project), 5436 (task),
 5437 (notification), 5438 (translation), 5439 (file).
 
+### Re-running after a contract change
+
+`schemas-init` fails on a second `compose up` if a schema was reshaped — a renamed namespace or
+a changed field type is, correctly, incompatible with what the registry already holds. Locally
+the registry is disposable:
+
+```bash
+python scripts/schema_registry/register_schemas.py --registry-url http://localhost:8081 --reset
+```
+
+`--reset` drops each subject before registering. Never use it against a shared registry: there
+the refusal is the feature.
+
 ## Tests
 
 `./gradlew build` runs the unit tests only. The integration tests need a container runtime and

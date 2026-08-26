@@ -88,6 +88,16 @@ subprojects {
     }
 }
 
+tasks.register("checkHexagonalDependencies") {
+    group = "verification"
+    description = "Fails if a framework reaches the application layer"
+    dependsOn(
+        subprojects
+            .filter { it.name.endsWith("-application") }
+            .map { "${it.path}:checkHexagonalDependencies" },
+    )
+}
+
 listOf("test", "detekt", "ktlintCheck", "ktlintFormat").forEach { taskName ->
     tasks.register(taskName) {
         group = if (taskName == "ktlintFormat") "formatting" else "verification"

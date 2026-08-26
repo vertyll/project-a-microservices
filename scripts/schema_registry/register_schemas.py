@@ -22,6 +22,28 @@ def _put_subject_compatibility(registry_url: str, subject: str, level: str) -> N
         print(f"Compatibility {subject} -> {level}: {payload}")
 
 
+def _delete_subject(registry_url: str, subject: str) -> None:
+    """Soft- then hard-deletes a subject so it can be registered from scratch.
+
+    Only used with --reset. A namespace or field-type change makes the new schema
+    incompatible with what is already registered, and Schema Registry rightly
+    refuses it — which is what breaks a second `compose up` after a contract has
+    been reshaped. Locally the registry is disposable, so dropping the subject is
+    the correct answer; in a real environment the refusal is the point and this
+    flag must not be used.
+    """
+    base = f"{registry_url.rstrip('/')}/subjects/{subject}"
+    for suffix in ("", "?permanent=true"):
+        try:
+            req = request.Request(base + suffix, method="DELETE")
+            with request.urlopen(req, timeout=15):
+                pass
+        except error.HTTPError as e:
+            # 404 means it was never there, which is the state we wanted anyway.
+            if e.code != 404:
+                raise
+
+
 def _register_schema(registry_url: str, subject: str, schema_path: Path) -> None:
     schema_json = json.loads(schema_path.read_text(encoding="utf-8"))
     body = json.dumps({"schema": json.dumps(schema_json)}).encode("utf-8")
@@ -33,8 +55,15 @@ def _register_schema(registry_url: str, subject: str, schema_path: Path) -> None
             print(f"Registered {schema_path} -> {subject}: {payload}")
     except error.HTTPError as e:
         details = e.read().decode("utf-8", errors="replace")
+        hint = ""
+        if e.code == 409:
+            hint = (
+                "\n  This subject already holds an incompatible schema. If the contract was "
+                "reshaped (a renamed namespace or a changed field type), re-run with --reset "
+                "to drop the subject locally. Never use --reset against a shared registry."
+            )
         raise SystemExit(
-            f"Failed to register {schema_path} -> {subject}: HTTP {e.code} {details}"
+            f"Failed to register {schema_path} -> {subject}: HTTP {e.code} {details}{hint}"
         ) from e
 
 
@@ -60,6 +89,11 @@ def main() -> int:
         ],
         help="Per-subject compatibility level enforced before registration.",
     )
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Delete each subject before registering. Local development only.",
+    )
     args = parser.parse_args()
 
     schemas_dir = Path(args.schemas_dir)
@@ -74,6 +108,8 @@ def main() -> int:
             raise SystemExit(f"Unexpected schema path layout: {schema_path}")
 
         subject = f"{topic}-value"
+        if args.reset:
+            _delete_subject(args.registry_url, subject)
         _put_subject_compatibility(args.registry_url, subject, args.compatibility)
         _register_schema(args.registry_url, subject, schema_path)
 

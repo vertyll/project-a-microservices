@@ -3,7 +3,7 @@ spring:
     redis:
       host: localhost
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD}
+      password: ${REDIS_PASSWORD:local-redis-password}
   application:
     name: api-gateway
 
@@ -75,8 +75,5 @@ logging:
 veds:
   gateway:
     session:
-      # Base64-encoded AES-256 key (32 bytes). Generate with:
-      #   openssl rand -base64 32
-      # No default on purpose: a shipped key is the same as no encryption.
-      encryption-key: ${GATEWAY_SESSION_ENCRYPTION_KEY}
+      encryption-key: ${GATEWAY_SESSION_ENCRYPTION_KEY:ZTeJ0h/U451Ooa3ePJvmh1K0WaNTk8rq6TsWTNGQBzo=}
       ttl: ${GATEWAY_SESSION_TTL:7d}
