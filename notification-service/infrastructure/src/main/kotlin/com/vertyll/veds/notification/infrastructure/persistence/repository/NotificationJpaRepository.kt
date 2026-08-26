@@ -2,15 +2,12 @@ package com.vertyll.veds.notification.infrastructure.persistence.repository
 
 import com.vertyll.veds.notification.domain.model.NotificationType
 import com.vertyll.veds.notification.infrastructure.persistence.entity.NotificationJpaEntity
-import com.vertyll.veds.notification.infrastructure.persistence.entity.NotificationSettingsJpaEntity
-import com.vertyll.veds.notification.infrastructure.persistence.entity.RecipientRefJpaEntity
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import java.util.Optional
 import java.util.UUID
 
 @Repository
@@ -41,10 +38,3 @@ internal interface NotificationJpaRepository : JpaRepository<NotificationJpaEnti
     fun findAllBySubjectId(subjectId: UUID): List<NotificationJpaEntity>
 }
 
-@Repository
-internal interface NotificationSettingsJpaRepository : JpaRepository<NotificationSettingsJpaEntity, UUID>
-
-@Repository
-internal interface RecipientRefJpaRepository : JpaRepository<RecipientRefJpaEntity, UUID> {
-    fun findByEmailIgnoreCase(email: String): Optional<RecipientRefJpaEntity>
-}

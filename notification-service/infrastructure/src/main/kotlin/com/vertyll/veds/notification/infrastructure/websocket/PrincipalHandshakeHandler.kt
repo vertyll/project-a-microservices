@@ -33,8 +33,3 @@ internal class PrincipalHandshakeHandler : DefaultHandshakeHandler() {
     }
 }
 
-internal data class StompPrincipal(
-    private val userName: String,
-) : Principal {
-    override fun getName(): String = userName
-}
