@@ -29,7 +29,9 @@ internal class TranslationKeyPersistenceAdapter(
             repository.search(
                 searchTerm = searchTerm,
                 sourceService = sourceService,
-                pageable = org.springframework.data.domain.PageRequest.of(pageRequest.page, pageRequest.size),
+                pageable =
+                    org.springframework.data.domain.PageRequest
+                        .of(pageRequest.page, pageRequest.size),
             )
         return PageResult(
             content = page.content.map { it.toDomain() },

@@ -11,4 +11,3 @@ data class RegisterCatalogueRequest(
     @field:Valid
     val entries: List<CatalogueEntryRequest> = emptyList(),
 )
-
