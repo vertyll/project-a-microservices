@@ -12,7 +12,7 @@ testcontainers = "1.21.3"
 kotlin-logging = "8.0.4"
 junit-jupiter = "5.11.4"
 flyway = "13.4.0"
-keycloak = "26.0.8"
+keycloak = "26.0.12"
 
 [libraries]
 # Pure unit testing for the domain and application modules.
