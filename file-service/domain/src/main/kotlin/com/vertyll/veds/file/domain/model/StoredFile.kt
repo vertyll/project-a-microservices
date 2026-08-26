@@ -61,8 +61,3 @@ data class StoredFile(
     }
 }
 
-enum class UploadStatus {
-    PENDING,
-    CONFIRMED,
-    DELETED,
-}
