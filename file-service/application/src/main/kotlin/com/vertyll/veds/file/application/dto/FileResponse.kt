@@ -6,13 +6,6 @@ import com.vertyll.veds.file.domain.model.UploadStatus
 import java.time.Instant
 import java.util.UUID
 
-data class UploadTicketResponse(
-    val fileId: UUID,
-    val uploadUrl: String,
-    val expiresAt: Instant,
-    val maxSizeBytes: Long,
-)
-
 data class FileResponse(
     val id: UUID,
     val originalName: String,
@@ -37,16 +30,3 @@ data class FileResponse(
             )
     }
 }
-
-data class DownloadTicketResponse(
-    val fileId: UUID,
-    val downloadUrl: String,
-    val originalName: String,
-    val contentType: String,
-    val expiresAt: Instant,
-)
-
-data class Actor(
-    val id: UUID,
-    val email: String,
-)
