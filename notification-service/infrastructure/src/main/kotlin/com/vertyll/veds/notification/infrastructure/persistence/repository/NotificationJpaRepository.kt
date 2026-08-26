@@ -37,4 +37,3 @@ internal interface NotificationJpaRepository : JpaRepository<NotificationJpaEnti
 
     fun findAllBySubjectId(subjectId: UUID): List<NotificationJpaEntity>
 }
-

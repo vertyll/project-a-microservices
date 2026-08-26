@@ -32,4 +32,3 @@ internal class PrincipalHandshakeHandler : DefaultHandshakeHandler() {
         return StompPrincipal(subject)
     }
 }
-
