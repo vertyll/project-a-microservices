@@ -12,8 +12,3 @@ data class ProjectSearchCriteria(
     val sortDescending: Boolean = true,
 )
 
-enum class ProjectSortField {
-    NAME,
-    CREATED_AT,
-    UPDATED_AT,
-}
