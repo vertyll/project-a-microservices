@@ -26,6 +26,3 @@ data class RequestUploadRequest(
         )
 }
 
-data class AttachFileRequest(
-    val scopeId: UUID,
-)
