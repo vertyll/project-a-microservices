@@ -11,4 +11,3 @@ data class ProjectSearchCriteria(
     val sortBy: ProjectSortField = ProjectSortField.CREATED_AT,
     val sortDescending: Boolean = true,
 )
-
