@@ -378,11 +378,11 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: [ "CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/8080" ]
-      interval: 10s
-      timeout: 5s
-      retries: 20
-      start_period: 30s
+      test: [ "CMD-SHELL", "{ printf 'HEAD /health/ready HTTP/1.0\\r\\n\\r\\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   # Keycloak database
   keycloak-db:
