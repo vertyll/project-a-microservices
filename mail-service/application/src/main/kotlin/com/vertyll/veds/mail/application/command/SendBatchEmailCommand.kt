@@ -6,4 +6,3 @@ data class SendBatchEmailCommand(
     val templateName: String,
     val replyTo: String?,
 )
-
