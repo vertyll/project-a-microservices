@@ -12,16 +12,3 @@ data class RaiseNotificationCommand(
     val fallbackEmail: String? = null,
     val excludeUserId: UUID? = null,
 )
-
-data class MarkReadCommand(
-    val notificationIds: Set<UUID>,
-)
-
-data class UpdateSettingsCommand(
-    val mutedTypes: Set<NotificationType>,
-    val emailEnabledTypes: Set<NotificationType>,
-)
-
-data class RetireNotificationsCommand(
-    val subjectId: UUID,
-)
