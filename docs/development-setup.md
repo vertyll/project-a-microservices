@@ -16,9 +16,8 @@ cd veds
 cp .env.example .env
 ```
 
-**The `.env` step is not optional.** Two values have no defaults, deliberately, because both
-protect session tokens and a default would eventually end up in somebody's production
-deployment:
+**The `.env` step is not optional.** Two values have no defaults, deliberately, because both protect session tokens and
+a default would eventually end up in somebody's production deployment:
 
 | Variable                         | Without it                            |
 |----------------------------------|---------------------------------------|
@@ -37,9 +36,8 @@ openssl rand -base64 32   # GATEWAY_SESSION_ENCRYPTION_KEY, must be 32 bytes
 docker compose up -d
 ```
 
-This brings up PostgreSQL (one database per service), Keycloak, Kafka with Schema Registry,
-Redis, Garage and MailDev. Two one-shot jobs run automatically and then exit — they are supposed
-to:
+This brings up PostgreSQL (one database per service), Keycloak, Kafka with Schema Registry, Redis, Garage and MailDev.
+Two one-shot jobs run automatically and then exit — they are supposed to:
 
 - **`topics-init`** applies `infra/kafka/topics.tf`, creating every topic
 - **`object-storage-init`** gives Garage its cluster layout, bucket, access key and CORS rules
@@ -58,8 +56,8 @@ docker compose ps
 python scripts/schema_registry/register_schemas.py --registry-url http://localhost:8081
 ```
 
-Producers register on first publish, but doing it up front means an incompatible schema is
-caught now rather than at runtime, and consumers can start in any order.
+Producers register on first publish, but doing it up front means an incompatible schema is caught now rather than at
+runtime, and consumers can start in any order.
 
 ## 4. Build
 
@@ -68,9 +66,8 @@ caught now rather than at runtime, and consumers can start in any order.
 ```
 
 The root project is a composite build aggregating every module. It also exposes `ktlintCheck`,
-`ktlintFormat`, `detekt` and `test` across all included builds; `check` runs the three
-verification tasks together. `-contracts` modules are excluded from those aggregators because
-they contain only generated Avro classes.
+`ktlintFormat`, `detekt` and `test` across all included builds; `check` runs the three verification tasks together.
+`-contracts` modules are excluded from those aggregators because they contain only generated Avro classes.
 
 To build one service on its own:
 
@@ -80,8 +77,7 @@ cd <service-name> && ./gradlew build
 
 ## 5. Run the services
 
-Each in its own terminal, or through the `.run` configurations in IntelliJ
-(`All_services.run.xml` starts everything):
+Each in its own terminal, or through the `.run` configurations in IntelliJ (`All_services.run.xml` starts everything):
 
 ```bash
 cd <service-name>
@@ -89,9 +85,8 @@ cd <service-name>
 ```
 
 **Order matters in one place only.** Every service registers its translation keys with
-`translation-service` at start-up, so starting that one first avoids a failed registration in
-the logs. Nothing breaks if you do not: registration failure is deliberately non-fatal, and the
-keys are republished on the next restart.
+`translation-service` at start-up, so starting that one first avoids a failed registration in the logs. Nothing breaks
+if you do not: registration failure is deliberately non-fatal, and the keys are republished on the next restart.
 
 | Service                | Port |
 |------------------------|------|
@@ -119,26 +114,25 @@ keys are republished on the next restart.
 | Object storage (S3)    | http://localhost:9100 |
 | Object storage console | http://localhost:9101 |
 
-Databases are exposed on 5432 (iam), 5433 (mail), 5434 (keycloak), 5435 (project), 5436 (task),
-5437 (notification), 5438 (translation), 5439 (file).
+Databases are exposed on 5432 (iam), 5433 (mail), 5434 (keycloak), 5435 (project), 5436 (task), 5437 (notification),
+5438 (translation), 5439 (file).
 
 ### Re-running after a contract change
 
-`schemas-init` fails on a second `compose up` if a schema was reshaped — a renamed namespace or
-a changed field type is, correctly, incompatible with what the registry already holds. Locally
-the registry is disposable:
+`schemas-init` fails on a second `compose up` if a schema was reshaped — a renamed namespace or a changed field type is,
+correctly, incompatible with what the registry already holds. Locally the registry is disposable:
 
 ```bash
 python scripts/schema_registry/register_schemas.py --registry-url http://localhost:8081 --reset
 ```
 
-`--reset` drops each subject before registering. Never use it against a shared registry: there
-the refusal is the feature.
+`--reset` drops each subject before registering. Never use it against a shared registry: there the refusal is the
+feature.
 
 ## Tests
 
-`./gradlew build` runs the unit tests only. The integration tests need a container runtime and
-are tagged out of the default build:
+`./gradlew build` runs the unit tests only. The integration tests need a container runtime and are tagged out of the
+default build:
 
 ```bash
 ./gradlew test -PintegrationTests
@@ -172,8 +166,8 @@ Every service exposes Spring Boot Actuator at `/actuator/health`.
 ./gradlew detekt         # static analysis
 ```
 
-`check` additionally runs `checkHexagonalDependencies`, which fails the build if a framework
-reaches a service's application layer. See [Hexagonal Layering](./hexagonal-layering.md).
+`check` additionally runs `checkHexagonalDependencies`, which fails the build if a framework reaches a service's
+application layer. See [Hexagonal Layering](./hexagonal-layering.md).
 
 ## Troubleshooting
 

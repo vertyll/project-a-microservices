@@ -3,6 +3,7 @@
 ## Overview
 
 A microservices-based architecture following principles:
+
 - Domain-Driven Design.
 - Event-Driven Architecture.
 - Hexagonal Architecture.
@@ -14,11 +15,14 @@ A microservices-based architecture following principles:
 
 The project is split into the following components:
 
-1. **API Gateway** – Entry point for all client requests, handles routing to appropriate services, JWT validation, and BFF (Backend-For-Frontend) auth proxy to Keycloak.
-2. **IAM Service** – Consolidates user management, roles, permissions, and account operations. Authentication is delegated to Keycloak.
+1. **API Gateway** – Entry point for all client requests, handles routing to appropriate services, JWT validation, and
+   BFF (Backend-For-Frontend) auth proxy to Keycloak.
+2. **IAM Service** – Consolidates user management, roles, permissions, and account operations. Authentication is
+   delegated to Keycloak.
 3. **Mail Service** – Handles email sending operations and templates.
 4. **Shared Infrastructure** – Engines, contracts, and utilities used across all microservices.
-5. **Each `*-contracts`** – Per-bounded-context Avro Published Language modules. Each holds only Avro schemas and the Java `SpecificRecord` classes generated from them.
+5. **Each `*-contracts`** – Per-bounded-context Avro Published Language modules. Each holds only Avro schemas and the
+   Java `SpecificRecord` classes generated from them.
 6. **Project Service** – Owns projects, project types, categories, statuses, project roles and memberships.
 7. **Task Service** – Owns tasks, comments and the board.
 8. **Notification Service** – Owns in-app notifications, delivery settings and the STOMP push transport.
@@ -26,8 +30,7 @@ The project is split into the following components:
 10. **File Service** – Owns file metadata and issues pre-signed URLs; the bytes live in object storage.
 11. **Template Service** – Baseline configuration for future microservices.
 
-Each service documents its own decisions in its `README.md`; this page covers what is true
-across all of them.
+Each service documents its own decisions in its `README.md`; this page covers what is true across all of them.
 
 ### Where the reasoning lives
 
@@ -58,16 +61,17 @@ Anything that is merely *interesting* goes in a README instead.
 | `shared-translation`    | Translation key DSL, ICU renderer, pattern validation                 | ICU4J              |
 | `shared-infrastructure` | Saga engine, outbox, Avro, Keycloak converter, ETag helpers           | Spring, Kafka, JPA |
 
-`shared-contracts` exists so that a service's **application layer can reference saga
-statuses without putting Spring on its compile classpath** — those types previously lived
-in `shared-infrastructure`, and importing a single enum pulled in the whole framework. The
-package names were kept (`com.vertyll.veds.sharedinfrastructure.saga.*`), so only the module
+`shared-contracts` exists so that a service's **application layer can reference saga statuses without putting Spring on
+its compile classpath** — those types previously lived in `shared-infrastructure`, and importing a single enum pulled in
+the whole framework. The package names were kept (`com.vertyll.veds.sharedinfrastructure.saga.*`), so only the module
 boundary moved; no import changed.
 
 > [!NOTE]
 >
-> Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL database. Services communicate with each other
-> asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing reliable event publication.
+> Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL
+database. Services communicate with each other
+> asynchronously via Apache Kafka (event-driven, choreography-based), with the Transactional Outbox pattern guaranteeing
+reliable event publication.
 
 ## Components
 
@@ -149,6 +153,7 @@ A baseline skeleton for spinning up a new microservice.
 ### Hexagonal Architecture (Ports & Adapters)
 
 Benefits:
+
 - **Testability**: Core business logic can be tested independently.
 - **Flexibility**: Easy to swap external dependencies without affecting business logic.
 - **Maintainability**: Clear separation between business rules and technical details.
@@ -157,6 +162,7 @@ Benefits:
 ### Domain-Driven Design (DDD)
 
 Each microservice is designed around a specific business domain with:
+
 - A clear bounded context.
 - Domain models that represent business entities.
 - A layered architecture within the hexagonal structure.
@@ -164,6 +170,7 @@ Each microservice is designed around a specific business domain with:
 - Encapsulated business logic.
 
 ### Event-Driven Architecture
+
 - Services communicate asynchronously via events (Kafka).
 - Promotes loose coupling and high scalability.
 - Enables reactive, responsive systems.
@@ -174,6 +181,7 @@ Each microservice is designed around a specific business domain with:
 ### SOLID Principles and Separation of Concerns
 
 The codebase adheres to:
+
 - **Single Responsibility Principle**: Each class has a single responsibility.
 - **Open/Closed Principle**: Classes are open for extension but closed for modification.
 - **Liskov Substitution Principle**: Subtypes are substitutable for their base types.
@@ -188,12 +196,14 @@ The codebase adheres to:
 ### Choreography Pattern for Service Coordination
 
 The system uses a choreography-based approach for service coordination:
+
 - Services react to events published by other services without central coordination.
 - Each service knows which events to listen for and what actions to take.
 - No central orchestrator is needed, making the system more decentralized and resilient.
 - Services maintain autonomy and can evolve independently.
 
-Benefits: 
+Benefits:
+
 - Reduced coupling.
 - Flexible and scalable architecture.
 - Easier to add/modify services.
@@ -209,26 +219,24 @@ They are different mechanisms and must not be mixed.
 | Platform | may this person administer the application? | realm roles + `Permission` in iam-service |
 | Project  | may this person edit *this* project?        | `ProjectRole` + `ProjectAccessPolicy`     |
 
-The project level is attribute-based: `ProjectAccessPolicy` reads attributes of the resource
-(`isPublic`, `isActive`), not only the subject's role, which is why "nobody may edit an archived
-project, not even its owner" is expressible there.
+The project level is attribute-based: `ProjectAccessPolicy` reads attributes of the resource (`isPublic`, `isActive`),
+not only the subject's role, which is why "nobody may edit an archived project, not even its owner" is expressible
+there.
 
-The platform level is plain RBAC, deliberately. There is no resource attribute an
-administration decision could depend on — editing translations is not something one can be
-allowed to do inside one project and not another.
+The platform level is plain RBAC, deliberately. There is no resource attribute an administration decision could depend
+on — editing translations is not something one can be allowed to do inside one project and not another.
 
 ### Permissions belong to roles
 
 They used to hang off users in iam-service (`user_permission_mapping`), which is not RBAC:
-granting access became a list of tick boxes per person, and "what can a manager do" had no
-answer. project-service already modeled this correctly, so IAM was the outlier.
+granting access became a list of tick boxes per person, and "what can a manager do" had no answer. project-service
+already modeled this correctly, so IAM was the outlier.
 
-`V4__Role_permission_mapping.sql` carries the existing grants over and drops the user table.
-Per-user exceptions were **not** kept: two sources of truth mean an audit has to consult both,
-and the administration screen could only ever show half the picture.
+`V4__Role_permission_mapping.sql` carries the existing grants over and drops the user table. Per-user exceptions were
+**not** kept: two sources of truth mean an audit has to consult both, and the administration screen could only ever show
+half the picture.
 
-This also matters for what comes next. With several organizations, per-user permissions are
-unauditable — nobody could say who holds a given right, or why. The organization level, when it
-arrives, is a copy of the project pattern one floor up: a role scoped to the organization, plus
-a policy object. The decision already flows through a policy object, so adding an organization
-attribute is one file rather than a review of every use case.
+This also matters for what comes next. With several organizations, per-user permissions are unauditable — nobody could
+say who holds a given right, or why. The organization level, when it arrives, is a copy of the project pattern one floor
+up: a role scoped to the organization, plus a policy object. The decision already flows through a policy object, so
+adding an organization attribute is one file rather than a review of every use case.

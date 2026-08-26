@@ -1,14 +1,12 @@
 # Event Catalogue
 
-Every topic in the system, who owns it and who reads it. Schemas live in `contracts/`; this page
-is the map.
+Every topic in the system, who owns it and who reads it. Schemas live in `contracts/`; this page is the map.
 
 ## Ownership rule
 
-A topic belongs to **one** service, which is the only one allowed to change its schema. For
-domain events that is the producer. For *commands*, it is the **consumer** — it defines what it
-accepts — which is why `mail-requested` belongs to mail-service even though mail-service never
-produces it.
+A topic belongs to **one** service, which is the only one allowed to change its schema. For domain events that is the
+producer. For *commands*, it is the **consumer** — it defines what it accepts — which is why `mail-requested` belongs to
+mail-service even though mail-service never produces it.
 
 ## Domain events
 
@@ -34,8 +32,8 @@ produces it.
 | `mail-sent`                | mail-service    | iam, project                |
 | `mail-failed`              | mail-service    | iam, project                |
 
-`file-confirmed` has no consumer yet. It is published because the alternative — adding it later,
-once something needs it — means a producer change at the moment a consumer is already waiting.
+`file-confirmed` has no consumer yet. It is published because the alternative — adding it later, once something needs
+it — means a producer change at the moment a consumer is already waiting.
 
 ## Commands
 
@@ -53,24 +51,22 @@ once something needs it — means a producer change at the moment a consumer is 
 | `saga-compensation-task`         | task-service         |
 | `saga-compensation-notification` | notification-service |
 
-Internal to one service: a compensation event is how a saga undoes its own steps, never a
-message another context reacts to. See [Sagas and Outbox](./saga-and-outbox.md).
+Internal to one service: a compensation event is how a saga undoes its own steps, never a message another context reacts
+to. See [Sagas and Outbox](./saga-and-outbox.md).
 
-`translation-service` and `file-service` have no compensation topic — neither takes part in a
-distributed flow.
+`translation-service` and `file-service` have no compensation topic — neither takes part in a distributed flow.
 
 ## Conventions that hold for all of them
 
-- **Written to the outbox, never sent directly.** Kafka does not join the database transaction,
-  so publishing directly would let an event escape from a transaction that later rolled back.
-- **Keyed by the aggregate id**, so all events about one entity land on the same partition and
-  are consumed in order — a status change cannot overtake the creation it followed.
-- **Carrying full state, not deltas.** A consumer that missed an earlier event still converges
-  on the right state instead of applying a change to a value it never had. This is also what
-  makes at-least-once delivery safe.
+- **Written to the outbox, never sent directly.** Kafka does not join the database transaction, so publishing directly
+  would let an event escape from a transaction that later rolled back.
+- **Keyed by the aggregate id**, so all events about one entity land on the same partition and are consumed in order — a
+  status change cannot overtake the creation it followed.
+- **Carrying full state, not deltas.** A consumer that missed an earlier event still converges on the right state
+  instead of applying a change to a value it never had. This is also what makes at-least-once delivery safe.
 - **Claimed through `ProcessedEventGuard`** before handling, so a redelivery costs nothing.
-- **Translated at the boundary.** Generated Avro types never travel past the consumer adapter;
-  a schema change upstream is a compile error in one file rather than a ripple through a domain.
+- **Translated at the boundary.** Generated Avro types never travel past the consumer adapter; a schema change upstream
+  is a compile error in one file rather than a ripple through a domain.
 
 ## Adding one
 

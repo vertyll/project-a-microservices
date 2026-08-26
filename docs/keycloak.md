@@ -3,13 +3,15 @@
 ## How It Works
 
 Keycloak is the identity provider (IdP) for the application. It handles:
+
 - User credentials storage (passwords, enabled/disabled state).
 - Token issuance (access tokens + refresh tokens, JWT format).
 - Role management (mirrored from the app's IAM service).
 
 > [!IMPORTANT]
 >
-> The realm JSON export: `keycloak/realm-config/realm-export.json` is automatically imported **on first startup** via Docker Compose volume mount. You do **not** need to configure Keycloak manually.
+> The realm JSON export: `keycloak/realm-config/realm-export.json` is automatically imported **on first startup** via
+Docker Compose volume mount. You do **not** need to configure Keycloak manually.
 
 ## What the Realm Export Creates
 
@@ -24,8 +26,8 @@ Keycloak is the identity provider (IdP) for the application. It handles:
 
 ## Authentication Flow — Token Handler (BFF) with Authorization Code + PKCE
 
-**No token of any kind reaches the browser.** The SPA holds one opaque HttpOnly cookie; the
-gateway keeps the access and refresh tokens in Redis and injects `Authorization: Bearer`
+**No token of any kind reaches the browser.** The SPA holds one opaque HttpOnly cookie; the gateway keeps the access and
+refresh tokens in Redis and injects `Authorization: Bearer`
 on the way through to the microservices.
 
 ```
@@ -46,21 +48,21 @@ Browser (SPA)              API Gateway (BFF)                Keycloak            
      |                            |    (cookie swapped for token)                     |
 ```
 
-1. **`GET /auth/authorize`** — gateway generates `state` and `code_verifier`, stores them in
-   short-lived cookies, redirects to Keycloak with `code_challenge = S256(code_verifier)`.
+1. **`GET /auth/authorize`** — gateway generates `state` and `code_verifier`, stores them in short-lived cookies,
+   redirects to Keycloak with `code_challenge = S256(code_verifier)`.
 2. **`GET /auth/callback`** — gateway verifies `state`, exchanges the code as a *confidential*
    client (client secret **and** PKCE verifier), and opens a server-side session.
-3. **`GET /auth/session`** — the SPA's bootstrap call: "am I logged in, and as whom?".
-   Returns id, e-mail and roles. Never a token.
+3. **`GET /auth/session`** — the SPA's bootstrap call: "am I logged in, and as whom?". Returns id, e-mail and roles.
+   Never a token.
 4. **`POST /auth/logout`** — revokes the refresh token at Keycloak and deletes the session.
 
-Each microservice still validates the JWT independently against Keycloak's JWKS endpoint —
-they are unaware a browser session ever existed.
+Each microservice still validates the JWT independently against Keycloak's JWKS endpoint — they are unaware a browser
+session ever existed.
 
 ### Why the full Token Handler, not just PKCE plus a token in the response
 
-Handing the SPA an access token — even with the refresh token safely in a cookie — leaves that
-access token in JavaScript memory.
+Handing the SPA an access token — even with the refresh token safely in a cookie — leaves that access token in
+JavaScript memory.
 
 |                                           | Token in the SPA       | Token Handler                            |
 |-------------------------------------------|------------------------|------------------------------------------|
@@ -71,20 +73,17 @@ access token in JavaScript memory.
 
 ### Implementation notes
 
-**Filter ordering.** The cookie→Bearer swap is a Spring `WebFilter` at `HIGHEST_PRECEDENCE`,
-*not* a Spring Cloud Gateway `GlobalFilter`. Gateway filters run inside the routing handler,
-which is after Spring Security's chain — a token injected there arrives too late and every
-request is rejected as anonymous.
+**Filter ordering.** The cookie→Bearer swap is a Spring `WebFilter` at `HIGHEST_PRECEDENCE`, *not* a Spring Cloud
+Gateway `GlobalFilter`. Gateway filters run inside the routing handler, which is after Spring Security's chain — a token
+injected there arrives too late and every request is rejected as anonymous.
 
-**Session store: Redis, not an encrypted cookie.** Keycloak's two tokens exceed the 4 KB cookie
-budget once encrypted and base64-encoded, refresh-token rotation would mean rewriting the cookie
-on every proxied request, and a server-side record is what makes logout genuinely revoke access.
-It also lets any gateway replica serve any session.
+**Session store: Redis, not an encrypted cookie.** Keycloak's two tokens exceed the 4 KB cookie budget once encrypted
+and base64-encoded, refresh-token rotation would mean rewriting the cookie on every proxied request, and a server-side
+record is what makes logout genuinely revoke access. It also lets any gateway replica serve any session.
 
-**CSRF.** Once authentication travels in a cookie the browser attaches automatically, CSRF
-becomes a live concern that a `Bearer` header did not have. `VEDS_SESSION` is `SameSite=Strict`,
-so it is never sent on a cross-site request. The two login-flow cookies must be `Lax` — they are
-read on the callback, which *is* a cross-site redirect.
+**CSRF.** Once authentication travels in a cookie the browser attaches automatically, CSRF becomes a live concern that a
+`Bearer` header did not have. `VEDS_SESSION` is `SameSite=Strict`, so it is never sent on a cross-site request. The two
+login-flow cookies must be `Lax` — they are read on the callback, which *is* a cross-site redirect.
 
 | Cookie                   | SameSite | Lifetime | Why                                                     |
 |--------------------------|----------|----------|---------------------------------------------------------|
@@ -107,13 +106,13 @@ read on the callback, which *is* a cross-site redirect.
 | Browser session ↔ token mapping                       | **api-gateway** |
 | Profile, terms consent, settings, role mirror         | **iam-service** |
 
-Profile data is deliberately *not* stored in Keycloak user attributes: it is not an application
-database and querying it is painful. The Admin API stays, in the narrower role of provisioning
-users at registration and syncing roles.
+Profile data is deliberately *not* stored in Keycloak user attributes: it is not an application database and querying it
+is painful. The Admin API stays, in the narrower role of provisioning users at registration and syncing roles.
 
 ## Configuration
 
-All Keycloak-related config is centralized in `shared-infrastructure/src/main/resources/shared-config.yml` and injected into each service via `KeycloakProperties`.
+All Keycloak-related config is centralized in `shared-infrastructure/src/main/resources/shared-config.yml` and injected
+into each service via `KeycloakProperties`.
 
 ## Where Do Role Names Live? (Microservices Anti–Shared-Kernel)
 
@@ -138,7 +137,10 @@ Role names are owned by **two places only**:
 
 > [!NOTE]
 >
-> What stays in `shared-infrastructure/security/` is **only** the technical JWT → `Authentication` adapter (`KeycloakJwtAuthenticationConverter` / `ReactiveKeycloakJwtAuthenticationConverter`). It is role-name-agnostic — it maps *whatever* strings sit in the configured claim path onto `ROLE_*` authorities. Each service then decides which of those it cares about, in its own `SecurityConfig`.
+> What stays in `shared-infrastructure/security/` is **only** the technical JWT → `Authentication` adapter
+(`KeycloakJwtAuthenticationConverter` / `ReactiveKeycloakJwtAuthenticationConverter`). It is role-name-agnostic — it
+maps *whatever* strings sit in the configured claim path onto `ROLE_*` authorities. Each service then decides which of
+those it cares about, in its own `SecurityConfig`.
 
 ## Useful Keycloak URLs (Local Dev)
 
@@ -164,9 +166,8 @@ curl -s -X POST http://localhost:9000/realms/veds/protocol/openid-connect/token 
 
 ## Production TLS
 
-`application-prod.yml` assumes TLS on every hop. Defaults are set for an ingress that
-terminates TLS in front of the gateway; flip `SERVER_SSL_ENABLED` when a process holds the
-certificate itself.
+`application-prod.yml` assumes TLS on every hop. Defaults are set for an ingress that terminates TLS in front of the
+gateway; flip `SERVER_SSL_ENABLED` when a process holds the certificate itself.
 
 | Leg                       | Setting                                                                                          |
 |---------------------------|--------------------------------------------------------------------------------------------------|
@@ -179,11 +180,10 @@ certificate itself.
 
 Two choices worth stating:
 
-- **`verify-full`, not `require`, for PostgreSQL.** `require` encrypts but accepts any
-  certificate, so it stops passive sniffing and not an active man-in-the-middle.
-- **`ssl.endpoint.identification.algorithm: https` for Kafka.** The default in some setups is
-  empty, which disables hostname verification and reintroduces the same gap.
+- **`verify-full`, not `require`, for PostgreSQL.** `require` encrypts but accepts any certificate, so it stops passive
+  sniffing and not an active man-in-the-middle.
+- **`ssl.endpoint.identification.algorithm: https` for Kafka.** The default in some setups is empty, which disables
+  hostname verification and reintroduces the same gap.
 
-The `Secure` cookie flag is fixed to `true` in prod rather than read from an environment
-variable: a session cookie without it can be sent over plain http and captured, and that is
-not a knob worth having.
+The `Secure` cookie flag is fixed to `true` in prod rather than read from an environment variable: a session cookie
+without it can be sent over plain http and captured, and that is not a knob worth having.

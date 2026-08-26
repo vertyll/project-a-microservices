@@ -9,10 +9,10 @@ Two tiers, split by what they can actually prove.
 
 ## Domain and application tests
 
-No Spring, no database, no containers — a direct consequence of the framework-free
-application layer (see [Hexagonal Layering](./hexagonal-layering.md)). They use JUnit 5 plus
-`kotlin-test`, deliberately **not** `spring-boot-starter-test`: pulling that in would put Spring
-on the module's classpath and the architecture check would fail the build.
+No Spring, no database, no containers — a direct consequence of the framework-free application layer
+(see [Hexagonal Layering](./hexagonal-layering.md)). They use JUnit 5 plus
+`kotlin-test`, deliberately **not** `spring-boot-starter-test`: pulling that in would put Spring on the module's
+classpath and the architecture check would fail the build.
 
 What is covered in project-service:
 
@@ -24,41 +24,37 @@ What is covered in project-service:
 | `VersionGuardTest`        | optimistic locking, including "no `If-Match` means no check"                  |
 | `ProjectTest`             | identity assigned by the domain, name validation, archive/restore             |
 
-Two of these are worth calling out because they protect properties that are easy to
-regress silently:
+Two of these are worth calling out because they protect properties that are easy to regress silently:
 
-- `ProjectAccessPolicyTest` asserts that `permissionsOf` agrees with `permits` for every
-  subject kind. The front end renders controls from `permissionsOf`; if the two drift, the UI
-  offers actions the policy then refuses.
-- `TranslationTest` asserts that an aggregate *cannot be constructed* with a language missing.
-  That invariant is what makes `translationFor` total, so nothing needs a fallback.
+- `ProjectAccessPolicyTest` asserts that `permissionsOf` agrees with `permits` for every subject kind. The front end
+  renders controls from `permissionsOf`; if the two drift, the UI offers actions the policy then refuses.
+- `TranslationTest` asserts that an aggregate *cannot be constructed* with a language missing. That invariant is what
+  makes `translationFor` total, so nothing needs a fallback.
 
 ## Integration tests
 
 `IntegrationTestBase` starts one PostgreSQL and one Kafka container for the whole module.
 
-The outbox and the saga engine are the two things most worth testing here, and neither can be
-meaningfully exercised against mocks: the outbox exists *because* Kafka does not join the
-database transaction, so a test with both faked proves nothing about the property it protects.
+The outbox and the saga engine are the two things most worth testing here, and neither can be meaningfully exercised
+against mocks: the outbox exists *because* Kafka does not join the database transaction, so a test with both faked
+proves nothing about the property it protects.
 
 `ProjectInvitationSagaIntegrationTest` asserts three things that only hold together:
 
-1. **Outbox atomicity** — `project-member-invited` is written in the same transaction as the
-   invitation row, not sent to Kafka directly.
-2. **Compensation** — a `mail-failed` reply settles the saga, so nobody is left holding a
-   pending invitation they were never told about.
-3. **Idempotency** — replaying the same feedback event changes nothing, which is required
-   because the outbox delivers at least once.
+1. **Outbox atomicity** — `project-member-invited` is written in the same transaction as the invitation row, not sent to
+   Kafka directly.
+2. **Compensation** — a `mail-failed` reply settles the saga, so nobody is left holding a pending invitation they were
+   never told about.
+3. **Idempotency** — replaying the same feedback event changes nothing, which is required because the outbox delivers at
+   least once.
 
 ## The architecture check
 
-`./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's
-resolved `compileClasspath`. It reads the *resolved* classpath rather than declared
-dependencies, so a framework arriving transitively is caught too — which is how Spring got in
-the first time, through a saga enum in `shared-infrastructure`.
+`./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's resolved
+`compileClasspath`. It reads the *resolved* classpath rather than declared dependencies, so a framework arriving
+transitively is caught too — which is how Spring got in the first time, through a saga enum in `shared-infrastructure`.
 
-It is wired into `check`, so `./gradlew build` runs it, and into the shared CI workflow as its
-own job.
+It is wired into `check`, so `./gradlew build` runs it, and into the shared CI workflow as its own job.
 
 ## Coverage by service
 
@@ -74,25 +70,25 @@ own job.
 
 Several of these exist to pin down a property that is easy to regress silently:
 
-- **`Task.moveTo` returns the same instance for a no-op move.** A board drag that lands a card
-  back in its own column must not emit an event that reaches every watcher as a notification.
-- **Re-seeding a translation leaves an administrator's override alone.** Break this and every
-  redeploy quietly reverts somebody's correction.
-- **A user's permissions are the union of their roles, never stored.** Break this and RBAC
-  dissolves into per-user exceptions nobody can audit.
-- **`permissionsOf` agrees with `evaluate`** in both access policies. The client renders
-  controls from the first; if they drift, the UI offers actions the policy then refuses.
+- **`Task.moveTo` returns the same instance for a no-op move.** A board drag that lands a card back in its own column
+  must not emit an event that reaches every watcher as a notification.
+- **Re-seeding a translation leaves an administrator's override alone.** Break this and every redeploy quietly reverts
+  somebody's correction.
+- **A user's permissions are the union of their roles, never stored.** Break this and RBAC dissolves into per-user
+  exceptions nobody can audit.
+- **`permissionsOf` agrees with `evaluate`** in both access policies. The client renders controls from the first; if
+  they drift, the UI offers actions the policy then refuses.
 
 ## What is not covered yet
 
-- **`mail-service`** — its behavior is talking to an SMTP server, and a test with that mocked
-  proves only that the mock was called.
+- **`mail-service`** — its behavior is talking to an SMTP server, and a test with that mocked proves only that the mock
+  was called.
 - **Web-layer tests** (`@WebMvcTest`) for controllers, serialization and ETag handling.
-- **`ProjectQueryAdapter` and `TaskQueryAdapter`** — together the largest piece of handwritten
-  JPQL in the repository, and therefore the most likely to be wrong. They need a Testcontainers
-  test against a real PostgreSQL; nothing else would prove anything about them.
-- **Application services** — everything so far is domain-level. The use cases are constructible
-  without Spring by design, so this is a gap in effort rather than in possibility.
+- **`ProjectQueryAdapter` and `TaskQueryAdapter`** — together the largest piece of handwritten JPQL in the repository,
+  and therefore the most likely to be wrong. They need a Testcontainers test against a real PostgreSQL; nothing else
+  would prove anything about them.
+- **Application services** — everything so far is domain-level. The use cases are constructible without Spring by
+  design, so this is a gap in effort rather than in possibility.
 
 ## Running the integration tests
 
@@ -103,14 +99,12 @@ They need a container runtime, so `./gradlew build` does **not** run them: every
 ./gradlew test -PintegrationTests
 ```
 
-Excluded rather than silently skipped on a missing runtime, deliberately. A suite that skips
-itself looks exactly like a suite that passes, and the first time that matters is the time it
-would have caught something.
+Excluded rather than silently skipped on a missing runtime, deliberately. A suite that skips itself looks exactly like a
+suite that passes, and the first time that matters is the time it would have caught something.
 
 ### With Podman
 
-Testcontainers looks for a Docker socket. Podman provides a compatible one, but it has to be
-pointed at:
+Testcontainers looks for a Docker socket. Podman provides a compatible one, but it has to be pointed at:
 
 ```bash
 podman machine start
@@ -118,6 +112,6 @@ export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.
 export TESTCONTAINERS_RYUK_DISABLED=true
 ```
 
-Ryuk is disabled because its container needs privileges rootless Podman does not grant; without
-that variable it fails at startup and takes the suite with it. The cost is that stopped
-containers are not reaped automatically — `podman container prune` after a run.
+Ryuk is disabled because its container needs privileges rootless Podman does not grant; without that variable it fails
+at startup and takes the suite with it. The cost is that stopped containers are not reaped automatically —
+`podman container prune` after a run.

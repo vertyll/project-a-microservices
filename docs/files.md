@@ -1,14 +1,14 @@
 # Files
 
-Uploads and downloads never pass through a JVM. The browser talks to object storage directly
-with pre-signed URLs, and `file-service` brackets the transfer: it decides beforehand whether
-the upload is allowed and verifies afterward that it happened.
+Uploads and downloads never pass through a JVM. The browser talks to object storage directly with pre-signed URLs, and
+`file-service` brackets the transfer: it decides beforehand whether the upload is allowed and verifies afterward that it
+happened.
 
 ## Why not stream through the service
 
-A 25 MB attachment streamed through Spring occupies a request thread and heap for the whole
-transfer, and the service has nothing to say about the contents. The only thing it can usefully
-decide is *whether* the transfer may happen — which is exactly what a pre-signed URL encodes.
+A 25 MB attachment streamed through Spring occupies a request thread and heap for the whole transfer, and the service
+has nothing to say about the contents. The only thing it can usefully decide is *whether* the transfer may happen —
+which is exactly what a pre-signed URL encodes.
 
 ## The exchange
 
@@ -18,9 +18,9 @@ decide is *whether* the transfer may happen — which is exactly what a pre-sign
 | 2    | SPA → object storage | `PUT` to the signed URL                                                     |
 | 3    | SPA → file-service   | `POST /files/{id}/confirm` — size read back from storage                    |
 
-Three steps by necessity. The record has to exist before step 2, or something could be written
-to storage that this service never allowed. And step 3 has to verify against storage, because
-the client saying "done" is a claim while a reported object size is evidence.
+Three steps by necessity. The record has to exist before step 2, or something could be written to storage that this
+service never allowed. And step 3 has to verify against storage, because the client saying "done" is a claim while a
+reported object size is evidence.
 
 ## The bucket is private
 
@@ -29,51 +29,46 @@ No public read policy, no website configuration. Nothing is reachable without a 
 
 Two consequences worth knowing:
 
-- **A pre-signed URL is a bearer credential.** Whoever holds it can use it until it expires,
-  which is why downloads are signed for 5 minutes — a link pasted into a chat should stop
-  working before it is forwarded far. Uploads get 15, enough for a slow connection to finish a
-  large attachment.
-- **Images cannot use a permanent `src`.** `SignedImageDirective` resolves a file id into a
-  fresh link and re-requests once on a failed load. Binding a stale URL would leave the user
-  looking at a broken image with no way to tell why.
+- **A pre-signed URL is a bearer credential.** Whoever holds it can use it until it expires, which is why downloads are
+  signed for 5 minutes — a link pasted into a chat should stop working before it is forwarded far. Uploads get 15,
+  enough for a slow connection to finish a large attachment.
+- **Images cannot use a permanent `src`.** `SignedImageDirective` resolves a file id into a fresh link and re-requests
+  once on a failed load. Binding a stale URL would leave the user looking at a broken image with no way to tell why.
 
 ## CORS is required, and is not optional
 
-The browser `PUT`s to the store from the SPA's origin, so the bucket must allow it. Without
-this every upload dies in the preflight, and the failure looks like an application bug rather
-than a storage setting. `infra/garage/bootstrap.sh` applies it locally.
+The browser `PUT`s to the store from the SPA's origin, so the bucket must allow it. Without this every upload dies in
+the preflight, and the failure looks like an application bug rather than a storage setting. `infra/garage/bootstrap.sh`
+applies it locally.
 
-Allowing an origin is not the same as allowing anonymous reads — the bucket stays private
-either way.
+Allowing an origin is not the same as allowing anonymous reads — the bucket stays private either way.
 
 Two interceptors are scoped to the application's own API for the same reason: `withCredentials`
-would leak the session cookie to a third-party origin (and a CORS response cannot both allow
-credentials and use a wildcard origin), and a custom `X-Lang` header would be added to the
-preflight for a header the store has no reason to allow.
+would leak the session cookie to a third-party origin (and a CORS response cannot both allow credentials and use a
+wildcard origin), and a custom `X-Lang` header would be added to the preflight for a header the store has no reason to
+allow.
 
 ## Local storage: Garage
 
 `docker compose up` brings up Garage, a one-shot bootstrap and a web console on `:9101`.
 
-The bootstrap exists because a fresh Garage node has no layout, no bucket and no keys, and none
-of that can be expressed in `garage.toml` — it is cluster state applied through the CLI. Every
-step is idempotent, so a restart is harmless.
+The bootstrap exists because a fresh Garage node has no layout, no bucket and no keys, and none of that can be expressed
+in `garage.toml` — it is cluster state applied through the CLI. Every step is idempotent, so a restart is harmless.
 
-`pathStyleAccessEnabled(true)` is set in `ObjectStorageConfig` because Garage does not serve
-virtual-host style buckets without wildcard DNS, which a compose file does not have.
+`pathStyleAccessEnabled(true)` is set in `ObjectStorageConfig` because Garage does not serve virtual-host style buckets
+without wildcard DNS, which a compose file does not have.
 
-**One compatibility caveat.** The download URL sets `response-content-disposition` so the
-browser saves the file under its original name. That is an S3 feature a compatible store may
-not implement. If it is ignored the download still works — the file is simply named after the
-object key — so this degrades rather than fails, and needs no fallback.
+**One compatibility caveat.** The download URL sets `response-content-disposition` so the browser saves the file under
+its original name. That is an S3 feature a compatible store may not implement. If it is ignored the download still
+works — the file is simply named after the object key — so this degrades rather than fails, and needs no fallback.
 
 ## What the back end stores
 
 An id, never a URL and never a path.
 
-A URL expires — a stored one is a broken link waiting to happen. A path assumes the service
-serves the bytes, which none of them do. An id is the only thing that stays true, and it is what
-a client exchanges for a signed link at the moment it needs one.
+A URL expires — a stored one is a broken link waiting to happen. A path assumes the service serves the bytes, which none
+of them do. An id is the only thing that stays true, and it is what a client exchanges for a signed link at the moment
+it needs one.
 
 | Context         | Field                                        |
 |-----------------|----------------------------------------------|
@@ -86,12 +81,12 @@ The old `profile_picture` column held a path into a storage layout that no longe
 
 ### Keeping references honest
 
-`file-deleted` is consumed by task-service, which removes the id from every task and comment
-that held it. Without that a task keeps an attachment resolving to nothing, and the user meets
-it as a download that fails days later with no clue why.
+`file-deleted` is consumed by task-service, which removes the id from every task and comment that held it. Without that
+a task keeps an attachment resolving to nothing, and the user meets it as a download that fails days later with no clue
+why.
 
-Idempotent by construction: dropping an id that is already gone is a no-op, so an
-at-least-once redelivery costs nothing.
+Idempotent by construction: dropping an id that is already gone is a no-op, so an at-least-once redelivery costs
+nothing.
 
 ## Where the front end uses it
 
@@ -103,30 +98,30 @@ at-least-once redelivery costs nothing.
 
 Two patterns worth stating, because both replace something that used to be simpler:
 
-- **Upload before save.** The avatar and the project icon are uploaded first, and only the
-  resulting file id is submitted with the form. Ordered that way deliberately: a failed upload
-  must not leave a saved record pointing at a file that never arrived. The reverse order would.
-- **No `href` for a download.** A signed link expires while the page is open, so a link held in
-  the DOM is a dead download with nothing explaining why. The link is fetched on click instead.
+- **Upload before save.** The avatar and the project icon are uploaded first, and only the resulting file id is
+  submitted with the form. Ordered that way deliberately: a failed upload must not leave a saved record pointing at a
+  file that never arrived. The reverse order would.
+- **No `href` for a download.** A signed link expires while the page is open, so a link held in the DOM is a dead
+  download with nothing explaining why. The link is fetched on click instead.
 
 Both the avatar and the icon distinguish three states — a new file id, `null` to clear, and
-`undefined` to leave alone. "Unchanged" and "removed" are different intentions, and collapsing
-them silently drops somebody's picture.
+`undefined` to leave alone. "Unchanged" and "removed" are different intentions, and collapsing them silently drops
+somebody's picture.
 
 ## Deletion is two steps
 
 A database transaction and an object store do not commit together. A delete marks the record
 `DELETED` and a sweep removes the object afterward.
 
-The order is deliberate: a crash leaks an object, which the sweep collects, instead of losing
-the record that names the key — which nothing could ever collect.
+The order is deliberate: a crash leaks an object, which the sweep collects, instead of losing the record that names the
+key — which nothing could ever collect.
 
-The second sweep follows from the same reasoning. Between issuing a URL and the browser
-finishing, nothing here knows whether the object arrived, so a record left `PENDING` past its
-window is an abandoned upload and is purged with its object.
+The second sweep follows from the same reasoning. Between issuing a URL and the browser finishing, nothing here knows
+whether the object arrived, so a record left `PENDING` past its window is an abandoned upload and is purged with its
+object.
 
 ## What file-service does not decide
 
-Whether a project member may read another member's attachment is a *project* question, and the
-answer lives in project-service. file-service enforces ownership only. Duplicating the project
-rule here would mean two copies of an access rule that must never disagree.
+Whether a project member may read another member's attachment is a *project* question, and the answer lives in
+project-service. file-service enforces ownership only. Duplicating the project rule here would mean two copies of an
+access rule that must never disagree.

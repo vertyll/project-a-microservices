@@ -22,10 +22,10 @@ contracts/mail-service/mail-requested/v1/mail-requested.avsc
 
 ## Which directory a schema belongs in
 
-The **owning** service, which is not always the producer. For a domain event the owner is the
-producer; for a command it is the consumer, because the consumer defines what it accepts.
-`mail-requested` therefore lives under `mail-service/` even though iam-service and
-notification-service are the ones that publish it.
+The **owning** service, which is not always the producer. For a domain event the owner is the producer; for a command it
+is the consumer, because the consumer defines what it accepts.
+`mail-requested` therefore lives under `mail-service/` even though iam-service and notification-service are the ones
+that publish it.
 
 Who owns and consumes each topic: [Event Catalogue](../docs/events.md).
 
@@ -43,15 +43,14 @@ Dedicated services generates Java `SpecificRecord` classes from `.avsc` files.
 
 > [!IMPORTANT]
 >
-> Use the generated classes in publishers and consumers via the typed `Builder` API. 
+> Use the generated classes in publishers and consumers via the typed `Builder` API.
 > Do **not** hand-roll `GenericRecord` instances – they defeat the type-safety we get from codegen.
 
 ## Compatibility mode
 
-The registration script (`scripts/schema_registry/register_schemas.py`) sets
-per-subject compatibility to **BACKWARD** by default, before pushing the
-schema. This guarantees a new schema version can be read by consumers still
-using the previous version.
+The registration script (`scripts/schema_registry/register_schemas.py`) sets per-subject compatibility to **BACKWARD**
+by default, before pushing the schema. This guarantees a new schema version can be read by consumers still using the
+previous version.
 
 Override via:
 

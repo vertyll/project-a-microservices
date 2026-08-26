@@ -2,7 +2,8 @@
 
 > [!NOTE]
 >
-> This project uses a combination of HTTP ETags (at API boundaries) and JPA Optimistic Locking (within services) to prevent lost updates and to ensure safe concurrency across microservices and asynchronous processing.
+> This project uses a combination of HTTP ETags (at API boundaries) and JPA Optimistic Locking (within services) to
+prevent lost updates and to ensure safe concurrency across microservices and asynchronous processing.
 
 ## Summary
 
@@ -33,7 +34,8 @@ The persistence layer relies on JPA mechanisms to ensure data consistency during
 
 ## Sagas (Internal, no ETag)
 
-Sagas are backend-internal processes (event-driven), not HTTP resources — therefore **ETag/If-Match is not used in Sagas**. Concurrency control is managed through the following mechanisms:
+Sagas are backend-internal processes (event-driven), not HTTP resources — therefore **ETag/If-Match is not used in
+Sagas**. Concurrency control is managed through the following mechanisms:
 
 | Mechanism                 | Implementation Details                                                                                                                                                                                                                                                                                                                                    |
 |---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -45,7 +47,8 @@ Sagas are backend-internal processes (event-driven), not HTTP resources — ther
 
 ## Outbox Pattern
 
-The Transactional Outbox pattern guarantees reliable event publication with robust concurrency controls and retry mechanisms.
+The Transactional Outbox pattern guarantees reliable event publication with robust concurrency controls and retry
+mechanisms.
 
 | Feature                  | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 |--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
