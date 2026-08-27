@@ -20,6 +20,8 @@ spring:
       schema.registry.url: mock://project-service-test
 
 veds:
+  translation:
+    supported-languages: pl,en
   saga:
     # Short enough that a watchdog test does not have to wait, long enough that
     # a slow container start does not trip it.
