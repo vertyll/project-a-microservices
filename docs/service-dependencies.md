@@ -8,23 +8,42 @@ no service calls another to serve a request, so any one of them can be down with
 
 Composite-build dependencies, from each service's `settings.gradle.kts`.
 
-| Service              | Shared libraries                                                  | Contract modules                                                                                   |
-|----------------------|-------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| api-gateway          | `shared-infrastructure`                                           | —                                                                                                  |
-| iam-service          | `shared-contracts`, `shared-infrastructure`                       | `iam-contracts`, `mail-contracts`                                                                  |
-| mail-service         | `shared-contracts`, `shared-infrastructure`                       | `mail-contracts`, `iam-contracts`                                                                  |
-| project-service      | `shared-contracts`, `shared-infrastructure`                       | `project-contracts`, `mail-contracts`, `iam-contracts`                                             |
-| task-service         | `shared-contracts`, `shared-infrastructure`                       | `task-contracts`, `project-contracts`, `iam-contracts`, `file-contracts`                           |
-| notification-service | `shared-contracts`, `shared-infrastructure`                       | `notification-contracts`, `project-contracts`, `task-contracts`, `mail-contracts`, `iam-contracts` |
-| translation-service  | `shared-contracts`, `shared-infrastructure`, `shared-translation` | —                                                                                                  |
-| file-service         | `shared-contracts`, `shared-infrastructure`                       | `file-contracts`                                                                                   |
+| Service              | Shared libraries                                                                                             | Contract modules                                                                                   |
+|----------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| api-gateway          | `shared-web`                                                                                                 | —                                                                                                  |
+| iam-service          | `shared-saga-api`, `shared-web`, `shared-translation-client`, `shared-saga-engine`, `shared-messaging-kafka` | `iam-contracts`, `mail-contracts`                                                                  |
+| mail-service         | `shared-saga-api`, `shared-web`, `shared-translation-client`, `shared-saga-engine`, `shared-messaging-kafka` | `mail-contracts`, `iam-contracts`                                                                  |
+| project-service      | `shared-saga-api`, `shared-web`, `shared-translation-client`, `shared-saga-engine`, `shared-messaging-kafka` | `project-contracts`, `mail-contracts`, `iam-contracts`                                             |
+| task-service         | `shared-saga-api`, `shared-web`, `shared-translation-client`, `shared-saga-engine`, `shared-messaging-kafka` | `task-contracts`, `project-contracts`, `iam-contracts`, `file-contracts`                           |
+| notification-service | `shared-saga-api`, `shared-web`, `shared-translation-client`, `shared-saga-engine`, `shared-messaging-kafka` | `notification-contracts`, `project-contracts`, `task-contracts`, `mail-contracts`, `iam-contracts` |
+| translation-service  | `shared-web`, `shared-translation`                                                                           | —                                                                                                  |
+| file-service         | `shared-web`, `shared-translation-client`, `shared-messaging-kafka`                                          | `file-contracts`                                                                                   |
 
 A `-contracts` dependency means the service **reads or writes that context's events**, nothing more: it pulls in
 generated Avro classes, not code. `task-service` depending on
 `project-contracts` does not let it call project-service; it lets it deserialize the events project-service publishes.
 
-`shared-translation` is only in translation-service's build because the other services get it transitively through
-`shared-infrastructure`, which exposes it with `api(...)`.
+### What each shared library is for
+
+The split follows two rules: a module is framework-free when the application layer needs it, and a module is separate
+only when some consumer takes it without the rest.
+
+| Library                     | Framework | Taken by | Holds                                                                         |
+|-----------------------------|-----------|----------|-------------------------------------------------------------------------------|
+| `shared-saga-api`           | none      | 6        | `Saga`, `SagaStep`, `SagaStatus`, `SagaStepStatus`, `SagaTypeValue`           |
+| `shared-translation`        | none      | 7        | Key-declaration DSL and the ICU message renderer                              |
+| `shared-web`                | Spring    | **9**    | Keycloak JWT converters (servlet + reactive), ETag/optimistic-locking helpers |
+| `shared-messaging-kafka`    | Spring    | 7        | Transactional outbox, idempotent consumption, Avro serialisation              |
+| `shared-saga-engine`        | Spring    | 6        | Saga orchestration, compensation, watchdog, JPA base entities                 |
+| `shared-translation-client` | Spring    | 7        | Start-up registration of a service's translation keys                         |
+
+`shared-saga-api` exists because the application layer of six services speaks saga vocabulary and must never see a
+framework — the module boundary turns that rule into a compile error instead of a check. There is deliberately no
+`shared-messaging-api`: nothing in any application layer imports the outbox types, so an api/engine split there would
+produce a module with exactly the same consumers as the engine.
+
+`shared-web` is the only library the gateway takes. It is reactive and has no database, so it must not inherit JPA —
+which is what dragging in the old monolithic `shared-infrastructure` used to do.
 
 ## Infrastructure at runtime
 
@@ -39,10 +58,10 @@ generated Avro classes, not code. `task-service` depending on
 | translation-service  | `translation_service`  | required                | required (JWT)       | —                |
 | file-service         | `file_service`         | required                | required (JWT)       | Garage (S3 API)  |
 
-Kafka is "required" everywhere because the outbox dispatcher and the saga engine are wired by
-`shared-infrastructure` in every service. translation-service publishes nothing and consumes nothing, so its outbox
-tables stay empty — they exist because the shared module's entities are validated on start-up, and forking that module
-for one service would cost more than four empty tables.
+Kafka is required wherever `shared-messaging-kafka` is: the outbox dispatcher and, through it, saga compensation.
+translation-service publishes nothing and consumes nothing, so it takes neither that module nor the saga engine, and
+carries no outbox or saga tables at all. file-service takes the outbox but runs no saga, so it has the outbox tables
+and not the saga ones.
 
 ## Service-to-service
 

@@ -111,7 +111,7 @@ is painful. The Admin API stays, in the narrower role of provisioning users at r
 
 ## Configuration
 
-All Keycloak-related config is centralized in `shared-infrastructure/src/main/resources/shared-config.yml` and injected
+All Keycloak-related config is centralized in `shared-web/src/main/resources/shared-web-config.yml` and injected
 into each service via `KeycloakProperties`.
 
 ## Where Do Role Names Live? (Microservices Anti–Shared-Kernel)
@@ -127,7 +127,7 @@ Role names are owned by **two places only**:
 >
 > Other microservices **do not** depend on iam-service's enum. They check roles as plain strings.
 
-**Why no `shared-infrastructure.RoleType` enum:**
+**Why no `shared-web.RoleType` enum:**
 
 | Reason                        | Explanation                                                                                                                              |
 |-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
@@ -137,7 +137,7 @@ Role names are owned by **two places only**:
 
 > [!NOTE]
 >
-> What stays in `shared-infrastructure/security/` is **only** the technical JWT → `Authentication` adapter
+> What stays in `shared-web/security/` is **only** the technical JWT → `Authentication` adapter
 (`KeycloakJwtAuthenticationConverter` / `ReactiveKeycloakJwtAuthenticationConverter`). It is role-name-agnostic — it
 maps *whatever* strings sit in the configured claim path onto `ROLE_*` authorities. Each service then decides which of
 those it cares about, in its own `SecurityConfig`.

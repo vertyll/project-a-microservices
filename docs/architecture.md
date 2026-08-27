@@ -55,16 +55,18 @@ Anything that is merely *interesting* goes in a README instead.
 
 ### Shared modules
 
-| Module                  | Contains                                                              | Depends on         |
-|-------------------------|-----------------------------------------------------------------------|--------------------|
-| `shared-contracts`      | Saga protocol types (`SagaTypeValue`, `SagaStatus`, `SagaStepStatus`) | Kotlin stdlib only |
-| `shared-translation`    | Translation key DSL, ICU renderer, pattern validation                 | ICU4J              |
-| `shared-infrastructure` | Saga engine, outbox, Avro, Keycloak converter, ETag helpers           | Spring, Kafka, JPA |
+| Module                      | Contains                                                                              | Depends on                       |
+|-----------------------------|---------------------------------------------------------------------------------------|----------------------------------|
+| `shared-saga-api`           | Saga vocabulary (`Saga`, `SagaStep`, `SagaStatus`, `SagaStepStatus`, `SagaTypeValue`) | Kotlin stdlib only               |
+| `shared-translation`        | Translation key DSL, ICU renderer, pattern validation                                 | ICU4J                            |
+| `shared-web`                | Keycloak JWT converters, ETag and optimistic-locking helpers                          | Spring Security                  |
+| `shared-messaging-kafka`    | Outbox, idempotent consumption, Avro serialisation                                    | Spring, Kafka, JPA               |
+| `shared-saga-engine`        | Saga orchestration, compensation, watchdog, JPA base entities                         | `shared-saga-api`, Spring, JPA   |
+| `shared-translation-client` | Start-up registration of a service's translation keys                                 | `shared-translation`, Spring Web |
 
-`shared-contracts` exists so that a service's **application layer can reference saga statuses without putting Spring on
-its compile classpath** — those types previously lived in `shared-infrastructure`, and importing a single enum pulled in
-the whole framework. The package names were kept (`com.vertyll.veds.sharedinfrastructure.saga.*`), so only the module
-boundary moved; no import changed.
+The framework-free modules exist so that a service's **application layer can reference saga statuses without putting
+Spring on its compile classpath**. The Spring-bound modules are split by capability, and only where some consumer takes
+one without the others: the gateway takes `shared-web` alone, file-service takes the outbox without the saga engine.
 
 > [!NOTE]
 >

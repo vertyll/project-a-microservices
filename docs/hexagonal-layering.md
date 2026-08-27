@@ -18,12 +18,12 @@ infrastructure ──► application ──► domain
 | Layer            | May depend on                | Contains                                                   |
 |------------------|------------------------------|------------------------------------------------------------|
 | `domain`         | Kotlin stdlib                | Aggregates, value objects, repository *ports*, policies    |
-| `application`    | `domain`, `shared-contracts` | Use cases, commands, response DTOs, inbound/outbound ports |
+| `application`    | `domain`, `shared-saga-api`  | Use cases, commands, response DTOs, inbound/outbound ports |
 | `infrastructure` | everything                   | JPA, Kafka, Avro, web, Spring wiring, adapters             |
 
-`shared-contracts` is a module holding only the saga protocol types, with the Kotlin standard library as its single
-dependency. They used to sit in `shared-infrastructure`, so importing a saga status pulled Spring onto the application
-classpath.
+`shared-saga-api` is a module holding only the saga vocabulary, with the Kotlin standard library as its single
+dependency. Those types used to sit in the Spring-bound shared module, so importing a saga status pulled the whole
+framework onto the application classpath.
 
 In project-service the application layer's entire external import surface is:
 

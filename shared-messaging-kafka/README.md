@@ -1,9 +1,9 @@
-# shared-infrastructure
+# shared-messaging-kafka
 
 The Spring-side machinery every service needs: the saga engine, the transactional outbox, Avro
 serialization, the Keycloak JWT converter and ETag helpers.
 
-Unlike `shared-contracts` and `shared-translation`, this module **is** a Spring module. Nothing
+Unlike `shared-saga-api` and `shared-translation`, this module **is** a Spring module. Nothing
 in a service's application layer may depend on it — that is what the two smaller libraries exist
 to prevent, and what `checkHexagonalDependencies` enforces.
 

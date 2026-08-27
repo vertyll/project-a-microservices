@@ -52,7 +52,7 @@ proves nothing about the property it protects.
 
 `./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's resolved
 `compileClasspath`. It reads the *resolved* classpath rather than declared dependencies, so a framework arriving
-transitively is caught too — which is how Spring got in the first time, through a saga enum in `shared-infrastructure`.
+transitively is caught too — which is how Spring got in the first time, through a saga enum that used to live in the Spring-bound shared module.
 
 It is wired into `check`, so `./gradlew build` runs it, and into the shared CI workflow as its own job.
 

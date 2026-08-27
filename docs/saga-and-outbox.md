@@ -9,10 +9,10 @@ local saga and progresses by reacting to domain events on Kafka.
 
 ## Polyglot Persistence via Shared Contracts
 
-Both the **Saga** and **Transactional Outbox** patterns are built on top of database-agnostic ports defined in
-`shared-infrastructure`. To introduce a different storage (MongoDB, PostgreSQL, …), you only implement the ports against
-the new technology; the engines (`shared-infrastructure` ships JPA flavors like `BaseSaga`, `BaseSagaStep`,
-`OutboxJpaEntity`, etc.) do not change.
+Both the **Saga** and **Transactional Outbox** patterns are built on top of database-agnostic ports — the saga ports in
+`shared-saga-engine`, the outbox ports in `shared-messaging-kafka`. To introduce a different storage (MongoDB,
+PostgreSQL, …), you only implement the ports against the new technology; the engines (which ship JPA flavors like
+`BaseSaga`, `BaseSagaStep`, `BaseOutbox`, etc.) do not change.
 
 | Contract                                            | Purpose                                                                                                                        |
 |-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -25,7 +25,7 @@ the new technology; the engines (`shared-infrastructure` ships JPA flavors like 
 
 ## Canonical Building Blocks
 
-All building blocks live in `shared-infrastructure` and provide the foundation for robust asynchronous processing.
+All building blocks live in `shared-messaging-kafka` and `shared-saga-engine`, and provide the foundation for robust asynchronous processing.
 
 ### Transactional Outbox
 

@@ -60,20 +60,23 @@ A microservices-based architecture following principles:
 Each service documents its own decisions — what it owns, what it deliberately does not, and the
 reasoning behind the parts that look surprising.
 
-| Module                                                     |                                                        |
-|------------------------------------------------------------|--------------------------------------------------------|
-| [api-gateway](./api-gateway/README.md)                     | Token Handler, session encryption, filter ordering     |
-| [iam-service](./iam-service/README.md)                     | users, roles, permissions, registration saga           |
-| [mail-service](./mail-service/README.md)                   | delivery, and why failure is an event                  |
-| [project-service](./project-service/README.md)             | projects, membership, the access policy                |
-| [task-service](./task-service/README.md)                   | tasks, the board query, local projections              |
-| [notification-service](./notification-service/README.md)   | delivery rules, STOMP transport                        |
-| [translation-service](./translation-service/README.md)     | key ownership, ICU, the two-column rule                |
-| [file-service](./file-service/README.md)                   | pre-signed uploads, the two sweeps                     |
-| [template-service](./template-service/README.md)           | the reference service, and what to strip after cloning |
-| [shared-infrastructure](./shared-infrastructure/README.md) | saga engine, outbox, Avro, Keycloak converter          |
-| [shared-translation](./shared-translation/README.md)       | the key DSL and the ICU renderer                       |
-| [shared-contracts](./shared-contracts/README.md)           | saga protocol types, framework-free                    |
+| Module                                                             |                                                        |
+|--------------------------------------------------------------------|--------------------------------------------------------|
+| [api-gateway](./api-gateway/README.md)                             | Token Handler, session encryption, filter ordering     |
+| [iam-service](./iam-service/README.md)                             | users, roles, permissions, registration saga           |
+| [mail-service](./mail-service/README.md)                           | delivery, and why failure is an event                  |
+| [project-service](./project-service/README.md)                     | projects, membership, the access policy                |
+| [task-service](./task-service/README.md)                           | tasks, the board query, local projections              |
+| [notification-service](./notification-service/README.md)           | delivery rules, STOMP transport                        |
+| [translation-service](./translation-service/README.md)             | key ownership, ICU, the two-column rule                |
+| [file-service](./file-service/README.md)                           | pre-signed uploads, the two sweeps                     |
+| [template-service](./template-service/README.md)                   | the reference service, and what to strip after cloning |
+| [shared-saga-api](./shared-saga-api/README.md)                     | saga vocabulary, framework-free                        |
+| [shared-translation](./shared-translation/README.md)               | the key DSL and the ICU renderer                       |
+| [shared-web](./shared-web/README.md)                               | Keycloak converters, ETag and optimistic locking       |
+| [shared-messaging-kafka](./shared-messaging-kafka/README.md)       | outbox, idempotent consumption, Avro                   |
+| [shared-saga-engine](./shared-saga-engine/README.md)               | saga orchestration, compensation, watchdog             |
+| [shared-translation-client](./shared-translation-client/README.md) | start-up registration of translation keys              |
 
 Infrastructure directories document themselves too: [contracts](./contracts/README.md),
 [infra/kafka](./infra/kafka/README.md), [infra/garage](./infra/garage/README.md).
