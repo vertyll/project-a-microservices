@@ -43,7 +43,7 @@ framework — the module boundary turns that rule into a compile error instead o
 produce a module with exactly the same consumers as the engine.
 
 `shared-web` is the only library the gateway takes. It is reactive and has no database, so it must not inherit JPA —
-which is what dragging in the old monolithic `shared-infrastructure` used to do.
+which is what the single monolithic shared library it replaced used to drag in.
 
 ## Infrastructure at runtime
 
@@ -55,7 +55,7 @@ which is what dragging in the old monolithic `shared-infrastructure` used to do.
 | project-service      | `project_service`      | required                | required (JWT)       | —                |
 | task-service         | `task_service`         | required                | required (JWT)       | —                |
 | notification-service | `notification_service` | required                | required (JWT)       | —                |
-| translation-service  | `translation_service`  | required                | required (JWT)       | —                |
+| translation-service  | `translation_service`  | **not needed**          | required (JWT)       | —                |
 | file-service         | `file_service`         | required                | required (JWT)       | Garage (S3 API)  |
 
 Kafka is required wherever `shared-messaging-kafka` is: the outbox dispatcher and, through it, saga compensation.
