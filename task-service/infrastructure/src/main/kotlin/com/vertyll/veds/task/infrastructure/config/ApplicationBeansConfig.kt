@@ -82,6 +82,10 @@ internal class ApplicationBeansConfig {
         )
 
     @Bean
+    fun taskReferenceValidator(projectDirectory: ProjectDirectoryRepository): TaskReferenceValidator =
+        TaskReferenceValidator(projectDirectory)
+
+    @Bean
     fun taskAuthorizationService(
         projectDirectory: ProjectDirectoryRepository,
         taskRepository: TaskRepository,
