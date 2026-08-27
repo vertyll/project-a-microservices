@@ -219,8 +219,8 @@ services:
       - ./infra/garage/bootstrap.sh:/bootstrap.sh:ro
     environment:
       OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-veds-files}
-      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-veds-local-access-key}
-      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-veds-local-secret-key}
+      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-GK7b3f9c1e4a5d2086f1c3b5a7}
+      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-4f8a1c6e9b2d5307a8e1f4c7b0d3a6e92c5f8b1d4a7e0c3f6b9d2a5e8c1f4b7d}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:4200}
       GARAGE_ADMIN_URL: http://object-storage:3903
       GARAGE_ADMIN_TOKEN: veds-local-admin-token

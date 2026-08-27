@@ -47,7 +47,15 @@ fi
 
 # Deterministic credentials, so application config does not have to be rewritten
 # after every reset. Local only — production issues its own.
-KEY_ID="$(api GET "/v1/key?search=$OBJECT_STORAGE_ACCESS_KEY" | jq -r '.[0].accessKeyId // empty')"
+#
+# Garage validates the shape of an imported key: the id must be `GK` followed by
+# 12 hex-encoded bytes and the secret 32 hex-encoded bytes. An arbitrary string
+# such as "veds-local-access-key" is rejected outright.
+#
+# The lookup lists keys and filters instead of using `?search=`, because search
+# answers "0 matching keys" with an *error object* rather than an empty array —
+# `.[0]` on that aborts jq, and with `set -e` it aborts this script.
+KEY_ID="$(api GET /v1/key | jq -r --arg k "$OBJECT_STORAGE_ACCESS_KEY" '.[] | select(.id == $k) | .id' | head -n 1)"
 if [ -z "$KEY_ID" ]; then
     echo "Importing local access key"
     KEY_ID="$(api POST /v1/key/import \

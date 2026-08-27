@@ -53,7 +53,7 @@ veds:
       endpoint: ${OBJECT_STORAGE_ENDPOINT}
       region: ${OBJECT_STORAGE_REGION:garage}
       bucket: ${OBJECT_STORAGE_BUCKET:veds-files}
-      access-key: ${OBJECT_STORAGE_ACCESS_KEY:veds-local-access-key}
-      secret-key: ${OBJECT_STORAGE_SECRET_KEY:veds-local-secret-key}
+      access-key: ${OBJECT_STORAGE_ACCESS_KEY}
+      secret-key: ${OBJECT_STORAGE_SECRET_KEY}
       upload-url-validity: 15m
       download-url-validity: 5m
