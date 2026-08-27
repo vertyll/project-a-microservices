@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="All services" type="CompoundRunConfigurationType" folderName="Services">
+    <toRun name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="FileServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="IAMServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="MailServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="ProjectServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="TaskServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="TemplateServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <toRun name="TranslationServiceApplication" type="SpringBootApplicationConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>
