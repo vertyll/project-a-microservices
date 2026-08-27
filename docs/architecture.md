@@ -68,6 +68,8 @@ The framework-free modules exist so that a service's **application layer can ref
 Spring on its compile classpath**. The Spring-bound modules are split by capability, and only where some consumer takes
 one without the others: the gateway takes `shared-web` alone, file-service takes the outbox without the saga engine.
 
+[Shared Modules](./shared-modules.md) is the canonical reference for what each one holds and why.
+
 > [!NOTE]
 >
 > Each microservice follows Hexagonal Architecture principles with a three-layer structure and has its own PostgreSQL

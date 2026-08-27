@@ -28,9 +28,9 @@ framework onto the application classpath.
 In project-service the application layer's entire external import surface is:
 
 ```
-com.vertyll.veds.sharedinfrastructure.saga.contract.SagaTypeValue
-com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
-com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+com.vertyll.veds.shared.saga.SagaStatus
+com.vertyll.veds.shared.saga.SagaStepStatus
+com.vertyll.veds.shared.saga.SagaTypeValue
 java.time.Instant
 java.util.UUID
 ```

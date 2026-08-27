@@ -50,10 +50,12 @@ allow.
 
 ## Local storage: Garage
 
-`docker compose up` brings up Garage, a one-shot bootstrap and a web console on `:9101`.
+Bringing the stack upstarts Garage, a one-shot bootstrap and a web console on `:9101`.
 
 The bootstrap exists because a fresh Garage node has no layout, no bucket and no keys, and none of that can be expressed
-in `garage.toml` — it is cluster state applied through the CLI. Every step is idempotent, so a restart is harmless.
+in `garage.toml` — it is cluster state, applied through the admin API. Every step is idempotent, so a restart is
+harmless. See [infra/garage](../infra/garage/README.md) for the version constraint and the two request shapes that are
+easy to get wrong.
 
 `pathStyleAccessEnabled(true)` is set in `ObjectStorageConfig` because Garage does not serve virtual-host style buckets
 without wildcard DNS, which a compose file does not have.

@@ -35,13 +35,17 @@ openssl rand -base64 32   # GATEWAY_SESSION_ENCRYPTION_KEY
 docker compose up -d
 ```
 
+Every `docker compose` command in this document works verbatim as `podman compose` — the
+compose file uses nothing Docker-specific.
+
 This brings up PostgreSQL (one database per service), Keycloak, Kafka with Schema Registry, Redis, Garage and MailDev.
 Two one-shot jobs run automatically and then exit — they are supposed to:
 
 - **`topics-init`** applies `infra/kafka/topics.tf`, creating every topic
 - **`object-storage-init`** gives Garage its cluster layout, bucket, access key and CORS rules
 
-Neither can be expressed in a configuration file: both are cluster state applied through a CLI.
+Neither can be expressed in a configuration file: both are cluster state. `topics-init` applies it with
+Terraform, `object-storage-init` through the Garage admin API.
 
 Wait for the health checks before moving on:
 

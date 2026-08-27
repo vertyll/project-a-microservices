@@ -13,11 +13,26 @@ pre-signed URLs, so file bytes never pass through a JVM.
 ## Why a bootstrap script
 
 A fresh Garage node has no cluster layout, no bucket and no access keys, and none of that can be
-expressed in `garage.toml` — it is cluster state applied through the CLI. `bootstrap.sh` runs as
-a one-shot compose service so that `docker compose up` yields a working store instead of a page
+expressed in `garage.toml` — it is cluster state, not configuration. `bootstrap.sh` runs as a
+one-shot compose service so that bringing the stack up yields a working store instead of a page
 of manual commands in a README nobody reads.
 
+It drives the **admin API** rather than the `garage` CLI: the Garage image ships the binary on an
+otherwise empty filesystem with no shell, so a mounted script cannot run there.
+
 Every step is idempotent, so a restart is harmless.
+
+## Why the image version is pinned
+
+The script targets the `/v2` admin API, and the web console requires it too. Garage 1.x serves
+only `/v1` and cannot set bucket CORS through the admin API at all, so the console does not start
+and browser uploads fail their preflight. Keep this image at 2.x.
+
+Two shapes are easy to get wrong and are worth knowing before editing the script:
+
+- An imported access key must be `GK` followed by 12 hex-encoded bytes, and its secret 32
+  hex-encoded bytes. An arbitrary string is rejected.
+- CORS rule fields use S3's PascalCase spelling (`AllowedOrigin`, not `allowedOrigins`).
 
 ## CORS is required
 

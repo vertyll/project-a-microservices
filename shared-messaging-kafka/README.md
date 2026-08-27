@@ -1,29 +1,34 @@
 # shared-messaging-kafka
 
-The Spring-side machinery every service needs: the saga engine, the transactional outbox, Avro
-serialization, the Keycloak JWT converter and ETag helpers.
+The transactional outbox, idempotent consumption and Avro serialization over Kafka.
 
-Unlike `shared-saga-api` and `shared-translation`, this module **is** a Spring module. Nothing
-in a service's application layer may depend on it — that is what the two smaller libraries exist
-to prevent, and what `checkHexagonalDependencies` enforces.
+This is a Spring module. Nothing in a service's application layer may depend on it — that is
+what the framework-free libraries exist to prevent, and what `checkHexagonalDependencies`
+enforces.
+
+See [Shared Modules](../docs/shared-modules.md) for how this module relates to the others.
 
 ## What lives here, and why it is shared
 
-| Area                                                  | Why it is not per service                                                                                        |
-|-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| Saga engine, step recording, watchdog                 | The protocol has to be identical, or a compensation written in one service cannot be reasoned about from another |
-| Transactional outbox and dispatcher                   | The atomicity guarantee is the same everywhere; a second implementation is a second place to get it wrong        |
-| Avro serializer, deserializer, Schema Registry wiring | Wire format, not domain                                                                                          |
-| Keycloak JWT authentication converter                 | One mapping from realm roles to authorities                                                                      |
-| ETag utilities                                        | The `If-Match` contract must match across every endpoint                                                         |
+| Area                                                  | Why it is not per service                                                                                 |
+|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| Transactional outbox, dispatcher, `BaseOutbox`        | The atomicity guarantee is the same everywhere; a second implementation is a second place to get it wrong |
+| Consumer deduplication, `BaseProcessedEvent`          | Exactly-once handling is a property of the transport, not of any one domain                               |
+| Avro serializer, deserializer, Schema Registry wiring | Wire format, not domain                                                                                   |
 
 Anything that encodes a *decision about a domain* does not belong here. The temptation is to
 put a "shared" role name or status enum in, and that is the shared-kernel antipattern: two
 bounded contexts then cannot evolve their vocabulary independently.
 
+## Who takes it
+
+Every service that publishes or consumes an integration event. `api-gateway` does not, and
+neither does `translation-service` — it publishes nothing, so it carries no outbox tables
+either.
+
 ## API documentation
 
-This module is published with Dokka:
+Published with Dokka:
 
 ```bash
 ./gradlew docs
