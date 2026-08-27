@@ -13,21 +13,20 @@ Getting the whole system running locally, from a fresh clone.
 ```bash
 git clone https://github.com/vertyll/veds.git
 cd veds
-cp .env.example .env
 ```
 
-**The `.env` step is not optional.** Two values have no defaults, deliberately, because both protect session tokens and
-a default would eventually end up in somebody's production deployment:
+There is nothing to configure. Local defaults live next to the thing that needs them — `docker-compose.yml` for the
+infrastructure, `application-local.yml` for the gateway — so a fresh clone runs as-is.
 
-| Variable                         | Without it                            |
-|----------------------------------|---------------------------------------|
-| `REDIS_PASSWORD`                 | `docker compose up` fails immediately |
-| `GATEWAY_SESSION_ENCRYPTION_KEY` | the gateway fails to start            |
+Only the `prod` profile demands real values, and it takes them from the environment with no fallback:
 
-`.env.example` ships working local values. For anything beyond local, generate your own:
+| Variable                         | Used by                                                         |
+|----------------------------------|-----------------------------------------------------------------|
+| `REDIS_PASSWORD`                 | `application-prod.yml`, and `docker-compose.yml` as an override |
+| `GATEWAY_SESSION_ENCRYPTION_KEY` | `application-prod.yml` — must decode to 32 bytes                |
 
 ```bash
-openssl rand -base64 32   # GATEWAY_SESSION_ENCRYPTION_KEY, must be 32 bytes
+openssl rand -base64 32   # GATEWAY_SESSION_ENCRYPTION_KEY
 ```
 
 ## 2. Start the infrastructure
@@ -66,8 +65,10 @@ runtime, and consumers can start in any order.
 ```
 
 The root project is a composite build aggregating every module. It also exposes `ktlintCheck`,
-`ktlintFormat`, `detekt` and `test` across all included builds; `check` runs the three verification tasks together.
-`-contracts` modules are excluded from those aggregators because they contain only generated Avro classes.
+`ktlintFormat`, `detekt`, `test` and `checkHexagonalDependencies` across all included builds; `check` runs the
+verification tasks together. `-contracts` modules are excluded from those aggregators because they contain only
+generated Avro classes, and `checkHexagonalDependencies` covers the `-service` builds only — `api-gateway` and the
+`shared-*` libraries have no application layer to check.
 
 To build one service on its own:
 
@@ -138,6 +139,9 @@ default build:
 ./gradlew test -PintegrationTests
 ```
 
+With that flag the root aggregator narrows to the `-service` builds, since they are the only ones that tag integration
+tests out in the first place.
+
 Under Podman they also need `DOCKER_HOST` and `TESTCONTAINERS_RYUK_DISABLED` — see
 [Testing](./testing.md).
 
@@ -173,8 +177,8 @@ application layer. See [Hexagonal Layering](./hexagonal-layering.md).
 
 | Symptom                                           | Cause                                                                                               |
 |---------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| `docker compose up` fails on `REDIS_PASSWORD`     | No `.env` — see step 1                                                                              |
-| Gateway exits at start-up complaining about a key | `GATEWAY_SESSION_ENCRYPTION_KEY` missing or not 32 bytes                                            |
+| Gateway cannot authenticate against Redis         | `REDIS_PASSWORD` exported for compose but not for `bootRun`, or the reverse — the two then disagree |
+| Gateway exits at start-up complaining about a key | `GATEWAY_SESSION_ENCRYPTION_KEY` overridden with a value that is not 32 base64-decoded bytes        |
 | Uploads fail in the browser with a CORS error     | `FRONTEND_ORIGIN` does not match where the SPA runs; re-run `object-storage-init`                   |
 | The UI shows keys such as `project.not_found`     | `translation-service` is not running, or the services started before it and have not been restarted |
 | A consumer logs a schema error                    | Step 3 was skipped                                                                                  |

@@ -15,7 +15,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d iam_db -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -36,7 +36,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d mail_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -57,7 +57,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d project_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -78,7 +78,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d task_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -99,7 +99,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d notification_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -120,7 +120,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d translation_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -141,7 +141,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d file_service -h 127.0.0.1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -157,9 +157,11 @@ services:
       - "--appendonly"
       - "yes"
       - "--requirepass"
-      - "${REDIS_PASSWORD:?set REDIS_PASSWORD}"
+      - "${REDIS_PASSWORD:-local-redis-password}"
       - "--maxmemory-policy"
       - "noeviction"
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:-local-redis-password}
     volumes:
       - gateway-session-data:/data
     ports:
@@ -167,7 +169,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -200,7 +202,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD", "/garage", "node", "id", "-q"]
+      test: ["CMD", "/garage", "status"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -234,6 +236,8 @@ services:
     depends_on:
       object-storage:
         condition: service_healthy
+      object-storage-init:
+        condition: service_completed_successfully
     volumes:
       - ./infra/garage/garage.toml:/etc/garage.toml:ro
     environment:
@@ -287,6 +291,7 @@ services:
   schema-registry:
     image: docker.io/confluentinc/cp-schema-registry:8.2.2
     container_name: schema-registry
+    restart: always
     depends_on:
       kafka:
         condition: service_healthy
@@ -300,7 +305,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8081 || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/subjects || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -354,6 +359,7 @@ services:
   keycloak:
     container_name: keycloak
     image: quay.io/keycloak/keycloak:26.6.4
+    restart: always
     command: start-dev --import-realm
     environment:
       KC_DB: postgres
@@ -400,7 +406,7 @@ services:
     networks:
       - microservices-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak_user -d keycloak_db"]
+      test: ["CMD-SHELL", "pg_isready -U keycloak_user -d keycloak_db -h 127.0.0.1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -426,9 +432,15 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
       DYNAMIC_CONFIG_ENABLED: "true"
-    restart: unless-stopped
+    restart: always
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Web service for mail testing
   mail-dev:
@@ -440,6 +452,12 @@ services:
       - "1080:1080"
     networks:
       - microservices-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:1080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 networks:
   microservices-network:
