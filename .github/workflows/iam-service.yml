@@ -9,8 +9,11 @@ on:
       - main
     paths:
       - "iam-service/**"
-      - "shared-messaging-kafka/**"
+      - "shared-saga-api/**"
       - "shared-web/**"
+      - "shared-translation-client/**"
+      - "shared-saga-engine/**"
+      - "shared-messaging-kafka/**"
       - "iam-contracts/**"
       - "mail-contracts/**"
       - "contracts/iam-service/**"
@@ -32,6 +35,7 @@ jobs:
     uses: ./.github/workflows/quality-checks.yml
     with:
       service: iam-service
+      hexagonal: true
 
   build-and-push:
     needs: quality

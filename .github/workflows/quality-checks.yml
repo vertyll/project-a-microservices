@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: ubuntu-24.04
+      hexagonal:
+        description: Run checkHexagonalDependencies. Only the -service builds register that task.
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -121,3 +126,29 @@ jobs:
             ${{ inputs.service }}/build/reports/tests/
             ${{ inputs.service }}/*/build/reports/tests/
           if-no-files-found: ignore
+  hexagonal:
+    name: hexagonal
+    if: ${{ inputs.hexagonal }}
+    runs-on: ${{ inputs.runner }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make Gradle wrapper executable
+        working-directory: ${{ inputs.service }}
+        run: chmod +x ./gradlew
+
+      # Fails if a framework reaches the application layer's resolved compile classpath.
+      - name: Run checkHexagonalDependencies
+        working-directory: ${{ inputs.service }}
+        run: ./gradlew --no-daemon checkHexagonalDependencies

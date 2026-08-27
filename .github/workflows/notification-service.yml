@@ -1,4 +1,4 @@
-name: Build and Publish Mail Service
+name: Build and Publish Notification Service
 
 on:
   push:
@@ -8,17 +8,19 @@ on:
     branches:
       - main
     paths:
-      - "mail-service/**"
+      - "notification-service/**"
       - "shared-saga-api/**"
       - "shared-web/**"
       - "shared-translation-client/**"
       - "shared-saga-engine/**"
       - "shared-messaging-kafka/**"
-      - "iam-contracts/**"
+      - "notification-contracts/**"
+      - "project-contracts/**"
+      - "task-contracts/**"
       - "mail-contracts/**"
-      - "contracts/mail-service/**"
-      - "contracts/iam-service/mail-requested/**"
-      - ".github/workflows/mail-service.yml"
+      - "iam-contracts/**"
+      - "contracts/**"
+      - ".github/workflows/notification-service.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:
 
@@ -27,13 +29,13 @@ permissions:
 
 env:
   REGISTRY: zot.vertyll.dev
-  IMAGE_NAME: vertyll/veds-mail-service
+  IMAGE_NAME: vertyll/veds-notification-service
 
 jobs:
   quality:
     uses: ./.github/workflows/quality-checks.yml
     with:
-      service: mail-service
+      service: notification-service
       hexagonal: true
 
   build-and-push:
@@ -67,15 +69,15 @@ jobs:
           username: ${{ secrets.ZOT_USERNAME }}
           password: ${{ secrets.ZOT_PASSWORD }}
 
-      - name: Build and push Mail Service
+      - name: Build and push notification-service
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ./mail-service/Dockerfile
+          file: ./notification-service/Dockerfile
           platforms: linux/arm64
           push: ${{ github.ref_type == 'tag' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha,scope=mail-service
-          cache-to: type=gha,mode=max,scope=mail-service
+          cache-from: type=gha,scope=notification-service
+          cache-to: type=gha,mode=max,scope=notification-service

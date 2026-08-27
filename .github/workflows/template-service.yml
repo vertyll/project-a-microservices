@@ -1,0 +1,30 @@
+name: "Checks: Template Service"
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "template-service/**"
+      - "shared-saga-api/**"
+      - "shared-web/**"
+      - "shared-translation-client/**"
+      - "shared-saga-engine/**"
+      - "shared-messaging-kafka/**"
+      - "template-contracts/**"
+      - ".github/workflows/template-service.yml"
+      - ".github/workflows/quality-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: template-service
+      hexagonal: true

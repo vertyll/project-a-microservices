@@ -1,0 +1,26 @@
+name: "Checks: Translation Service"
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "translation-service/**"
+      - "shared-web/**"
+      - "shared-translation/**"
+      - ".github/workflows/translation-service.yml"
+      - ".github/workflows/quality-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: translation-service
+      hexagonal: true
