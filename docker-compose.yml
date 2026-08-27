@@ -187,7 +187,7 @@ services:
 
   # Object storage.
   object-storage:
-    image: dxflrs/garage:v1.0.1
+    image: dxflrs/garage:v2.3.0
     container_name: object-storage
     restart: always
     volumes:
