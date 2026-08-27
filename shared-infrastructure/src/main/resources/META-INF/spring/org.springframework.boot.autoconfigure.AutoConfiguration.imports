@@ -1,2 +1,0 @@
-com.vertyll.veds.sharedinfrastructure.config.OutboxAutoConfiguration
-com.vertyll.veds.sharedinfrastructure.avro.AvroSerDeAutoConfiguration

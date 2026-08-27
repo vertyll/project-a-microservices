@@ -1,0 +1,27 @@
+name: Shared Saga Engine Checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "shared-saga-engine/**"
+      - ".github/workflows/shared-saga-engine-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "shared-saga-engine/**"
+      - ".github/workflows/shared-saga-engine-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: shared-saga-engine

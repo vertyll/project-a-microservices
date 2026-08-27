@@ -8,6 +8,8 @@ import com.vertyll.veds.mail.infrastructure.persistence.repository.SagaStepJpaRe
 import com.vertyll.veds.mail.infrastructure.saga.MailCompensationEventSerializer
 import com.vertyll.veds.mail.infrastructure.saga.MailSagaCompensator
 import com.vertyll.veds.mail.infrastructure.saga.MailSagaEntityFactory
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 import com.vertyll.veds.shared.saga.engine.DefaultSagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
@@ -16,8 +18,6 @@ import com.vertyll.veds.shared.saga.engine.SagaCompensationTopic
 import com.vertyll.veds.shared.saga.engine.SagaEngine
 import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.SagaWatchdog
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling

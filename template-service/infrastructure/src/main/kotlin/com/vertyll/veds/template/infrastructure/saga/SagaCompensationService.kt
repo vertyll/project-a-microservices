@@ -1,7 +1,7 @@
 package com.vertyll.veds.template.infrastructure.saga
 
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.shared.saga.engine.SagaCompensationEngine
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 import com.vertyll.veds.template.infrastructure.config.SagaConfig
 import com.vertyll.veds.template.infrastructure.persistence.entity.SagaStepJpaEntity

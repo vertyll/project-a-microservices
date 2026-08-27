@@ -1,7 +1,7 @@
 package com.vertyll.veds.notification.infrastructure.persistence.entity
 
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxStatus
-import com.vertyll.veds.sharedinfrastructure.kafka.entity.BaseOutbox
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
+import com.vertyll.veds.shared.messaging.kafka.entity.BaseOutbox
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import java.time.Instant

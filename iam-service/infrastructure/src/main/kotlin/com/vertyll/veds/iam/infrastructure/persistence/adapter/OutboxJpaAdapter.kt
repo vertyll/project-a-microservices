@@ -2,10 +2,10 @@ package com.vertyll.veds.iam.infrastructure.persistence.adapter
 
 import com.vertyll.veds.iam.infrastructure.persistence.entity.OutboxJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.repository.OutboxJpaRepository
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxMessage
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxMessageFactory
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxRepositoryPort
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxStatus
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessage
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessageFactory
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxRepositoryPort
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import java.time.Instant

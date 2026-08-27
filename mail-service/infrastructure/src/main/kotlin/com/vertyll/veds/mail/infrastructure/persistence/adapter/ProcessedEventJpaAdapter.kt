@@ -2,9 +2,9 @@ package com.vertyll.veds.mail.infrastructure.persistence.adapter
 
 import com.vertyll.veds.mail.infrastructure.persistence.entity.ProcessedEventJpaEntity
 import com.vertyll.veds.mail.infrastructure.persistence.repository.ProcessedEventJpaRepository
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.ProcessedEvent
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.ProcessedEventFactory
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.ProcessedEventRepositoryPort
+import com.vertyll.veds.shared.messaging.kafka.contract.ProcessedEvent
+import com.vertyll.veds.shared.messaging.kafka.contract.ProcessedEventFactory
+import com.vertyll.veds.shared.messaging.kafka.contract.ProcessedEventRepositoryPort
 import org.springframework.stereotype.Component
 
 @Component

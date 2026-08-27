@@ -4,8 +4,8 @@ import com.vertyll.veds.notification.application.saga.model.NotificationCompensa
 import com.vertyll.veds.notification.saga.DeleteNotificationAction
 import com.vertyll.veds.notification.saga.LogNotificationCompensationAction
 import com.vertyll.veds.notification.saga.SagaCompensationEvent
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
 
 internal class NotificationCompensationEventSerializer(
     private val avroPayloadSerializer: AvroPayloadSerializer,

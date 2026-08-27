@@ -4,9 +4,9 @@ import com.vertyll.veds.mail.application.port.outbound.MailFeedbackEventPublishe
 import com.vertyll.veds.mail.infrastructure.kafka.MailKafkaTopics
 import com.vertyll.veds.mail.mail.MailFailedEvent
 import com.vertyll.veds.mail.mail.MailSentEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

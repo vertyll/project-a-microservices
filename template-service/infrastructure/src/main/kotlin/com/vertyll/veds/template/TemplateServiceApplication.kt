@@ -15,7 +15,8 @@ import org.springframework.kafka.annotation.EnableKafka
 )
 @ComponentScan(
     "com.vertyll.veds.template",
-    "com.vertyll.veds.sharedinfrastructure",
+    "com.vertyll.veds.shared.messaging",
+    "com.vertyll.veds.shared.translation.client",
 )
 @EnableJpaRepositories(
     "com.vertyll.veds.template.infrastructure.persistence.repository",

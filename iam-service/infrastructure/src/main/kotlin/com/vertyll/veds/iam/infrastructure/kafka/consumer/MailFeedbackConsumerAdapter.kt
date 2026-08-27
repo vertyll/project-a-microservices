@@ -4,8 +4,8 @@ import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
 import com.vertyll.veds.iam.infrastructure.kafka.IamKafkaTopics
 import com.vertyll.veds.mail.mail.MailFailedEvent
 import com.vertyll.veds.mail.mail.MailSentEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header

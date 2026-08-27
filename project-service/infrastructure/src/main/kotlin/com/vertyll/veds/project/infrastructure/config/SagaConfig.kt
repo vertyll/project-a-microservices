@@ -12,6 +12,9 @@ import com.vertyll.veds.project.infrastructure.saga.ProjectSagaCompensationHandl
 import com.vertyll.veds.project.infrastructure.saga.ProjectSagaCompensationStepFactory
 import com.vertyll.veds.project.infrastructure.saga.ProjectSagaCompensator
 import com.vertyll.veds.project.infrastructure.saga.ProjectSagaEntityFactory
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
 import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
@@ -23,9 +26,6 @@ import com.vertyll.veds.shared.saga.engine.SagaCompensationTopic
 import com.vertyll.veds.shared.saga.engine.SagaEngine
 import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.SagaWatchdog
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling

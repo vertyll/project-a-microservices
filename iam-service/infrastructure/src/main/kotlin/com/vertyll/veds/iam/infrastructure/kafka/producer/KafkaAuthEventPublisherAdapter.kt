@@ -5,9 +5,9 @@ import com.vertyll.veds.iam.UserRegisteredEvent
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.infrastructure.kafka.IamKafkaTopics
 import com.vertyll.veds.mail.mail.MailRequestedEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.UUID

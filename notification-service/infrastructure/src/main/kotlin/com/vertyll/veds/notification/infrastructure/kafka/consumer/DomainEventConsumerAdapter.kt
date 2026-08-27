@@ -7,8 +7,8 @@ import com.vertyll.veds.notification.domain.model.NotificationType
 import com.vertyll.veds.notification.infrastructure.kafka.NotificationKafkaTopics
 import com.vertyll.veds.project.ProjectMemberInvitedEvent
 import com.vertyll.veds.project.ProjectMemberJoinedEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.task.TaskArchivedEvent
 import com.vertyll.veds.task.TaskAssignedEvent
 import com.vertyll.veds.task.TaskCommentAddedEvent

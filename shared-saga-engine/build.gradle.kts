@@ -59,7 +59,7 @@ dependencies {
 
     // Compensation is published through the transactional outbox rather than
     // straight to Kafka, so the engine drives the outbox processor.
-    implementation("com.vertyll.veds:shared-infrastructure")
+    implementation("com.vertyll.veds:shared-messaging-kafka")
 
     // --- Common ---
     implementation(libs.bundles.spring.boot.common)

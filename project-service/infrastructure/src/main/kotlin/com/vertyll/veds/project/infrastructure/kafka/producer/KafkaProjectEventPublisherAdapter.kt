@@ -10,9 +10,9 @@ import com.vertyll.veds.project.ProjectStatusChangedEvent
 import com.vertyll.veds.project.ProjectUpdatedEvent
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.infrastructure.kafka.ProjectKafkaTopics
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.UUID

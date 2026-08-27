@@ -5,9 +5,9 @@ import com.vertyll.veds.file.FileDeletedEvent
 import com.vertyll.veds.file.application.port.outbound.FileEventPublisherPort
 import com.vertyll.veds.file.domain.model.FileScope
 import com.vertyll.veds.file.infrastructure.kafka.FileKafkaTopics
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.UUID

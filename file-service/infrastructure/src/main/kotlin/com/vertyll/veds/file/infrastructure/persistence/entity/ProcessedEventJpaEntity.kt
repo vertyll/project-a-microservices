@@ -1,6 +1,6 @@
 package com.vertyll.veds.file.infrastructure.persistence.entity
 
-import com.vertyll.veds.sharedinfrastructure.kafka.entity.BaseProcessedEvent
+import com.vertyll.veds.shared.messaging.kafka.entity.BaseProcessedEvent
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint

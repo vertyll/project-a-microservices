@@ -1,0 +1,2 @@
+com.vertyll.veds.shared.messaging.config.OutboxAutoConfiguration
+com.vertyll.veds.shared.messaging.avro.AvroSerDeAutoConfiguration

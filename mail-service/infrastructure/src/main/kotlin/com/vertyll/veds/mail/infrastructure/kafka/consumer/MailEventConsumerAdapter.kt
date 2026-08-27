@@ -3,8 +3,8 @@ package com.vertyll.veds.mail.infrastructure.kafka.consumer
 import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.infrastructure.kafka.MailKafkaTopics
 import com.vertyll.veds.mail.mail.MailRequestedEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

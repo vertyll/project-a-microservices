@@ -9,7 +9,7 @@ on:
       - main
     paths:
       - "iam-service/**"
-      - "shared-infrastructure/**"
+      - "shared-messaging-kafka/**"
       - "shared-web/**"
       - "iam-contracts/**"
       - "mail-contracts/**"

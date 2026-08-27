@@ -7,7 +7,9 @@ on:
     paths:
       - "shared-web/**"
       - "shared-saga-api/**"
-      - "shared-infrastructure/**"
+      - "shared-saga-engine/**"
+      - "shared-translation-client/**"
+      - "shared-messaging-kafka/**"
       - "shared-translation/**"
       - "build.gradle.kts"
       - ".github/workflows/dokka.yml"

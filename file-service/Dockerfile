@@ -7,10 +7,11 @@ WORKDIR /app
 
 # Copy the shared libraries first: each is a composite build included by the
 # service, so every one of them has to exist before Gradle configures.
-COPY shared-saga-api/ ./shared-saga-api/
+
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
-COPY shared-infrastructure/ ./shared-infrastructure/
+COPY shared-translation-client/ ./shared-translation-client/
+COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 
 # Copy Avro Published Language modules (DDD) + their schema sources.
 COPY contracts/ ./contracts/

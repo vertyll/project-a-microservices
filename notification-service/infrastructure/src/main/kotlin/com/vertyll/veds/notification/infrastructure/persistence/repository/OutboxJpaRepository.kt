@@ -1,7 +1,7 @@
 package com.vertyll.veds.notification.infrastructure.persistence.repository
 
 import com.vertyll.veds.notification.infrastructure.persistence.entity.OutboxJpaEntity
-import com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxStatus
+import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
 import jakarta.persistence.LockModeType
 import jakarta.persistence.QueryHint
 import org.springframework.data.domain.Pageable
@@ -26,11 +26,11 @@ internal interface OutboxJpaRepository : JpaRepository<OutboxJpaEntity, Long> {
         """
         SELECT o FROM OutboxJpaEntity o
         WHERE (
-            (o.status = com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxStatus.PENDING
+            (o.status = com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus.PENDING
                 AND o.retryCount < :maxRetries
                 AND (o.lastRetryAt IS NULL OR o.lastRetryAt < :retriableBefore))
             OR
-            (o.status = com.vertyll.veds.sharedinfrastructure.kafka.contract.OutboxStatus.PROCESSING
+            (o.status = com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus.PROCESSING
                 AND o.processedAt < :stuckBefore)
         )
         ORDER BY o.createdAt ASC

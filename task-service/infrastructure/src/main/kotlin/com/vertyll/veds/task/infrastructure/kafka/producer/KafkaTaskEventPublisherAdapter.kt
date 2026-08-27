@@ -1,8 +1,8 @@
 package com.vertyll.veds.task.infrastructure.kafka.producer
 
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.task.TaskArchivedEvent
 import com.vertyll.veds.task.TaskAssignedEvent
 import com.vertyll.veds.task.TaskCommentAddedEvent

@@ -8,7 +8,8 @@ project(":infrastructure").name = "iam-infrastructure"
 
 includeBuild("../shared-saga-api")
 includeBuild("../shared-web")
+includeBuild("../shared-translation-client")
 includeBuild("../shared-saga-engine")
-includeBuild("../shared-infrastructure")
+includeBuild("../shared-messaging-kafka")
 includeBuild("../iam-contracts")
 includeBuild("../mail-contracts")

@@ -74,10 +74,12 @@ tasks.named("check") {
  */
 val documentedLibraries =
     listOf(
-        "shared-web" to "Keycloak authentication, HTTP concurrency helpers and shared configuration",
         "shared-saga-api" to "Framework-free saga vocabulary spoken by the application layers",
-        "shared-infrastructure" to "Outbox dispatcher, saga engine and Avro serialisation over Kafka",
         "shared-translation" to "Translation key DSL and the ICU message renderer",
+        "shared-web" to "Keycloak authentication, HTTP concurrency helpers and shared configuration",
+        "shared-messaging-kafka" to "Transactional outbox, idempotent consumption and Avro over Kafka",
+        "shared-saga-engine" to "Saga orchestration, compensation and the JPA flavour of its ports",
+        "shared-translation-client" to "Start-up registration of a service's translation keys",
     )
 
 tasks.register("docs") {

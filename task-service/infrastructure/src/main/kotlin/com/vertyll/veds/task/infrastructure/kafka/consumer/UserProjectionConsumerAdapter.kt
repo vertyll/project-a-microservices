@@ -2,8 +2,8 @@ package com.vertyll.veds.task.infrastructure.kafka.consumer
 
 import com.vertyll.veds.iam.UserProfileUpdatedEvent
 import com.vertyll.veds.iam.UserRegisteredEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.task.domain.model.UserRef
 import com.vertyll.veds.task.domain.repository.UserDirectoryRepository
 import org.slf4j.LoggerFactory

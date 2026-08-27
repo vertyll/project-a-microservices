@@ -1,8 +1,8 @@
 package com.vertyll.veds.task.infrastructure.kafka.consumer
 
 import com.vertyll.veds.file.FileDeletedEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.task.application.port.inbound.FileProjectionUseCase
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener

@@ -25,8 +25,9 @@ dependencies {
     implementation(project(":template-application"))
     implementation(project(":template-domain"))
     implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-translation-client")
     implementation("com.vertyll.veds:shared-saga-engine")
-    implementation("com.vertyll.veds:shared-infrastructure")
+    implementation("com.vertyll.veds:shared-messaging-kafka")
     implementation("com.vertyll.veds:template-contracts")
 
     implementation(libs.bundles.spring.boot.common)

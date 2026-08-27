@@ -7,8 +7,8 @@ import com.vertyll.veds.project.ProjectMemberJoinedEvent
 import com.vertyll.veds.project.ProjectMemberRemovedEvent
 import com.vertyll.veds.project.ProjectStatusChangedEvent
 import com.vertyll.veds.project.ProjectUpdatedEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.task.application.port.inbound.ProjectProjectionUseCase
 import com.vertyll.veds.task.domain.model.ProjectCategoryRef
 import com.vertyll.veds.task.domain.model.ProjectMembershipRef

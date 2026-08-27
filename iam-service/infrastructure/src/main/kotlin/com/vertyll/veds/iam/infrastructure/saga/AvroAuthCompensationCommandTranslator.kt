@@ -6,9 +6,9 @@ import com.vertyll.veds.iam.saga.DeleteVerificationTokenAction
 import com.vertyll.veds.iam.saga.RevertEmailUpdateAction
 import com.vertyll.veds.iam.saga.RevertPasswordUpdateAction
 import com.vertyll.veds.iam.saga.SagaCompensationEvent
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
 import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
 import com.vertyll.veds.shared.saga.engine.DecodedCompensationEvent
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
 
 /**
  * Anti-Corruption Layer (DDD) translating raw Avro bytes received on the

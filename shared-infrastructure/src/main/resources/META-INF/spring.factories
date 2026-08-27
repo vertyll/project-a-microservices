@@ -1,1 +1,0 @@
-org.springframework.boot.EnvironmentPostProcessor=com.vertyll.veds.sharedinfrastructure.config.SharedMessagingEnvironmentPostProcessor

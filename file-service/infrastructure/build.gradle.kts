@@ -25,7 +25,8 @@ dependencies {
     implementation(project(":file-application"))
     implementation(project(":file-domain"))
     implementation("com.vertyll.veds:shared-web")
-    implementation("com.vertyll.veds:shared-infrastructure")
+    implementation("com.vertyll.veds:shared-translation-client")
+    implementation("com.vertyll.veds:shared-messaging-kafka")
     implementation("com.vertyll.veds:file-contracts")
     implementation(libs.aws.s3)
 

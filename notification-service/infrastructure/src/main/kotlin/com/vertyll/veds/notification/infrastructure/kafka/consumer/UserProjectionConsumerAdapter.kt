@@ -4,8 +4,8 @@ import com.vertyll.veds.iam.UserProfileUpdatedEvent
 import com.vertyll.veds.iam.UserRegisteredEvent
 import com.vertyll.veds.notification.domain.model.RecipientRef
 import com.vertyll.veds.notification.domain.repository.RecipientDirectoryRepository
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header

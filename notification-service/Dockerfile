@@ -10,8 +10,9 @@ WORKDIR /app
 COPY shared-saga-api/ ./shared-saga-api/
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
+COPY shared-translation-client/ ./shared-translation-client/
 COPY shared-saga-engine/ ./shared-saga-engine/
-COPY shared-infrastructure/ ./shared-infrastructure/
+COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 
 # Copy Avro Published Language modules (DDD) + their schema sources.
 COPY contracts/ ./contracts/

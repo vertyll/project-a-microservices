@@ -1,6 +1,6 @@
 package com.vertyll.veds.shared.saga.engine
 
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
 

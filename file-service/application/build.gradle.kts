@@ -5,7 +5,6 @@ plugins {
 dependencies {
     // The application layer depends on the domain and the saga contracts, and nothing else.
     implementation(project(":file-domain"))
-    implementation("com.vertyll.veds:shared-saga-api")
 
     testImplementation(libs.bundles.test.unit)
     testRuntimeOnly(libs.junit.platform.launcher)
@@ -26,7 +25,7 @@ tasks.withType<Test> {
  * The check reads the resolved `compileClasspath`, not the declared
  * dependencies, so a framework arriving transitively through another module is
  * caught too — which is how Spring got in the first time, via a saga enum in
- * `shared-infrastructure`.
+ * `shared-messaging-kafka`.
  */
 val forbiddenOnApplicationClasspath =
     listOf(

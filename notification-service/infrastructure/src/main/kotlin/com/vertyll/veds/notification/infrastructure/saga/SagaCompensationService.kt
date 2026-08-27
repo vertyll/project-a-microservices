@@ -3,8 +3,8 @@ package com.vertyll.veds.notification.infrastructure.saga
 import com.vertyll.veds.notification.application.saga.model.NotificationCompensationCommand
 import com.vertyll.veds.notification.infrastructure.config.SagaConfig
 import com.vertyll.veds.notification.infrastructure.persistence.entity.SagaStepJpaEntity
+import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.shared.saga.engine.SagaCompensationEngine
-import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header

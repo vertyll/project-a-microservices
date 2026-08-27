@@ -1,8 +1,8 @@
 package com.vertyll.veds.template.infrastructure.kafka.producer
 
-import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.event.Events
-import com.vertyll.veds.sharedinfrastructure.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
+import com.vertyll.veds.shared.messaging.event.Events
+import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.template.TemplateFailedEvent
 import com.vertyll.veds.template.TemplateProcessedEvent
 import com.vertyll.veds.template.application.port.outbound.TemplateEventPublisherPort
