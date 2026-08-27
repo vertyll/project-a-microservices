@@ -5,7 +5,7 @@ plugins {
 dependencies {
     // The application layer depends on the domain and the saga contracts, and nothing else.
     implementation(project(":project-domain"))
-    implementation("com.vertyll.veds:shared-contracts")
+    implementation("com.vertyll.veds:shared-saga-api")
 
     testImplementation(libs.bundles.test.unit)
     testRuntimeOnly(libs.junit.platform.launcher)

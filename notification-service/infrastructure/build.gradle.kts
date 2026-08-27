@@ -24,6 +24,8 @@ dependencyManagement {
 dependencies {
     implementation(project(":notification-application"))
     implementation(project(":notification-domain"))
+    implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-saga-engine")
     implementation("com.vertyll.veds:shared-infrastructure")
     implementation("com.vertyll.veds:iam-contracts")
     implementation(libs.spring.boot.starter.websocket)

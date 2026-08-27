@@ -1,0 +1,27 @@
+name: Shared Saga API Checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "shared-saga-api/**"
+      - ".github/workflows/shared-saga-api-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "shared-saga-api/**"
+      - ".github/workflows/shared-saga-api-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: shared-saga-api

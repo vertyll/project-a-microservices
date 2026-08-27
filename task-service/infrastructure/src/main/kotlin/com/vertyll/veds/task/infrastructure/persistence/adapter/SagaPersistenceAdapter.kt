@@ -1,6 +1,6 @@
 package com.vertyll.veds.task.infrastructure.persistence.adapter
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.task.application.port.outbound.SagaRepository
 import com.vertyll.veds.task.application.saga.model.Saga
 import com.vertyll.veds.task.infrastructure.persistence.entity.SagaJpaEntity

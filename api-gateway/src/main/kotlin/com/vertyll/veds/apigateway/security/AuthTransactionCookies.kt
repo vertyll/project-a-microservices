@@ -1,6 +1,6 @@
 package com.vertyll.veds.apigateway.security
 
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedConfigProperties
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange

@@ -9,8 +9,8 @@ import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
-import com.vertyll.veds.sharedinfrastructure.utils.KeycloakJwtUtils
+import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.security.KeycloakJwtUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

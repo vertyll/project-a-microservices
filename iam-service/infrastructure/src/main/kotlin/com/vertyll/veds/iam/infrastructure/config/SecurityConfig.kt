@@ -1,6 +1,6 @@
 package com.vertyll.veds.iam.infrastructure.config
 
-import com.vertyll.veds.sharedinfrastructure.security.KeycloakJwtAuthenticationConverter
+import com.vertyll.veds.shared.web.security.KeycloakJwtAuthenticationConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity

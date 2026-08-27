@@ -51,7 +51,7 @@ dependencyManagement {
 }
 
 dependencies {
-    implementation("com.vertyll.veds:shared-infrastructure")
+    implementation("com.vertyll.veds:shared-web")
 
     // --- Common ---
     implementation(libs.bundles.spring.boot.common)

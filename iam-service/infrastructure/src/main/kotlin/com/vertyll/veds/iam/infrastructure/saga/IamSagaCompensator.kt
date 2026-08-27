@@ -4,9 +4,9 @@ import com.vertyll.veds.iam.application.saga.model.AuthCompensationCommand
 import com.vertyll.veds.iam.application.saga.model.SagaStepNames
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationContext
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensator
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaWatchdog
+import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
+import com.vertyll.veds.shared.saga.engine.SagaCompensator
+import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import org.slf4j.LoggerFactory
 
 /**

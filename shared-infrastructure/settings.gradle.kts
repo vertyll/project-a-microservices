@@ -1,4 +1,4 @@
 rootProject.name = "shared-infrastructure"
 
-includeBuild("../shared-contracts")
+includeBuild("../shared-saga-api")
 includeBuild("../shared-translation")

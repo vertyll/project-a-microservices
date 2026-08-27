@@ -1,0 +1,14 @@
+[versions]
+ktlint-plugin = "14.2.0"
+detekt-plugin = "2.0.0-alpha.6"
+dokka-plugin = "2.2.0"
+kotlin = "2.4.10"
+
+[libraries]
+kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
+detekt = { id = "dev.detekt", version.ref = "detekt-plugin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka-plugin" }

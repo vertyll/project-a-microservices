@@ -1,6 +1,6 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.translation.application.command.ClearOverrideCommand
 import com.vertyll.veds.translation.application.command.OverrideTranslationCommand
 import com.vertyll.veds.translation.application.dto.PagedResponse

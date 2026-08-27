@@ -3,7 +3,7 @@ package com.vertyll.veds.iam.infrastructure.security.keycloak
 import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.domain.error.IamError
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedConfigProperties
 import jakarta.ws.rs.core.Response
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.representations.idm.CredentialRepresentation

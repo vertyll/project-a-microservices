@@ -1,6 +1,6 @@
 package com.vertyll.veds.template.application.saga.model
 
-import com.vertyll.veds.sharedinfrastructure.saga.contract.SagaTypeValue
+import com.vertyll.veds.shared.saga.SagaTypeValue
 
 /**
  * Saga step names for template-service.

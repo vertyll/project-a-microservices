@@ -68,17 +68,59 @@ tasks.named("check") {
     dependsOn("ktlintCheck", "detekt", "checkHexagonalDependencies", "test")
 }
 
+/**
+ * Every shared library that publishes KDoc, and the blurb shown for it on the landing page.
+ * A module joins the published documentation by being added here.
+ */
+val documentedLibraries =
+    listOf(
+        "shared-web" to "Keycloak authentication, HTTP concurrency helpers and shared configuration",
+        "shared-saga-api" to "Framework-free saga vocabulary spoken by the application layers",
+        "shared-infrastructure" to "Outbox dispatcher, saga engine and Avro serialisation over Kafka",
+        "shared-translation" to "Translation key DSL and the ICU message renderer",
+    )
+
 tasks.register("docs") {
     group = "documentation"
     description = "Generates Dokka HTML docs for the shared libraries (output: docs/dokka/index.html)"
-    dependsOn(gradle.includedBuild("shared-infrastructure").task(":dokkaGenerate"))
-    dependsOn(gradle.includedBuild("shared-translation").task(":dokkaGenerate"))
+
+    documentedLibraries.forEach { (name, _) ->
+        dependsOn(gradle.includedBuild(name).task(":dokkaGenerate"))
+    }
+
+    val landingPage = rootDir.resolve("docs/dokka/index.html")
+    val libraries = documentedLibraries
+
     doLast {
-        listOf(
-            "docs/dokka/index.html",
-            "docs/dokka/shared-translation/index.html",
-        ).map(rootDir::resolve)
-            .filter { it.exists() }
-            .forEach { logger.lifecycle("Dokka HTML docs: ${it.toURI()}") }
+        val cards =
+            libraries.joinToString("\n") { (name, blurb) ->
+                """      <li><a href="$name/index.html"><code>$name</code></a> — $blurb</li>"""
+            }
+        landingPage.parentFile.mkdirs()
+        landingPage.writeText(
+            """
+            <!doctype html>
+            <html lang="en">
+              <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>veds — shared library API documentation</title>
+                <style>
+                  :root { color-scheme: light dark; }
+                  body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 4rem auto; padding: 0 1rem; line-height: 1.6; }
+                  li { margin-bottom: .5rem; }
+                </style>
+              </head>
+              <body>
+                <h1>veds — shared library API documentation</h1>
+                <p>Generated from KDoc with Dokka.</p>
+                <ul>
+            $cards
+                </ul>
+              </body>
+            </html>
+            """.trimIndent(),
+        )
+        logger.lifecycle("Dokka HTML docs: ${landingPage.toURI()}")
     }
 }

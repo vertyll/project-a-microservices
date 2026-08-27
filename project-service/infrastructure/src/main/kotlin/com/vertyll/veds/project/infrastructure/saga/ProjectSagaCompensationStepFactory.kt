@@ -1,8 +1,8 @@
 package com.vertyll.veds.project.infrastructure.saga
 
 import com.vertyll.veds.project.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationStepFactory
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.SagaCompensationStepFactory
 import java.time.Instant
 
 internal class ProjectSagaCompensationStepFactory : SagaCompensationStepFactory<SagaStepJpaEntity> {

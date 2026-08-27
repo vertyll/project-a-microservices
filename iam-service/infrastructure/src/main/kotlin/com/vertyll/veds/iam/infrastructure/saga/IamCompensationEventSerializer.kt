@@ -6,8 +6,8 @@ import com.vertyll.veds.iam.saga.DeleteVerificationTokenAction
 import com.vertyll.veds.iam.saga.RevertEmailUpdateAction
 import com.vertyll.veds.iam.saga.RevertPasswordUpdateAction
 import com.vertyll.veds.iam.saga.SagaCompensationEvent
+import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationEventSerializer
 
 /**
  * Outbound side of the Anti-Corruption Layer for IAM compensation

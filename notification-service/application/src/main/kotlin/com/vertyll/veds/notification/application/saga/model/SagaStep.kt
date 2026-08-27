@@ -1,6 +1,6 @@
 package com.vertyll.veds.notification.application.saga.model
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 import java.time.Instant
 
 data class SagaStep(

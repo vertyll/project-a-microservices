@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.saga
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationStepFactory
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.SagaCompensationStepFactory
 import com.vertyll.veds.task.infrastructure.persistence.entity.SagaStepJpaEntity
 import java.time.Instant
 

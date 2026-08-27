@@ -2,7 +2,7 @@ package com.vertyll.veds.project.infrastructure.saga
 
 import com.vertyll.veds.project.application.port.inbound.ProjectCompensationUseCase
 import com.vertyll.veds.project.application.saga.model.ProjectCompensationCommand
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandHandler
+import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 
 internal class ProjectSagaCompensationHandler(
     private val projectCompensationService: ProjectCompensationUseCase,

@@ -11,7 +11,7 @@ import com.vertyll.veds.notification.infrastructure.response.ApiResponse
 import com.vertyll.veds.notification.infrastructure.web.dto.MarkReadRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.UpdateSettingsRequest
 import com.vertyll.veds.notification.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

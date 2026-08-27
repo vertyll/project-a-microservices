@@ -6,7 +6,9 @@ project(":domain").name = "notification-domain"
 project(":application").name = "notification-application"
 project(":infrastructure").name = "notification-infrastructure"
 
-includeBuild("../shared-contracts")
+includeBuild("../shared-saga-api")
+includeBuild("../shared-web")
+includeBuild("../shared-saga-engine")
 includeBuild("../shared-infrastructure")
 includeBuild("../notification-contracts")
 includeBuild("../project-contracts")

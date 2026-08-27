@@ -1,7 +1,7 @@
 package com.vertyll.veds.iam.application.port.outbound
 
 import com.vertyll.veds.iam.application.saga.model.Saga
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
 import java.time.Instant
 
 interface SagaRepository {

@@ -1,6 +1,6 @@
 package com.vertyll.veds.task.application.port.outbound
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 import com.vertyll.veds.task.application.saga.model.Saga
 import com.vertyll.veds.task.application.saga.model.SagaStepNames
 import com.vertyll.veds.task.application.saga.model.SagaTypes

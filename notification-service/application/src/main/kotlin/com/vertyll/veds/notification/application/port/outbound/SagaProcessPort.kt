@@ -3,7 +3,7 @@ package com.vertyll.veds.notification.application.port.outbound
 import com.vertyll.veds.notification.application.saga.model.Saga
 import com.vertyll.veds.notification.application.saga.model.SagaStepNames
 import com.vertyll.veds.notification.application.saga.model.SagaTypes
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 
 interface SagaProcessPort {
     fun startSaga(

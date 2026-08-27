@@ -1,8 +1,8 @@
 package com.vertyll.veds.file
 
 import com.vertyll.veds.file.infrastructure.storage.ObjectStorageProperties
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigAutoConfiguration
-import com.vertyll.veds.sharedinfrastructure.translation.TranslationClientProperties
+import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
+import com.vertyll.veds.shared.translation.client.TranslationClientProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.persistence.autoconfigure.EntityScan

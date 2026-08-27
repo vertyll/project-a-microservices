@@ -1,7 +1,7 @@
 package com.vertyll.veds.apigateway.session
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedConfigProperties
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters

@@ -10,12 +10,13 @@ on:
     paths:
       - "mail-service/**"
       - "shared-infrastructure/**"
+      - "shared-web/**"
       - "iam-contracts/**"
       - "mail-contracts/**"
       - "contracts/mail-service/**"
       - "contracts/iam-service/mail-requested/**"
       - ".github/workflows/mail-service.yml"
-      - ".github/workflows/code-quality.yml"
+      - ".github/workflows/quality-checks.yml"
   workflow_dispatch:
 
 permissions:

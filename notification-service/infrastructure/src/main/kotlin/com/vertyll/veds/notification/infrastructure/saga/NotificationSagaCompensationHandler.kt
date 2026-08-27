@@ -2,7 +2,7 @@ package com.vertyll.veds.notification.infrastructure.saga
 
 import com.vertyll.veds.notification.application.port.inbound.NotificationCompensationUseCase
 import com.vertyll.veds.notification.application.saga.model.NotificationCompensationCommand
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandHandler
+import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 
 internal class NotificationSagaCompensationHandler(
     private val notificationCompensationService: NotificationCompensationUseCase,

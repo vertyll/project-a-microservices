@@ -1,7 +1,7 @@
 package com.vertyll.veds.iam.application.port.outbound
 
 import com.vertyll.veds.iam.application.saga.model.SagaStep
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 
 interface SagaStepRepository {
     fun save(sagaStep: SagaStep): SagaStep

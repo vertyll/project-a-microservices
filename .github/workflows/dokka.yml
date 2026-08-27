@@ -5,7 +5,11 @@ on:
     branches:
       - main
     paths:
+      - "shared-web/**"
+      - "shared-saga-api/**"
       - "shared-infrastructure/**"
+      - "shared-translation/**"
+      - "build.gradle.kts"
       - ".github/workflows/dokka.yml"
   workflow_dispatch:
 
@@ -35,13 +39,11 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Make Gradle wrapper executable
-        working-directory: shared-infrastructure
-        run: chmod +x ./gradlew
+      - name: Make Gradle wrappers executable
+        run: chmod +x ./gradlew shared-*/gradlew
 
       - name: Generate Dokka HTML
-        working-directory: shared-infrastructure
-        run: ./gradlew --no-daemon dokkaGenerate
+        run: ./gradlew --no-daemon docs
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

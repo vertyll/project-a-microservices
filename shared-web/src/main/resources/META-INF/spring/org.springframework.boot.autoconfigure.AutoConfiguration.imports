@@ -1,0 +1,2 @@
+com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
+com.vertyll.veds.shared.web.security.KeycloakSecurityAutoConfiguration

@@ -4,8 +4,8 @@ import com.vertyll.veds.notification.application.saga.model.NotificationCompensa
 import com.vertyll.veds.notification.application.saga.model.SagaStepNames
 import com.vertyll.veds.notification.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.notification.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationContext
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensator
+import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
+import com.vertyll.veds.shared.saga.engine.SagaCompensator
 import org.slf4j.LoggerFactory
 
 internal class NotificationSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEntity, NotificationCompensationCommand> {

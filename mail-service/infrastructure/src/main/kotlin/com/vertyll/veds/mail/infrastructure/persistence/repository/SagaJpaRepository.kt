@@ -1,8 +1,8 @@
 package com.vertyll.veds.mail.infrastructure.persistence.repository
 
 import com.vertyll.veds.mail.infrastructure.persistence.entity.SagaJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
-import com.vertyll.veds.sharedinfrastructure.saga.repository.BaseSagaRepository
+import com.vertyll.veds.shared.saga.SagaStatus
+import com.vertyll.veds.shared.saga.engine.persistence.BaseSagaRepository
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.time.Instant

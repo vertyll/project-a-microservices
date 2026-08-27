@@ -9,9 +9,9 @@ on:
       - main
     paths:
       - "api-gateway/**"
-      - "shared-infrastructure/**"
+      - "shared-web/**"
       - ".github/workflows/api-gateway.yml"
-      - ".github/workflows/code-quality.yml"
+      - ".github/workflows/quality-checks.yml"
   workflow_dispatch:
 
 permissions:

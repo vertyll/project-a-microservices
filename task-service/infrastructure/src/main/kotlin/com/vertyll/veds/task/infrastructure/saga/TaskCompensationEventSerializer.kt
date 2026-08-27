@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.saga
 
+import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationEventSerializer
 import com.vertyll.veds.task.application.saga.model.TaskCompensationCommand
 import com.vertyll.veds.task.saga.DeleteTaskAction
 import com.vertyll.veds.task.saga.LogTaskCompensationAction

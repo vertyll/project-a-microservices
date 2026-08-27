@@ -24,6 +24,8 @@ dependencyManagement {
 dependencies {
     implementation(project(":task-application"))
     implementation(project(":task-domain"))
+    implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-saga-engine")
     implementation("com.vertyll.veds:shared-infrastructure")
     implementation("com.vertyll.veds:iam-contracts")
     implementation("com.vertyll.veds:file-contracts")

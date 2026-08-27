@@ -2,9 +2,9 @@ package com.vertyll.veds.iam.infrastructure.saga
 
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaEntityFactory
+import com.vertyll.veds.shared.saga.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.SagaEntityFactory
 import java.time.Instant
 
 internal class IamSagaEntityFactory : SagaEntityFactory<SagaJpaEntity, SagaStepJpaEntity> {

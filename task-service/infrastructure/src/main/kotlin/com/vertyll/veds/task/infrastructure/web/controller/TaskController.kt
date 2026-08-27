@@ -1,6 +1,6 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.PagedResponse
 import com.vertyll.veds.task.application.dto.TaskDetailsResponse
 import com.vertyll.veds.task.application.dto.TaskListItemResponse

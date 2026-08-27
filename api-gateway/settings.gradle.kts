@@ -1,3 +1,3 @@
 rootProject.name = "api-gateway"
 
-includeBuild("../shared-infrastructure")
+includeBuild("../shared-web")

@@ -24,7 +24,7 @@ dependencyManagement {
 dependencies {
     implementation(project(":translation-application"))
     implementation(project(":translation-domain"))
-    implementation("com.vertyll.veds:shared-infrastructure")
+    implementation("com.vertyll.veds:shared-web")
     implementation("com.vertyll.veds:shared-translation")
     implementation(libs.poi.ooxml)
 

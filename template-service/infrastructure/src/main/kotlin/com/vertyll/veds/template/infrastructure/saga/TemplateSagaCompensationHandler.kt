@@ -1,6 +1,6 @@
 package com.vertyll.veds.template.infrastructure.saga
 
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandHandler
+import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 import com.vertyll.veds.template.application.port.inbound.TemplateCompensationUseCase
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 

@@ -21,7 +21,7 @@ import com.vertyll.veds.project.domain.repository.ProjectMemberRepository
 import com.vertyll.veds.project.domain.repository.ProjectRepository
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
 import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 import java.time.Instant
 import java.util.UUID
 

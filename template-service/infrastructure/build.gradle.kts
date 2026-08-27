@@ -24,6 +24,8 @@ dependencyManagement {
 dependencies {
     implementation(project(":template-application"))
     implementation(project(":template-domain"))
+    implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-saga-engine")
     implementation("com.vertyll.veds:shared-infrastructure")
     implementation("com.vertyll.veds:template-contracts")
 

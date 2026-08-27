@@ -1,6 +1,6 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.TaskCommentQueryUseCase

@@ -1,6 +1,6 @@
 package com.vertyll.veds.template.application.port.outbound
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 import com.vertyll.veds.template.application.saga.model.SagaStep
 
 interface SagaStepRepository {

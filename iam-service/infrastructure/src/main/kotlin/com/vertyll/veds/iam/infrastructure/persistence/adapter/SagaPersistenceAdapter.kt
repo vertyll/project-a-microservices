@@ -4,7 +4,7 @@ import com.vertyll.veds.iam.application.port.outbound.SagaRepository
 import com.vertyll.veds.iam.application.saga.model.Saga
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.repository.SagaJpaRepository
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 import java.time.Instant

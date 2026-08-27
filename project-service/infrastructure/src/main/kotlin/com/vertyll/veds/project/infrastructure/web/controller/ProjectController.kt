@@ -13,7 +13,7 @@ import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

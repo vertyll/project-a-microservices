@@ -1,7 +1,7 @@
 package com.vertyll.veds.template.infrastructure.persistence.entity
 
-import com.vertyll.veds.sharedinfrastructure.saga.entity.BaseSaga
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
+import com.vertyll.veds.shared.saga.engine.persistence.BaseSaga
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import java.time.Instant

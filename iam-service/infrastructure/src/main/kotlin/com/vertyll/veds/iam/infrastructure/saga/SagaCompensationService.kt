@@ -3,8 +3,8 @@ package com.vertyll.veds.iam.infrastructure.saga
 import com.vertyll.veds.iam.application.saga.model.AuthCompensationCommand
 import com.vertyll.veds.iam.infrastructure.config.SagaConfig
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaStepJpaEntity
+import com.vertyll.veds.shared.saga.engine.SagaCompensationEngine
 import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationEngine
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header

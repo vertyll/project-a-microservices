@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.saga
 
+import com.vertyll.veds.shared.saga.engine.SagaCompensationEngine
 import com.vertyll.veds.sharedinfrastructure.kafka.ProcessedEventGuard
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationEngine
 import com.vertyll.veds.task.application.saga.model.TaskCompensationCommand
 import com.vertyll.veds.task.infrastructure.config.SagaConfig
 import com.vertyll.veds.task.infrastructure.persistence.entity.SagaStepJpaEntity

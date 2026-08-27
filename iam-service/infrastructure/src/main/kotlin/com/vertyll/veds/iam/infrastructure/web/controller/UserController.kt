@@ -7,7 +7,7 @@ import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

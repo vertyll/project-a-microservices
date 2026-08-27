@@ -6,7 +6,7 @@ import com.vertyll.veds.apigateway.security.Pkce
 import com.vertyll.veds.apigateway.session.KeycloakTokenClient
 import com.vertyll.veds.apigateway.session.SessionCookies
 import com.vertyll.veds.apigateway.session.SessionStore
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedConfigProperties
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

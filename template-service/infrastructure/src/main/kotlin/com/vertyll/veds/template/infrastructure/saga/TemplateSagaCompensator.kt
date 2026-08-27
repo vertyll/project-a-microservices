@@ -1,8 +1,8 @@
 package com.vertyll.veds.template.infrastructure.saga
 
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationContext
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensator
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaWatchdog
+import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
+import com.vertyll.veds.shared.saga.engine.SagaCompensator
+import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import com.vertyll.veds.template.application.saga.model.SagaStepNames
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 import com.vertyll.veds.template.infrastructure.persistence.entity.SagaJpaEntity

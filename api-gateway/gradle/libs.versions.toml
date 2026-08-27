@@ -80,7 +80,6 @@ spring-boot-common = [
     "kotlin-stdlib-jdk8",
     "spring-boot-starter-jackson",
     "jackson-module-kotlin",
-    "springframework-kafka",
     "kotlin-logging"
 ]
 

@@ -1,8 +1,8 @@
 package com.vertyll.veds.template.infrastructure.saga
 
+import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
+import com.vertyll.veds.shared.saga.engine.DecodedCompensationEvent
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandDeserializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.DecodedCompensationEvent
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 import com.vertyll.veds.template.saga.DeleteTemplateAction
 import com.vertyll.veds.template.saga.LogTemplateCompensationAction

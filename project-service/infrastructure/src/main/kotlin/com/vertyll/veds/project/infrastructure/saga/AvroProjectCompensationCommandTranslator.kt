@@ -4,9 +4,9 @@ import com.vertyll.veds.project.application.saga.model.ProjectCompensationComman
 import com.vertyll.veds.project.saga.RestoreProjectAction
 import com.vertyll.veds.project.saga.RevokeInvitationAction
 import com.vertyll.veds.project.saga.SagaCompensationEvent
+import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
+import com.vertyll.veds.shared.saga.engine.DecodedCompensationEvent
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadDeserializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandDeserializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.DecodedCompensationEvent
 
 internal class AvroProjectCompensationCommandTranslator(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,

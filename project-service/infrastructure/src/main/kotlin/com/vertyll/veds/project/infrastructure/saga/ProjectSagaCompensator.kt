@@ -4,8 +4,8 @@ import com.vertyll.veds.project.application.saga.model.ProjectCompensationComman
 import com.vertyll.veds.project.application.saga.model.SagaStepNames
 import com.vertyll.veds.project.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.project.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensationContext
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaCompensator
+import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
+import com.vertyll.veds.shared.saga.engine.SagaCompensator
 import org.slf4j.LoggerFactory
 
 internal class ProjectSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEntity, ProjectCompensationCommand> {

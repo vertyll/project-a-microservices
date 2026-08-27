@@ -8,7 +8,7 @@ import com.vertyll.veds.mail.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.mail.application.saga.model.SagaStepNames
 import com.vertyll.veds.mail.application.saga.model.SagaTypes
 import com.vertyll.veds.mail.domain.model.EmailTemplate
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 
 class EmailSagaService(
     private val sagaProcess: SagaProcessPort,

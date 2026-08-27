@@ -5,8 +5,8 @@ import com.vertyll.veds.notification.application.saga.model.Saga
 import com.vertyll.veds.notification.application.saga.model.SagaStepNames
 import com.vertyll.veds.notification.application.saga.model.SagaTypes
 import com.vertyll.veds.notification.infrastructure.persistence.entity.SagaJpaEntity
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import com.vertyll.veds.sharedinfrastructure.saga.service.SagaEngine
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.SagaEngine
 import org.springframework.stereotype.Service
 
 @Service

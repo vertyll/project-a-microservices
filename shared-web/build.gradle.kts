@@ -1,0 +1,130 @@
+import dev.detekt.gradle.Detekt
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.dokka)
+}
+
+group = "com.vertyll.veds"
+version = "0.0.1-SNAPSHOT"
+description = "Keycloak authentication, HTTP concurrency helpers and shared configuration"
+
+extra["author"] = "Mikołaj Gawron"
+extra["email"] = "gawrmiko@gmail.com"
+
+repositories {
+    mavenCentral()
+}
+
+configure<JavaPluginExtension> {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(
+            libs.spring.boot.dependencies
+                .get()
+                .toString(),
+        )
+    }
+}
+
+// This creates a JAR without a main class (library)
+tasks.bootJar {
+    enabled = false
+}
+
+tasks.jar {
+    enabled = true
+}
+
+dependencies {
+    // --- Common ---
+    implementation(libs.spring.boot.starter)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.stdlib.jdk8)
+    implementation(libs.kotlin.logging)
+
+    // --- Security, part of this module's public surface ---
+    api(libs.bundles.web.api)
+    api(libs.springframework.tx)
+
+    // --- Reactor: only ReactiveKeycloakJwtAuthenticationConverter needs it, and
+    //     the gateway that uses that converter provides it at runtime. ---
+    compileOnly("io.projectreactor:reactor-core")
+
+    // --- Annotation Processors ---
+    kapt(libs.spring.boot.configuration.processor)
+
+    // --- Testing ---
+    testImplementation(libs.bundles.test.common)
+}
+
+// Configure ktlint
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    debug.set(false)
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    outputColorName.set("RED")
+    ignoreFailures.set(false)
+    enableExperimentalRules.set(true)
+    filter {
+        exclude { element -> element.file.path.contains("generated/") }
+        include("**/src/**/*.kt")
+        include("**/src/**/*.kts")
+    }
+}
+
+tasks.withType<Detekt>().configureEach {
+    config.setFrom(files("${rootProject.projectDir}/../config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+tasks.named("check") {
+    dependsOn("detekt")
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+        )
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
+}
+
+// --- Dokka (KDoc -> HTML API docs) ---
+dokka {
+    moduleName.set("shared-web")
+    dokkaPublications.named("html") {
+        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-web"))
+    }
+    dokkaSourceSets.named("main") {
+        jdkVersion.set(25)
+        reportUndocumented.set(false)
+        skipDeprecated.set(false)
+        suppressGeneratedFiles.set(true)
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://github.com/vertyll/veds/tree/main/shared-web/src/main/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+}

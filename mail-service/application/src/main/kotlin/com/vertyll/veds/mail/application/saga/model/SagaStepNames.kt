@@ -1,6 +1,6 @@
 package com.vertyll.veds.mail.application.saga.model
 
-import com.vertyll.veds.sharedinfrastructure.saga.contract.SagaTypeValue
+import com.vertyll.veds.shared.saga.SagaTypeValue
 
 enum class SagaStepNames(
     override val value: String,

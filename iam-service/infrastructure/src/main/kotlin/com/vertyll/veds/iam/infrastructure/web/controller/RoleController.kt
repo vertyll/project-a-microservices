@@ -4,7 +4,7 @@ import com.vertyll.veds.iam.application.dto.RoleResponse
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.RoleQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
-import com.vertyll.veds.sharedinfrastructure.utils.ETagUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpHeaders

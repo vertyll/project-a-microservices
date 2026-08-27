@@ -12,7 +12,7 @@ import com.vertyll.veds.project.domain.repository.ProjectInvitationRepository
 import com.vertyll.veds.project.infrastructure.IntegrationTestBase
 import com.vertyll.veds.project.infrastructure.kafka.ProjectKafkaTopics
 import com.vertyll.veds.project.infrastructure.persistence.repository.OutboxJpaRepository
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID

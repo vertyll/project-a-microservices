@@ -1,6 +1,6 @@
 package com.vertyll.veds.template
 
-import com.vertyll.veds.sharedinfrastructure.config.SharedConfigAutoConfiguration
+import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.persistence.autoconfigure.EntityScan
 import org.springframework.boot.runApplication

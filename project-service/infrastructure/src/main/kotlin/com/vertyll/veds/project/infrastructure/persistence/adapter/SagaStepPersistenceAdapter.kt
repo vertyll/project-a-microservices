@@ -4,7 +4,7 @@ import com.vertyll.veds.project.application.port.outbound.SagaStepRepository
 import com.vertyll.veds.project.application.saga.model.SagaStep
 import com.vertyll.veds.project.infrastructure.persistence.entity.SagaStepJpaEntity
 import com.vertyll.veds.project.infrastructure.persistence.repository.SagaStepJpaRepository
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 

@@ -5,7 +5,6 @@ plugins {
 dependencies {
     // The application layer depends on the domain and the saga contracts, and nothing else.
     implementation(project(":translation-domain"))
-    implementation("com.vertyll.veds:shared-contracts")
     implementation("com.vertyll.veds:shared-translation")
 
     testImplementation(libs.bundles.test.unit)

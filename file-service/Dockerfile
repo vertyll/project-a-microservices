@@ -5,7 +5,11 @@ ARG JAVA_VERSION=25
 FROM gradle:${GRADLE_VERSION}-jdk${JAVA_VERSION}-alpine AS build
 WORKDIR /app
 
-# Copy shared infrastructure first (dependency for other services)
+# Copy the shared libraries first: each is a composite build included by the
+# service, so every one of them has to exist before Gradle configures.
+COPY shared-saga-api/ ./shared-saga-api/
+COPY shared-translation/ ./shared-translation/
+COPY shared-web/ ./shared-web/
 COPY shared-infrastructure/ ./shared-infrastructure/
 
 # Copy Avro Published Language modules (DDD) + their schema sources.

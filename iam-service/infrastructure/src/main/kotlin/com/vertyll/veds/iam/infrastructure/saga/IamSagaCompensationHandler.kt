@@ -2,7 +2,7 @@ package com.vertyll.veds.iam.infrastructure.saga
 
 import com.vertyll.veds.iam.application.port.inbound.AuthCompensationUseCase
 import com.vertyll.veds.iam.application.saga.model.AuthCompensationCommand
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationCommandHandler
+import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 
 /**
  * Infrastructure-layer adapter wiring the shared

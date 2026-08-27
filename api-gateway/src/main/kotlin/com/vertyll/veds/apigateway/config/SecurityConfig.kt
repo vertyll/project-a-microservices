@@ -1,7 +1,7 @@
 package com.vertyll.veds.apigateway.config
 
 import com.vertyll.veds.apigateway.security.JsonAuthenticationEntryPoint
-import com.vertyll.veds.sharedinfrastructure.security.ReactiveKeycloakJwtAuthenticationConverter
+import com.vertyll.veds.shared.web.security.ReactiveKeycloakJwtAuthenticationConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity

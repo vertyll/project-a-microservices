@@ -5,8 +5,8 @@ import com.vertyll.veds.mail.saga.DeleteEmailLogAction
 import com.vertyll.veds.mail.saga.LogEmailCompensationAction
 import com.vertyll.veds.mail.saga.LogTemplateCompensationAction
 import com.vertyll.veds.mail.saga.SagaCompensationEvent
+import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 import com.vertyll.veds.sharedinfrastructure.avro.AvroPayloadSerializer
-import com.vertyll.veds.sharedinfrastructure.saga.service.CompensationEventSerializer
 
 /**
  * Outbound side of the Anti-Corruption Layer for mail compensation

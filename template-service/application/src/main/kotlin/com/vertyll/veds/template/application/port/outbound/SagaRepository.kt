@@ -1,6 +1,6 @@
 package com.vertyll.veds.template.application.port.outbound
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStatus
+import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.template.application.saga.model.Saga
 import java.time.Instant
 

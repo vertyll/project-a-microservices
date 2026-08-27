@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.persistence.entity
 
-import com.vertyll.veds.sharedinfrastructure.saga.entity.BaseSagaStep
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.persistence.BaseSagaStep
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint

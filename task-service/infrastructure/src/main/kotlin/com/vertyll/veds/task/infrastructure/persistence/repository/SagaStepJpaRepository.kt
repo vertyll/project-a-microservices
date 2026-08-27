@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.persistence.repository
 
-import com.vertyll.veds.sharedinfrastructure.saga.enums.SagaStepStatus
-import com.vertyll.veds.sharedinfrastructure.saga.repository.BaseSagaStepRepository
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.engine.persistence.BaseSagaStepRepository
 import com.vertyll.veds.task.infrastructure.persistence.entity.SagaStepJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository

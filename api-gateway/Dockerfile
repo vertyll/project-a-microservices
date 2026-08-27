@@ -5,8 +5,8 @@ ARG JAVA_VERSION=25
 FROM gradle:${GRADLE_VERSION}-jdk${JAVA_VERSION}-alpine AS build
 WORKDIR /app
 
-# Copy shared infrastructure first (dependency for other services)
-COPY shared-infrastructure/ ./shared-infrastructure/
+# Copy the shared libraries this service includes as composite builds.
+COPY shared-web/ ./shared-web/
 
 # Copy the service code
 COPY api-gateway/ ./api-gateway/

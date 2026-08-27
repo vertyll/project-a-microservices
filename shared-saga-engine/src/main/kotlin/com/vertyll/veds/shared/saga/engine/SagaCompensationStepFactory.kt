@@ -1,0 +1,27 @@
+package com.vertyll.veds.shared.saga.engine
+
+import com.vertyll.veds.shared.saga.SagaStep
+import com.vertyll.veds.shared.saga.SagaStepStatus
+import java.time.Instant
+
+/**
+ * Factory hook used by [SagaCompensationEngine] to create a service-specific
+ * compensation step instance against the persistence-agnostic [SagaStep]
+ * contract.
+ */
+@Suppress("kotlin:S6517")
+interface SagaCompensationStepFactory<T : SagaStep<T>> {
+    /**
+     * Builds a fresh compensation [SagaStep] for the owning service. The
+     * returned instance must reference the original step it compensates via
+     * [compensationStepId] so the engine can correlate them.
+     */
+    fun createCompensationStep(
+        sagaId: String,
+        stepName: String,
+        status: SagaStepStatus,
+        createdAt: Instant,
+        completedAt: Instant?,
+        compensationStepId: Long?,
+    ): T
+}

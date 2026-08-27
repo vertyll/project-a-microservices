@@ -6,15 +6,15 @@ on:
       - main
     paths:
       - "shared-infrastructure/**"
-      - ".github/workflows/code-quality-shared-infrastructure.yml"
-      - ".github/workflows/code-quality.yml"
+      - ".github/workflows/shared-infrastructure-checks.yml"
+      - ".github/workflows/quality-checks.yml"
   pull_request:
     branches:
       - main
     paths:
       - "shared-infrastructure/**"
-      - ".github/workflows/code-quality-shared-infrastructure.yml"
-      - ".github/workflows/code-quality.yml"
+      - ".github/workflows/shared-infrastructure-checks.yml"
+      - ".github/workflows/quality-checks.yml"
   workflow_dispatch:
 
 permissions:
