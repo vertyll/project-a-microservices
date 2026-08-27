@@ -20,10 +20,6 @@ spring:
   flyway:
     validate-on-migrate: true
 
-  kafka:
-    consumer:
-      group-id: translation-service-group
-
 server:
   port: 8087
 
@@ -41,6 +37,5 @@ logging:
     ROOT: INFO
     com.vertyll.veds: DEBUG
     org.springframework.security: DEBUG
-    org.springframework.kafka: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
