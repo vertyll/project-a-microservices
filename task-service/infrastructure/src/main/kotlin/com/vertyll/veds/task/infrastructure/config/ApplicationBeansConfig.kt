@@ -82,6 +82,12 @@ internal class ApplicationBeansConfig {
         )
 
     @Bean
+    fun taskAuthorizationService(
+        projectDirectory: ProjectDirectoryRepository,
+        taskRepository: TaskRepository,
+    ): TaskAuthorizationService = TaskAuthorizationService(projectDirectory, taskRepository)
+
+    @Bean
     fun taskCommandUseCase(
         transactions: TransactionalUseCaseFactory,
         taskRepository: TaskRepository,
