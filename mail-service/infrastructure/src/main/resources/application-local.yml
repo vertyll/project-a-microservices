@@ -29,7 +29,6 @@ spring:
     port: 1025
     username: ""
     password: ""
-    from: no-reply@veds.local
     properties:
       mail:
         smtp:
@@ -64,6 +63,8 @@ logging:
     org.springframework.mail: DEBUG
 
 veds:
+  mail:
+    sender-address: no-reply@veds.local
   translation:
     client:
       # Where this service publishes its declared keys at start-up.

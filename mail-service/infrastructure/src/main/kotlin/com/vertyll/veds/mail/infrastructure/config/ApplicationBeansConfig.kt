@@ -14,7 +14,6 @@ import com.vertyll.veds.mail.domain.model.SenderAddress
 import com.vertyll.veds.mail.domain.repository.EmailLogRepository
 import com.vertyll.veds.mail.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.mail.infrastructure.transaction.TransactionalUseCaseFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -64,7 +63,7 @@ internal class ApplicationBeansConfig {
         mailSender: MailSenderPort,
         templateRenderer: TemplateRendererPort,
         emailLogRepository: EmailLogRepository,
-        @Value("\${spring.mail.from}") senderAddress: String,
+        mailProperties: MailSenderProperties,
     ): EmailUseCase =
         transactions.wrap(
             EmailUseCase::class.java,
@@ -72,7 +71,7 @@ internal class ApplicationBeansConfig {
                 mailSender,
                 templateRenderer,
                 emailLogRepository,
-                SenderAddress(senderAddress),
+                SenderAddress(mailProperties.senderAddress),
                 Slf4jUseCaseLogger(EmailService::class.java),
             ),
         ) { it in setOf("getEmailLogs") }

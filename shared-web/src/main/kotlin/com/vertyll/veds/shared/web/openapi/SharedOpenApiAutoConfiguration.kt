@@ -5,11 +5,12 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 
 /**
  * Gives every service's generated OpenAPI document a name and a bearer-token scheme.
@@ -23,23 +24,29 @@ import org.springframework.context.annotation.Configuration
  */
 @Configuration
 @ConditionalOnClass(OpenAPI::class)
+@EnableConfigurationProperties(SharedOpenApiProperties::class)
 internal class SharedOpenApiAutoConfiguration {
     private companion object {
         private const val BEARER_SCHEME = "bearer-jwt"
+        private const val FALLBACK_NAME = "veds-service"
     }
 
     @Bean
     @ConditionalOnMissingBean
     fun sharedOpenApi(
-        @Value("\${spring.application.name:veds-service}") applicationName: String,
-        @Value("\${veds.shared.openapi.version:0.0.1-SNAPSHOT}") version: String,
-    ): OpenAPI =
-        OpenAPI()
+        properties: SharedOpenApiProperties,
+        environment: Environment,
+    ): OpenAPI {
+        val name = properties.title ?: environment.getProperty("spring.application.name") ?: FALLBACK_NAME
+        return OpenAPI()
             .info(
                 Info()
-                    .title(applicationName)
-                    .version(version)
-                    .description("REST API of $applicationName. Endpoints require a Keycloak-issued bearer token unless stated otherwise."),
+                    .title(name)
+                    .version(properties.version)
+                    .description(
+                        properties.description
+                            ?: "REST API of $name. Endpoints require a Keycloak-issued bearer token unless stated otherwise.",
+                    ),
             ).components(
                 Components().addSecuritySchemes(
                     BEARER_SCHEME,
@@ -49,4 +56,5 @@ internal class SharedOpenApiAutoConfiguration {
                         .bearerFormat("JWT"),
                 ),
             ).addSecurityItem(SecurityRequirement().addList(BEARER_SCHEME))
+    }
 }
