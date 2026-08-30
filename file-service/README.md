@@ -2,7 +2,7 @@
 
 File metadata and signed URLs. The bytes never pass through it.
 
-|                |                                  |
+| Property       | Value                            |
 |----------------|----------------------------------|
 | Port           | 8088                             |
 | Database       | 5439                             |

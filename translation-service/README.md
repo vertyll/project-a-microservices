@@ -2,7 +2,7 @@
 
 The translation catalogue: keys, languages and their text.
 
-|           |         |
+| Property  | Value   |
 |-----------|---------|
 | Port      | 8087    |
 | Database  | 5438    |

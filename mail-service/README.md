@@ -2,10 +2,10 @@
 
 Delivers e-mail on request and reports the outcome.
 
-|           |                            |
+| Property  | Value                      |
 |-----------|----------------------------|
 | Port      | 8083                       |
-| Database  | 5434                       |
+| Database  | 5433                       |
 | Publishes | `mail-sent`, `mail-failed` |
 | Consumes  | `mail-requested`           |
 

@@ -2,7 +2,7 @@
 
 In-app notifications and their delivery preferences.
 
-|           |                                                                    |
+| Property  | Value                                                              |
 |-----------|--------------------------------------------------------------------|
 | Port      | 8086                                                               |
 | Database  | 5437                                                               |

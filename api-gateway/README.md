@@ -2,7 +2,7 @@
 
 The single entry point, and the only component that holds tokens.
 
-|               |                  |
+| Property      | Value            |
 |---------------|------------------|
 | Port          | 8080             |
 | Session store | Redis, encrypted |

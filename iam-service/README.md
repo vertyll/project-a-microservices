@@ -2,10 +2,10 @@
 
 Users, roles, permissions and the account lifecycle.
 
-|           |                                                             |
+| Property  | Value                                                       |
 |-----------|-------------------------------------------------------------|
 | Port      | 8082                                                        |
-| Database  | 5433                                                        |
+| Database  | 5432                                                        |
 | Publishes | `user-registered`, `user-profile-updated`, `mail-requested` |
 | Consumes  | `mail-sent`, `mail-failed`                                  |
 

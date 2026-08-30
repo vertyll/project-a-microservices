@@ -4,7 +4,7 @@ The reference service. Clone it when adding a bounded context; do not deploy it.
 
 ## What a clone gets
 
-|              |                                                                                                                          |
+| Concern      | What you get                                                                                                             |
 |--------------|--------------------------------------------------------------------------------------------------------------------------|
 | Layering     | `domain` / `application` / `infrastructure`, with the dependency rule enforced by `checkHexagonalDependencies`           |
 | CQRS         | Command and query ports already split, and the transactional decorator wired to them                                     |
