@@ -11,7 +11,7 @@ How the dependency rule is enforced in practice, and what it cost.
 
 Dependencies point inwards only:
 
-```
+```text
 infrastructure ──► application ──► domain
 ```
 
@@ -27,7 +27,7 @@ framework onto the application classpath.
 
 In project-service the application layer's entire external import surface is:
 
-```
+```text
 com.vertyll.veds.shared.saga.SagaStatus
 com.vertyll.veds.shared.saga.SagaStepStatus
 com.vertyll.veds.shared.saga.SagaTypeValue

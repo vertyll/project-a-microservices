@@ -49,8 +49,8 @@ one would produce a key nothing ever asks for.
 ### Where `common.*` lives
 
 Declared once, in `translation-service`, not in every service. Registration refuses a key another service already owns —
-deliberately, since two contexts claiming the same message means whichever deploys last silently wins. Six services each
-declaring `common.version_mismatch`
+deliberately, since two contexts claiming the same message means whichever deploys last silently wins. Every service
+declaring its own `common.version_mismatch`
 would hit exactly that rule, so the platform catalogue owns the platform's keys.
 
 ### Registration failure does not stop a service

@@ -57,8 +57,11 @@ transitively is caught too — which is how Spring got in the first time, throug
 It is wired into `check`, so `./gradlew build` runs it. In CI, it is a separate job of the reusable
 `quality-checks.yml` workflow, enabled with `hexagonal: true` — only the `-service` builds register the task.
 
-There is no ArchUnit here. The rule is enforced twice instead: by that Gradle task, and structurally by the module
-boundary, since a service's application layer only ever declares framework-free libraries.
+> [!NOTE]
+>
+> There is no ArchUnit in this repository. The rule is enforced twice without it: by that Gradle task, and
+> structurally by the module boundary, since a service's application layer only ever declares framework-free
+> libraries. A framework cannot reach it because it is not on the classpath to begin with.
 
 ## Coverage by service
 

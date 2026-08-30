@@ -16,10 +16,12 @@ these two rules already settle.
    consumer of A also takes B, splitting A from B produces two modules with one dependency
    graph and twice the maintenance — a cost with no reader and no reuse behind it.
 
-The second rule is why there is no `shared-messaging-api`. The outbox types look like they
-deserve an api/engine split the way the saga types got one, but no application layer anywhere
-in the repo imports them: the outbox is written from outbound adapters, entirely inside the
-infrastructure layer. An api module there would have exactly the same consumers as the engine.
+> [!NOTE]
+>
+> The second rule is why there is no `shared-messaging-api`. The outbox types look like they deserve an api/engine
+> split the way the saga types got one, but no application layer anywhere in the repo imports them: the outbox is
+> written from outbound adapters, entirely inside the infrastructure layer. An api module there would have exactly
+> the same consumers as the engine — two modules, one dependency graph, no reuse.
 
 ## The modules
 
@@ -90,7 +92,7 @@ Answer three questions. `template-service` is the worked example — it takes al
 1. **Does it serve HTTP and authenticate callers?** Take `shared-web`. Every service does, including the gateway.
 2. **Does it publish or consume integration events?** Take `shared-messaging-kafka`, and copy the outbox and
    processed-event tables from an existing service's first migration. If the answer is no, take neither — and do not
-   create those tables, or you will carry four that stay empty forever.
+   create those tables. `translation-service` carried four empty ones for exactly this reason until they were removed.
 3. **Does it orchestrate a multiservice workflow that can fail halfway?** Take `shared-saga-engine` (which pulls
    `shared-saga-api` for you) and add the saga tables. Publishing an event is not orchestration: `file-service`
    publishes and takes no saga engine.

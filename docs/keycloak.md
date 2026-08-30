@@ -30,7 +30,7 @@ Docker Compose volume mount. You do **not** need to configure Keycloak manually.
 refresh tokens in Redis and injects `Authorization: Bearer`
 on the way through to the microservices.
 
-```
+```text
 Browser (SPA)              API Gateway (BFF)                Keycloak            Microservices
      |                            |                             |                     |
      |-- 1. GET /auth/authorize ->|                             |                     |

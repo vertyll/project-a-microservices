@@ -3,7 +3,7 @@
 S3-compatible storage for `file-service`. The browser uploads and downloads here directly with
 pre-signed URLs, so file bytes never pass through a JVM.
 
-|             |                           |
+| Endpoint    | Address                   |
 |-------------|---------------------------|
 | S3 API      | `localhost:9100`          |
 | Web console | `localhost:9101`          |
@@ -24,9 +24,11 @@ Every step is idempotent, so a restart is harmless.
 
 ## Why the image version is pinned
 
-The script targets the `/v2` admin API, and the web console requires it too. Garage 1.x serves
-only `/v1` and cannot set bucket CORS through the admin API at all, so the console does not start
-and browser uploads fail their preflight. Keep this image at 2.x.
+> [!IMPORTANT]
+>
+> Keep this image at 2.x. The script targets the `/v2` admin API and the web console requires it too. Garage 1.x
+> serves only `/v1` and cannot set bucket CORS through the admin API at all, so the console does not start and
+> browser uploads fail their preflight.
 
 Two shapes are easy to get wrong and are worth knowing before editing the script:
 

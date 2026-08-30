@@ -89,9 +89,11 @@ cd <service-name>
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-**Order matters in one place only.** Every service registers its translation keys with
-`translation-service` at start-up, so starting that one first avoids a failed registration in the logs. Nothing breaks
-if you do not: registration failure is deliberately non-fatal, and the keys are republished on the next restart.
+> [!NOTE]
+>
+> **Order matters in one place only.** Every service registers its translation keys with `translation-service` at
+> start-up, so starting that one first avoids a failed registration in the logs. Nothing breaks if you do not:
+> registration failure is deliberately non-fatal, and the keys are republished on the next restart.
 
 | Service                | Port |
 |------------------------|------|
@@ -108,7 +110,7 @@ if you do not: registration failure is deliberately non-fatal, and the keys are 
 
 ## Service URLs
 
-|                        |                       |
+| Component              | URL                   |
 |------------------------|-----------------------|
 | API Gateway            | http://localhost:8080 |
 | Front end              | http://localhost:4200 |
@@ -131,8 +133,10 @@ correctly, incompatible with what the registry already holds. Locally the regist
 python scripts/schema_registry/register_schemas.py --registry-url http://localhost:8081 --reset
 ```
 
-`--reset` drops each subject before registering. Never use it against a shared registry: there the refusal is the
-feature.
+> [!WARNING]
+>
+> `--reset` drops each subject before registering. Never use it against a shared registry — there the refusal is the
+> feature.
 
 ## Tests
 
