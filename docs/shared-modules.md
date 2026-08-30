@@ -83,6 +83,20 @@ Two of these are worth reading as evidence that the boundaries are real rather t
 - **file-service takes the outbox but not the saga engine.** It publishes events and
   orchestrates nothing, so it carries outbox tables and no saga tables.
 
+## Writing a new service: what do I take?
+
+Answer three questions. `template-service` is the worked example — it takes all six.
+
+1. **Does it serve HTTP and authenticate callers?** Take `shared-web`. Every service does, including the gateway.
+2. **Does it publish or consume integration events?** Take `shared-messaging-kafka`, and copy the outbox and
+   processed-event tables from an existing service's first migration. If the answer is no, take neither — and do not
+   create those tables, or you will carry four that stay empty forever.
+3. **Does it orchestrate a multiservice workflow that can fail halfway?** Take `shared-saga-engine` (which pulls
+   `shared-saga-api` for you) and add the saga tables. Publishing an event is not orchestration: `file-service`
+   publishes and takes no saga engine.
+
+If the service declares translation keys, add `shared-translation-client`; the DSL itself arrives with it.
+
 ## Adding a module
 
 Before adding one, check it against the two rules at the top. In practice:

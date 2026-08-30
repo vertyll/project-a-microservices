@@ -54,7 +54,11 @@ proves nothing about the property it protects.
 `compileClasspath`. It reads the *resolved* classpath rather than declared dependencies, so a framework arriving
 transitively is caught too — which is how Spring got in the first time, through a saga enum that used to live in the Spring-bound shared module.
 
-It is wired into `check`, so `./gradlew build` runs it, and into the shared CI workflow as its own job.
+It is wired into `check`, so `./gradlew build` runs it. In CI, it is a separate job of the reusable
+`quality-checks.yml` workflow, enabled with `hexagonal: true` — only the `-service` builds register the task.
+
+There is no ArchUnit here. The rule is enforced twice instead: by that Gradle task, and structurally by the module
+boundary, since a service's application layer only ever declares framework-free libraries.
 
 ## Coverage by service
 
@@ -89,6 +93,11 @@ Several of these exist to pin down a property that is easy to regress silently:
   would prove anything about them.
 - **Application services** — everything so far is domain-level. The use cases are constructible without Spring by
   design, so this is a gap in effort rather than in possibility.
+- **The shared libraries** — none of the six has a test of its own, and between them, they hold the outbox dispatcher,
+  the saga engine and compensation, and the Keycloak token mapping. They are exercised only indirectly, through the
+  services that consume them, so a regression there surfaces as a puzzling failure somewhere else.
+  `shared-saga-api` and `shared-translation` are the cheapest to start with: no Spring, no containers.
+- **`api-gateway`** — the Token Handler and session encryption are security-critical and untested.
 
 ## Running the integration tests
 

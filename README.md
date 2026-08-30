@@ -42,19 +42,35 @@ A microservices-based architecture following principles:
 
 ## Documentation
 
+**New here?** Read in this order: [Development Setup](./docs/development-setup.md) to get it running,
+[Architecture](./docs/architecture.md) for the shape of the system, then
+[Hexagonal Layering](./docs/hexagonal-layering.md) and [Shared Modules](./docs/shared-modules.md) — between them, they
+explain nearly every "why is this in a separate module?" question the code raises.
+
+**Getting it running**
+
+- [Development Setup](./docs/development-setup.md) — running the whole system locally, from a fresh clone.
+- [Testing](./docs/testing.md) — the two test tiers and the architecture check.
+
+**How the code is organized**
+
 - [Architecture](./docs/architecture.md) — components and design principles.
-- [Saga Pattern & Transactional Outbox](./docs/saga-and-outbox.md) — saga engine, outbox, idempotent receiver.
+- [Hexagonal Layering](./docs/hexagonal-layering.md) — the dependency rule, how it is enforced, and what it cost.
+- [Shared Modules](./docs/shared-modules.md) — the six shared libraries, what each is responsible for, and the two rules that decide when a new one is justified.
 - [Service Dependencies](./docs/service-dependencies.md) — what each service needs to build and to run.
-- [Shared Modules](./docs/shared-modules.md) — the six shared libraries, their responsibilities and the rules that keep them apart.
+- [CQRS](./docs/cqrs.md) — where command/query separation is applied, where it is not, and why.
+
+**How services talk to each other**
+
+- [Saga Pattern & Transactional Outbox](./docs/saga-and-outbox.md) — saga engine, outbox, idempotent receiver.
 - [Event Catalogue](./docs/events.md) — every topic, its owner and its consumers.
 - [Concurrency Control](./docs/concurrency.md) — optimistic locking, ETags, saga and outbox concurrency.
+
+**Cross-cutting features**
+
 - [Keycloak Configuration](./docs/keycloak.md) — realm setup, authentication flow, role management.
-- [Development Setup](./docs/development-setup.md) — running the whole system locally, from a fresh clone.
 - [Files](./docs/files.md) — pre-signed uploads, a private bucket, and the two sweeps.
 - [Translations](./docs/translations.md) — key ownership, ICU, and why a missing key renders as the key.
-- [Testing](./docs/testing.md) — the two test tiers and the architecture check.
-- [CQRS](./docs/cqrs.md) — where command/query separation is applied, where it is not, and why.
-- [Hexagonal Layering](./docs/hexagonal-layering.md) — the dependency rule, how it is enforced, and what it cost.
 
 ### Per module
 
