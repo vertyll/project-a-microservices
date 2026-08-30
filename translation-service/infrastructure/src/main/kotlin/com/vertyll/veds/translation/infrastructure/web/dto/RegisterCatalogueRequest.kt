@@ -8,6 +8,5 @@ data class RegisterCatalogueRequest(
     @field:NotBlank(message = "validation.translation.source_service_required")
     val sourceService: String = "",
     @field:NotEmpty(message = "validation.translation.entries_required")
-    @field:Valid
-    val entries: List<CatalogueEntryRequest> = emptyList(),
+    val entries: List<@Valid CatalogueEntryRequest> = emptyList(),
 )
