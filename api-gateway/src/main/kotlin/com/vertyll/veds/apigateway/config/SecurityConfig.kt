@@ -148,11 +148,12 @@ internal class SecurityConfig(
             }.build()
 
     @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource {
+    fun corsConfigurationSource(properties: GatewayCorsProperties): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("*")
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        configuration.allowedHeaders = listOf("*")
+        configuration.allowedOrigins = properties.allowedOrigins
+        configuration.allowedMethods = properties.allowedMethods
+        configuration.allowedHeaders = properties.allowedHeaders
+        configuration.allowCredentials = properties.allowCredentials
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
