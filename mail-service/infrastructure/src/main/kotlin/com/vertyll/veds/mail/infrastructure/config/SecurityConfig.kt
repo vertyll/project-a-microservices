@@ -24,8 +24,13 @@ internal class SecurityConfig(
             .httpBasic { it.disable() }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/actuator/**")
-                    .permitAll()
+                    .requestMatchers(
+                        "/actuator/**",
+                        "/api-docs/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                    ).permitAll()
                     .requestMatchers("/mail/**")
                     .hasRole("ADMIN")
                     .anyRequest()

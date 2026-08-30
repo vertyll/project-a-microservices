@@ -9,6 +9,7 @@ kotlin = "2.4.10"
 
 # Dependencies
 kotlin-logging = "8.0.4"
+swagger = "2.2.30"
 
 [libraries]
 # Spring Boot Starters
@@ -21,6 +22,9 @@ springframework-tx = { module = "org.springframework:spring-tx" }
 
 # Configuration Processors
 spring-boot-configuration-processor = { module = "org.springframework.boot:spring-boot-configuration-processor" }
+
+# OpenAPI
+swagger-core-models = { module = "io.swagger.core.v3:swagger-models", version.ref = "swagger" }
 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }

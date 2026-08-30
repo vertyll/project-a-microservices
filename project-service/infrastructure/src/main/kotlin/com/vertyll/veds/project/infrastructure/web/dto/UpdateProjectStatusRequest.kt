@@ -9,8 +9,7 @@ data class UpdateProjectStatusRequest(
     @field:NotBlank(message = "validation.project.color_required")
     val color: String = "",
     @field:NotEmpty(message = "validation.project.translations_required")
-    @field:Valid
-    val translations: List<TranslationDto> = emptyList(),
+    val translations: List<@Valid TranslationDto> = emptyList(),
     val isActive: Boolean = true,
 ) {
     fun toCommand(): UpdateStatusCommand =

@@ -55,8 +55,9 @@ class TranslationCatalogueRegistrarAdapter(
 }
 
 /**
- * @property baseUrl where `translation-service` lives. Requests go through the
- *           gateway in production, so services never need each other's addresses.
+ * @property baseUrl where `translation-service` lives. This call goes straight to the
+ *           service inside the cluster, not through the gateway: the gateway routes no
+ *           `/internal` path, and registration is not a request any browser makes.
  */
 @ConfigurationProperties(prefix = "veds.translation.client")
 data class TranslationClientProperties(

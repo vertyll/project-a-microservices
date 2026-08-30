@@ -38,8 +38,13 @@ internal class SecurityConfig(
             .httpBasic { it.disable() }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/actuator/**")
-                    .permitAll()
+                    .requestMatchers(
+                        "/actuator/**",
+                        "/api-docs/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                    ).permitAll()
                     .requestMatchers(*PUBLIC_AUTH_ENDPOINTS)
                     .permitAll()
                     .anyRequest()

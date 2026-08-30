@@ -61,8 +61,10 @@ dependencies {
     api(libs.bundles.web.api)
     api(libs.springframework.tx)
 
-    // --- Reactor: only ReactiveKeycloakJwtAuthenticationConverter needs it, and
-    //     the gateway that uses that converter provides it at runtime. ---
+    // --- OpenAPI: only contributes a bean when the service already brings springdoc ---
+    compileOnly(libs.swagger.core.models)
+
+    // --- Reactor: only ReactiveKeycloakJwtAuthenticationConverter needs it
     compileOnly("io.projectreactor:reactor-core")
 
     // --- Annotation Processors ---
