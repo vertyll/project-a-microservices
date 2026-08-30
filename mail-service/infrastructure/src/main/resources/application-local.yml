@@ -63,6 +63,7 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     org.springframework.mail: DEBUG
 
+veds:
   translation:
     client:
       # Where this service publishes its declared keys at start-up.

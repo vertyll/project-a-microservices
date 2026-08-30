@@ -94,6 +94,7 @@ server:
     enabled: ${SERVER_SSL_ENABLED:false}
     bundle: ${SERVER_SSL_BUNDLE:}
 
+veds:
   translation:
     client:
       # Where this service publishes its declared keys at start-up.
