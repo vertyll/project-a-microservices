@@ -11,6 +11,7 @@ on:
       - "iam-service/**"
       - "shared-saga-api/**"
       - "shared-web/**"
+      - "shared-archunit/**"
       - "shared-translation-client/**"
       - "shared-saga-engine/**"
       - "shared-messaging-kafka/**"

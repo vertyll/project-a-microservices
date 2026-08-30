@@ -57,11 +57,21 @@ transitively is caught too — which is how Spring got in the first time, throug
 It is wired into `check`, so `./gradlew build` runs it. In CI, it is a separate job of the reusable
 `quality-checks.yml` workflow, enabled with `hexagonal: true` — only the `-service` builds register the task.
 
-> [!NOTE]
->
-> There is no ArchUnit in this repository. The rule is enforced twice without it: by that Gradle task, and
-> structurally by the module boundary, since a service's application layer only ever declares framework-free
-> libraries. A framework cannot reach it because it is not on the classpath to begin with.
+The rule is enforced three times over, each mechanism catching what the others cannot:
+
+| Mechanism                    | Catches                                                                                                                            |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| The Gradle module graph      | a framework never reaches the application layer's classpath, so it cannot compile                                                  |
+| `checkHexagonalDependencies` | a framework arriving transitively through another dependency                                                                       |
+| `shared-archunit`            | what a classpath cannot express — a JPA annotation on a domain model, a controller outside the web adapter, a port that is a class |
+
+Each service applies the shared rules with a single class:
+
+```kotlin
+class ProjectArchitectureTest : VedsArchitectureTest("com.vertyll.veds.project")
+```
+
+See [shared-archunit](../shared-archunit/README.md) for the full list and the two deliberate exemptions.
 
 ## Coverage by service
 
@@ -96,7 +106,7 @@ Several of these exist to pin down a property that is easy to regress silently:
   would prove anything about them.
 - **Application services** — everything so far is domain-level. The use cases are constructible without Spring by
   design, so this is a gap in effort rather than in possibility.
-- **The shared libraries** — none of the six has a test of its own, and between them, they hold the outbox dispatcher,
+- **The shared libraries** — none of them has a test of its own, and between them, they hold the outbox dispatcher,
   the saga engine and compensation, and the Keycloak token mapping. They are exercised only indirectly, through the
   services that consume them, so a regression there surfaces as a puzzling failure somewhere else.
   `shared-saga-api` and `shared-translation` are the cheapest to start with: no Spring, no containers.

@@ -42,6 +42,7 @@ Kotlin standard library only. Safe to name from an application layer.
 | `shared-messaging-kafka`    | Transactional outbox, consumer deduplication, Avro serialisation and Schema Registry wiring                 |
 | `shared-saga-engine`        | Saga orchestration, compensation, the watchdog, and the JPA flavour of the saga ports                       |
 | `shared-translation-client` | Start-up registration of a service's translation keys with `translation-service`                            |
+| `shared-archunit`           | The architecture rules every service is checked against, as executable tests                                |
 
 ## The dependency graph
 
@@ -98,6 +99,9 @@ Answer three questions. `template-service` is the worked example — it takes al
    publishes and takes no saga engine.
 
 If the service declares translation keys, add `shared-translation-client`; the DSL itself arrives with it.
+
+Every service also takes `shared-archunit` on its **test** classpath. It ships no production code — it is
+the rule set above, executable.
 
 ## Adding a module
 

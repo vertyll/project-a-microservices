@@ -4,6 +4,7 @@ rootProject.name = "veds"
 includeBuild("shared-saga-api")
 includeBuild("shared-saga-engine")
 includeBuild("shared-web")
+includeBuild("shared-archunit")
 includeBuild("shared-translation")
 includeBuild("shared-translation-client")
 includeBuild("shared-messaging-kafka")

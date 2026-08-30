@@ -10,6 +10,7 @@ on:
     paths:
       - "file-service/**"
       - "shared-web/**"
+      - "shared-archunit/**"
       - "shared-translation-client/**"
       - "shared-messaging-kafka/**"
       - "file-contracts/**"

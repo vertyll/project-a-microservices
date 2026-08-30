@@ -1,0 +1,27 @@
+name: Shared ArchUnit Checks
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "shared-archunit/**"
+      - ".github/workflows/shared-archunit-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "shared-archunit/**"
+      - ".github/workflows/shared-archunit-checks.yml"
+      - ".github/workflows/quality-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality-checks.yml
+    with:
+      service: shared-archunit

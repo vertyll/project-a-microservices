@@ -8,6 +8,7 @@ project(":infrastructure").name = "template-infrastructure"
 
 includeBuild("../shared-saga-api")
 includeBuild("../shared-web")
+includeBuild("../shared-archunit")
 includeBuild("../shared-translation")
 includeBuild("../shared-translation-client")
 includeBuild("../shared-saga-engine")

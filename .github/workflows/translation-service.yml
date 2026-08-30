@@ -10,6 +10,7 @@ on:
     paths:
       - "translation-service/**"
       - "shared-web/**"
+      - "shared-archunit/**"
       - "shared-translation/**"
       - ".github/workflows/translation-service.yml"
       - ".github/workflows/quality-checks.yml"

@@ -1,6 +1,6 @@
 package com.vertyll.veds.file.application.port.outbound
 
-import java.time.Instant
+import com.vertyll.veds.file.application.dto.PresignedUrl
 
 interface ObjectStoragePort {
     fun presignUpload(
@@ -19,8 +19,3 @@ interface ObjectStoragePort {
 
     fun delete(objectKey: String)
 }
-
-data class PresignedUrl(
-    val url: String,
-    val expiresAt: Instant,
-)

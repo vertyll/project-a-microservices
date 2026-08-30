@@ -46,5 +46,7 @@ dependencies {
 
     runtimeOnly(libs.postgresql)
 
+    testImplementation("com.vertyll.veds:shared-archunit")
+
     testImplementation(libs.bundles.test.common)
 }

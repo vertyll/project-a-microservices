@@ -10,6 +10,7 @@ on:
     paths:
       - "api-gateway/**"
       - "shared-web/**"
+      - "shared-archunit/**"
       - ".github/workflows/api-gateway.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:

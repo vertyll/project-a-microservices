@@ -1,7 +1,7 @@
 package com.vertyll.veds.file.infrastructure.storage
 
+import com.vertyll.veds.file.application.dto.PresignedUrl
 import com.vertyll.veds.file.application.port.outbound.ObjectStoragePort
-import com.vertyll.veds.file.application.port.outbound.PresignedUrl
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.services.s3.S3Client
