@@ -1,6 +1,5 @@
 package com.vertyll.veds.mail
 
-import com.vertyll.veds.mail.infrastructure.config.MailSenderProperties
 import com.vertyll.veds.shared.translation.client.TranslationClientProperties
 import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -28,7 +27,7 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.mail.infrastructure.persistence.entity",
 )
 @EnableKafka
-@EnableConfigurationProperties(TranslationClientProperties::class, MailSenderProperties::class)
+@EnableConfigurationProperties(TranslationClientProperties::class)
 class MailServiceApplication
 
 fun main(args: Array<String>) {

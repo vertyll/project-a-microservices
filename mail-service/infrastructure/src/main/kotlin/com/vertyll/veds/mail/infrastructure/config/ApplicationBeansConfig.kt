@@ -63,7 +63,7 @@ internal class ApplicationBeansConfig {
         mailSender: MailSenderPort,
         templateRenderer: TemplateRendererPort,
         emailLogRepository: EmailLogRepository,
-        mailProperties: MailSenderProperties,
+        mailProperties: MailProperties,
     ): EmailUseCase =
         transactions.wrap(
             EmailUseCase::class.java,
@@ -71,7 +71,7 @@ internal class ApplicationBeansConfig {
                 mailSender,
                 templateRenderer,
                 emailLogRepository,
-                SenderAddress(mailProperties.senderAddress),
+                SenderAddress(mailProperties.from),
                 Slf4jUseCaseLogger(EmailService::class.java),
             ),
         ) { it in setOf("getEmailLogs") }

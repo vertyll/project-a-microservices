@@ -46,6 +46,7 @@ spring:
     port: ${MAIL_PORT}
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
+    from: ${MAIL_FROM}
     properties:
       mail:
         smtp:
@@ -93,9 +94,6 @@ server:
     enabled: ${SERVER_SSL_ENABLED:false}
     bundle: ${SERVER_SSL_BUNDLE:}
 
-veds:
-  mail:
-    sender-address: ${MAIL_FROM}
   translation:
     client:
       # Where this service publishes its declared keys at start-up.
