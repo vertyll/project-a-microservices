@@ -25,6 +25,7 @@ dependencies {
     implementation(project(":iam-application"))
     implementation(project(":iam-domain"))
     implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-translation")
     implementation("com.vertyll.veds:shared-translation-client")
     implementation("com.vertyll.veds:shared-saga-engine")
     implementation("com.vertyll.veds:shared-messaging-kafka")

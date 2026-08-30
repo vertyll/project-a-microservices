@@ -7,6 +7,7 @@ project(":application").name = "file-application"
 project(":infrastructure").name = "file-infrastructure"
 
 includeBuild("../shared-web")
+includeBuild("../shared-translation")
 includeBuild("../shared-translation-client")
 includeBuild("../shared-messaging-kafka")
 includeBuild("../file-contracts")
