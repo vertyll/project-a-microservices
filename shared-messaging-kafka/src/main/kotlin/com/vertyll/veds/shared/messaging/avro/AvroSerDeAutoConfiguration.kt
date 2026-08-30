@@ -25,6 +25,10 @@ import org.springframework.context.annotation.Configuration
 )
 @EnableConfigurationProperties(KafkaInfraProperties::class)
 internal class AvroSerDeAutoConfiguration {
+    init {
+        AvroTrustedPackages.register()
+    }
+
     /** Confluent Avro serializer wired to the configured Schema Registry. */
     @Bean
     fun avroPayloadSerializer(properties: KafkaInfraProperties) = AvroPayloadSerializer(properties)

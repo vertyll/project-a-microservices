@@ -22,6 +22,8 @@ spring:
 veds:
   translation:
     supported-languages: pl,en
+    client:
+      base-url: http://localhost:1
   saga:
     # Short enough that a watchdog test does not have to wait, long enough that
     # a slow container start does not trip it.

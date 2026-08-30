@@ -13,6 +13,7 @@ import com.vertyll.veds.project.infrastructure.IntegrationTestBase
 import com.vertyll.veds.project.infrastructure.kafka.ProjectKafkaTopics
 import com.vertyll.veds.project.infrastructure.persistence.repository.OutboxJpaRepository
 import com.vertyll.veds.shared.saga.SagaStatus
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
@@ -38,6 +39,17 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
 
     @Autowired
     private lateinit var sagaProcess: SagaProcessPort
+
+    /**
+     * The tests share one database, and [openSagaId] reads the *first* outbox row. Without
+     * this, a test that completes its saga through mail feedback hands the next test an
+     * already-terminal saga id, and the failure reads as a compensation bug rather than as
+     * leaked state.
+     */
+    @BeforeEach
+    fun clearOutbox() {
+        outboxRepository.deleteAll()
+    }
 
     private fun owner() =
         Actor(
