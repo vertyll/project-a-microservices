@@ -12,6 +12,7 @@ spring:
   flyway:
     enabled: true
   kafka:
+    schema-registry-url: mock://project-service-test
     consumer:
       auto-offset-reset: earliest
       # A fresh group per run, so a test never replays another run's offsets.
