@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.dokka)
+    jacoco
 }
 
 group = "com.vertyll.veds"
@@ -63,9 +64,11 @@ dependencies {
 
     // --- OpenAPI: only contributes a bean when the service already brings springdoc ---
     compileOnly(libs.swagger.core.models)
+    testImplementation(libs.swagger.core.models)
 
     // --- Reactor: only ReactiveKeycloakJwtAuthenticationConverter needs it
     compileOnly("io.projectreactor:reactor-core")
+    testImplementation("io.projectreactor:reactor-core")
 
     // --- Annotation Processors ---
     kapt(libs.spring.boot.configuration.processor)
@@ -129,4 +132,15 @@ dokka {
             remoteLineSuffix.set("#L")
         }
     }
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
 }

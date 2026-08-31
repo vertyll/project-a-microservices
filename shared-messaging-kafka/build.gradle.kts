@@ -2,6 +2,7 @@ import dev.detekt.gradle.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.kotlin.jpa)
@@ -140,4 +141,15 @@ dokka {
             remoteLineSuffix.set("#L")
         }
     }
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
 }

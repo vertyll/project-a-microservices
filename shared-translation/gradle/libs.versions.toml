@@ -15,6 +15,9 @@ avro = "1.12.2"
 confluent = "8.2.2"
 
 [libraries]
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version = "5.11.4" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 # CLDR plural rules and ICU MessageFormat. Required for Polish few/many.
 icu4j = { module = "com.ibm.icu:icu4j", version.ref = "icu4j" }
 # Spring Boot Starters - Common

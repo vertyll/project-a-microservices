@@ -86,6 +86,19 @@ subprojects {
     tasks.matching { it.name == "check" }.configureEach {
         dependsOn("detekt")
     }
+
+    pluginManager.apply("jacoco")
+
+    tasks.withType<JacocoReport>().configureEach {
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+
+    tasks.matching { it.name == "test" }.configureEach {
+        finalizedBy("jacocoTestReport")
+    }
 }
 
 tasks.register("checkHexagonalDependencies") {

@@ -1,6 +1,7 @@
 import dev.detekt.gradle.Detekt
 
 plugins {
+    jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
@@ -53,4 +54,15 @@ tasks.withType<Detekt>().configureEach {
 
 tasks.named("check") {
     dependsOn("detekt")
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
 }

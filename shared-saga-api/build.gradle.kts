@@ -1,6 +1,7 @@
 import dev.detekt.gradle.Detekt
 
 plugins {
+    jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
@@ -33,6 +34,10 @@ dependencies {
     // could drag one in. The Spring-bound engine that drives these types lives in
     // `shared-saga-engine` and depends on this module, never the other way round.
     implementation(libs.kotlin.stdlib.jdk8)
+
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
@@ -75,4 +80,19 @@ dokka {
             remoteLineSuffix.set("#L")
         }
     }
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

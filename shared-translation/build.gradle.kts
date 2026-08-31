@@ -1,6 +1,7 @@
 import dev.detekt.gradle.Detekt
 
 plugins {
+    jacoco
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
@@ -35,6 +36,10 @@ dependencies {
     // framework-free, so it deliberately depends on nothing else.
     implementation(libs.kotlin.stdlib.jdk8)
     api(libs.icu4j)
+
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
@@ -75,4 +80,15 @@ dokka {
         reportUndocumented.set(false)
         skipDeprecated.set(false)
     }
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
 }
