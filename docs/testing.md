@@ -52,7 +52,8 @@ proves nothing about the property it protects.
 
 `./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's resolved
 `compileClasspath`. It reads the *resolved* classpath rather than declared dependencies, so a framework arriving
-transitively is caught too — which is how Spring got in the first time, through a saga enum that used to live in the Spring-bound shared module.
+transitively is caught too. That is the path worth guarding: importing a single enum from a Spring-bound module puts the
+whole framework on the application classpath.
 
 It is wired into `check`, so `./gradlew build` runs it. In CI, it is a separate job of the reusable
 `quality-checks.yml` workflow, enabled with `hexagonal: true` — only the `-service` builds register the task.

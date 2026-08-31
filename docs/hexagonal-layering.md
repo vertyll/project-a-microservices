@@ -22,8 +22,8 @@ infrastructure ──► application ──► domain
 | `infrastructure` | everything                   | JPA, Kafka, Avro, web, Spring wiring, adapters             |
 
 `shared-saga-api` is a module holding only the saga vocabulary, with the Kotlin standard library as its single
-dependency. Those types used to sit in the Spring-bound shared module, so importing a saga status pulled the whole
-framework onto the application classpath.
+dependency. Keeping them out of the Spring-bound modules is what stops an import of a saga status from putting the
+whole framework on the application classpath.
 
 In project-service the application layer's entire external import surface is:
 
@@ -41,8 +41,9 @@ No Spring, no `jakarta.validation`, no Jackson, no SLF4J.
 
 ### `@Service` → explicit beans
 
-Component scanning is replaced by `infrastructure/config/ApplicationBeansConfig`, which constructs each use case by
-hand. Verbose, but it also means every use case is constructible in a plain unit test with no Spring context.
+There is no component scanning of the application layer. `infrastructure/config/ApplicationBeansConfig` constructs
+each use case by hand. Verbose, but it means every use case is constructible in a plain unit test with no Spring
+context.
 
 ### `@Transactional` → a decorator at the port
 
@@ -61,9 +62,9 @@ degrade quietly.
 
 ### Transaction mode follows the port
 
-Since the CQRS split, `TransactionalUseCaseFactory` no longer takes a set of read-only method *names*. A query port is
-read-only in its entirety and a command port is not, so the caller passes a constant. The hand-maintained list that
-could silently drift out of step with a rename is gone — see [CQRS](./cqrs.md).
+`TransactionalUseCaseFactory` takes no list of read-only method *names*. A query port is read-only in its entirety and
+a command port is not, so the caller passes a constant. Nothing hand-maintained can drift out of step with a rename —
+see [CQRS](./cqrs.md).
 
 ### Bean validation → the web adapter
 
@@ -111,10 +112,9 @@ longer in reach of code that has no business knowing them.
 | `task-service`         | **no** — cloned before the refactor; still `@Service` / `@Transactional` |
 | `notification-service` | **no** — same                                                            |
 
-`task-service` and `notification-service` were generated from `template-service` *before* the framework-free refactor,
-so they carry the old shape. Re-clone them from the current template rather than porting by hand — the template now
-includes the error catalogue, the logging port, the transactional decorator, the bean configuration and the CQRS port
-split.
+`task-service` and `notification-service` do not carry the full shape. Re-clone them from `template-service` rather
+than porting by hand: the template carries the error catalogue, the logging port, the transactional decorator, the
+bean configuration and the CQRS port split.
 
 The remaining external imports in every application layer are the three saga contract types plus `java.time` and
 `java.util`.

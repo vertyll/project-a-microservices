@@ -78,8 +78,8 @@ it needs one.
 | project-service | `project.icon_file_id`                       |
 | task-service    | `task_attachment`, `task_comment_attachment` |
 
-The old `profile_picture` column held a path into a storage layout that no longer exists, so
-`V5__Avatar_file_id.sql` drops it rather than converting it — there is nothing to migrate.
+`V5__Avatar_file_id.sql` drops `profile_picture` instead of converting it: the paths that column
+holds address a storage layout this system does not use, so there is nothing to carry over.
 
 ### Keeping references honest
 
@@ -98,7 +98,7 @@ nothing.
 | Project icon                 | `PROJECT_ICON`    | `<app-image [fileId]>`, and the project table cell |
 | Task and comment attachments | `TASK_ATTACHMENT` | image preview by id; other types download on click |
 
-Two patterns worth stating, because both replace something that used to be simpler:
+Two patterns worth stating, because both are easy to get backwards:
 
 - **Upload before save.** The avatar and the project icon are uploaded first, and only the resulting file id is
   submitted with the form. Ordered that way deliberately: a failed upload must not leave a saved record pointing at a

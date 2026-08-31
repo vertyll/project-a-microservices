@@ -80,9 +80,9 @@ to the gateway too.
 
 Two of these are worth reading as evidence that the boundaries are real rather than decorative:
 
-- **api-gateway takes one module.** It is reactive and has no database. Before the split it
-  pulled in the whole Spring/JPA/Kafka/Avro surface for a single JWT converter, and had to
-  disable Hibernate autoconfiguration in two places to survive it.
+- **api-gateway takes one module.** It is reactive and has no database, and all it needs from
+  the shared code is a JWT converter. A library that also carried JPA would force it to disable
+  Hibernate autoconfiguration to start at all.
 - **file-service takes the outbox but not the saga engine.** It publishes events and
   orchestrates nothing, so it carries outbox tables and no saga tables.
 
@@ -93,7 +93,7 @@ Answer three questions. `template-service` is the worked example — it takes al
 1. **Does it serve HTTP and authenticate callers?** Take `shared-web`. Every service does, including the gateway.
 2. **Does it publish or consume integration events?** Take `shared-messaging-kafka`, and copy the outbox and
    processed-event tables from an existing service's first migration. If the answer is no, take neither — and do not
-   create those tables. `translation-service` carried four empty ones for exactly this reason until they were removed.
+   create those tables — `translation-service` publishes nothing and therefore has none.
 3. **Does it orchestrate a multiservice workflow that can fail halfway?** Take `shared-saga-engine` (which pulls
    `shared-saga-api` for you) and add the saga tables. Publishing an event is not orchestration: `file-service`
    publishes and takes no saga engine.

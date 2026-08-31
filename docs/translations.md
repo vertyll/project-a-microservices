@@ -61,9 +61,9 @@ service down with it. Registration is retried on the next restart.
 
 ## Languages
 
-Seeded from code, same as keys. `LanguageCode` used to be an enum in project-service and task-service, and every
-translatable aggregate required a value for all of its constants. That was wrong in a specific way: the day a language
-was added, every stored row became invalid and the next write to it threw.
+Seeded from code, same as keys. A language is data, never an enum: with a fixed set of constants every translatable
+aggregate would owe a value for each one, so adding a language would invalidate every stored row and the next write to
+it would throw.
 
 Now the tag is a `LanguageTag` value class (BCP 47, normalized to lower case) and the catalogue lives in
 `translation-service`. Normalisation is not cosmetic — without it `pl`, `PL` and
@@ -128,8 +128,8 @@ freeze it and an administrator's correction would never reach anybody.
 `MissingTranslationKeyHandler` renders a missing key as the key. `ngx-translate` does this by default; it is declared
 explicitly so the behavior is a reviewed decision rather than a default nobody looked at.
 
-`LanguageService` fetches `GET /translations/languages` during start-up. The list of languages is no longer a constant
-in the front end — a language seeded in the back end appears without a front-end release. The category and status forms
+`LanguageService` fetches `GET /translations/languages` during start-up, so the front end holds no constant list — a
+language seeded in the back end appears without a front-end release. The category and status forms
 iterate over exactly this list when asking for a label in every language.
 
 `ngx-translate-messageformat-compiler` renders the ICU patterns; without it Polish `few`/`many`

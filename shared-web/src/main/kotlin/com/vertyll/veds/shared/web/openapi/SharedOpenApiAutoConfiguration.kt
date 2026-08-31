@@ -15,9 +15,9 @@ import org.springframework.core.env.Environment
 /**
  * Gives every service's generated OpenAPI document a name and a bearer-token scheme.
  *
- * Without this, springdoc emits its defaults — `OpenAPI definition` / `v0` — so eight services
- * publish eight documents that cannot be told apart, and Swagger UI has no Authorize button.
- * Since almost every endpoint requires a JWT, that made "Try it out" useless.
+ * Left to its defaults springdoc emits `OpenAPI definition` / `v0` and no security scheme, so
+ * every service would publish a document indistinguishable from the next and Swagger UI would
+ * offer no Authorize button — which matters because almost every endpoint requires a JWT.
  *
  * Registered here rather than per service so the description stays identical everywhere; a
  * service that wants its own document simply declares its own [OpenAPI] bean.

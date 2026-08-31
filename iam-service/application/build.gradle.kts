@@ -24,9 +24,9 @@ tasks.withType<Test> {
  * nothing objects.
  *
  * The check reads the resolved `compileClasspath`, not the declared
- * dependencies, so a framework arriving transitively through another module is
- * caught too — which is how Spring got in the first time, via a saga enum in
- * `shared-messaging-kafka`.
+ * dependencies, so a framework arriving transitively is caught too. That path is
+ * the easy one to miss: importing a single enum from a Spring-bound module puts
+ * the whole framework on this layer's classpath.
  */
 val forbiddenOnApplicationClasspath =
     listOf(

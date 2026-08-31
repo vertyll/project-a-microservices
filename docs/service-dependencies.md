@@ -43,7 +43,7 @@ framework — the module boundary turns that rule into a compile error instead o
 produce a module with exactly the same consumers as the engine.
 
 `shared-web` is the only library the gateway takes. It is reactive and has no database, so it must not inherit JPA —
-which is what the single monolithic shared library it replaced used to drag in.
+which a library carrying persistence would force on it.
 
 ## Infrastructure at runtime
 

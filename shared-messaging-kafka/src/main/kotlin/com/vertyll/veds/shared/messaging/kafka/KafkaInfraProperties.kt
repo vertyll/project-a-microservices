@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * Bound from `spring.kafka.*` in `application.yml`, mirroring the keys used by Spring Boot's
  * own Kafka configuration so existing `application-*.yml` files remain compatible.
  *
- * Replaces ad-hoc `@Value("${spring.kafka.bootstrap-servers:...}")` lookups and keeps the
+ * Binds the Kafka settings as one typed object rather than string-keyed lookups, and keeps the
  * style consistent with `MailProperties` (mail-service) and `SharedConfigProperties`.
  */
 @ConfigurationProperties(prefix = "spring.kafka")

@@ -11,11 +11,11 @@ Users, roles, permissions and the account lifecycle.
 
 ## Permissions belong to roles
 
-They used to hang off users, which is not RBAC: granting access became a list of tick boxes per
-person, and "what can a manager do" had no answer. `V4__Role_permission_mapping.sql` moves them
-and drops the user table.
+A permission is granted to a role, never to a person. Attaching permissions to users directly is
+not RBAC: granting access becomes a list of tick boxes per person, and "what can a manager do"
+has no answer.
 
-Per-user exceptions were **not** kept. Two sources of truth mean an audit has to consult both,
+There are **no** per-user exceptions. Two sources of truth mean an audit has to consult both,
 and the administration screen could only ever show half the picture. `User.permissions` is
 derived from roles and never stored.
 

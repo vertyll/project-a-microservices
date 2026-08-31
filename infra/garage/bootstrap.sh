@@ -6,9 +6,8 @@
 # one-shot service means `compose up` yields a working store instead of a page of
 # manual commands.
 #
-# Uses the admin API rather than the `garage` CLI, because the Garage image ships
-# the binary on an empty filesystem with no shell — a mounted script cannot run
-# there, which is what "crun: executable file /bin/sh not found" was reporting.
+# Uses the admin API rather than the `garage` CLI: the Garage image ships the binary
+# on an otherwise empty filesystem with no shell, so a mounted script cannot run there.
 #
 # Every step is idempotent, so a restart is harmless.
 set -eu

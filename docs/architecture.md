@@ -232,9 +232,9 @@ on — editing translations is not something one can be allowed to do inside one
 
 ### Permissions belong to roles
 
-They used to hang off users in iam-service (`user_permission_mapping`), which is not RBAC:
-granting access became a list of tick boxes per person, and "what can a manager do" had no answer. project-service
-already modeled this correctly, so IAM was the outlier.
+A permission is granted to a role, never to a person. Attaching permissions to users directly is not RBAC: granting
+access becomes a list of tick boxes per person, and "what can a manager do" has no answer. project-service models
+project roles the same way.
 
 `V4__Role_permission_mapping.sql` carries the existing grants over and drops the user table. Per-user exceptions were
 **not** kept: two sources of truth mean an audit has to consult both, and the administration screen could only ever show

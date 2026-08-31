@@ -38,14 +38,13 @@ Applied in project-service, iam-service and template-service.
 `ProjectTypeUseCase` and `ProjectRoleUseCase` became query-only: adding a type or a role means adding an enum constant,
 which is a code change rather than a runtime command.
 
-One thing the split forced out into the open: `mapToDto` lived as a private helper inside the old combined services, and
-both sides needed it. It is now `UserResponseMapper` /
-`RoleResponseMapper`, because duplicating it would let the read and write sides drift into returning different shapes
-for the same entity.
+Mapping is shared rather than duplicated: `UserResponseMapper` and `RoleResponseMapper` are named types both sides
+call. A private helper on each side would let the read and write halves drift into returning different shapes for the
+same entity.
 
-A concrete payoff beyond tidiness: `TransactionalUseCaseFactory` used to take a set of read-only method *names*, checked
-against the interface at startup. A query port is read-only in its entirety, so the transaction mode now follows from
-which side a port belongs to, and the hand-maintained list that could drift out of step with a rename is gone.
+The split also decides transaction mode. `TransactionalUseCaseFactory` reads it from which side a port belongs to — a
+query port is read-only in its entirety — rather than from a list of method names that a rename could silently
+invalidate.
 
 ## Level 2 — the read side does not load aggregates
 
