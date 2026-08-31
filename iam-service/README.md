@@ -31,7 +31,7 @@ Telling them apart is a user-enumeration oracle.
 
 Creating a Keycloak identity, storing the user and sending the activation mail cannot be one
 transaction. The saga compensates: a failed mail delivery rolls the account back rather than
-leaving one nobody can activate. See [Sagas and Outbox](../docs/saga-and-outbox.md).
+leaving one nobody can activate. See [Eventual Consistency](../docs/eventual-consistency.md).
 
 ## Second factor
 

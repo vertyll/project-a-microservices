@@ -1,9 +1,22 @@
-# Saga Pattern & Transactional Outbox
+# Eventual Consistency: Outbox, Inbox and Sagas
 
 ## Overview
 
-The system uses **choreography-based sagas** — there is no central orchestrator. Each participating service runs its own
-local saga and progresses by reacting to domain events on Kafka.
+No transaction spans two services here — there is no 2PC and no XA. Local ACID transactions do the work, and three
+mechanisms carry state between them:
+
+| Mechanism  | Guarantees                                                                                          |
+|------------|-----------------------------------------------------------------------------------------------------|
+| **Outbox** | a state change and the event announcing it commit together, so neither can happen without the other |
+| **Inbox**  | a delivery is handled once, and a failed handler leaves nothing claimed                             |
+| **Saga**   | a workflow spanning services completes or is compensated                                            |
+
+A saga is not a transaction: it has no atomicity and no isolation. Intermediate states are visible, and undo is a new
+business action rather than a `ROLLBACK`. What it buys is that a workflow never stops halfway with nobody responsible
+for it.
+
+The sagas are **choreography-based** — there is no central orchestrator. Each participating service runs its own local
+saga and progresses by reacting to domain events on Kafka.
 
 ---
 
@@ -38,7 +51,7 @@ Consists of `KafkaOutboxProcessor` (poller) and `OutboxDispatchTx` (transactiona
 - **Reaper** — Rescues stuck `PROCESSING` rows abandoned by a crash.
 - **Config** — Externalized via `KafkaOutboxProperties`.
 
-### Idempotent Receiver
+### Inbox — Idempotent Receiver
 
 `ProcessedEventGuard.claim(eventId, consumerGroup)` writes to a ledger with a UNIQUE constraint on
 `(eventId, consumerGroup)`. A delivery whose id is already there is skipped.

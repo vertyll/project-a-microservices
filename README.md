@@ -62,7 +62,7 @@ explain nearly every "why is this in a separate module?" question the code raise
 
 **How services talk to each other**
 
-- [Saga Pattern & Transactional Outbox](./docs/saga-and-outbox.md) — saga engine, outbox, idempotent receiver.
+- [Eventual Consistency](./docs/eventual-consistency.md) — outbox, inbox and sagas: how services agree on state without a distributed transaction.
 - [Event Catalogue](./docs/events.md) — every topic, its owner and its consumers.
 - [Concurrency Control](./docs/concurrency.md) — optimistic locking, ETags, saga and outbox concurrency.
 

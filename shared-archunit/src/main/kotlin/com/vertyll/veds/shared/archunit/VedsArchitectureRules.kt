@@ -9,7 +9,7 @@ import com.tngtech.archunit.library.Architectures.layeredArchitecture
 /**
  * The architecture rules every service is held to, expressed as executable checks.
  *
- * They restate what `docs/hexagonal-layering.md`, `docs/saga-and-outbox.md` and
+ * They restate what `docs/hexagonal-layering.md`, `docs/eventual-consistency.md` and
  * `docs/shared-modules.md` describe in prose. `checkHexagonalDependencies` already stops a
  * framework from reaching the application layer's *classpath*; these rules work at class level,
  * so they also catch what a shared classpath cannot express — a JPA annotation on a domain

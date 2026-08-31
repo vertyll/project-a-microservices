@@ -52,7 +52,7 @@ it — means a producer change at the moment a consumer is already waiting.
 | `saga-compensation-notification` | notification-service |
 
 Internal to one service: a compensation event is how a saga undoes its own steps, never a message another context reacts
-to. See [Sagas and Outbox](./saga-and-outbox.md).
+to. See [Eventual Consistency](./eventual-consistency.md).
 
 `translation-service` and `file-service` have no compensation topic — neither takes part in a distributed flow.
 
