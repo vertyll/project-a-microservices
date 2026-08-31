@@ -7,7 +7,6 @@
     <toRun name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" />
     <toRun name="ProjectServiceApplication" type="SpringBootApplicationConfigurationType" />
     <toRun name="TaskServiceApplication" type="SpringBootApplicationConfigurationType" />
-    <toRun name="TemplateServiceApplication" type="SpringBootApplicationConfigurationType" />
     <toRun name="TranslationServiceApplication" type="SpringBootApplicationConfigurationType" />
     <method v="2" />
   </configuration>
