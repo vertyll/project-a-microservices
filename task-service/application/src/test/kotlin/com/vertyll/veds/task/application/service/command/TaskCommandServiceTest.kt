@@ -1,0 +1,351 @@
+package com.vertyll.veds.task.application.service.command
+
+import com.vertyll.veds.task.application.InMemoryCommentRepository
+import com.vertyll.veds.task.application.InMemoryProjectDirectory
+import com.vertyll.veds.task.application.InMemoryTaskRepository
+import com.vertyll.veds.task.application.InMemoryUserDirectory
+import com.vertyll.veds.task.application.RecordingTaskEventPublisher
+import com.vertyll.veds.task.application.command.BatchDeleteTasksCommand
+import com.vertyll.veds.task.application.command.ChangeTaskStatusCommand
+import com.vertyll.veds.task.application.command.CreateTaskCommand
+import com.vertyll.veds.task.application.command.LogWorkCommand
+import com.vertyll.veds.task.application.command.UpdateTaskCommand
+import com.vertyll.veds.task.application.dto.Actor
+import com.vertyll.veds.task.application.exception.ApiException
+import com.vertyll.veds.task.application.membership
+import com.vertyll.veds.task.application.projectRef
+import com.vertyll.veds.task.application.service.TaskAuthorizationService
+import com.vertyll.veds.task.application.service.TaskReferenceValidator
+import com.vertyll.veds.task.application.statusRef
+import com.vertyll.veds.task.application.task
+import com.vertyll.veds.task.domain.error.TaskError
+import com.vertyll.veds.task.domain.model.TaskComment
+import com.vertyll.veds.task.domain.model.TaskPriority
+import org.junit.jupiter.api.Test
+import java.util.UUID
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+/**
+ * The rule these tests exist for is that an event goes out when something actually changed, and not
+ * otherwise. notification-service turns each one into a message to a person, so a spurious
+ * TaskAssigned is a notification nobody earned, and a missing one is work somebody never hears
+ * about.
+ */
+internal class TaskCommandServiceTest {
+    private val tasks = InMemoryTaskRepository()
+    private val comments = InMemoryCommentRepository()
+    private val directory = InMemoryProjectDirectory()
+    private val users = InMemoryUserDirectory()
+    private val events = RecordingTaskEventPublisher()
+
+    private val service =
+        TaskCommandService(
+            taskRepository = tasks,
+            commentRepository = comments,
+            userDirectory = users,
+            authorization = TaskAuthorizationService(directory, tasks),
+            references = TaskReferenceValidator(directory),
+            eventPublisher = events,
+        )
+
+    private val project = projectRef().also { directory.saveProject(it) }
+    private val projectId = project.projectId
+
+    private val actor = Actor(id = UUID.randomUUID(), email = "ada@example.com", firstName = "Ada", lastName = "Lovelace")
+
+    init {
+        directory.saveMembership(membership(projectId, actor.id, roleCode = "MANAGER"))
+    }
+
+    private val todo = statusRef(projectId, name = "To do").also { directory.saveStatus(it) }
+    private val done = statusRef(projectId, name = "Done").also { directory.saveStatus(it) }
+
+    private fun createCommand(
+        statusId: UUID? = null,
+        assigneeIds: Set<UUID> = emptySet(),
+    ) = CreateTaskCommand(
+        projectId = projectId,
+        description = "Fix the thing",
+        additionalDescription = null,
+        priority = TaskPriority.MEDIUM,
+        statusId = statusId,
+        categoryIds = emptySet(),
+        assigneeIds = assigneeIds,
+        priceEstimation = 0,
+        accessRoleId = null,
+        attachmentIds = emptySet(),
+    )
+
+    private fun updateCommand(
+        description: String = "Fix the thing",
+        statusId: UUID? = null,
+        assigneeIds: Set<UUID> = emptySet(),
+        priority: TaskPriority = TaskPriority.MEDIUM,
+    ) = UpdateTaskCommand(
+        description = description,
+        additionalDescription = null,
+        priority = priority,
+        statusId = statusId,
+        categoryIds = emptySet(),
+        assigneeIds = assigneeIds,
+        priceEstimation = 0,
+        accessRoleId = null,
+        attachmentIds = emptySet(),
+    )
+
+    // ── Creating ────────────────────────────────────────────────────────
+
+    @Test
+    fun `a task is stored against its project and creator`() {
+        val response = service.createTask(createCommand(), actor)
+
+        val stored = tasks.findById(response.id)!!
+        assertEquals(projectId, stored.projectId)
+        assertEquals(actor.id, stored.createdBy)
+        assertEquals("Fix the thing", stored.description)
+    }
+
+    @Test
+    fun `creating a task announces it`() {
+        val response = service.createTask(createCommand(), actor)
+
+        assertEquals(listOf("TaskCreated(${response.id})"), events.published)
+    }
+
+    /** Comments and history name their author by id; without the directory entry they are nameless. */
+    @Test
+    fun `the creator is recorded in the user directory`() {
+        service.createTask(createCommand(), actor)
+
+        assertNotNull(users.findById(actor.id))
+    }
+
+    @Test
+    fun `a status from another project cannot be used`() {
+        val elsewhere = statusRef(UUID.randomUUID()).also { directory.saveStatus(it) }
+
+        val error = assertFailsWith<ApiException> { service.createTask(createCommand(statusId = elsewhere.statusId), actor) }
+
+        assertEquals(TaskError.STATUS_NOT_IN_PROJECT, error.error)
+        assertTrue(tasks.stored.isEmpty())
+    }
+
+    @Test
+    fun `someone who is not a member cannot create a task`() {
+        val outsider = Actor(UUID.randomUUID(), "out@example.com", null, null)
+
+        assertFailsWith<ApiException> { service.createTask(createCommand(), outsider) }
+
+        assertTrue(tasks.stored.isEmpty())
+        assertTrue(events.published.isEmpty())
+    }
+
+    // ── Updating ────────────────────────────────────────────────────────
+
+    private fun givenTask(
+        statusId: UUID? = null,
+        assigneeIds: Set<UUID> = emptySet(),
+    ) = task(projectId, createdBy = actor.id, statusId = statusId, assigneeIds = assigneeIds).also { tasks.given(it) }
+
+    @Test
+    fun `updating replaces the editable fields`() {
+        val existing = givenTask()
+
+        service.updateTask(existing.id, updateCommand(description = "Fix it properly", priority = TaskPriority.HIGH), actor, 0L)
+
+        val stored = tasks.findById(existing.id)!!
+        assertEquals("Fix it properly", stored.description)
+        assertEquals(TaskPriority.HIGH, stored.priority)
+    }
+
+    /** Somebody is now responsible for this work and has to be told. */
+    @Test
+    fun `gaining an assignee is announced`() {
+        val existing = givenTask()
+        val assignee = membership(projectId).also { directory.saveMembership(it) }
+
+        service.updateTask(existing.id, updateCommand(assigneeIds = setOf(assignee.userId)), actor, 0L)
+
+        assertEquals(listOf("TaskAssigned(${existing.id},1)"), events.published)
+    }
+
+    /**
+     * An edit that leaves the assignees alone must not re-announce them; the people on the task
+     * would be notified again about an assignment they already have.
+     */
+    @Test
+    fun `an edit that does not touch the assignees announces nothing`() {
+        val assignee = membership(projectId).also { directory.saveMembership(it) }
+        val existing = givenTask(assigneeIds = setOf(assignee.userId))
+
+        service.updateTask(existing.id, updateCommand(description = "Reworded", assigneeIds = setOf(assignee.userId)), actor, 0L)
+
+        assertTrue(events.published.isEmpty())
+    }
+
+    @Test
+    fun `moving a task to another status is announced`() {
+        val existing = givenTask(statusId = todo.statusId)
+
+        service.updateTask(existing.id, updateCommand(statusId = done.statusId), actor, 0L)
+
+        assertEquals(listOf("TaskStatusChanged(${existing.id},${done.statusId})"), events.published)
+    }
+
+    @Test
+    fun `an update against a stale version is refused`() {
+        val existing = givenTask()
+
+        val error = assertFailsWith<ApiException> { service.updateTask(existing.id, updateCommand(description = "New"), actor, 9L) }
+
+        assertEquals(TaskError.VERSION_MISMATCH, error.error)
+        assertEquals("Fix the thing", tasks.findById(existing.id)!!.description)
+    }
+
+    @Test
+    fun `an assignee who is not a member is refused`() {
+        val existing = givenTask()
+
+        val error =
+            assertFailsWith<ApiException> {
+                service.updateTask(
+                    existing.id,
+                    updateCommand(assigneeIds = setOf(UUID.randomUUID())),
+                    actor,
+                    0L,
+                )
+            }
+
+        assertEquals(TaskError.ASSIGNEE_NOT_A_MEMBER, error.error)
+    }
+
+    // ── Moving on the board ─────────────────────────────────────────────
+
+    @Test
+    fun `changing the status moves the task and announces it`() {
+        val existing = givenTask(statusId = todo.statusId)
+
+        service.changeStatus(existing.id, ChangeTaskStatusCommand(done.statusId), actor, 0L)
+
+        assertEquals(done.statusId, tasks.findById(existing.id)!!.statusId)
+        assertEquals(listOf("TaskStatusChanged(${existing.id},${done.statusId})"), events.published)
+    }
+
+    /**
+     * Dragging a card back into the column it came from is not a change. Announcing it would put a
+     * "status changed" notification in front of someone for a move that did not happen.
+     */
+    @Test
+    fun `dropping a task back into its own column announces nothing`() {
+        val existing = givenTask(statusId = todo.statusId)
+
+        service.changeStatus(existing.id, ChangeTaskStatusCommand(todo.statusId), actor, 0L)
+
+        assertTrue(events.published.isEmpty())
+    }
+
+    @Test
+    fun `a status from another project cannot be moved to`() {
+        val existing = givenTask(statusId = todo.statusId)
+        val elsewhere = statusRef(UUID.randomUUID()).also { directory.saveStatus(it) }
+
+        assertFailsWith<ApiException> { service.changeStatus(existing.id, ChangeTaskStatusCommand(elsewhere.statusId), actor, 0L) }
+
+        assertEquals(todo.statusId, tasks.findById(existing.id)!!.statusId)
+    }
+
+    // ── Logging work ────────────────────────────────────────────────────
+
+    @Test
+    fun `logged work accumulates on the task`() {
+        val existing = givenTask()
+
+        service.logWork(existing.id, LogWorkCommand(150), actor)
+        service.logWork(existing.id, LogWorkCommand(75), actor)
+
+        assertEquals(225, tasks.findById(existing.id)!!.workedTime)
+    }
+
+    /** Time already logged cannot be taken back by logging a negative amount. */
+    @Test
+    fun `negative work is rejected`() {
+        val existing = givenTask()
+
+        assertFailsWith<IllegalArgumentException> { service.logWork(existing.id, LogWorkCommand(-10), actor) }
+    }
+
+    // ── Archiving ───────────────────────────────────────────────────────
+
+    @Test
+    fun `archiving deactivates the task, drops its comments and announces it`() {
+        val existing = givenTask()
+        comments.given(TaskComment(taskId = existing.id, authorId = actor.id, content = "Working on it"))
+
+        service.archiveTask(existing.id, actor, 0L)
+
+        assertTrue(!tasks.findById(existing.id)!!.isActive)
+        assertTrue(comments.findAllByTaskId(existing.id).isEmpty())
+        assertEquals(listOf("TaskArchived(${existing.id})"), events.published)
+    }
+
+    /**
+     * An archived task takes no further change, archiving included. That refusal is what stops a
+     * second TaskArchived event reaching consumers as a duplicate.
+     */
+    @Test
+    fun `archiving an already archived task is refused`() {
+        val archived = task(projectId, createdBy = actor.id).archive().also { tasks.given(it) }
+
+        val error = assertFailsWith<ApiException> { service.archiveTask(archived.id, actor, 0L) }
+
+        assertEquals(TaskError.TASK_ARCHIVED, error.error)
+        assertTrue(events.published.isEmpty())
+    }
+
+    @Test
+    fun `archiving against a stale version is refused`() {
+        val existing = givenTask()
+
+        assertFailsWith<ApiException> { service.archiveTask(existing.id, actor, 9L) }
+
+        assertTrue(tasks.findById(existing.id)!!.isActive)
+    }
+
+    // ── Archiving a batch ───────────────────────────────────────────────
+
+    @Test
+    fun `a batch archives every task and announces each one`() {
+        val first = givenTask()
+        val second = givenTask()
+
+        val archived = service.archiveTasks(BatchDeleteTasksCommand(setOf(first.id, second.id)), actor)
+
+        assertEquals(2, archived)
+        assertTrue(tasks.stored.values.none { it.isActive })
+        assertEquals(2, events.published.count { it.startsWith("TaskArchived") })
+    }
+
+    @Test
+    fun `an empty batch does nothing`() {
+        assertEquals(0, service.archiveTasks(BatchDeleteTasksCommand(emptySet()), actor))
+        assertTrue(events.published.isEmpty())
+    }
+
+    /**
+     * Permission is checked for every id before anything is written, so a batch containing one task
+     * the caller may not touch archives none of them.
+     */
+    @Test
+    fun `a batch containing an unreachable task archives nothing`() {
+        val mine = givenTask()
+        val elsewhere = task(UUID.randomUUID()).also { tasks.given(it) }
+
+        assertFailsWith<ApiException> { service.archiveTasks(BatchDeleteTasksCommand(setOf(mine.id, elsewhere.id)), actor) }
+
+        assertTrue(tasks.findById(mine.id)!!.isActive)
+        assertTrue(events.published.isEmpty())
+    }
+}

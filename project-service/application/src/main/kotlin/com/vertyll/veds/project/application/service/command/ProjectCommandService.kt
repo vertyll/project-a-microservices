@@ -112,8 +112,6 @@ class ProjectCommandService(
             ApiException(ProjectError.VERSION_MISMATCH)
         }
 
-        if (!project.isActive) return
-
         projectRepository.save(project.archive())
         eventPublisher.publishProjectArchived(project.id)
     }

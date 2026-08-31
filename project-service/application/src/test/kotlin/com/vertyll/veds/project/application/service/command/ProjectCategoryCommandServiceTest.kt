@@ -1,0 +1,206 @@
+package com.vertyll.veds.project.application.service.command
+
+import com.vertyll.veds.project.application.ENGLISH
+import com.vertyll.veds.project.application.InMemoryCategoryRepository
+import com.vertyll.veds.project.application.InMemoryMemberRepository
+import com.vertyll.veds.project.application.InMemoryProjectRepository
+import com.vertyll.veds.project.application.InMemoryRoleRepository
+import com.vertyll.veds.project.application.POLISH
+import com.vertyll.veds.project.application.RecordingEventPublisher
+import com.vertyll.veds.project.application.command.CreateCategoryCommand
+import com.vertyll.veds.project.application.command.UpdateCategoryCommand
+import com.vertyll.veds.project.application.exception.ApiException
+import com.vertyll.veds.project.application.project
+import com.vertyll.veds.project.application.role
+import com.vertyll.veds.project.application.service.ProjectAuthorizationService
+import com.vertyll.veds.project.application.service.TranslationCompletenessValidator
+import com.vertyll.veds.project.application.translation
+import com.vertyll.veds.project.domain.error.ProjectError
+import com.vertyll.veds.project.domain.model.ProjectCategory
+import com.vertyll.veds.project.domain.model.ProjectMember
+import com.vertyll.veds.project.domain.model.ProjectPermission
+import com.vertyll.veds.project.domain.model.ProjectRoleCode
+import com.vertyll.veds.project.domain.model.Translation
+import org.junit.jupiter.api.Test
+import java.util.UUID
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+/**
+ * Categories are a project's own vocabulary, and task-service keeps a copy of them so it can label
+ * tasks without calling back. That copy is only ever updated by the events published here, so an
+ * unannounced change is one the other service never learns about.
+ */
+internal class ProjectCategoryCommandServiceTest {
+    private val categories = InMemoryCategoryRepository()
+    private val projects = InMemoryProjectRepository()
+    private val members = InMemoryMemberRepository()
+    private val roles = InMemoryRoleRepository()
+    private val events = RecordingEventPublisher()
+
+    private val service =
+        ProjectCategoryCommandService(
+            categoryRepository = categories,
+            authorization = ProjectAuthorizationService(projects, members, roles),
+            eventPublisher = events,
+            translationCompleteness = TranslationCompletenessValidator { setOf(ENGLISH, POLISH) },
+        )
+
+    private val owner = UUID.randomUUID()
+    private val existing = project(ownerId = owner).also { projects.given(it) }
+
+    private val complete: Set<Translation> = setOf(translation("Bug", ENGLISH), translation("Błąd", POLISH))
+
+    private fun givenCategory(
+        projectId: UUID = existing.id,
+        isActive: Boolean = true,
+    ) = ProjectCategory(projectId = projectId, color = "#ff0000", translations = complete, isActive = isActive, version = 0L)
+        .also { categories.given(it) }
+
+    // ── Creating ────────────────────────────────────────────────────────
+
+    @Test
+    fun `a category is stored against its project`() {
+        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, ENGLISH)
+
+        val stored = categories.findById(response.id)!!
+        assertEquals(existing.id, stored.projectId)
+        assertEquals("#ff0000", stored.color)
+    }
+
+    @Test
+    fun `the response is rendered in the language asked for`() {
+        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, POLISH)
+
+        assertEquals("Błąd", response.name)
+    }
+
+    /** The event carries every language, because the consumer does not know which one it will need. */
+    @Test
+    fun `creating announces the category to other services`() {
+        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, ENGLISH)
+
+        assertEquals(listOf("CategoryChanged(${existing.id},${response.id},removed=false)"), events.published)
+    }
+
+    @Test
+    fun `a category missing a language is refused`() {
+        val error =
+            assertFailsWith<ApiException> {
+                service.createCategory(existing.id, CreateCategoryCommand("#ff0000", setOf(translation("Bug", ENGLISH))), owner, ENGLISH)
+            }
+
+        assertEquals(ProjectError.TRANSLATION_MISSING, error.error)
+        assertTrue(categories.stored.isEmpty())
+    }
+
+    @Test
+    fun `someone without edit rights cannot add a category`() {
+        val viewerRole = role(ProjectRoleCode.CLIENT, permissions = setOf(ProjectPermission.VIEW_PROJECT)).also { roles.given(it) }
+        val viewer = UUID.randomUUID()
+        members.given(ProjectMember.create(projectId = existing.id, userId = viewer, roleId = viewerRole.id))
+
+        assertFailsWith<ApiException> {
+            service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), viewer, ENGLISH)
+        }
+
+        assertTrue(categories.stored.isEmpty())
+        assertTrue(events.published.isEmpty())
+    }
+
+    // ── Updating ────────────────────────────────────────────────────────
+
+    @Test
+    fun `updating replaces the colour and the translations`() {
+        val category = givenCategory()
+        val renamed = setOf(translation("Defect", ENGLISH), translation("Usterka", POLISH))
+
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#00ff00", renamed, true), owner, ENGLISH, 0L)
+
+        val stored = categories.findById(category.id)!!
+        assertEquals("#00ff00", stored.color)
+        assertEquals("Defect", stored.translationFor(ENGLISH).name)
+    }
+
+    /**
+     * Deactivating is how a category is retired without breaking the tasks already labelled with
+     * it, so consumers are told it was removed while the row itself stays.
+     */
+    @Test
+    fun `deactivating a category is announced as a removal`() {
+        val category = givenCategory()
+
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#ff0000", complete, isActive = false), owner, ENGLISH, 0L)
+
+        assertTrue(!categories.findById(category.id)!!.isActive)
+        assertEquals(listOf("CategoryChanged(${existing.id},${category.id},removed=true)"), events.published)
+    }
+
+    @Test
+    fun `reactivating a category is announced as a change`() {
+        val category = givenCategory(isActive = false)
+
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#ff0000", complete, isActive = true), owner, ENGLISH, 0L)
+
+        assertEquals(listOf("CategoryChanged(${existing.id},${category.id},removed=false)"), events.published)
+    }
+
+    @Test
+    fun `an update against a stale version is refused`() {
+        val category = givenCategory()
+
+        val error =
+            assertFailsWith<ApiException> {
+                service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 9L)
+            }
+
+        assertEquals(ProjectError.VERSION_MISMATCH, error.error)
+        assertEquals("#ff0000", categories.findById(category.id)!!.color)
+    }
+
+    /** Category ids are global, so the project in the path has to be checked against the row. */
+    @Test
+    fun `a category of another project cannot be reached through this one`() {
+        val elsewhere = givenCategory(projectId = UUID.randomUUID())
+
+        val error =
+            assertFailsWith<ApiException> {
+                service.updateCategory(existing.id, elsewhere.id, UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+            }
+
+        assertEquals(ProjectError.CATEGORY_NOT_FOUND, error.error)
+    }
+
+    @Test
+    fun `an unknown category is reported as missing`() {
+        val error =
+            assertFailsWith<ApiException> {
+                service.updateCategory(existing.id, UUID.randomUUID(), UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+            }
+
+        assertEquals(ProjectError.CATEGORY_NOT_FOUND, error.error)
+    }
+
+    // ── Deleting ────────────────────────────────────────────────────────
+
+    @Test
+    fun `deleting removes the category and tells other services it is gone`() {
+        val category = givenCategory()
+
+        service.deleteCategory(existing.id, category.id, owner)
+
+        assertNull(categories.findById(category.id))
+        assertEquals(listOf("CategoryChanged(${existing.id},${category.id},removed=true)"), events.published)
+    }
+
+    @Test
+    fun `a category of another project cannot be deleted through this one`() {
+        val elsewhere = givenCategory(projectId = UUID.randomUUID())
+
+        assertFailsWith<ApiException> { service.deleteCategory(existing.id, elsewhere.id, owner) }
+
+        assertEquals(1, categories.stored.size)
+    }
+}

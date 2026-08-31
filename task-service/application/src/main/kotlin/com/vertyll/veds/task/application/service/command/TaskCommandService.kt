@@ -143,8 +143,6 @@ class TaskCommandService(
 
         VersionGuard.requireMatch(task.version, version) { ApiException(TaskError.VERSION_MISMATCH) }
 
-        if (!task.isActive) return
-
         taskRepository.save(task.archive())
         commentRepository.deleteAllByTaskId(task.id)
         eventPublisher.publishTaskArchived(task.id, task.projectId)
@@ -159,14 +157,13 @@ class TaskCommandService(
                 authorization.requireTaskPermission(id, actor.id, TaskPermission.MANAGE_TASKS)
             }
 
-        val active = tasks.filter { it.isActive }
-        if (active.isEmpty()) return 0
+        if (tasks.isEmpty()) return 0
 
-        taskRepository.saveAll(active.map { it.archive() })
-        active.forEach { task ->
+        taskRepository.saveAll(tasks.map { it.archive() })
+        tasks.forEach { task ->
             commentRepository.deleteAllByTaskId(task.id)
             eventPublisher.publishTaskArchived(task.id, task.projectId)
         }
-        return active.size
+        return tasks.size
     }
 }
