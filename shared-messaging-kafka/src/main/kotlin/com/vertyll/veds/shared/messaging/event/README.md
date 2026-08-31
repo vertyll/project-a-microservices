@@ -21,9 +21,9 @@ with `newId()` and `now()` lives here.
    require either a build-time post-processor or handwritten wrappers — both
    defeat the point of code generation.
 2. **`shared-messaging-kafka` must not know any business event** (no
-   `MailRequestedEvent` here). The previous `DomainEvent` interface with
-   `@JsonTypeInfo` was Jackson polymorphism for the old JSON-based outbox —
-   completely irrelevant after the Avro migration.
+   `MailRequestedEvent` here). A shared `DomainEvent` interface carrying
+   `@JsonTypeInfo` would be Jackson polymorphism, which the Avro wire format
+   has no use for.
 3. **Outbox payloads are opaque bytes** (`ByteArray`) framed by Confluent's
    wire format. No type-level marker would make sense at the outbox layer.
 
