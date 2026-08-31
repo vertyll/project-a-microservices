@@ -6,7 +6,7 @@ import com.vertyll.veds.apigateway.security.Pkce
 import com.vertyll.veds.apigateway.session.KeycloakTokenClient
 import com.vertyll.veds.apigateway.session.SessionCookies
 import com.vertyll.veds.apigateway.session.SessionStore
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -31,7 +31,7 @@ import java.net.URI
 @RestController
 @RequestMapping("/auth")
 internal class AuthProxyController(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
     private val authTransactionCookies: AuthTransactionCookies,
     private val sessionCookies: SessionCookies,
     private val sessionStore: SessionStore,
@@ -75,8 +75,8 @@ internal class AuthProxyController(
         val authorizationUri =
             UriComponentsBuilder
                 .fromUriString(keycloakAuthorizationUrl())
-                .queryParam("client_id", sharedConfig.keycloak.gatewayClientId)
-                .queryParam("redirect_uri", sharedConfig.keycloak.oauth.redirectUri)
+                .queryParam("client_id", sharedConfig.gatewayClientId)
+                .queryParam("redirect_uri", sharedConfig.oauth.redirectUri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", SCOPE)
                 .queryParam("state", state)
@@ -199,13 +199,12 @@ internal class AuthProxyController(
     private fun redirectToApp(error: String?): ResponseEntity<Void> {
         val target =
             UriComponentsBuilder
-                .fromUriString(sharedConfig.keycloak.oauth.postLoginRedirectUri)
+                .fromUriString(sharedConfig.oauth.postLoginRedirectUri)
                 .apply { if (error != null) queryParam(ERROR_PARAM, error) }
                 .build()
                 .toUriString()
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(target)).build()
     }
 
-    private fun keycloakAuthorizationUrl(): String =
-        "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/auth"
+    private fun keycloakAuthorizationUrl(): String = "${sharedConfig.serverUrl}/realms/${sharedConfig.realm}/protocol/openid-connect/auth"
 }

@@ -2,6 +2,8 @@ package com.vertyll.veds.translation.infrastructure.spreadsheet
 
 import com.vertyll.veds.translation.application.command.ImportedTranslationCommand
 import com.vertyll.veds.translation.application.dto.ExportRowResponse
+import com.vertyll.veds.translation.application.exception.ApiException
+import com.vertyll.veds.translation.domain.error.TranslationError
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import org.apache.poi.xssf.streaming.SXSSFWorkbook
@@ -56,7 +58,10 @@ internal class TranslationSpreadsheet {
         languages: List<String>,
     ): List<ImportedTranslationCommand> {
         WorkbookFactory.create(input).use { workbook ->
-            val sheet = workbook.getSheetAt(0) ?: return emptyList()
+            if (workbook.numberOfSheets == 0) {
+                throw ApiException(TranslationError.IMPORT_MALFORMED)
+            }
+            val sheet = workbook.getSheetAt(0)
             val commands = mutableListOf<ImportedTranslationCommand>()
 
             for (rowIndex in 1..sheet.lastRowNum) {

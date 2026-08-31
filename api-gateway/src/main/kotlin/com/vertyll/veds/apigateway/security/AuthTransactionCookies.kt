@@ -1,6 +1,6 @@
 package com.vertyll.veds.apigateway.security
 
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -8,7 +8,7 @@ import java.time.Duration
 
 @Component
 internal class AuthTransactionCookies(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
 ) {
     companion object {
         const val STATE_COOKIE = "KEYCLOAK_AUTH_STATE"
@@ -48,9 +48,9 @@ internal class AuthTransactionCookies(
         ResponseCookie
             .from(name, value)
             .httpOnly(true)
-            .secure(sharedConfig.keycloak.cookie.secure)
+            .secure(sharedConfig.cookie.secure)
             .sameSite(SAME_SITE_LAX)
-            .path(sharedConfig.keycloak.cookie.path)
+            .path(sharedConfig.cookie.path)
             .maxAge(maxAge)
             .build()
 }

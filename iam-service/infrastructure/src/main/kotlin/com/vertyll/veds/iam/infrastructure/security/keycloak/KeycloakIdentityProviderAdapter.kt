@@ -3,7 +3,7 @@ package com.vertyll.veds.iam.infrastructure.security.keycloak
 import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.domain.error.IamError
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import jakarta.ws.rs.core.Response
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.representations.idm.CredentialRepresentation
@@ -15,22 +15,22 @@ import java.util.UUID
 
 @Component
 internal class KeycloakIdentityProviderAdapter(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
 ) : IdentityProviderPort {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private val keycloak by lazy {
         KeycloakBuilder
             .builder()
-            .serverUrl(sharedConfig.keycloak.serverUrl)
-            .realm(sharedConfig.keycloak.realm)
-            .clientId(sharedConfig.keycloak.adminClientId)
-            .clientSecret(sharedConfig.keycloak.adminClientSecret)
+            .serverUrl(sharedConfig.serverUrl)
+            .realm(sharedConfig.realm)
+            .clientId(sharedConfig.adminClientId)
+            .clientSecret(sharedConfig.adminClientSecret)
             .grantType("client_credentials")
             .build()
     }
 
-    private val realmResource get() = keycloak.realm(sharedConfig.keycloak.realm)
+    private val realmResource get() = keycloak.realm(sharedConfig.realm)
     private val usersResource get() = realmResource.users()
 
     override fun createUser(
@@ -177,10 +177,10 @@ internal class KeycloakIdentityProviderAdapter(
             val tokenKeycloak =
                 KeycloakBuilder
                     .builder()
-                    .serverUrl(sharedConfig.keycloak.serverUrl)
-                    .realm(sharedConfig.keycloak.realm)
-                    .clientId(sharedConfig.keycloak.gatewayClientId)
-                    .clientSecret(sharedConfig.keycloak.gatewayClientSecret)
+                    .serverUrl(sharedConfig.serverUrl)
+                    .realm(sharedConfig.realm)
+                    .clientId(sharedConfig.gatewayClientId)
+                    .clientSecret(sharedConfig.gatewayClientSecret)
                     .username(email)
                     .password(password)
                     .grantType("password")

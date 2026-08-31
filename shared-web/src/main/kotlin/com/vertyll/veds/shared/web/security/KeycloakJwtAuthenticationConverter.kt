@@ -1,6 +1,6 @@
 package com.vertyll.veds.shared.web.security
 
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * Used by WebMVC-based services (iam-service, mail-service, template-service).
  */
 class KeycloakJwtAuthenticationConverter(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val authorities = extractRoles(jwt).map { SimpleGrantedAuthority("ROLE_$it") }
@@ -22,5 +22,5 @@ class KeycloakJwtAuthenticationConverter(
         return JwtAuthenticationToken(jwt, authorities, subject)
     }
 
-    private fun extractRoles(jwt: Jwt) = KeycloakJwtUtils.extractRoles(jwt, sharedConfig.keycloak.rolesClaimPath)
+    private fun extractRoles(jwt: Jwt) = KeycloakJwtUtils.extractRoles(jwt, sharedConfig.rolesClaimPath)
 }

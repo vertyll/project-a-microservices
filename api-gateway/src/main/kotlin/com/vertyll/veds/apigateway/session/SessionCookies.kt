@@ -1,6 +1,6 @@
 package com.vertyll.veds.apigateway.session
 
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.http.ResponseCookie
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
@@ -8,7 +8,7 @@ import java.time.Duration
 
 @Component
 internal class SessionCookies(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
 ) {
     companion object {
         const val SESSION_COOKIE = "VEDS_SESSION"
@@ -36,9 +36,9 @@ internal class SessionCookies(
         ResponseCookie
             .from(SESSION_COOKIE, value)
             .httpOnly(true)
-            .secure(sharedConfig.keycloak.cookie.secure)
+            .secure(sharedConfig.cookie.secure)
             .sameSite(SAME_SITE_STRICT)
-            .path(sharedConfig.keycloak.cookie.path)
+            .path(sharedConfig.cookie.path)
             .maxAge(maxAge)
             .build()
 }

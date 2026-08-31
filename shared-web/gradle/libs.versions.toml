@@ -32,6 +32,7 @@ kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
 
 # Test
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-security-test = { module = "org.springframework.security:spring-security-test" }
 
@@ -55,6 +56,7 @@ web-api = [
 ]
 
 test-common = [
+    "kotlin-test-junit5",
     "spring-boot-starter-test",
     "spring-boot-starter-security-test",
 ]

@@ -69,7 +69,9 @@ open class SagaCompensationEngine<T : SagaStep<T>, TCommand : Any>(
         stepId: Long?,
     ) {
         val id = stepId ?: return
-        val step = sagaStepRepository.findOneById(id) ?: return
+        val step =
+            sagaStepRepository.findOneById(id)
+                ?: throw IllegalStateException("Saga step '$id' of saga '$sagaId' not found")
 
         val compensationStep =
             stepFactory.createCompensationStep(

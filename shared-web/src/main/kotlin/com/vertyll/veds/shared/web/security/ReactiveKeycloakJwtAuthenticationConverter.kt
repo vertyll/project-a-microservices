@@ -1,6 +1,6 @@
 package com.vertyll.veds.shared.web.security
 
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono
  * with authorities extracted from the configured roles claim.
  */
 class ReactiveKeycloakJwtAuthenticationConverter(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
 ) : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
     override fun convert(jwt: Jwt): Mono<AbstractAuthenticationToken> {
         val authorities = extractRoles(jwt).map { SimpleGrantedAuthority("ROLE_$it") }
@@ -22,5 +22,5 @@ class ReactiveKeycloakJwtAuthenticationConverter(
         return Mono.just(JwtAuthenticationToken(jwt, authorities, subject))
     }
 
-    private fun extractRoles(jwt: Jwt) = KeycloakJwtUtils.extractRoles(jwt, sharedConfig.keycloak.rolesClaimPath)
+    private fun extractRoles(jwt: Jwt) = KeycloakJwtUtils.extractRoles(jwt, sharedConfig.rolesClaimPath)
 }

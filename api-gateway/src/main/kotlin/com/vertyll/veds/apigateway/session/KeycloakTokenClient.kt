@@ -1,7 +1,7 @@
 package com.vertyll.veds.apigateway.session
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters
@@ -13,7 +13,7 @@ import java.util.Base64
 
 @Component
 internal class KeycloakTokenClient(
-    private val sharedConfig: SharedConfigProperties,
+    private val sharedConfig: SharedKeycloakProperties,
     private val objectMapper: com.fasterxml.jackson.databind.ObjectMapper,
 ) {
     private companion object {
@@ -35,10 +35,10 @@ internal class KeycloakTokenClient(
             tokenUrl(),
             BodyInserters
                 .fromFormData("grant_type", "authorization_code")
-                .with("client_id", sharedConfig.keycloak.gatewayClientId)
-                .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
+                .with("client_id", sharedConfig.gatewayClientId)
+                .with("client_secret", sharedConfig.gatewayClientSecret)
                 .with("code", code)
-                .with("redirect_uri", sharedConfig.keycloak.oauth.redirectUri)
+                .with("redirect_uri", sharedConfig.oauth.redirectUri)
                 .with("code_verifier", codeVerifier),
         )
 
@@ -47,8 +47,8 @@ internal class KeycloakTokenClient(
             tokenUrl(),
             BodyInserters
                 .fromFormData("grant_type", "refresh_token")
-                .with("client_id", sharedConfig.keycloak.gatewayClientId)
-                .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
+                .with("client_id", sharedConfig.gatewayClientId)
+                .with("client_secret", sharedConfig.gatewayClientSecret)
                 .with("refresh_token", refreshToken),
         )
 
@@ -59,8 +59,8 @@ internal class KeycloakTokenClient(
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(
                 BodyInserters
-                    .fromFormData("client_id", sharedConfig.keycloak.gatewayClientId)
-                    .with("client_secret", sharedConfig.keycloak.gatewayClientSecret)
+                    .fromFormData("client_id", sharedConfig.gatewayClientId)
+                    .with("client_secret", sharedConfig.gatewayClientSecret)
                     .with("refresh_token", refreshToken),
             ).retrieve()
             .toBodilessEntity()
@@ -101,9 +101,9 @@ internal class KeycloakTokenClient(
         return objectMapper.readValue(payload, Map::class.java) as Map<String, Any>
     }
 
-    private fun tokenUrl() = "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/token"
+    private fun tokenUrl() = "${sharedConfig.serverUrl}/realms/${sharedConfig.realm}/protocol/openid-connect/token"
 
-    private fun logoutUrl() = "${sharedConfig.keycloak.serverUrl}/realms/${sharedConfig.keycloak.realm}/protocol/openid-connect/logout"
+    private fun logoutUrl() = "${sharedConfig.serverUrl}/realms/${sharedConfig.realm}/protocol/openid-connect/logout"
 
     private data class KeycloakTokenResponse(
         @JsonProperty("access_token") val accessToken: String = "",

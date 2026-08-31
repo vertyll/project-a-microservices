@@ -9,7 +9,7 @@ import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import com.vertyll.veds.shared.web.security.KeycloakJwtUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -32,7 +32,7 @@ import java.util.UUID
 internal class AuthController(
     private val authServiceCommands: AuthCommandUseCase,
     private val authServiceQueries: AuthQueryUseCase,
-    private val sharedConfigProperties: SharedConfigProperties,
+    private val sharedConfigProperties: SharedKeycloakProperties,
 ) {
     private companion object {
         private const val ACCOUNT_ACTIVATED_SUCCESSFULLY = "Account activated successfully"
@@ -161,7 +161,7 @@ internal class AuthController(
             return ApiResponse.buildResponse(emptyMap(), MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
         }
 
-        val roles = KeycloakJwtUtils.extractRoles(jwt, sharedConfigProperties.keycloak.rolesClaimPath)
+        val roles = KeycloakJwtUtils.extractRoles(jwt, sharedConfigProperties.rolesClaimPath)
         val subject = CurrentUser.keycloakIdOf(jwt).toString()
         val email = CurrentUser.emailOf(jwt)
         val userInfo =

@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * own Kafka configuration so existing `application-*.yml` files remain compatible.
  *
  * Binds the Kafka settings as one typed object rather than string-keyed lookups, and keeps the
- * style consistent with `MailProperties` (mail-service) and `SharedConfigProperties`.
+ * style consistent with `MailProperties` (mail-service) and `SharedKeycloakProperties`.
  */
 @ConfigurationProperties(prefix = "spring.kafka")
 data class KafkaInfraProperties(

@@ -32,14 +32,18 @@ open class SagaCompensationRunner<S : Saga<S>, T : SagaStep<T>, TCommand : Any>(
 
     /**
      * Runs the compensation pipeline for [sagaId] in a fresh
-     * `REQUIRES_NEW` transaction. No-op if the saga is in a terminal
+     * `REQUIRES_NEW` transaction. A saga id that does not resolve is a defect, not a no-op:
+     * something scheduled compensation for a saga that was never persisted. No-op if the saga
+     * is in a terminal
      * status ([SagaStatus.COMPLETED], [SagaStatus.COMPENSATED] or
      * [SagaStatus.FAILED]). Safe to call repeatedly — the watchdog uses
      * this method to retry compensation for stuck sagas.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     override fun runCompensation(sagaId: String) {
-        val saga = sagaRepository.findOneById(sagaId) ?: return
+        val saga =
+            sagaRepository.findOneById(sagaId)
+                ?: throw IllegalArgumentException("Saga with id '$sagaId' not found")
         if (saga.status == SagaStatus.COMPLETED ||
             saga.status == SagaStatus.COMPENSATED ||
             saga.status == SagaStatus.FAILED

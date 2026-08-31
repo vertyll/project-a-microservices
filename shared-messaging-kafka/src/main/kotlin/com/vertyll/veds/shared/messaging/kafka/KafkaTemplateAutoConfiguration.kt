@@ -29,7 +29,7 @@ import org.springframework.util.backoff.FixedBackOff
  * Only creates beans when Kafka is enabled.
  *
  * Configuration is bound from `spring.kafka.*` via [KafkaInfraProperties], replacing
- * `@Value` lookups. Style consistent with `MailProperties` and `SharedConfigProperties`.
+ * `@Value` lookups. Style consistent with `MailProperties` and `SharedKeycloakProperties`.
  */
 @Configuration
 @ConditionalOnProperty(

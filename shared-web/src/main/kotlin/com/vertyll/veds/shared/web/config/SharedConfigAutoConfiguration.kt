@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 /**
- * Autoconfiguration that registers [SharedConfigProperties] so the
+ * Autoconfiguration that registers [SharedKeycloakProperties] so the
  * `veds.shared.*` namespace (Keycloak server URL, realm, admin client,
  * cookie settings, …) is available to every microservice via constructor
  * injection without each service having to declare
@@ -14,5 +14,5 @@ import org.springframework.context.annotation.Configuration
  * underlying `shared-config.yml` from the classpath.
  */
 @Configuration
-@EnableConfigurationProperties(SharedConfigProperties::class)
+@EnableConfigurationProperties(SharedKeycloakProperties::class)
 class SharedConfigAutoConfiguration

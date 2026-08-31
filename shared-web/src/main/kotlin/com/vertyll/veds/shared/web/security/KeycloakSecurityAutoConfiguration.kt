@@ -1,6 +1,6 @@
 package com.vertyll.veds.shared.web.security
 
-import com.vertyll.veds.shared.web.config.SharedConfigProperties
+import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
@@ -19,13 +19,13 @@ internal class KeycloakSecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    fun keycloakJwtAuthenticationConverter(sharedConfig: SharedConfigProperties): KeycloakJwtAuthenticationConverter =
+    fun keycloakJwtAuthenticationConverter(sharedConfig: SharedKeycloakProperties): KeycloakJwtAuthenticationConverter =
         KeycloakJwtAuthenticationConverter(sharedConfig)
 
     /** Reactive-stack JWT → `Mono<AbstractAuthenticationToken>` converter bean. */
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-    fun reactiveKeycloakJwtAuthenticationConverter(sharedConfig: SharedConfigProperties): ReactiveKeycloakJwtAuthenticationConverter =
+    fun reactiveKeycloakJwtAuthenticationConverter(sharedConfig: SharedKeycloakProperties): ReactiveKeycloakJwtAuthenticationConverter =
         ReactiveKeycloakJwtAuthenticationConverter(sharedConfig)
 }

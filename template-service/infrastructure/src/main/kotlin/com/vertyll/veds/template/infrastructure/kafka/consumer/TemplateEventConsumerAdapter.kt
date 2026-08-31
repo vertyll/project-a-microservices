@@ -43,7 +43,7 @@ internal class TemplateEventConsumerAdapter(
             logger.info("Received ${TemplateKafkaTopics.TEMPLATE_REQUESTED} message: key={}", record.key())
             val event = avroPayloadDeserializer.deserialize(TemplateKafkaTopics.TEMPLATE_REQUESTED, payload) as TemplateRequestedEvent
             val name = event.name
-            val templatePayload = event.payload ?: event.content ?: ""
+            val templatePayload = event.payload.toString()
             templateCommands.processTemplateWithSaga(CreateTemplateCommand(name = name, payload = templatePayload))
         } catch (e: Exception) {
             logger.error("Error processing message from topic {}", record.topic(), e)

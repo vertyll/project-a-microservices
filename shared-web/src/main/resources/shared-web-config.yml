@@ -12,9 +12,9 @@ veds:
       server-url: ${KEYCLOAK_SERVER_URL:http://localhost:9000}
       realm: ${KEYCLOAK_REALM:veds}
       admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:veds-service-account}
-      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:}
+      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:w58TjhTcoac1826p9wFSsVGIqPlkziuz}
       gateway-client-id: ${KEYCLOAK_GATEWAY_CLIENT_ID:veds-api-gateway}
-      gateway-client-secret: ${KEYCLOAK_GATEWAY_CLIENT_SECRET:}
+      gateway-client-secret: ${KEYCLOAK_GATEWAY_CLIENT_SECRET:LaMjtDso3RMpeW3C25pwi2ru7NMwG1C0}
       roles-claim-path: realm_access.roles
       oauth:
         redirect-uri: ${KEYCLOAK_REDIRECT_URI:http://localhost:8080/auth/callback}
