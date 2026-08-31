@@ -6,12 +6,14 @@ FROM gradle:${GRADLE_VERSION}-jdk${JAVA_VERSION}-alpine AS build
 WORKDIR /app
 
 # Copy the shared libraries first: each is a composite build included by the
-# service, so every one of them has to exist before Gradle configures.
+# service, so every one of them has to exist before Gradle configures - a
+# missing one fails the build outright, test-only libraries included.
 
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
 COPY shared-translation-client/ ./shared-translation-client/
 COPY shared-messaging-kafka/ ./shared-messaging-kafka/
+COPY shared-archunit/ ./shared-archunit/
 
 # Copy Avro Published Language modules (DDD) + their schema sources.
 COPY contracts/ ./contracts/

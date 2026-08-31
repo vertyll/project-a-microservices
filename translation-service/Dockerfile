@@ -6,25 +6,17 @@ FROM gradle:${GRADLE_VERSION}-jdk${JAVA_VERSION}-alpine AS build
 WORKDIR /app
 
 # Copy the shared libraries first: each is a composite build included by the
-# service, so every one of them has to exist before Gradle configures - a
-# missing one fails the build outright, test-only libraries included.
-COPY shared-saga-api/ ./shared-saga-api/
+# service, so every one of them has to exist before Gradle configures.
+# translation-service owns the catalogue, so it needs no messaging or saga
+# libraries - it is not a saga participant and publishes no events.
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
-COPY shared-translation-client/ ./shared-translation-client/
-COPY shared-saga-engine/ ./shared-saga-engine/
-COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 COPY shared-archunit/ ./shared-archunit/
 
-# Copy Avro Published Language modules (DDD) + their schema sources.
-COPY contracts/ ./contracts/
-COPY iam-contracts/ ./iam-contracts/
-COPY mail-contracts/ ./mail-contracts/
-
 # Copy the service code
-COPY mail-service/ ./mail-service/
+COPY translation-service/ ./translation-service/
 
-WORKDIR /app/mail-service
+WORKDIR /app/translation-service
 
 # Build application JAR
 RUN ./gradlew bootJar --no-daemon
@@ -44,10 +36,10 @@ RUN apk add --no-cache \
     adduser --system --uid 1001 --ingroup appuser appuser
 
 # Copy the built JAR from the build stage
-COPY --from=build /app/mail-service/infrastructure/build/libs/*.jar app.jar
+COPY --from=build /app/translation-service/infrastructure/build/libs/*.jar app.jar
 
 # Copy the entrypoint script and set permissions
-COPY mail-service/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY translation-service/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN dos2unix /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
