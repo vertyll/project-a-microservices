@@ -136,7 +136,6 @@ CREATE TABLE IF NOT EXISTS project_member (
     CONSTRAINT uq_project_member_project_user UNIQUE (project_id, user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_member_project_id ON project_member (project_id);
 CREATE INDEX IF NOT EXISTS idx_project_member_user_id ON project_member (user_id);
 
 -- ===============

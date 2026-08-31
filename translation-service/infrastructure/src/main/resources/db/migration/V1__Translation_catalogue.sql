@@ -52,7 +52,6 @@ CREATE TABLE IF NOT EXISTS translation_value (
 );
 
 -- The public snapshot reads one language at a time.
-CREATE INDEX IF NOT EXISTS idx_translation_value_language ON translation_value (language);
 
 -- Backs the snapshot's ETag: MAX(updated_at) per language.
 CREATE INDEX IF NOT EXISTS idx_translation_value_updated ON translation_value (language, updated_at);

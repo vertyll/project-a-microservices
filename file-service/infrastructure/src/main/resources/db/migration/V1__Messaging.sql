@@ -1,11 +1,16 @@
--- Transactional outbox and the idempotent-receiver ledger.
+-- Transactional outbox and idempotent-receiver ledger.
 --
--- No saga tables: this service takes part in no distributed flow. It emits
--- file-confirmed and file-deleted so other contexts can drop references to
--- files that no longer exist, and consumes nothing.
+-- Written by the shared messaging module, not by this service's domain: the shape is It's and a
+-- clone copies it verbatim. See docs/eventual-consistency.md.
+--
+-- No saga tables: this service orchestrates nothing. It emits file-confirmed and file-deleted so
+-- other contexts can drop references to files that no longer exist, and consumes nothing.
+--
+-- kafka_outbox is written in the same transaction as the business change that produced the
+-- event, which is what makes publication atomic with the state it announces. processed_event is
+-- claimed in the consuming handler's transaction, so a failed handler leaves nothing claimed and
+-- the redelivery is a real retry.
 
--- ===============
--- kafka_outbox (shared)
 CREATE TABLE IF NOT EXISTS kafka_outbox (
     id BIGSERIAL PRIMARY KEY,
     event_id VARCHAR(255) NOT NULL,
@@ -19,27 +24,22 @@ CREATE TABLE IF NOT EXISTS kafka_outbox (
     retry_count INT NOT NULL DEFAULT 0,
     last_retry_at TIMESTAMP NULL,
     saga_id VARCHAR(255) NULL,
-    version BIGINT NULL
+    version BIGINT NULL,
+
+    CONSTRAINT uk_kafka_outbox_event_id UNIQUE (event_id)
 );
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_status ON kafka_outbox (status);
 CREATE INDEX IF NOT EXISTS idx_kafka_outbox_created_at ON kafka_outbox (created_at);
 CREATE INDEX IF NOT EXISTS idx_kafka_outbox_topic ON kafka_outbox (topic);
 CREATE INDEX IF NOT EXISTS idx_kafka_outbox_last_retry_at ON kafka_outbox (last_retry_at);
+CREATE INDEX IF NOT EXISTS idx_kafka_outbox_dispatch ON kafka_outbox (status, retry_count, last_retry_at);
+CREATE INDEX IF NOT EXISTS idx_kafka_outbox_processed_at ON kafka_outbox (processed_at);
 
--- ===============
--- ===============
--- ===============
--- processed_event: the idempotent-receiver ledger.
---
--- Present even though this service consumes nothing today, because the outbox
--- dispatcher and the shared consumer plumbing expect it — and because a service
--- that starts consuming later should not need a migration to do so.
 CREATE TABLE IF NOT EXISTS processed_event (
     id BIGSERIAL PRIMARY KEY,
     event_id VARCHAR(255) NOT NULL,
     consumer_group VARCHAR(255) NOT NULL,
     processed_at TIMESTAMP NOT NULL,
+
     CONSTRAINT uk_processed_event_event_id_consumer UNIQUE (event_id, consumer_group)
 );
-
 CREATE INDEX IF NOT EXISTS idx_processed_event_processed_at ON processed_event (processed_at);

@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS notification (
     version BIGINT
 );
 
-CREATE INDEX IF NOT EXISTS idx_notification_recipient ON notification (recipient_id);
 CREATE INDEX IF NOT EXISTS idx_notification_subject ON notification (subject_id);
 
 -- The bell badge polls the unread count constantly; this is the index it uses.

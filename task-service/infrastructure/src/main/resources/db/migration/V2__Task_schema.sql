@@ -29,7 +29,6 @@ CREATE TABLE IF NOT EXISTS task (
     CONSTRAINT chk_task_worked_time CHECK (worked_time >= 0)
 );
 
-CREATE INDEX IF NOT EXISTS idx_task_project_id ON task (project_id);
 CREATE INDEX IF NOT EXISTS idx_task_status_id ON task (status_id);
 CREATE INDEX IF NOT EXISTS idx_task_created_by ON task (created_by);
 CREATE INDEX IF NOT EXISTS idx_task_is_active ON task (is_active);
