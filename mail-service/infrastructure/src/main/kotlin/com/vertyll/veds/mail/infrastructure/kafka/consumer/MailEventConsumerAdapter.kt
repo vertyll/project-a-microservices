@@ -49,7 +49,7 @@ internal class MailEventConsumerAdapter(
                 to = event.to,
                 subject = event.subject,
                 templateName = event.templateName,
-                variables = event.variables ?: emptyMap(),
+                variables = event.variables,
                 replyTo = event.replyTo,
                 originSagaId = event.sagaId,
                 originalEventId = event.eventId,

@@ -20,7 +20,7 @@ internal class KafkaTemplateEventPublisherAdapter(
     override fun publishTemplateProcessed(
         sagaId: String,
         templateId: Long,
-        payload: Map<String, Any?>,
+        payload: Map<String, Any>,
     ) {
         val eventId = Events.newId()
         val event =
@@ -30,7 +30,7 @@ internal class KafkaTemplateEventPublisherAdapter(
                 .setTimestamp(Events.now())
                 .setSagaId(sagaId)
                 .setTemplateId(templateId)
-                .setPayload(payload.mapValues { it.value?.toString() ?: "" })
+                .setPayload(payload.mapValues { it.value.toString() })
                 .build()
         val bytes = avroPayloadSerializer.serialize(TemplateKafkaTopics.TEMPLATE_PROCESSED, event)
         kafkaOutboxProcessor.saveOutboxMessage(
