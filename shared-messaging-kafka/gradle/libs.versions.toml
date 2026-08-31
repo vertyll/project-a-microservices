@@ -40,6 +40,7 @@ kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
 
 # Spring Boot Test Starters
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-security-test = { module = "org.springframework.security:spring-security-test" }
 
@@ -79,6 +80,7 @@ spring-boot-common = [
 
 # Common test dependencies
 test-common = [
+    "kotlin-test-junit5",
     "spring-boot-starter-test",
     "springframework-kafka-test",
     "testcontainers-junit-jupiter",

@@ -19,6 +19,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Component
@@ -39,6 +40,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.PROJECT_MEMBER_INVITED])
+    @Transactional
     fun onMemberInvited(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -58,6 +60,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.PROJECT_MEMBER_JOINED])
+    @Transactional
     fun onMemberJoined(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -77,6 +80,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.TASK_CREATED])
+    @Transactional
     fun onTaskCreated(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -97,6 +101,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.TASK_ASSIGNED])
+    @Transactional
     fun onTaskAssigned(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -117,6 +122,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.TASK_STATUS_CHANGED])
+    @Transactional
     fun onTaskStatusChanged(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -137,6 +143,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.TASK_COMMENT_ADDED])
+    @Transactional
     fun onCommentAdded(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -157,6 +164,7 @@ internal class DomainEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [NotificationKafkaTopics.Consumed.TASK_ARCHIVED])
+    @Transactional
     fun onTaskArchived(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,

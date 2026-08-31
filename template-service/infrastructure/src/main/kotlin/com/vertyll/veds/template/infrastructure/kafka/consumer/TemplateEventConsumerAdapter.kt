@@ -12,6 +12,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Inbound Kafka adapter for `template.requested`. Dedupes via
@@ -30,6 +31,7 @@ internal class TemplateEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TemplateKafkaTopics.TEMPLATE_REQUESTED])
+    @Transactional
     fun consume(
         record: ConsumerRecord<String, ByteArray>,
         @Payload payload: ByteArray,

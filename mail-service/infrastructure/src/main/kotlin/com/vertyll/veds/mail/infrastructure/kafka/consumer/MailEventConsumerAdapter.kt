@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Inbound Kafka adapter for the `mail-requested` topic.
@@ -31,6 +32,7 @@ internal class MailEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [MailKafkaTopics.MAIL_REQUESTED])
+    @Transactional
     fun consume(
         record: ConsumerRecord<String, ByteArray>,
         @Payload payload: ByteArray,

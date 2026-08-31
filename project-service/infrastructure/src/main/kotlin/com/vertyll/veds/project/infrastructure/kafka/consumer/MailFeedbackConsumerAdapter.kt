@@ -10,6 +10,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 internal class MailFeedbackConsumerAdapter(
@@ -27,6 +28,7 @@ internal class MailFeedbackConsumerAdapter(
     }
 
     @KafkaListener(topics = [MAIL_SENT])
+    @Transactional
     fun handleMailSent(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -42,6 +44,7 @@ internal class MailFeedbackConsumerAdapter(
     }
 
     @KafkaListener(topics = [MAIL_FAILED])
+    @Transactional
     fun handleMailFailed(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,

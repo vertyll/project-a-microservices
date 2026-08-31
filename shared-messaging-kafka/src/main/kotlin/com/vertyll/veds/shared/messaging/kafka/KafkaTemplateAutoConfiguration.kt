@@ -3,6 +3,7 @@ package com.vertyll.veds.shared.messaging.kafka
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
@@ -44,6 +45,9 @@ internal class KafkaTemplateAutoConfiguration {
     private companion object {
         /** Interval between retry attempts in milliseconds. */
         private const val RETRY_INTERVAL_MS = 1000L
+
+        /** Suffix of the dead letter topic, matching `infra/kafka/topics.tf`. */
+        private const val DLT_SUFFIX = "-dlt"
 
         /** Maximum number of retry attempts before sending to DLT. */
         private const val MAX_RETRIES = 3L
@@ -114,12 +118,22 @@ internal class KafkaTemplateAutoConfiguration {
 
     /**
      * Error handler that retries failed messages [MAX_RETRIES] times with a
-     * [RETRY_INTERVAL_MS] interval, then publishes to a Dead Letter Topic
-     * (original-topic.DLT) via [DeadLetterPublishingRecoverer].
+     * [RETRY_INTERVAL_MS] interval, then publishes to the topic's dead letter topic.
+     *
+     * The destination is resolved as `<topic>-dlt`, which is what `infra/kafka/topics.tf`
+     * provisions. Spring's default suffix is `.DLT`; with `auto.create.topics.enable=false`
+     * that name resolves to no topic, so an exhausted message would fail to be recovered and
+     * the provisioned dead letter topics would stay empty.
+     *
+     * Partition `-1` lets the producer choose, so the dead letter topic is free to have a
+     * different partition count from the topic it shadows.
      */
     @Bean
     fun kafkaErrorHandler(kafkaTemplate: KafkaTemplate<String, ByteArray>): CommonErrorHandler {
-        val recoverer = DeadLetterPublishingRecoverer(kafkaTemplate)
+        val recoverer =
+            DeadLetterPublishingRecoverer(kafkaTemplate) { record, _ ->
+                TopicPartition("${record.topic()}$DLT_SUFFIX", -1)
+            }
         val backOff = FixedBackOff(RETRY_INTERVAL_MS, MAX_RETRIES)
         val errorHandler = DefaultErrorHandler(recoverer, backOff)
         logger.info(

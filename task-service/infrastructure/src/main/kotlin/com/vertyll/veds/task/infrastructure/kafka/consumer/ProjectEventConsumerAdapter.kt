@@ -20,6 +20,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Component
@@ -36,6 +37,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_CREATED])
+    @Transactional
     fun onProjectCreated(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -47,6 +49,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_UPDATED])
+    @Transactional
     fun onProjectUpdated(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -58,6 +61,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_ARCHIVED])
+    @Transactional
     fun onProjectArchived(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -67,6 +71,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_CATEGORY_CHANGED])
+    @Transactional
     fun onCategoryChanged(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -90,6 +95,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_STATUS_CHANGED])
+    @Transactional
     fun onStatusChanged(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -112,6 +118,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_MEMBER_JOINED])
+    @Transactional
     fun onMemberJoined(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,
@@ -127,6 +134,7 @@ internal class ProjectEventConsumerAdapter(
     }
 
     @KafkaListener(topics = [TaskKafkaTopics.Consumed.PROJECT_MEMBER_REMOVED])
+    @Transactional
     fun onMemberRemoved(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,

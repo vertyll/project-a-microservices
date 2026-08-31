@@ -17,7 +17,13 @@ val codeBuilds = gradle.includedBuilds.filterNot { it.name.endsWith("-contracts"
  */
 val serviceBuilds = codeBuilds.filter { it.name.endsWith("-service") }
 
-/** Set by `./gradlew test -PintegrationTests` — see docs/testing.md. */
+/**
+ * Set by `./gradlew test -PintegrationTests` — see docs/testing.md.
+ *
+ * The flag only widens what each build runs; it does not change which builds take part. Deciding
+ * that by name would go stale the moment a library grows an integration test of its own, and a
+ * test nobody runs is worse than no test.
+ */
 val integrationTests = hasProperty("integrationTests")
 
 fun aggregator(
@@ -49,11 +55,10 @@ aggregator(
     "test",
     "verification",
     if (integrationTests) {
-        "Runs unit and integration tests across the services that have them (-PintegrationTests)"
+        "Runs unit and integration tests across all included builds (-PintegrationTests)"
     } else {
         "Runs all tests across all included builds"
     },
-    builds = if (integrationTests) serviceBuilds else codeBuilds,
 )
 
 tasks.named("build") {

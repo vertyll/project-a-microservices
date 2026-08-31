@@ -10,6 +10,7 @@ import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Thin Kafka adapter for choreography saga compensations targeted at iam-service.
@@ -34,6 +35,7 @@ internal class SagaCompensationService(
     }
 
     @KafkaListener(topics = [SagaConfig.SAGA_COMPENSATION_TOPIC])
+    @Transactional
     fun handleCompensationEvent(
         @Payload payload: ByteArray,
         @Header(name = "eventId", required = false) eventId: String?,

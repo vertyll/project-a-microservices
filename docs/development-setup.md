@@ -147,8 +147,8 @@ default build:
 ./gradlew test -PintegrationTests
 ```
 
-With that flag the root aggregator narrows to the `-service` builds, since they are the only ones that tag integration
-tests out in the first place.
+The flag widens what each build runs; every included build takes part either way. `shared-messaging-kafka` has
+integration tests of its own, so narrowing by name would silently skip them.
 
 Under Podman they also need `DOCKER_HOST` and `TESTCONTAINERS_RYUK_DISABLED` — see
 [Testing](./testing.md).
