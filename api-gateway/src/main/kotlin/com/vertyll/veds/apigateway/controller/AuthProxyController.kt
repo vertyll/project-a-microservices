@@ -83,6 +83,7 @@ internal class AuthProxyController(
                 .queryParam("code_challenge", Pkce.challengeOf(codeVerifier))
                 .queryParam("code_challenge_method", Pkce.CHALLENGE_METHOD)
                 .apply { allowedAction(kcAction)?.let { queryParam(KC_ACTION_PARAM, it) } }
+                .encode()
                 .build()
                 .toUriString()
 
@@ -201,6 +202,7 @@ internal class AuthProxyController(
             UriComponentsBuilder
                 .fromUriString(sharedConfig.oauth.postLoginRedirectUri)
                 .apply { if (error != null) queryParam(ERROR_PARAM, error) }
+                .encode()
                 .build()
                 .toUriString()
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(target)).build()

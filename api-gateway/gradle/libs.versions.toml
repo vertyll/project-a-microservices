@@ -38,6 +38,7 @@ jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }
 
 # Kotlin Coroutines & Reactor
@@ -114,5 +115,6 @@ test-common = [
 
 # Gateway tests
 test-gateway = [
-    "reactor-test"
+    "reactor-test",
+    "kotlin-test-junit5",
 ]
