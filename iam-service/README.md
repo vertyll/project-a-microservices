@@ -13,7 +13,7 @@ Users, roles, permissions and the account lifecycle.
 
 A permission is granted to a role, never to a person. Attaching permissions to users directly is
 not RBAC: granting access becomes a list of tick boxes per person, and "what can a manager do"
-has no answer.
+has no answer. `User.permissions` is derived from roles at read time and never stored.
 
 There are **no** per-user exceptions. Two sources of truth mean an audit has to consult both,
 and the administration screen could only ever show half the picture. `User.permissions` is

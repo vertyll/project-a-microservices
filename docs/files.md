@@ -78,8 +78,9 @@ it needs one.
 | project-service | `project.icon_file_id`                       |
 | task-service    | `task_attachment`, `task_comment_attachment` |
 
-`V5__Avatar_file_id.sql` drops `profile_picture` instead of converting it: the paths that column
-holds address a storage layout this system does not use, so there is nothing to carry over.
+A user's avatar is a file id, not a path. Storing a path would tie the profile to one storage
+layout and leave the bytes unreachable the moment that layout changes; an id resolves through
+file-service, which owns where the bytes actually live.
 
 ### Keeping references honest
 

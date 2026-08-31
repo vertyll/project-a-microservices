@@ -236,9 +236,12 @@ A permission is granted to a role, never to a person. Attaching permissions to u
 access becomes a list of tick boxes per person, and "what can a manager do" has no answer. project-service models
 project roles the same way.
 
-`V4__Role_permission_mapping.sql` carries the existing grants over and drops the user table. Per-user exceptions were
-**not** kept: two sources of truth mean an audit has to consult both, and the administration screen could only ever show
-half the picture.
+There are **no** per-user exceptions, by design: two sources of truth mean an audit has to consult both, and the
+administration screen could only ever show half the picture. `User.permissions` is derived from the user's roles at
+read time and never stored, so a grant cannot drift from the role that justifies it.
+
+Credentials and sessions belong to Keycloak, not here. The schema holds a profile joined to Keycloak by `keycloak_id`,
+and carries no password column and no refresh-token table — see [Keycloak](./keycloak.md).
 
 This also matters for what comes next. With several organizations, per-user permissions are unauditable — nobody could
 say who holds a given right, or why. The organization level, when it arrives, is a copy of the project pattern one floor
