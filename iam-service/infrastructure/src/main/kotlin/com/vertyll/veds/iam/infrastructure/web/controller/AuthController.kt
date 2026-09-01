@@ -1,6 +1,7 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
 import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangeEmailRequest
@@ -32,6 +33,7 @@ import java.util.UUID
 internal class AuthController(
     private val authServiceCommands: AuthCommandUseCase,
     private val authServiceQueries: AuthQueryUseCase,
+    private val provisionCurrentUser: ProvisionCurrentUserUseCase,
     private val sharedConfigProperties: SharedKeycloakProperties,
 ) {
     private companion object {
@@ -160,6 +162,8 @@ internal class AuthController(
         if (jwt == null) {
             return ApiResponse.buildResponse(emptyMap(), MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
         }
+
+        provisionCurrentUser.provision(CurrentUser.identityOf(jwt))
 
         val roles = KeycloakJwtUtils.extractRoles(jwt, sharedConfigProperties.rolesClaimPath)
         val subject = CurrentUser.keycloakIdOf(jwt).toString()

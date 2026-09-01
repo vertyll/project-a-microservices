@@ -3,6 +3,7 @@ package com.vertyll.veds.iam.infrastructure.config
 import com.vertyll.veds.iam.application.port.inbound.AuthCompensationUseCase
 import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.SecurityCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.UserCommandUseCase
@@ -20,6 +21,7 @@ import com.vertyll.veds.iam.application.service.command.AuthCommandService
 import com.vertyll.veds.iam.application.service.command.RoleCommandService
 import com.vertyll.veds.iam.application.service.command.SecurityCommandService
 import com.vertyll.veds.iam.application.service.command.UserCommandService
+import com.vertyll.veds.iam.application.service.command.UserProvisioningService
 import com.vertyll.veds.iam.application.service.query.AuthQueryService
 import com.vertyll.veds.iam.application.service.query.PermissionQueryService
 import com.vertyll.veds.iam.application.service.query.RoleQueryService
@@ -138,6 +140,23 @@ internal class ApplicationBeansConfig {
             UserCommandUseCase::class.java,
             UserCommandService(
                 userRepository,
+                authEventPublisher,
+            ),
+            NO_METHODS,
+        )
+
+    @Bean
+    fun provisionCurrentUserUseCase(
+        transactions: TransactionalUseCaseFactory,
+        userRepository: UserRepository,
+        roleRepository: RoleRepository,
+        authEventPublisher: AuthEventPublisherPort,
+    ): ProvisionCurrentUserUseCase =
+        transactions.wrap(
+            ProvisionCurrentUserUseCase::class.java,
+            UserProvisioningService(
+                userRepository,
+                roleRepository,
                 authEventPublisher,
             ),
             NO_METHODS,
