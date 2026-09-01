@@ -2,11 +2,31 @@
 
 Three different things get called "translation" in this system, and they work differently.
 
-| Kind                                       | Owner                      | Storage                                     | Missing value renders as          |
-|--------------------------------------------|----------------------------|---------------------------------------------|-----------------------------------|
-| UI copy (errors, labels, validation)       | code declares, admin edits | `translation-service`                       | **the key itself**                |
-| Data labels (project categories, statuses) | the user who typed them    | the owning service                          | the language the author did write |
-| Mail bodies                                | code declares, admin edits | `translation-service`, rendered server-side | the key itself                    |
+| Kind                                       | Owner                      | Storage                                 | Missing value renders as           |
+|--------------------------------------------|----------------------------|-----------------------------------------|------------------------------------|
+| UI copy (errors, labels, validation)       | code declares, admin edits | `translation-service`                   | **the key itself**                 |
+| Data labels (project categories, statuses) | the user who typed them    | the owning service                      | the language the author did write  |
+| Mail bodies and subjects                   | code                       | `mail-service` templates, producer code | nothing — English is the only text |
+
+## Two tracks: who renders the text
+
+The split above decides **where** a string becomes readable, and the two halves never mix.
+
+| Track           | Response carries         | Rendered by | Language comes from           |
+|-----------------|--------------------------|-------------|-------------------------------|
+| System messages | a key and its parameters | the client  | whatever the client is set to |
+| Data labels     | finished text            | the server  | `X-Lang` on the request       |
+
+A system message is a contract: `{"code": "project.invitation.expired", "params": {}}` names a condition, and the
+condition is the same in every language. Rendering it at the edge means one catalogue serves the web client, a future
+mobile client and a support tool alike, and a corrected wording reaches all of them without a redeployment.
+
+A data label has no key — a category is a UUID somebody named — so there is nothing for a client to look up. The server
+resolves it against `X-Lang` and returns `statusName`, already readable.
+
+> [!WARNING]
+> A service that starts returning finished sentences for system messages breaks this. The client then has no key to
+> branch on, and the response language is fixed at whatever the server guessed.
 
 ## Why a missing key renders as the key
 
@@ -14,8 +34,8 @@ Not a fallback. A fallback substitutes another language and the reader assumes t
 `project.member_removed` on screen is the opposite: visible, greppable, impossible to miss in review, and it names
 exactly what has to be fixed.
 
-Throwing instead would take a page down over one absent string — for a defect the CI key check should already have
-caught before deployment.
+Throwing instead would take a page down over one absent string. The pattern itself is checked twice before it can
+reach a reader, so what survives to render is an *absent* key, not a malformed one.
 
 Data labels are the one exception, and for a concrete reason: a category is identified by a UUID, so there is no key to
 print. `a3f2e1b4-…` on screen names nothing. The read returns what the author did write and the response reports which
@@ -30,7 +50,7 @@ Each service declares its keys with the DSL in `shared-translation`:
 ```kotlin
 val catalogue = translations("project-service") {
     key("project.member_count") {
-        pl("{count, plural, one{# członek} few{# członków} many{# członków} other{# członka}}")
+        pl("{count, plural, one{# członek} few{# członkowie} many{# członków} other{# członka}}")
         en("{count, plural, one{# member} other{# members}}")
     }
 }
@@ -65,12 +85,11 @@ Seeded from code, same as keys. A language is data, never an enum: with a fixed 
 aggregate would owe a value for each one, so adding a language would invalidate every stored row and the next write to
 it would throw.
 
-Now the tag is a `LanguageTag` value class (BCP 47, normalized to lower case) and the catalogue lives in
-`translation-service`. Normalisation is not cosmetic — without it `pl`, `PL` and
-`pl-PL` become three languages nobody ever reconciles.
+A tag is a `LanguageTag` value class: BCP 47, normalized to lower case. Normalisation is not cosmetic — without it
+`pl`, `PL` and `pl-PL` become three languages nobody ever reconciles.
 
-Completeness of a *submitted* label is still enforced, in the application layer against the seeded catalogue. The
-guarantee is unchanged; the side effect is gone.
+Completeness of a *submitted* label is enforced in the application layer against the seeded catalogue, so a caller still
+cannot save a category naming itself in only one of the configured languages.
 
 ## ICU, and why not `java.text.MessageFormat`
 
@@ -85,13 +104,14 @@ and when an administrator saves one (rejected with a reason). An unbalanced brac
 ## The public endpoint
 
 `GET /translations/{language}` is unauthenticated and cacheable. Unauthenticated because the login screen needs its
-labels before anybody has a token; cacheable because it is hit by every application start, in every tab and every
-service that renders an e-mail.
+labels before anybody has a token; cacheable because every application start in every tab fetches it, once per
+language the client offers.
 
 The ETag is `MAX(updated_at)` for the language — cheaper than hashing the set, and monotonic:
 any write moves it, so a client holding the current marker is holding the current translations.
 
-`GET /translations/languages` is what stops every other component compiling its own list.
+`GET /translations/languages` exists so that no other component has to compile its own list; it answers with the
+languages actually seeded.
 
 ## The language header
 
@@ -101,10 +121,7 @@ The client states its language in **`X-Lang`**, not `Accept-Language`.
 application can only ever send the browser's locale that way, never the language the user actually picked in the
 interface. A custom header is the only way to carry a deliberate choice.
 
-The front end was already sending `X-Lang`; the back end was reading `Accept-Language`, so the header the user chose was
-being discarded and the controllers were falling back on nothing.
-
-### Key naming
+## Key naming
 
 Every key is prefixed with the context that owns it:
 
@@ -114,26 +131,79 @@ Every key is prefixed with the context that owns it:
 | `<context>.*`            | that bounded context           | `project.invitation.expired`         |
 | `validation.<context>.*` | that bounded context           | `validation.iam.password_complexity` |
 
-Validation keys were originally unprefixed and auto-generated from English sentences —
-`validation.email_is_required` alongside `validation.email_required`, three naming styles at once. Worse, several
-services declared the same unprefixed key, which registration refuses:
-whichever deployed first would have claimed it and the rest would have failed to register. Prefixing removes the
-conflict by making ownership explicit rather than accidental.
+The prefix is what makes ownership explicit rather than accidental. An unprefixed `validation.email_required` is a key
+two contexts will both reach for, and registration refuses the second one — so whichever deploys first claims it and the
+other fails to register. The prefix removes the collision instead of resolving it by deployment order.
+
+## Mail is outside all of this
+
+Outgoing mail is English, and nothing in the translation machinery touches it.
+
+| Part            | Where it comes from                                             |
+|-----------------|-----------------------------------------------------------------|
+| Body            | a Thymeleaf template in `mail-service/…/resources/templates`    |
+| Subject         | a literal at the producer, chosen per message type              |
+| Template choice | `templateName` on `MailRequestedEvent`, an `EmailTemplate` name |
+
+`mail-service` registers its own catalogue, but only for the error keys its API returns. It resolves nothing for the
+messages it sends.
+
+The reason is that no language is available at the point of sending. `MailRequestedEvent` carries no language, a
+recipient record carries no preference, and the one case that needs mail most — inviting somebody who has no account
+yet — has no user to ask. A translated subject needs all three: a field on the event, a preference on the recipient with
+a configured default behind it, and resolution in `mail-service`, which already has `shared-translation-client` on its
+classpath.
+
+Because the subject is presentation copy rather than a domain fact, it lives at the producing adapter, not on
+`NotificationType`. The enum carries only the key its in-app notification renders with.
+
+> [!WARNING]
+> A template name is `EmailTemplate.<NAME>`, upper case, matching the file. A producer that sends any other spelling
+> gets no error at the call site: `mail-service` logs `Invalid template name` and drops the message.
 
 ## The front end
 
-`ApiTranslateLoader` replaces the bundled JSON loader: the catalogue is editable at runtime, so a build artifact would
-freeze it and an administrator's correction would never reach anybody.
+Angular offers two unrelated ways to translate, and only one of them can read a catalogue that an administrator edits.
 
-`MissingTranslationKeyHandler` renders a missing key as the key. `ngx-translate` does this by default; it is declared
-explicitly so the behavior is a reviewed decision rather than a default nobody looked at.
+| Property                | `@angular/localize`   | `ngx-translate`             |
+|-------------------------|-----------------------|-----------------------------|
+| Resolved                | at build time         | at run time                 |
+| ICU plurals             | built in              | needs a `TranslateCompiler` |
+| Changing language       | one bundle per locale | no rebuild                  |
+| Catalogue from a server | not possible          | the normal case             |
 
-`LanguageService` fetches `GET /translations/languages` during start-up, so the front end holds no constant list — a
-language seeded in the back end appears without a front-end release. The category and status forms
-iterate over exactly this list when asking for a label in every language.
+`@angular/localize` compiles messages into the bundle, so the catalogue is frozen at build time and an administrator's
+correction would never reach anybody. The front end uses `ngx-translate` for that reason alone, and pays for it by
+having to add ICU back. Its default parser substitutes `{{param}}` and does nothing else — no plural rules, no
+select — so `ngx-translate-messageformat-compiler` is registered as the `TranslateCompiler`. Without it Polish
+`few`/`many` do not work on the client and every plural collapses to one form.
 
-`ngx-translate-messageformat-compiler` renders the ICU patterns; without it Polish `few`/`many`
-would not work on the client either.
+`BackendCatalogueLoader` merges two sources into the catalogue `ngx-translate` holds:
+
+```typescript
+forkJoin({
+  ui: this.http.get<Catalogue>(`./i18n/${language}.json`),
+  backend: this.http.get<ApiResponse<BackendCatalogue>>(`${environment.apiUrl}/translations/${language}`),
+})
+```
+
+The static file carries interface copy that no back-end service knows about — button labels, page titles, form
+captions. `GET /translations/{language}` carries every key a service can put in a response. Both are needed: drop the
+static file and the interface loses its labels, drop the request and **every** back-end key renders as itself, which is
+what a user sees as `project.invitation.expired` in a toast.
+
+The back end wins on a collision, because it owns the keys it declares. A failed request falls back to an empty
+catalogue rather than an error, so `translation-service` being briefly unreachable costs the back-end messages, not the
+whole interface.
+
+Both catalogues are ICU, single brace. `{{param}}` is `ngx-translate`'s own interpolation syntax and the compiler does
+not read it — under ICU `{{count}}` renders as `{5}`, braces included. One dialect across both sources is what keeps
+that from being a per-key accident.
+
+> [!NOTE]
+> `environment.availableLanguages` is a constant list in the front end, while `GET /translations/languages` exists and
+> answers the same question. A language seeded in the back end therefore needs a front-end release to become
+> selectable.
 
 ## Administration
 
