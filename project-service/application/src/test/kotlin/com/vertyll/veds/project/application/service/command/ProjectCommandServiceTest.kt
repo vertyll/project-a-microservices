@@ -105,7 +105,21 @@ internal class ProjectCommandServiceTest {
     fun `creating a project announces it`() {
         val response = service.createProject(createCommand(), creator)
 
-        assertEquals(listOf("ProjectCreated(${response.id})"), events.published)
+        assertEquals("ProjectCreated(${response.id})", events.published.first())
+    }
+
+    /**
+     * task-service authorizes against its own membership projection, which is fed by this event.
+     * Without it the creator owns a project whose tasks every request denies them.
+     */
+    @Test
+    fun `creating a project announces the creator joining it`() {
+        val response = service.createProject(createCommand(), creator)
+
+        assertEquals(
+            listOf("ProjectCreated(${response.id})", "MemberJoined(${response.id},${creator.id},MANAGER)"),
+            events.published,
+        )
     }
 
     @Test

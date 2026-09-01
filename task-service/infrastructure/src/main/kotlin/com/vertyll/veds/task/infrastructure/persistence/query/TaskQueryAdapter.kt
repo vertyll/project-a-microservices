@@ -213,7 +213,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
             entityManager
                 .createNativeQuery(
                     """
-                    SELECT a.task_id, a.user_id, u.email, u.first_name, u.last_name, u.avatar_url
+                    SELECT a.task_id, a.user_id, u.email, u.first_name, u.last_name, u.avatar_file_id
                     FROM task_assignee a
                     LEFT JOIN user_ref u ON u.user_id = a.user_id
                     WHERE a.task_id IN (:ids)

@@ -11,17 +11,17 @@ import java.util.UUID
 
 @Repository
 internal interface UserJpaRepository : JpaRepository<UserJpaEntity, Long> {
-    @EntityGraph(attributePaths = ["roles", "permissions"])
+    @EntityGraph(attributePaths = ["roles", "roles.permissions"])
     fun findByEmail(email: String): Optional<UserJpaEntity>
 
-    @EntityGraph(attributePaths = ["roles", "permissions"])
+    @EntityGraph(attributePaths = ["roles", "roles.permissions"])
     fun findByKeycloakId(keycloakId: UUID): Optional<UserJpaEntity>
 
     fun existsByEmail(email: String): Boolean
 
-    @EntityGraph(attributePaths = ["roles", "permissions"])
+    @EntityGraph(attributePaths = ["roles", "roles.permissions"])
     override fun findAll(pageable: Pageable): Page<UserJpaEntity>
 
-    @EntityGraph(attributePaths = ["roles", "permissions"])
+    @EntityGraph(attributePaths = ["roles", "roles.permissions"])
     override fun findById(id: Long): Optional<UserJpaEntity>
 }

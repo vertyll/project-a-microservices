@@ -57,15 +57,22 @@ class ProjectCommandService(
 
         userDirectory.save(actor.toUserRef())
 
-        memberRepository.save(
-            ProjectMember.create(
-                projectId = project.id,
-                userId = actor.id,
-                roleId = managerRole.id,
-            ),
-        )
+        val manager =
+            memberRepository.save(
+                ProjectMember.create(
+                    projectId = project.id,
+                    userId = actor.id,
+                    roleId = managerRole.id,
+                ),
+            )
 
         eventPublisher.publishProjectCreated(project.id, project.name, actor.id)
+        eventPublisher.publishMemberJoined(
+            projectId = project.id,
+            memberId = manager.id,
+            userId = manager.userId,
+            roleCode = managerRole.code.name,
+        )
 
         return ProjectResponse.from(project)
     }
