@@ -22,6 +22,10 @@ internal class TranslationCatalogueConfig {
                 pl("Język {language} nie jest obsługiwany.")
                 en("Language {language} is not supported.")
             }
+            key("common.access_denied") {
+                pl("Nie masz uprawnień do tej operacji.")
+                en("You are not allowed to perform this action.")
+            }
             key("common.not_authenticated") {
                 pl("Nie jesteś zalogowany.")
                 en("You are not signed in.")

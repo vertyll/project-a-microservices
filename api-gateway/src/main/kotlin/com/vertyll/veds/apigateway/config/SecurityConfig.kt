@@ -65,7 +65,6 @@ internal class SecurityConfig(
             arrayOf(
                 "/users/admin/**",
             )
-        private const val USER_PROFILE_ENDPOINT = "/users/me"
         private val USER_ID_ENDPOINT =
             arrayOf(
                 "/users/{id}",
@@ -123,8 +122,6 @@ internal class SecurityConfig(
                     .authenticated()
                     .pathMatchers(*USER_ADMIN_ENDPOINTS)
                     .hasRole("ADMIN")
-                    .pathMatchers(USER_PROFILE_ENDPOINT)
-                    .authenticated()
                     .pathMatchers(*USER_ID_ENDPOINT)
                     .authenticated()
                     .pathMatchers(MAIL_ENDPOINTS)

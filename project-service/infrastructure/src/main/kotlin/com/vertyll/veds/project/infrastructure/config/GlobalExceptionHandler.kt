@@ -9,15 +9,18 @@ import com.vertyll.veds.project.infrastructure.web.error.ValidationErrorDetails
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 
 @RestControllerAdvice(basePackages = ["com.vertyll.veds.project"])
 internal class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     private companion object {
+        private const val ACCESS_DENIED = "common.access_denied"
         private const val VALIDATION_FAILED = "common.validation_failed"
         private const val UNEXPECTED_ERROR = "common.unexpected_error"
         private const val INVALID_VALUE = "common.invalid_value"
@@ -40,6 +43,17 @@ internal class GlobalExceptionHandler {
         )
     }
 
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAccessDenied(ex: AuthorizationDeniedException): ResponseEntity<ApiResponse<ErrorDetails>> {
+        logger.debug("Access denied: {}", ex.message)
+
+        return ApiResponse.buildResponse(
+            data = ErrorDetails(code = ACCESS_DENIED),
+            message = ACCESS_DENIED,
+            status = HttpStatus.FORBIDDEN,
+        )
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<ApiResponse<ValidationErrorDetails>> {
         val fields =
@@ -51,6 +65,17 @@ internal class GlobalExceptionHandler {
 
         return ApiResponse.buildResponse(
             data = ValidationErrorDetails(code = VALIDATION_FAILED, fields = fields),
+            message = VALIDATION_FAILED,
+            status = HttpStatus.BAD_REQUEST,
+        )
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleTypeMismatch(ex: MethodArgumentTypeMismatchException): ResponseEntity<ApiResponse<ValidationErrorDetails>> {
+        logger.debug("Unparseable request parameter '{}': {}", ex.name, ex.value)
+
+        return ApiResponse.buildResponse(
+            data = ValidationErrorDetails(code = VALIDATION_FAILED, fields = mapOf(ex.name to INVALID_VALUE)),
             message = VALIDATION_FAILED,
             status = HttpStatus.BAD_REQUEST,
         )
