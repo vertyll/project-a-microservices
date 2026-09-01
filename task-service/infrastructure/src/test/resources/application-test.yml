@@ -1,0 +1,31 @@
+# Integration-test profile.
+#
+# The datasource and Kafka addresses are injected by IntegrationTestBase from the
+# Testcontainers instances, so nothing here points at a fixed host.
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+  kafka:
+    schema-registry-url: mock://task-service-test
+    consumer:
+      auto-offset-reset: earliest
+      group-id: task-service-test
+    properties:
+      schema.registry.url: mock://task-service-test
+
+veds:
+  translation:
+    supported-languages: pl,en
+    client:
+      base-url: http://localhost:1
+
+logging:
+  level:
+    com.vertyll.veds: DEBUG
+    org.testcontainers: INFO

@@ -1,0 +1,69 @@
+package com.vertyll.veds.task.infrastructure.persistence.query
+
+import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
+import com.vertyll.veds.task.domain.model.LanguageTag
+import com.vertyll.veds.task.domain.model.PageRequest
+import com.vertyll.veds.task.domain.model.TaskSearchCriteria
+import com.vertyll.veds.task.infrastructure.IntegrationTestBase
+import com.vertyll.veds.task.infrastructure.persistence.entity.TaskJpaEntity
+import com.vertyll.veds.task.infrastructure.persistence.entity.UserRefJpaEntity
+import com.vertyll.veds.task.infrastructure.persistence.repository.TaskJpaRepository
+import com.vertyll.veds.task.infrastructure.persistence.repository.UserRefJpaRepository
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import java.util.UUID
+import kotlin.test.assertEquals
+
+/**
+ * The assignee lookup is native SQL, so a column that does not exist on `user_ref` compiles
+ * fine and only fails when a task actually has an assignee — a project whose task list is
+ * empty looks healthy either way.
+ */
+internal class TaskQueryAdapterIntegrationTest
+    @Autowired
+    constructor(
+        private val taskQueries: TaskQueryPort,
+        private val tasks: TaskJpaRepository,
+        private val userRefs: UserRefJpaRepository,
+    ) : IntegrationTestBase() {
+        private val projectId: UUID = UUID.randomUUID()
+        private val assigneeId: UUID = UUID.randomUUID()
+
+        @BeforeEach
+        fun resetSharedState() {
+            tasks.deleteAll(tasks.findAll().filter { it.projectId == projectId })
+            userRefs.findById(assigneeId).ifPresent { userRefs.delete(it) }
+        }
+
+        @Test
+        fun `a task list resolves its assignees from the user directory`() {
+            userRefs.save(
+                UserRefJpaEntity(
+                    userId = assigneeId,
+                    email = "assignee@example.com",
+                    firstName = "Ada",
+                    lastName = "Lovelace",
+                ),
+            )
+            tasks.save(
+                TaskJpaEntity(
+                    id = UUID.randomUUID(),
+                    projectId = projectId,
+                    description = "assigned task",
+                    createdBy = assigneeId,
+                    assigneeIds = mutableSetOf(assigneeId),
+                ),
+            )
+
+            val page =
+                taskQueries.searchTasks(
+                    TaskSearchCriteria(projectId = projectId),
+                    PageRequest(page = 0, size = 25),
+                    LanguageTag("pl"),
+                )
+
+            assertEquals(1, page.content.size)
+            assertEquals(listOf("Ada Lovelace"), page.content.single().assignees.map { it.displayName })
+        }
+    }
