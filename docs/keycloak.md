@@ -214,6 +214,10 @@ Two choices worth stating:
   sniffing and not an active man-in-the-middle.
 - **`ssl.endpoint.identification.algorithm: https` for Kafka.** The default in some setups is empty, which disables
   hostname verification and reintroduces the same gap.
+- **`forward-headers-strategy` only behind a trusted proxy.** It makes the application believe `X-Forwarded-*`, so it
+  must stay off wherever something untrusted can set those headers.
+- **`server.ssl.enabled` only when TLS terminates in the process.** With an ingress holding the certificate it stays
+  off; turning it on there gives a service talking TLS to a proxy that already did.
 
 The `Secure` cookie flag is fixed to `true` in prod rather than read from an environment variable: a session cookie
 without it can be sent over plain http and captured, and that is not a knob worth having.

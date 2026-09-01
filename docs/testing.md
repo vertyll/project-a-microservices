@@ -34,6 +34,9 @@ Two of these are worth calling out because they protect properties that are easy
 ## Integration tests
 
 `IntegrationTestBase` starts one PostgreSQL and one Kafka container for the whole module.
+It injects both addresses into the `test` profile, so no test resource points at a fixed host. That profile also
+takes a fresh consumer group per run, so one run never replays another's offsets, and shortens the saga timeouts
+enough that a watchdog test does not wait on the production cooldown.
 
 The outbox and the saga engine are the two things most worth testing here, and neither can be meaningfully exercised
 against mocks: the outbox exists *because* Kafka does not join the database transaction, so a test with both faked
