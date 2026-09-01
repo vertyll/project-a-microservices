@@ -40,16 +40,20 @@ Each service documents its own decisions in its `README.md`; this page covers wh
 | A service's own decisions | that service's `README.md`            |
 | Library API contracts     | KDoc, published with `./gradlew docs` |
 
-| Where                                | What a reasonable edit would break                                                             |
-|--------------------------------------|------------------------------------------------------------------------------------------------|
-| `SessionTokenRelayFilter.getOrder`   | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                   |
-| `ProjectAccessPolicy.RULES`          | Reordering lets an owner edit an archived project                                              |
-| `TaskAccessPolicy.ROLE_PERMISSIONS`  | Adding a default for unknown codes grants new project roles task permissions nobody decided on |
-| `Task.moveTo`                        | "Fixing" the `this` return makes every board drag notify every watcher                         |
-| `TranslationValue.withSeededDefault` | Merging the two columns makes each redeploy revert administrators' edits                       |
-| `IamError.INVALID_CREDENTIALS`       | Splitting it into two codes is a user-enumeration oracle                                       |
-| `FileCommandService.delete`          | Deleting the object first loses the key on a rollback                                          |
-| `ObjectStorageConfig`                | Removing path-style access breaks against Garage                                               |
+| Where                                   | What a reasonable edit would break                                                             |
+|-----------------------------------------|------------------------------------------------------------------------------------------------|
+| `SessionTokenRelayFilter.getOrder`      | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                   |
+| `ProjectAccessPolicy.RULES`             | Reordering lets an owner edit an archived project                                              |
+| `TaskAccessPolicy.ROLE_PERMISSIONS`     | Adding a default for unknown codes grants new project roles task permissions nobody decided on |
+| `Task.moveTo`                           | "Fixing" the `this` return makes every board drag notify every watcher                         |
+| `TranslationValue.withSeededDefault`    | Merging the two columns makes each redeploy revert administrators' edits                       |
+| `IamError.INVALID_CREDENTIALS`          | Splitting it into two codes is a user-enumeration oracle                                       |
+| `FileCommandService.delete`             | Deleting the object first loses the key on a rollback                                          |
+| `ObjectStorageConfig`                   | Removing path-style access breaks against Garage                                               |
+| `OutboxJpaRepository` lock hint         | Dropping `lock.timeout = -2` loses `SKIP LOCKED`, so outbox dispatchers block on each other    |
+| `IdentityProviderPort.removeCredential` | Allowing a password to be removed locks the account out with no way back                       |
+| `MailFeedbackService` saga types        | Completing them on mail delivery skips the user confirmation the saga is waiting for           |
+| `KeycloakIdentityProviderAdapter`       | Parsing a missing `Location` header yields a UUID error naming neither cause nor account       |
 
 Anything that is merely *interesting* goes in a README instead.
 

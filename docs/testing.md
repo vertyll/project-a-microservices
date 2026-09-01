@@ -48,6 +48,16 @@ proves nothing about the property it protects.
 3. **Idempotency** — replaying the same feedback event changes nothing, which is required because the outbox delivers at
    least once.
 
+`UserJpaRepositoryIntegrationTest` and `TaskQueryAdapterIntegrationTest` cover the two persistence mistakes a
+unit test cannot see, because both are rejected by the database rather than by the compiler:
+
+| Test                               | What only a real database rejects                                                                                                                           |
+|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `UserJpaRepositoryIntegrationTest` | An `@EntityGraph` naming an attribute the entity does not own. Hibernate refuses the query outright, so every lookup fails rather than fetching lazily      |
+| `TaskQueryAdapterIntegrationTest`  | A column missing from `user_ref` in the native assignee query. It only runs once a task has an assignee, so a project with an empty task list looks healthy |
+
+The assignee fixture in the second is therefore load-bearing: a task with no assignees exercises none of it.
+
 ## The architecture check
 
 `./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's resolved

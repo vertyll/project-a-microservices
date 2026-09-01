@@ -109,6 +109,17 @@ login-flow cookies must be `Lax` — they are read on the callback, which *is* a
 Profile data is deliberately *not* stored in Keycloak user attributes: it is not an application database and querying it
 is painful. The Admin API stays, in the narrower role of provisioning users at registration and syncing roles.
 
+### Second Factors
+
+Enabling a second factor happens on Keycloak's own pages, reached through the gateway with
+`kc_action=CONFIGURE_TOTP`, so no TOTP secret ever passes through iam-service. Disabling has no secret to
+handle, so `DELETE /auth/me/security/two-factor` does it directly. Credential types are read from Keycloak
+rather than mirrored locally: a copy would be a second answer to the same question, wrong the moment somebody
+configures a factor on Keycloak's pages.
+
+Every endpoint under `/auth/me/security` acts on the caller's own account — the subject comes from the token,
+never from a path, so there is no way to phrase a request about somebody else.
+
 ### How iam-service Learns About a User
 
 Keycloak owns registration, so a user can reach the system without iam-service ever having heard of them — an
