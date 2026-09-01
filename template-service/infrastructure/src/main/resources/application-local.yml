@@ -42,3 +42,8 @@ logging:
     org.springframework.kafka: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+veds:
+  translation:
+    client:
+      base-url: http://localhost:8087
