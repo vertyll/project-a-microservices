@@ -45,8 +45,9 @@ internal class SessionTokenRelayFilter(
         return sessionStore
             .find(sessionId)
             .flatMap { session -> freshen(sessionId, session) }
-            .flatMap { session -> chain.filter(withBearer(exchange, session.accessToken)) }
-            .switchIfEmpty(Mono.defer { chain.filter(exchange) })
+            .map { session -> withBearer(exchange, session.accessToken) }
+            .defaultIfEmpty(exchange)
+            .flatMap { relayed -> chain.filter(relayed) }
     }
 
     private fun freshen(

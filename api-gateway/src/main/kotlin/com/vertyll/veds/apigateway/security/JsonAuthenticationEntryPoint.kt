@@ -21,6 +21,8 @@ internal class JsonAuthenticationEntryPoint(
     ): Mono<Void> =
         Mono.defer {
             val response = exchange.response
+            if (response.isCommitted) return@defer Mono.empty()
+
             response.statusCode = HttpStatus.UNAUTHORIZED
             response.headers.contentType = MediaType.APPLICATION_JSON
 
