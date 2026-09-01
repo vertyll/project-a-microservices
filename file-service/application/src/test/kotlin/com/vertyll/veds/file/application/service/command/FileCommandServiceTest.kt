@@ -20,12 +20,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * The upload is a two-step handshake across a trust boundary: the client asks for a ticket, then
- * uploads straight to object storage and tells this service it is done. Everything the client
- * says about the file is a claim until the store confirms it, and these tests pin down where that
- * line runs.
- */
 class FileCommandServiceTest {
     private val actor = Actor(UUID.randomUUID(), "owner@example.com")
     private val files = mutableMapOf<UUID, StoredFile>()
@@ -149,11 +143,6 @@ class FileCommandServiceTest {
         assertTrue(confirmedEvents.isEmpty(), "nothing is announced before the bytes exist")
     }
 
-    /**
-     * The declared size is a client claim made before the upload. What is recorded is the size the
-     * store reports afterward, so a client cannot understate a file to get past the scope limit
-     * and then upload something larger.
-     */
     @Test
     fun `records the size the store reports, not the one the client declared`() {
         val ticket = requestAvatar(declaredSize = 1_000)
@@ -164,10 +153,6 @@ class FileCommandServiceTest {
         assertEquals(4_242, files.getValue(ticket.fileId).sizeBytes)
     }
 
-    /**
-     * Without this, a client could take a ticket, never upload, and still have a confirmed file
-     * that other contexts start referencing.
-     */
     @Test
     fun `refuses to confirm a file the store does not hold`() {
         val ticket = requestAvatar()

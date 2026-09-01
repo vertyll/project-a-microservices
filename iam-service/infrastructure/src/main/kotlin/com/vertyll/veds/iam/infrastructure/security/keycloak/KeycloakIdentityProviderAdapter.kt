@@ -62,10 +62,6 @@ internal class KeycloakIdentityProviderAdapter(
 
         return when (response.status) {
             HttpStatus.CREATED.value() -> {
-                // 201 without a Location header means Keycloak did not tell us which
-                // user it created. Reported as a failure rather than parsed out of an
-                // empty string, where UUID.fromString would throw something that names
-                // neither the cause nor the account.
                 val location =
                     response.location?.path
                         ?: throw ApiException(

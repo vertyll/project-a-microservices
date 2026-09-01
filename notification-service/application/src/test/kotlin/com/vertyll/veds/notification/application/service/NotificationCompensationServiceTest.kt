@@ -10,11 +10,6 @@ import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * A notification raised by a workflow that then failed is a message about something that never
- * happened. Compensation retires it rather than deleting it, so the row stays for anyone auditing
- * what the user was shown and when it was withdrawn.
- */
 internal class NotificationCompensationServiceTest {
     private val notifications = InMemoryNotificationRepository()
     private val service = NotificationCompensationService(notifications, SilentLogger)
@@ -34,7 +29,6 @@ internal class NotificationCompensationServiceTest {
         assertTrue(!stored.isActive)
     }
 
-    /** Delivery is at-least-once, so the second copy has to find the work already done. */
     @Test
     fun `retiring the same notification twice is harmless`() {
         val raised = givenNotification()
@@ -46,7 +40,6 @@ internal class NotificationCompensationServiceTest {
         assertTrue(!notifications.findById(raised.id)!!.isActive)
     }
 
-    /** The state this undo exists to reverse is already gone — the outcome that was wanted. */
     @Test
     fun `a notification that no longer exists is not an error`() {
         service.compensate(NotificationCompensationCommand.DeleteNotification(UUID.randomUUID().toString()))

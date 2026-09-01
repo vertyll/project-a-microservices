@@ -107,9 +107,6 @@ class FileCommandService(
         return FileResponse.from(fileRepository.save(file.attachedTo(command.scopeId)))
     }
 
-    // Marks the record, leaves the object to the sweep. The database and the object
-    // store do not commit together, so this order leaks an object on a crash rather
-    // than losing the key that names it.
     override fun delete(
         fileId: UUID,
         actor: Actor,

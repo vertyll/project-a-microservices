@@ -67,10 +67,6 @@ internal class RoleInitializer(
                 return@forEach
             }
 
-            // Both sides come from constants in this file, so a name that does not
-            // resolve is a code defect. Warning and continuing would create a role
-            // granting less than it was written to grant, and nothing downstream
-            // could tell that apart from an intentional change.
             val granted =
                 permissionNames
                     .map { name ->

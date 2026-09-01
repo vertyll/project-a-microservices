@@ -8,11 +8,6 @@ import com.vertyll.veds.mail.saga.SagaCompensationEvent
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 
-/**
- * Outbound side of the Anti-Corruption Layer for mail compensation
- * events. Mirrors the tagged union declared in
- * `contracts/mail-service/saga-compensation-mail/v1/saga-compensation.avsc`.
- */
 internal class MailCompensationEventSerializer(
     private val avroPayloadSerializer: AvroPayloadSerializer,
     private val topic: String,

@@ -12,11 +12,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * Roles live in two places: this service's tables and Keycloak, which is what actually stamps them
- * into a token. A role granted here but not there is invisible at the gateway, so both have to move
- * together or not at all.
- */
 internal class RoleCommandServiceTest {
     private val roles = InMemoryRoleRepository()
     private val users = InMemoryUserRepository()
@@ -66,7 +61,6 @@ internal class RoleCommandServiceTest {
         assertEquals(IamError.USER_NOT_FOUND, error.error)
     }
 
-    /** Two administrators editing the same account must not silently undo each other's grants. */
     @Test
     fun `a grant against a stale version is refused`() {
         val existing = givenUser()
@@ -88,7 +82,6 @@ internal class RoleCommandServiceTest {
         assertTrue(identity.calls.isEmpty())
     }
 
-    /** Granting the same role twice must leave one grant, not two. */
     @Test
     fun `granting a role the user already holds changes nothing`() {
         val existing = givenUser(adminRole)

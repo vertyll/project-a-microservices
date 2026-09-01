@@ -14,10 +14,6 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Inbound Kafka adapter for `template.requested`. Dedupes via
- * [ProcessedEventGuard] (idempotent receiver pattern).
- */
 @Component
 internal class TemplateEventConsumerAdapter(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,

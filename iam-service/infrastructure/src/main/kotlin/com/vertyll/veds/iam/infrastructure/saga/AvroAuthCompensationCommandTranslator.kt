@@ -10,20 +10,6 @@ import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
 import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
 import com.vertyll.veds.shared.saga.engine.DecodedCompensationEvent
 
-/**
- * Anti-Corruption Layer (DDD) translating raw Avro bytes received on the
- * `saga-compensation-iam` topic into the application-layer sealed
- * [AuthCompensationCommand] hierarchy.
- *
- * This is the **only** place where Avro generated types meet the IAM
- * domain — the application layer therefore stays free of Avro, Jackson,
- * Kafka and stringly-typed dispatch.
- *
- * Mirrors the tagged union declared in
- * `contracts/iam-service/saga-compensation-iam/v1/saga-compensation.avsc`.
- * Each branch is exhaustive — adding a new compensation action without
- * updating the translator becomes a compile-time error.
- */
 internal class AvroAuthCompensationCommandTranslator(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,
     private val topic: String,

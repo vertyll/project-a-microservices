@@ -15,8 +15,6 @@ internal class RolePersistenceAdapter(
     private val permissionRepository: PermissionJpaRepository,
 ) : RoleRepository {
     override fun save(role: Role): Role {
-        // Same reasoning as roles on a user: a permission that cannot be found is an
-        // error. Dropping it would quietly narrow what the role grants.
         val managedPermissions =
             role.permissions
                 .map { permission ->

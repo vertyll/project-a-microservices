@@ -10,11 +10,6 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * A file lives in file-service; task-service only holds its id. When the file is gone those ids are
- * links to nothing, and a card offering a download that always fails is worse than one offering
- * none — so the reference is dropped wherever it appears.
- */
 internal class FileProjectionServiceTest {
     private val tasks = InMemoryTaskRepository()
     private val comments = InMemoryCommentRepository()
@@ -62,7 +57,6 @@ internal class FileProjectionServiceTest {
         assertTrue(comments.findById(attachedComment.id)!!.attachmentIds.isEmpty())
     }
 
-    /** Delivery is at-least-once, so a repeat of the same deletion has to find nothing left to do. */
     @Test
     fun `deleting the same file twice is harmless`() {
         val attached = task(projectId, attachmentIds = setOf(deleted)).also { tasks.given(it) }

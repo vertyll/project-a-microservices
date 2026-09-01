@@ -8,8 +8,6 @@ import com.vertyll.veds.project.domain.model.ProjectRole
 import java.util.UUID
 
 object ProjectAccessPolicy {
-    // Order is the rule: the first decision wins, so deny overrides. Moving
-    // OWNER_GRANT above RESOURCE_STATE would let an owner edit an archived project.
     private val RULES: List<AccessRule> =
         listOf(
             RESOURCE_STATE,

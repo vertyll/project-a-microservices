@@ -40,10 +40,6 @@ internal class InMemoryNotificationRepository : NotificationRepository {
     override fun findAllBySubjectId(subjectId: UUID) = stored.values.filter { it.subjectId == subjectId }
 }
 
-/**
- * Settings are created on demand: a user who never opened the preferences screen still has to
- * receive notifications, so the default is what an absent row means.
- */
 internal class InMemorySettingsRepository : NotificationSettingsRepository {
     val stored = linkedMapOf<UUID, NotificationSettings>()
 
@@ -66,7 +62,6 @@ internal class InMemoryRecipientDirectory : RecipientDirectoryRepository {
     override fun findByEmail(email: String) = stored.values.firstOrNull { it.email == email }
 }
 
-/** The browser's live connection. What matters is who was pushed to, and what count they were told. */
 internal class RecordingPush : NotificationPushPort {
     val pushed = mutableListOf<String>()
     val unreadCounts = mutableListOf<Pair<UUID, Long>>()

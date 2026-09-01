@@ -14,12 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * Every mail this service sends was asked for by another service that is now blocked waiting for
- * the answer. The rule these tests hold is that the requester always gets one — success, failure,
- * or a request that never even reached the mail server. Silence here strands a saga until the
- * watchdog times it out, long after the user gave up.
- */
 class EmailSagaServiceTest {
     private val sagaTrail = mutableListOf<String>()
     private val feedback = mutableListOf<String>()
@@ -155,10 +149,6 @@ class EmailSagaServiceTest {
         assertEquals(listOf("sent(origin-saga,event-1)"), feedback)
     }
 
-    /**
-     * A refused delivery is an outcome, not an error: the requester has to hear about it so it can
-     * compensate, and the step is recorded as failed rather than silently dropped.
-     */
     @Test
     fun `a refused delivery is reported back rather than swallowed`() {
         sendSucceeds = false
@@ -170,7 +160,6 @@ class EmailSagaServiceTest {
         assertEquals(listOf("failed(origin-saga,Failed to send email)"), feedback)
     }
 
-    /** An exception must not escape either — the requester would wait forever for an answer. */
     @Test
     fun `an exception during delivery still produces an answer`() {
         sendThrows = IllegalStateException("SMTP server refused the connection")
@@ -181,10 +170,6 @@ class EmailSagaServiceTest {
         assertEquals(listOf("failed(origin-saga,SMTP server refused the connection)"), feedback)
     }
 
-    /**
-     * An unknown template name is a bad request, not a delivery problem. No saga is opened for work
-     * that cannot start, but the requester is still told why nothing will arrive.
-     */
     @Test
     fun `an unknown template is refused before any saga opens`() {
         assertFalse(send(templateName = "NO_SUCH_TEMPLATE"))
@@ -193,7 +178,6 @@ class EmailSagaServiceTest {
         assertEquals(listOf("failed(origin-saga,Invalid template name: NO_SUCH_TEMPLATE)"), feedback)
     }
 
-    /** Not every mail belongs to a workflow; a standalone one has nobody waiting to be told. */
     @Test
     fun `a mail sent outside any saga publishes no feedback`() {
         assertTrue(send(originSagaId = null))
@@ -210,10 +194,6 @@ class EmailSagaServiceTest {
         assertTrue(sagaTrail.isEmpty())
     }
 
-    /**
-     * The mail was genuinely sent; only the announcement failed. Turning that into a failure would
-     * make the requester compensate a delivery that actually happened — the inbox cannot be undone.
-     */
     @Test
     fun `a delivered mail stays delivered even if the announcement fails`() {
         feedbackThrows = IllegalStateException("broker unavailable")
@@ -223,7 +203,6 @@ class EmailSagaServiceTest {
         assertTrue(sagaTrail.contains("completed"))
     }
 
-    /** Without an event id of its own the local saga id identifies the delivery for deduplication. */
     @Test
     fun `a request with no event id is identified by the mail saga`() {
         assertTrue(send(originalEventId = null))

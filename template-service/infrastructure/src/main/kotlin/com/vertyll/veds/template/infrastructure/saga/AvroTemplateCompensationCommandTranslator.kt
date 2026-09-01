@@ -8,20 +8,6 @@ import com.vertyll.veds.template.saga.DeleteTemplateAction
 import com.vertyll.veds.template.saga.LogTemplateCompensationAction
 import com.vertyll.veds.template.saga.SagaCompensationEvent
 
-/**
- * Anti-Corruption Layer (DDD) translating raw Avro bytes received on the
- * `saga-compensation-template` topic into the application-layer sealed
- * [TemplateCompensationCommand] hierarchy.
- *
- * This is the **only** place where Avro generated types meet the
- * template domain — the application layer therefore stays free of Avro,
- * Jackson, Kafka and stringly-typed dispatch.
- *
- * Mirrors the tagged union declared in
- * `template-contracts/avro/saga-compensation-template/v1/saga-compensation.avsc`.
- * Each branch is exhaustive — adding a new compensation action without
- * updating the translator becomes a compile-time error.
- */
 internal class AvroTemplateCompensationCommandTranslator(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,
     private val topic: String,

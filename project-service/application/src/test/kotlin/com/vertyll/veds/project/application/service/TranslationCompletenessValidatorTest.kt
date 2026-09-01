@@ -10,11 +10,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-/**
- * Reference data — categories, statuses, roles — is shown to every user in their own language.
- * A row saved with a gap would render as a missing label for whoever speaks that language, and
- * nothing downstream can repair it, so incomplete input is refused at the point of entry.
- */
 internal class TranslationCompletenessValidatorTest {
     private val validator = TranslationCompletenessValidator { setOf(ENGLISH, POLISH) }
 
@@ -30,7 +25,6 @@ internal class TranslationCompletenessValidatorTest {
         assertEquals(ProjectError.TRANSLATION_MISSING, error.error)
     }
 
-    /** The message has to name the gap — "incomplete" alone tells the caller nothing actionable. */
     @Test
     fun `the refusal names the languages that are missing`() {
         val error = assertFailsWith<ApiException> { validator.validate(setOf(translation("Bug", ENGLISH))) }
@@ -38,10 +32,6 @@ internal class TranslationCompletenessValidatorTest {
         assertEquals(listOf("pl"), error.params["missing"])
     }
 
-    /**
-     * A language nobody serves would be dead weight in the table and a silent typo — `de` when the
-     * deployment speaks `en` and `pl` is far more likely a mistake than an intent.
-     */
     @Test
     fun `a language the deployment does not serve is refused`() {
         val german = LanguageTag("de")
@@ -55,7 +45,6 @@ internal class TranslationCompletenessValidatorTest {
         assertEquals(listOf("de"), error.params["unsupported"])
     }
 
-    /** Missing is reported first: an unknown language usually means a supported one was mistyped. */
     @Test
     fun `a gap is reported before an unknown language`() {
         val error =

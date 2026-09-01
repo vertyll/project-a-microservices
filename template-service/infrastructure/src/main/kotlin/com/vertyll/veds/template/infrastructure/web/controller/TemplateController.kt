@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * Reference HTTP adapter — replace with your real endpoints when cloning this service.
- */
 @RestController
 @RequestMapping("/template")
 internal class TemplateController(

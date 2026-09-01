@@ -5,10 +5,6 @@ import com.vertyll.veds.task.domain.model.UserRef
 import com.vertyll.veds.task.domain.repository.UserDirectoryRepository
 import java.util.UUID
 
-/**
- * Records what the use case announced. notification-service learns about assignments and comments
- * only from these events, so whether one was published is part of the behaviour under test.
- */
 internal class RecordingTaskEventPublisher : TaskEventPublisherPort {
     val published = mutableListOf<String>()
 

@@ -34,7 +34,6 @@ internal class UserProvisioningServiceTest {
         roles.save(Role(id = 1L, name = RoleType.USER.value))
     }
 
-    /** Registration happens in Keycloak now, so first contact is what makes the user local. */
     @Test
     fun `an identity unknown to iam is recorded with the default role`() {
         givenDefaultRole()
@@ -47,7 +46,6 @@ internal class UserProvisioningServiceTest {
         assertEquals(listOf(RoleType.USER.value), stored.roles.map { it.name })
     }
 
-    /** Other services build their user projections from this event, exactly as for a registration. */
     @Test
     fun `recording a new identity announces it`() {
         givenDefaultRole()
@@ -68,7 +66,6 @@ internal class UserProvisioningServiceTest {
         assertEquals(1, events.published.size)
     }
 
-    /** Falling back to a role-less user would hand out an account that silently cannot do anything. */
     @Test
     fun `a missing default role is refused rather than provisioning a role-less user`() {
         val error = assertFailsWith<ApiException> { service.provision(identity) }

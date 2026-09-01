@@ -40,12 +40,6 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var sagaProcess: SagaProcessPort
 
-    /**
-     * The tests share one database, and [openSagaId] reads the *first* outbox row. Without
-     * this, a test that completes its saga through mail feedback hands the next test an
-     * already-terminal saga id, and the failure reads as a compensation bug rather than as
-     * leaked state.
-     */
     @BeforeEach
     fun clearOutbox() {
         outboxRepository.deleteAll()

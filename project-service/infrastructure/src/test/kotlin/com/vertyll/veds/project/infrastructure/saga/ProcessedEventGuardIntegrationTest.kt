@@ -11,11 +11,6 @@ import java.util.UUID
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * The inbox claim has to share the handler's fate, or the retry and dead-letter machinery above
- * it means nothing: a claim that survived a failed handler would make every redelivery look like
- * a duplicate, so a transient failure would drop the message on its first attempt.
- */
 class ProcessedEventGuardIntegrationTest : IntegrationTestBase() {
     @Autowired
     private lateinit var guard: ProcessedEventGuard

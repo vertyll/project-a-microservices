@@ -28,11 +28,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Categories are a project's own vocabulary, and task-service keeps a copy of them so it can label
- * tasks without calling back. That copy is only ever updated by the events published here, so an
- * unannounced change is one the other service never learns about.
- */
 internal class ProjectStatusCommandServiceTest {
     private val statuses = InMemoryStatusRepository()
     private val projects = InMemoryProjectRepository()
@@ -77,7 +72,6 @@ internal class ProjectStatusCommandServiceTest {
         assertEquals("W toku", response.name)
     }
 
-    /** The event carries every language, because the consumer does not know which one it will need. */
     @Test
     fun `creating announces the status to other services`() {
         val response = service.createStatus(existing.id, CreateStatusCommand("#ff0000", complete), owner, ENGLISH)
@@ -129,10 +123,6 @@ internal class ProjectStatusCommandServiceTest {
         assertEquals("Blocked", stored.translationFor(ENGLISH).name)
     }
 
-    /**
-     * Retiring a status must not orphan the tasks already sitting in it, so the row stays and
-     * consumers are simply told to stop offering it.
-     */
     @Test
     fun `deactivating a status is announced as a removal`() {
         val status = givenStatus()
@@ -165,7 +155,6 @@ internal class ProjectStatusCommandServiceTest {
         assertEquals("#ff0000", statuses.findById(status.id)!!.color)
     }
 
-    /** Status ids are global, so the project in the path has to be checked against the row. */
     @Test
     fun `a status of another project cannot be reached through this one`() {
         val elsewhere = givenStatus(projectId = UUID.randomUUID())

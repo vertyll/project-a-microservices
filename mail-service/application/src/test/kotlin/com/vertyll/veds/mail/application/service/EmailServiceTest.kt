@@ -16,11 +16,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Delivery is the one thing this service does, and the log is the only record that it tried.
- * These pin down what has to survive a failure: the attempt is recorded either way, and the
- * caller learns the outcome instead of an exception.
- */
 class EmailServiceTest {
     private val saved = mutableListOf<EmailLog>()
 
@@ -123,10 +118,6 @@ class EmailServiceTest {
         assertFalse(sent, "a delivery failure is an outcome the caller has to see, not an exception it must catch")
     }
 
-    /**
-     * The log is the only place a bounced message leaves a trace, so a failed attempt has to be
-     * recorded as thoroughly as a successful one — with the reason, and with no send time.
-     */
     @Test
     fun `records a failed attempt with its reason and no send time`() {
         service(mailSender = sender(failWith = IllegalStateException("SMTP refused"))).sendEmail(
@@ -143,10 +134,6 @@ class EmailServiceTest {
         assertNull(log.sentAt, "a message that never left has no send time")
     }
 
-    /**
-     * `variables` is a VARCHAR(4000). A single long value — a rendered address, a stack trace
-     * pasted into a form — would otherwise fail the insert and lose the log entry along with it.
-     */
     @Test
     fun `truncates a long variable so the log entry still fits its column`() {
         service().sendEmail("a@example.com", "Subject", template, mapOf("body" to "x".repeat(200)), null)

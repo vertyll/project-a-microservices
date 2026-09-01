@@ -15,11 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.assertEquals
 
-/**
- * The assignee lookup is native SQL, so a column that does not exist on `user_ref` compiles
- * fine and only fails when a task actually has an assignee — a project whose task list is
- * empty looks healthy either way.
- */
 internal class TaskQueryAdapterIntegrationTest
     @Autowired
     constructor(

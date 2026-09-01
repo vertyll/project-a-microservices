@@ -20,12 +20,6 @@ internal interface OutboxJpaRepository : JpaRepository<OutboxJpaEntity, Long> {
 
     fun findByEventId(eventId: String): OutboxJpaEntity?
 
-    /**
-     * `SELECT … FOR UPDATE SKIP LOCKED` for the transactional outbox
-     * dispatcher. The `jakarta.persistence.lock.timeout = -2` hint
-     * (`LockOptions.SKIP_LOCKED`) is translated by Hibernate 6 into
-     * `FOR UPDATE SKIP LOCKED` for PostgreSQL.
-     */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2"))
     @Query(

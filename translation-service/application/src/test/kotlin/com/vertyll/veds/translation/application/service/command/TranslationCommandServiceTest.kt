@@ -25,11 +25,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Two parties write to the same rows: a service re-registers its catalogue on every start-up, and
- * an administrator corrects wording in the admin UI. The rule that keeps them from fighting is that
- * the two live in separate columns — a redeploy must never quietly undo a correction.
- */
 internal class TranslationCommandServiceTest {
     private val keys = InMemoryKeyRepository()
     private val values = InMemoryValueRepository()
@@ -75,10 +70,6 @@ internal class TranslationCommandServiceTest {
         assertEquals("Nie znaleziono", values.find("project.not_found", POLISH)!!.defaultValue)
     }
 
-    /**
-     * Every service re-registers on start-up. Writing rows that have not changed would churn the
-     * table and move `updatedAt`, which the client uses to decide whether to re-fetch.
-     */
     @Test
     fun `re-registering an unchanged catalogue writes nothing`() {
         register(entries = arrayOf(entry()))
@@ -94,10 +85,6 @@ internal class TranslationCommandServiceTest {
         assertEquals("No such project", values.find("project.not_found", ENGLISH)!!.defaultValue)
     }
 
-    /**
-     * The whole point of separating the two columns: a deploy re-seeds the default while the
-     * administrator's correction stays in front of users.
-     */
     @Test
     fun `re-registering does not undo an administrator's correction`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found"))))
@@ -110,10 +97,6 @@ internal class TranslationCommandServiceTest {
         assertEquals("Project missing", stored.defaultValue)
     }
 
-    /**
-     * A key belongs to the service that declared it. Letting another service redeclare it would let
-     * a deploy silently take over another team's wording.
-     */
     @Test
     fun `another service cannot take over a key`() {
         register(sourceService = "project-service", entries = arrayOf(entry()))
@@ -133,10 +116,6 @@ internal class TranslationCommandServiceTest {
         assertEquals("Shown when a project id does not resolve", keys.findByKey("project.not_found")!!.description)
     }
 
-    /**
-     * A service may ship a default for a language this deployment does not serve. Seeding it would
-     * put a row in the table for a language nothing ever reads.
-     */
     @Test
     fun `a default for a language this deployment does not serve is skipped`() {
         assertEquals(1, register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found", "de" to "Nicht gefunden")))))
@@ -186,10 +165,6 @@ internal class TranslationCommandServiceTest {
         assertEquals(TranslationError.LANGUAGE_NOT_FOUND, error.error)
     }
 
-    /**
-     * An ICU pattern is rendered at request time in every service that shows the string, so a
-     * malformed one would surface as a runtime failure far from where it was typed.
-     */
     @Test
     fun `a malformed ICU pattern is rejected where it is typed`() {
         givenKey()
@@ -218,7 +193,6 @@ internal class TranslationCommandServiceTest {
 
     // ── Clearing an override ────────────────────────────────────────────
 
-    /** Clearing falls back to the service's own default rather than leaving the key blank. */
     @Test
     fun `clearing an override restores the shipped default`() {
         givenKey()
@@ -262,10 +236,6 @@ internal class TranslationCommandServiceTest {
         assertEquals("Imported wording", values.find("project.not_found", ENGLISH)!!.effectiveValue)
     }
 
-    /**
-     * A spreadsheet round-trip picks up stale rows and typos. One bad row must not cost the whole
-     * import, so the good rows land and the rest come back named in the report.
-     */
     @Test
     fun `a bad row does not abort the import and is reported`() {
         givenKey()

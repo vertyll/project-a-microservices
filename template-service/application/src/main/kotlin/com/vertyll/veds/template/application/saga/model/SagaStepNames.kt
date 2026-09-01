@@ -2,12 +2,6 @@ package com.vertyll.veds.template.application.saga.model
 
 import com.vertyll.veds.shared.saga.SagaTypeValue
 
-/**
- * Saga step names for template-service.
- *
- * Replace these placeholder values with your actual business saga step names
- * when cloning this service for a new microservice.
- */
 enum class SagaStepNames(
     override val value: String,
 ) : SagaTypeValue {

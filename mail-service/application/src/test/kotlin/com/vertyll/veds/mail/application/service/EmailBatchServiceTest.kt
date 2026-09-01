@@ -6,10 +6,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * A batch is one mail per recipient, personalised. What matters is that one refused address does
- * not cost the rest their mail, and that the caller is told exactly which ones got through.
- */
 class EmailBatchServiceTest {
     private val sent = mutableListOf<Pair<String, Map<String, String>>>()
     private var refuse = emptySet<String>()
@@ -60,7 +56,6 @@ class EmailBatchServiceTest {
         assertTrue(sent.all { it.second["projectName"] == "Apollo" })
     }
 
-    /** Personalisation is the point of a batch: each recipient's own values win over the shared ones. */
     @Test
     fun `a recipient's own variables override the common ones`() {
         send(
@@ -74,7 +69,6 @@ class EmailBatchServiceTest {
         assertEquals("Apollo", sent.first { it.first == "a@example.com" }.second["projectName"])
     }
 
-    /** One bad address must not cost everyone else their mail. */
     @Test
     fun `a refused recipient does not stop the rest`() {
         refuse = setOf("b@example.com")
@@ -91,7 +85,6 @@ class EmailBatchServiceTest {
         assertTrue(sent.isEmpty())
     }
 
-    /** Variables for someone not in the batch are simply not used. */
     @Test
     fun `personalisation for an absent recipient is ignored`() {
         send(listOf("a@example.com"), specific = mapOf("nobody@example.com" to mapOf("firstName" to "Ghost")))

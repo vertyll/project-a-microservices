@@ -10,11 +10,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * template-service is the shape every new service is cloned from, so what it demonstrates has to be
- * right: a saga that records each step, closes itself on both paths, and never leaves a workflow
- * open for the watchdog to time out. A bug here is copied into the next service.
- */
 internal class TemplateCommandServiceTest {
     private val templates = InMemoryTemplateRepository()
     private val saga = RecordingSagaProcess()
@@ -46,10 +41,6 @@ internal class TemplateCommandServiceTest {
         )
     }
 
-    /**
-     * A saga left open after a failure is one the watchdog has to time out much later. Closing it
-     * here is what turns a crash into a workflow that can be compensated straight away.
-     */
     @Test
     fun `a failure closes the saga and records why`() {
         templates.saveFails = IllegalStateException("duplicate template name")
@@ -60,7 +51,6 @@ internal class TemplateCommandServiceTest {
         assertEquals("failed(duplicate template name)", saga.trail.last())
     }
 
-    /** The caller has to see the failure; swallowing it would report success for work that failed. */
     @Test
     fun `a failure is re-thrown to the caller`() {
         templates.saveFails = IllegalStateException("duplicate template name")

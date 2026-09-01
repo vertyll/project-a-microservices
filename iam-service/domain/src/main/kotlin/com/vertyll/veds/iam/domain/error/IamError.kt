@@ -9,8 +9,6 @@ enum class IamError(
     EMAIL_NOT_CHANGEABLE("iam.user.email_not_changeable", ErrorKind.CONFLICT),
     MISSING_NEW_EMAIL_DATA("iam.user.missing_new_email_data", ErrorKind.INVALID),
 
-    // Deliberately one code for both "no such user" and "wrong password".
-    // Separating them is a user-enumeration oracle.
     INVALID_CREDENTIALS("iam.auth.invalid_credentials", ErrorKind.ACCESS_DENIED),
     INVALID_CURRENT_PASSWORD("iam.auth.invalid_current_password", ErrorKind.ACCESS_DENIED),
     INVALID_CONFIRMATION_CODE("iam.auth.invalid_confirmation_code", ErrorKind.INVALID),

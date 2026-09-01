@@ -12,19 +12,6 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Thin Kafka adapter for choreography saga compensations targeted at
- * template-service.
- *
- * Delegates business logic to [SagaCompensationEngine]; protects the
- * engine from duplicate events via [ProcessedEventGuard].
- *
- * Exceptions from the engine are intentionally propagated to Spring
- * Kafka's `DefaultErrorHandler` so failures land in DLT after the
- * configured retry budget. The `SagaWatchdog` still provides a slower
- * cooldown-based safety net for sagas stuck in `COMPENSATING` /
- * `COMPENSATION_FAILED`.
- */
 @Service
 internal class SagaCompensationService(
     private val sagaCompensationEngine: SagaCompensationEngine<SagaStepJpaEntity, TemplateCompensationCommand>,

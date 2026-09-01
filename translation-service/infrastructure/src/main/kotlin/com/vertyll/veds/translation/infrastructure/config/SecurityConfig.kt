@@ -18,9 +18,6 @@ internal class SecurityConfig(
     private companion object {
         private val PUBLIC_ENDPOINTS =
             arrayOf(
-                // Service-to-service catalogue registration. The gateway routes no /internal
-                // path, so this is reachable only from inside the cluster network, and the
-                // registrar holds no token.
                 "/internal/**",
                 "/translations/**",
                 "/actuator/**",

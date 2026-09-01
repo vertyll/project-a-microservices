@@ -128,10 +128,6 @@ internal class InMemoryVerificationTokenRepository : VerificationTokenRepository
     }
 }
 
-/**
- * Keycloak stands in for the real identity provider. Passwords never reach this service's database,
- * so what the tests care about is which calls were made against it and in what order.
- */
 internal class FakeIdentityProvider : IdentityProviderPort {
     val calls = mutableListOf<String>()
     var createUserFails: Exception? = null

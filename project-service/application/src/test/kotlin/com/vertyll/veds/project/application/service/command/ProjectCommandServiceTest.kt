@@ -25,11 +25,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Creating a project is not one write: it also has to leave the creator able to manage what they
- * just made, and tell the rest of the system the project exists. These tests hold that whole
- * outcome, because a project saved without its owning membership is one nobody can administer.
- */
 internal class ProjectCommandServiceTest {
     private val projects = InMemoryProjectRepository()
     private val members = InMemoryMemberRepository()
@@ -78,10 +73,6 @@ internal class ProjectCommandServiceTest {
         assertEquals(creator.id, saved.ownerId)
     }
 
-    /**
-     * Ownership alone grants nothing at query time — permissions are read from the membership row.
-     * Without this the creator could not administer their own project.
-     */
     @Test
     fun `the creator is enrolled as a manager`() {
         val response = service.createProject(createCommand(), creator)
@@ -91,7 +82,6 @@ internal class ProjectCommandServiceTest {
         assertEquals(managerRole.id, membership.roleId)
     }
 
-    /** Other services address members by id; without the directory entry they cannot name them. */
     @Test
     fun `the creator is recorded in the user directory`() {
         service.createProject(createCommand(), creator)
@@ -108,10 +98,6 @@ internal class ProjectCommandServiceTest {
         assertEquals("ProjectCreated(${response.id})", events.published.first())
     }
 
-    /**
-     * task-service authorizes against its own membership projection, which is fed by this event.
-     * Without it the creator owns a project whose tasks every request denies them.
-     */
     @Test
     fun `creating a project announces the creator joining it`() {
         val response = service.createProject(createCommand(), creator)
@@ -129,7 +115,6 @@ internal class ProjectCommandServiceTest {
         assertEquals(ProjectError.TYPE_NOT_FOUND, error.error)
     }
 
-    /** The type is validated first, so a rejected command leaves nothing half-written. */
     @Test
     fun `a project with an unknown type is not saved`() {
         runCatching { service.createProject(createCommand(typeId = UUID.randomUUID()), creator) }
@@ -148,11 +133,6 @@ internal class ProjectCommandServiceTest {
         assertEquals(type.id, projects.findById(response.id)!!.typeId)
     }
 
-    /**
-     * The manager role is reference data every deployment must have. Guessing a substitute would
-     * silently create projects their owners cannot manage, so start-up data being absent is an
-     * error, not something to work around.
-     */
     @Test
     fun `a missing manager role is reported rather than worked around`() {
         roles.stored.clear()
@@ -190,7 +170,6 @@ internal class ProjectCommandServiceTest {
         assertEquals("Artemis", updated.name)
     }
 
-    /** Two editors must not silently overwrite each other; the stale one is told to reload. */
     @Test
     fun `an update against a stale version is refused`() {
         val existing = givenManagedProject(version = 3L)
@@ -234,10 +213,6 @@ internal class ProjectCommandServiceTest {
         assertEquals(listOf("ProjectArchived(${existing.id})"), events.published)
     }
 
-    /**
-     * An archived project accepts no mutation at all, archiving included. That refusal is what
-     * stops a second ProjectArchived event reaching consumers as a duplicate.
-     */
     @Test
     fun `archiving an already archived project is refused`() {
         val existing =

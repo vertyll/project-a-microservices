@@ -6,24 +6,8 @@ import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.iam.infrastructure.persistence.entity.SagaStepJpaEntity
 import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensator
-import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import org.slf4j.LoggerFactory
 
-/**
- * Domain-side compensation logic for IAM sagas.
- *
- * Reads the JSON snapshot persisted with each saga step
- * (`saga_step.payload`, written by `SagaEngine.recordSagaStep`),
- * assembles a strongly-typed [AuthCompensationCommand], and publishes it
- * via the [SagaCompensationContext] (Transactional Outbox → Kafka).
- *
- * Steps that do not have a meaningful reverse operation (e.g. event
- * publication steps) intentionally log and skip — they are not errors.
- *
- * Steps for which no compensation is defined throw — `SagaCompensationRunner`
- * marks them `COMPENSATION_FAILED` so [SagaWatchdog]
- * keeps retrying with cooldown until the situation is resolved.
- */
 internal class IamSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEntity, AuthCompensationCommand> {
     private val logger = LoggerFactory.getLogger(IamSagaCompensator::class.java)
 

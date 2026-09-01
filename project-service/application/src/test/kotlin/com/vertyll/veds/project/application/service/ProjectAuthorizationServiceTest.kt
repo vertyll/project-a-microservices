@@ -16,11 +16,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * Every command goes through here first, so this is where a project's confidentiality is actually
- * enforced. The distinction the tests care about is *which* refusal a caller gets: telling someone
- * a project exists but is closed to them is itself a disclosure.
- */
 internal class ProjectAuthorizationServiceTest {
     private val projects = InMemoryProjectRepository()
     private val members = InMemoryMemberRepository()
@@ -50,10 +45,6 @@ internal class ProjectAuthorizationServiceTest {
         }
     }
 
-    /**
-     * A stranger must not be able to tell a private project apart from one that does not exist —
-     * otherwise project ids become an enumerable directory of what the organisation is working on.
-     */
     @Test
     fun `a private project is indistinguishable from a missing one`() {
         val existing = project(ownerId = owner, isPublic = false).also { projects.given(it) }
@@ -74,10 +65,6 @@ internal class ProjectAuthorizationServiceTest {
         assertEquals(existing.id, service.requirePermission(existing.id, outsider, ProjectPermission.VIEW_PROJECT).id)
     }
 
-    /**
-     * Being able to see a project is not permission to change it, and here the caller already knows
-     * it exists — so the honest answer is that access was denied, not that nothing is there.
-     */
     @Test
     fun `a viewer denied a stronger permission is told access was denied`() {
         val existing = project(ownerId = owner, isPublic = true).also { projects.given(it) }
@@ -98,7 +85,6 @@ internal class ProjectAuthorizationServiceTest {
         assertEquals(ProjectError.PROJECT_ACCESS_DENIED, error.error)
     }
 
-    /** Archiving freezes a project: it stays readable, but nothing may be changed on it any more. */
     @Test
     fun `an archived project refuses every change, even from its owner`() {
         val existing = project(ownerId = owner, isActive = false).also { projects.given(it) }
@@ -119,7 +105,6 @@ internal class ProjectAuthorizationServiceTest {
 
     // ── Effective permissions ───────────────────────────────────────────
 
-    /** This set is what the front end hides menu items by, so it has to match what commands allow. */
     @Test
     fun `an owner's effective permissions cover everything`() {
         val existing = project(ownerId = owner).also { projects.given(it) }

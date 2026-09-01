@@ -10,14 +10,6 @@ import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
-/**
- * Outbound Kafka + Avro adapter for the mail-feedback choreography events
- * (`mail-sent` / `mail-failed`). Uses the transactional outbox to keep
- * publishing reliable inside the same DB transaction as the domain change.
- *
- * This is the only place in the service that knows about Avro generated
- * `SpecificRecord` classes, Schema Registry framing and topic names.
- */
 @Component
 internal class KafkaMailFeedbackEventPublisherAdapter(
     private val avroPayloadSerializer: AvroPayloadSerializer,

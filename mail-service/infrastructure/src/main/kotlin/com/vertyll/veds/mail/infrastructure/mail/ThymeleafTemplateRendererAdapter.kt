@@ -5,12 +5,6 @@ import org.springframework.stereotype.Component
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 
-/**
- * Thymeleaf-backed adapter for the application-level [TemplateRendererPort].
- *
- * Copies the supplied variable map into a Thymeleaf `Context` and renders
- * the named template to a string.
- */
 @Component
 internal class ThymeleafTemplateRendererAdapter(
     private val templateEngine: TemplateEngine,

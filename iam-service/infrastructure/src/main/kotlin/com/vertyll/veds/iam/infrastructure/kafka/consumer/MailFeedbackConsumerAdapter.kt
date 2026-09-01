@@ -13,14 +13,6 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Inbound Kafka adapter for mail-delivery feedback topics.
- *
- * Implements the **idempotent receiver** pattern via [ProcessedEventGuard]:
- * each event is claimed exactly once per consumer group, so at-least-once
- * delivery from the outbox cannot translate into duplicate business
- * processing.
- */
 @Component
 internal class MailFeedbackConsumerAdapter(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,

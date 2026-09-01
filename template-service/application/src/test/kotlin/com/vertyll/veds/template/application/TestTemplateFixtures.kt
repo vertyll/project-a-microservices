@@ -12,7 +12,6 @@ import com.vertyll.veds.template.domain.repository.TemplateRepository
 internal class InMemoryTemplateRepository : TemplateRepository {
     val stored = linkedMapOf<String, Template>()
 
-    /** Set to make the next save fail, standing in for a constraint violation. */
     var saveFails: Exception? = null
 
     fun given(vararg templates: Template) = templates.forEach { stored[it.id] = it }

@@ -14,12 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * Access here is decided entirely from a projection of project-service's data, so a project this
- * service has not heard about grants nothing — failing closed rather than assuming. Restricted
- * tasks add a second rule on top: a task nobody may see is reported as missing, so its existence
- * does not leak through the difference between "denied" and "not found".
- */
 internal class TaskAuthorizationServiceTest {
     private val directory = InMemoryProjectDirectory()
     private val tasks = InMemoryTaskRepository()
@@ -46,7 +40,6 @@ internal class TaskAuthorizationServiceTest {
         assertEquals(projectId, service.requireProjectPermission(projectId, actor, TaskPermission.MANAGE_TASKS).projectId)
     }
 
-    /** A client is there to follow progress and talk, not to move cards. */
     @Test
     fun `a client may view and comment but not manage`() {
         givenRole("CLIENT")
@@ -65,10 +58,6 @@ internal class TaskAuthorizationServiceTest {
         assertEquals(TaskError.TASK_ACCESS_DENIED, error.error)
     }
 
-    /**
-     * A role project-service added but nobody mapped here grants nothing. Inheriting an unknown
-     * role's access would hand out permissions this service never agreed to.
-     */
     @Test
     fun `an unmapped role grants nothing`() {
         givenRole("AUDITOR")
@@ -77,10 +66,6 @@ internal class TaskAuthorizationServiceTest {
         assertFailsWith<ApiException> { service.requireProjectPermission(projectId, actor, TaskPermission.VIEW_TASKS) }
     }
 
-    /**
-     * The projection is this service's only source of truth about projects. A missing entry means
-     * it does not know, and guessing "allowed" would open a board it cannot vouch for.
-     */
     @Test
     fun `a project this service has not heard about grants nothing`() {
         val error =
@@ -119,10 +104,6 @@ internal class TaskAuthorizationServiceTest {
         assertEquals(TaskError.TASK_NOT_FOUND, error.error)
     }
 
-    /**
-     * A non-member must not be able to tell an existing task from one that never existed — task ids
-     * would otherwise confirm what other teams are working on.
-     */
     @Test
     fun `a task on a board the caller has no access to looks missing`() {
         val existing = task(projectId).also { tasks.given(it) }
@@ -132,7 +113,6 @@ internal class TaskAuthorizationServiceTest {
         assertEquals(TaskError.TASK_NOT_FOUND, error.error)
     }
 
-    /** Restricting a task hides it from the rest of the board, not merely from editing it. */
     @Test
     fun `a restricted task is invisible to an ordinary member`() {
         givenRole("MEMBER")
@@ -159,7 +139,6 @@ internal class TaskAuthorizationServiceTest {
         assertEquals(restricted.id, service.requireTaskPermission(restricted.id, actor, TaskPermission.VIEW_TASKS).id)
     }
 
-    /** Someone has to be able to administer a restricted task without being on it. */
     @Test
     fun `a manager can see any restricted task on their board`() {
         givenRole("MANAGER")

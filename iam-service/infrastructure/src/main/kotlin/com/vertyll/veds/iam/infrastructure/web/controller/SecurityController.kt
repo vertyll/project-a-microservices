@@ -28,8 +28,6 @@ internal class SecurityController(
         private const val TWO_FACTOR_DISABLED = "iam.security.two_factor_disabled"
     }
 
-    // Always the caller's own account: the subject comes from the token, never
-    // from a path. There is no way to phrase a request about somebody else.
     @GetMapping
     @Operation(summary = "Get the caller's second-factor status")
     fun getSettings(
@@ -39,9 +37,6 @@ internal class SecurityController(
         return ApiResponse.buildResponse(settings, SETTINGS_RETRIEVED, HttpStatus.OK)
     }
 
-    // Enabling is not here: it happens on Keycloak's own pages, reached through
-    // the gateway with kc_action=CONFIGURE_TOTP, so no TOTP secret ever passes
-    // through this service. Disabling has no secret to handle, so it can.
     @DeleteMapping("/two-factor")
     @Operation(summary = "Turn the caller's second factor off")
     fun disableTwoFactor(

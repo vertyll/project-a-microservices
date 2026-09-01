@@ -13,11 +13,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * A registration that fails halfway leaves a user in Keycloak, a row in this database and possibly
- * a live activation token. Compensation is what takes those back. It is delivered at least once and
- * may arrive after an operator has already cleaned up, so every command has to be safe to repeat.
- */
 internal class AuthCompensationServiceTest {
     private val users = InMemoryUserRepository()
     private val tokens = InMemoryVerificationTokenRepository()
@@ -34,7 +29,6 @@ internal class AuthCompensationServiceTest {
         assertNull(users.findById(existing.id!!))
     }
 
-    /** Delivery is at-least-once, so the second copy has to find nothing and say nothing. */
     @Test
     fun `deleting a user that is already gone is harmless`() {
         service.compensate(AuthCompensationCommand.DeleteUser(404L))
@@ -43,7 +37,6 @@ internal class AuthCompensationServiceTest {
         assertTrue(users.stored.isEmpty())
     }
 
-    /** An activation token left behind would let someone finish a registration that was undone. */
     @Test
     fun `an orphaned verification token is deleted`() {
         val token = verificationToken(tokenType = TokenTypes.ACCOUNT_ACTIVATION.value).also { tokens.given(it) }
@@ -70,7 +63,6 @@ internal class AuthCompensationServiceTest {
         assertTrue(identity.calls.contains("updateEmail(${existing.keycloakId},old@example.com)"))
     }
 
-    /** Nothing local to revert means nothing to do; failing here would stall the saga over nothing. */
     @Test
     fun `reverting the email of a user that no longer exists is not an error`() {
         service.compensate(AuthCompensationCommand.RevertEmailUpdate(404L, originalEmail = "old@example.com"))
@@ -78,11 +70,6 @@ internal class AuthCompensationServiceTest {
         assertTrue(identity.calls.isEmpty())
     }
 
-    /**
-     * Keycloak does not retain the previous credential, so there is nothing to put back. The
-     * command is accepted and logged rather than pretending an undo happened — the alternative is a
-     * saga stuck in COMPENSATION_FAILED forever over something no code can fix.
-     */
     @Test
     fun `a password change cannot be reverted and nothing is touched`() {
         val existing = user().also { users.given(it) }

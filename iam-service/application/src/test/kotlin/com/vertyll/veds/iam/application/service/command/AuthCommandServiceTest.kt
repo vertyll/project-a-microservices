@@ -24,12 +24,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Registration, activation and every credential change cross into Keycloak and into mail-service,
- * so none of them is a single write. The rules pinned here are the ones that decide whether a
- * stranger can take over an account: which token is accepted for what, and what an unauthenticated
- * caller is allowed to learn about who has an account.
- */
 internal class AuthCommandServiceTest {
     private val tokens = InMemoryVerificationTokenRepository()
     private val users = InMemoryUserRepository()
@@ -75,7 +69,6 @@ internal class AuthCommandServiceTest {
         assertEquals(setOf(userRole), users.findByEmail("ada@example.com")!!.roles)
     }
 
-    /** The account exists but is not usable yet; the activation mail is what unlocks it. */
     @Test
     fun `registering issues an activation token and asks for the mail`() {
         service.register(registerCommand())
@@ -87,7 +80,6 @@ internal class AuthCommandServiceTest {
         )
     }
 
-    /** The saga stays open until mail-service answers; nothing else can close it. */
     @Test
     fun `the registration saga waits for the mail service`() {
         service.register(registerCommand())
@@ -96,10 +88,6 @@ internal class AuthCommandServiceTest {
         assertEquals("start(UserRegistration)", saga.trail.first())
     }
 
-    /**
-     * Registration must not double as an account-existence oracle, so the caller is told the
-     * request failed rather than that the address is taken.
-     */
     @Test
     fun `registering an address that already exists is refused without naming why`() {
         users.given(user(email = "ada@example.com"))
@@ -110,7 +98,6 @@ internal class AuthCommandServiceTest {
         assertTrue(saga.trail.isEmpty(), "no saga should open for a request rejected up front")
     }
 
-    /** Reference data every deployment must have — guessing a substitute would grant wrong access. */
     @Test
     fun `a missing default role stops registration`() {
         roles.stored.clear()
@@ -133,7 +120,6 @@ internal class AuthCommandServiceTest {
         assertTrue(tokens.findByToken("t")!!.used)
     }
 
-    /** A token is single-use; replaying one must not re-enable an account that was later disabled. */
     @Test
     fun `a token that was already spent is refused`() {
         val existing = user().also { users.given(it) }
@@ -173,10 +159,6 @@ internal class AuthCommandServiceTest {
 
     // ── Password reset ──────────────────────────────────────────────────
 
-    /**
-     * The endpoint is unauthenticated, so answering differently for a known and an unknown address
-     * would turn it into a way of enumerating who has an account here.
-     */
     @Test
     fun `a reset request for an unknown address succeeds silently`() {
         service.sendPasswordResetRequest("nobody@example.com")
@@ -206,10 +188,6 @@ internal class AuthCommandServiceTest {
         assertTrue(tokens.findByToken("t")!!.used)
     }
 
-    /**
-     * Tokens are typed for a reason: an activation link arriving in a mailbox must not be usable to
-     * set a new password on the account it activates.
-     */
     @Test
     fun `an activation token cannot be used to reset a password`() {
         val existing = user().also { users.given(it) }
@@ -285,7 +263,6 @@ internal class AuthCommandServiceTest {
         assertTrue(identity.calls.contains("updateEmail(${existing.keycloakId},new@example.com)"))
     }
 
-    /** The saga opened by the request is only closed once the address has actually moved. */
     @Test
     fun `confirming an email change closes the saga that requested it`() {
         val existing = user().also { users.given(it) }
@@ -304,10 +281,6 @@ internal class AuthCommandServiceTest {
         assertEquals("completed", saga.trail.last())
     }
 
-    /**
-     * The address to move to lives only on the token. Without it there is nothing to apply, and
-     * guessing would point the account at the wrong mailbox.
-     */
     @Test
     fun `an email-change token with no new address is rejected`() {
         val existing = user().also { users.given(it) }
@@ -346,7 +319,6 @@ internal class AuthCommandServiceTest {
         assertTrue(events.published.isEmpty())
     }
 
-    /** Knowing the current password is not enough; the mailbox has to confirm too. */
     @Test
     fun `a password change is confirmed by mail before it takes effect`() {
         val existing = givenAuthenticatedUser()
@@ -389,7 +361,6 @@ internal class AuthCommandServiceTest {
 
     // ── Setting a password from a code ──────────────────────────────────
 
-    /** Holding the row id is not enough — the code that was mailed has to match as well. */
     @Test
     fun `setting a new password requires the mailed confirmation code`() {
         val existing = user().also { users.given(it) }

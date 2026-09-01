@@ -7,11 +7,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/**
- * Mail is sent by another service, and its answer is what closes the invitation saga. The topic
- * carries every service's mail traffic, so this handler sees sagas that are not its own — and
- * acting on one of those would settle a workflow belonging to somebody else.
- */
 internal class MailFeedbackServiceTest {
     private val saga = RecordingSagaProcess()
     private val service = MailFeedbackService(saga, SilentLogger)
@@ -36,10 +31,6 @@ internal class MailFeedbackServiceTest {
         assertEquals(listOf("failed(Mail delivery failed: mailbox full)"), saga.trail)
     }
 
-    /**
-     * Every service consumes the same mail topic. A saga id this service does not know belongs to
-     * another one, and settling it here would close a workflow this service has no part in.
-     */
     @Test
     fun `a saga belonging to another service is ignored`() {
         service.handleMailSent("someone-elses-saga", to = "invitee@example.com")
@@ -48,7 +39,6 @@ internal class MailFeedbackServiceTest {
         assertTrue(saga.trail.isEmpty())
     }
 
-    /** Not every mail belongs to a workflow; a plain notification carries no saga at all. */
     @Test
     fun `a mail sent outside any saga is ignored`() {
         service.handleMailSent(null, to = "invitee@example.com")

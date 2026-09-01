@@ -28,11 +28,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Categories are a project's own vocabulary, and task-service keeps a copy of them so it can label
- * tasks without calling back. That copy is only ever updated by the events published here, so an
- * unannounced change is one the other service never learns about.
- */
 internal class ProjectCategoryCommandServiceTest {
     private val categories = InMemoryCategoryRepository()
     private val projects = InMemoryProjectRepository()
@@ -77,7 +72,6 @@ internal class ProjectCategoryCommandServiceTest {
         assertEquals("Błąd", response.name)
     }
 
-    /** The event carries every language, because the consumer does not know which one it will need. */
     @Test
     fun `creating announces the category to other services`() {
         val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, ENGLISH)
@@ -124,10 +118,6 @@ internal class ProjectCategoryCommandServiceTest {
         assertEquals("Defect", stored.translationFor(ENGLISH).name)
     }
 
-    /**
-     * Deactivating is how a category is retired without breaking the tasks already labelled with
-     * it, so consumers are told it was removed while the row itself stays.
-     */
     @Test
     fun `deactivating a category is announced as a removal`() {
         val category = givenCategory()
@@ -160,7 +150,6 @@ internal class ProjectCategoryCommandServiceTest {
         assertEquals("#ff0000", categories.findById(category.id)!!.color)
     }
 
-    /** Category ids are global, so the project in the path has to be checked against the row. */
     @Test
     fun `a category of another project cannot be reached through this one`() {
         val elsewhere = givenCategory(projectId = UUID.randomUUID())

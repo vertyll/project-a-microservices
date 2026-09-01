@@ -8,14 +8,6 @@ import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensator
 import org.slf4j.LoggerFactory
 
-/**
- * Domain-side compensation logic for mail sagas — assembles typed
- * [MailCompensationCommand]s from local saga-step snapshots and emits
- * them via the [SagaCompensationContext] (Transactional Outbox → Kafka).
- *
- * See [MailCompensationCommand] for the note on the absence of an
- * inbound consumer for the `saga-compensation-mail` topic.
- */
 internal class MailSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEntity, MailCompensationCommand> {
     private val logger = LoggerFactory.getLogger(MailSagaCompensator::class.java)
 

@@ -5,11 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-/**
- * The log is the only evidence that a mail was attempted. Support reads it to answer "did it go
- * out?", so an attempt that ends without a status, or a failure without a reason, leaves that
- * question unanswerable.
- */
 class EmailLogTest {
     private fun log() =
         EmailLog(
@@ -43,13 +38,11 @@ class EmailLogTest {
         assertEquals("mailbox does not exist", entry.errorMessage)
     }
 
-    /** Nothing was delivered, so the entry must not claim a send time. */
     @Test
     fun `a failed mail carries no send time`() {
         assertNull(log().markAsFailed("mailbox does not exist").sentAt)
     }
 
-    /** What the mail was and who it was for stays put; only the outcome moves. */
     @Test
     fun `recording an outcome does not disturb what was sent`() {
         val entry = log()

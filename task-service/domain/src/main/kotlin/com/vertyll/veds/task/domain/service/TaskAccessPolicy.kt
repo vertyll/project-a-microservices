@@ -10,8 +10,6 @@ import java.util.UUID
 object TaskAccessPolicy {
     private const val MANAGER_ROLE_CODE = "MANAGER"
 
-    // An unmapped role code grants nothing, on purpose: a role added in
-    // project-service must be mapped here consciously rather than inherited.
     private val ROLE_PERMISSIONS: Map<String, Set<TaskPermission>> =
         mapOf(
             MANAGER_ROLE_CODE to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),

@@ -1,8 +1,5 @@
 package com.vertyll.veds.iam.domain.model
 
-/**
- * Framework-agnostic paged result returned by domain repositories.
- */
 data class PageResult<T>(
     val content: List<T>,
     val page: Int,

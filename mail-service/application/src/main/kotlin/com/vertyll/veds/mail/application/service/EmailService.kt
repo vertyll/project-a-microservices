@@ -27,9 +27,6 @@ class EmailService(
         private const val LOG_SEND_FAILURE = "Failed to send email to {} with subject: {}"
     }
 
-    /**
-     * Sends an email using a template specified by the EmailTemplate enum and variables.
-     */
     override fun sendEmail(
         to: String,
         subject: String,

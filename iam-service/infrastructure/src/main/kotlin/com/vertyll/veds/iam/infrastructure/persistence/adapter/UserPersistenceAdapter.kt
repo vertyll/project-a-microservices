@@ -18,10 +18,6 @@ internal class UserPersistenceAdapter(
     private val roleJpaRepository: RoleJpaRepository,
 ) : UserRepository {
     override fun save(user: User): User {
-        // Re-read as managed entities so the join table is the only thing this writes
-        // touches. A role that cannot be found is an error, not something to drop:
-        // silently saving a user with fewer roles than asked for is a privilege
-        // change nobody requested and nobody can see.
         val managedRoles: MutableSet<RoleJpaEntity> =
             user.roles
                 .map { role ->

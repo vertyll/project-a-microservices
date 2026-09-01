@@ -211,10 +211,6 @@ internal class InMemoryInvitationRepository : ProjectInvitationRepository {
     ) = stored.values.count { it.projectId == projectId && it.status == status }.toLong()
 }
 
-/**
- * Records the saga trail the use case leaves behind. A saga is the only record that a workflow
- * crossing services was started at all, so which steps were logged is part of the behaviour.
- */
 internal class RecordingSagaProcess : SagaProcessPort {
     val trail = mutableListOf<String>()
     var started: Saga? = null
@@ -256,7 +252,6 @@ internal class RecordingSagaProcess : SagaProcessPort {
     override fun findSagaDomainById(sagaId: String) = started
 }
 
-/** Logging is a side effect the application layer declares a port for; tests only need it to be silent. */
 internal object SilentLogger : UseCaseLogger {
     override fun debug(
         message: String,

@@ -7,20 +7,6 @@ import com.vertyll.veds.template.saga.DeleteTemplateAction
 import com.vertyll.veds.template.saga.LogTemplateCompensationAction
 import com.vertyll.veds.template.saga.SagaCompensationEvent
 
-/**
- * Outbound side of the Anti-Corruption Layer for template compensation
- * events.
- *
- * Translates a typed application-layer [TemplateCompensationCommand]
- * into a generated Avro [SagaCompensationEvent] SpecificRecord and
- * delegates to the Confluent Avro serializer (which registers the
- * schema in Schema Registry).
- *
- * Mirrors the tagged union declared in
- * `template-contracts/avro/saga-compensation-template/v1/saga-compensation.avsc`
- * — exhaustive `when` over the sealed hierarchy means a new
- * compensation action becomes a compile-time error here too.
- */
 internal class TemplateCompensationEventSerializer(
     private val avroPayloadSerializer: AvroPayloadSerializer,
     private val topic: String,

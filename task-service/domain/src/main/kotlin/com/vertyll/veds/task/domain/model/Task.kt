@@ -40,8 +40,6 @@ data class Task(
 
     fun reprioritise(newPriority: TaskPriority): Task = copy(priority = newPriority, updatedAt = Instant.now())
 
-    // Returns `this` unchanged for a no-op move, so a board drag that lands a card
-    // back in its own column emits no event. Not an oversight.
     fun moveTo(newStatusId: UUID?): Task = if (statusId == newStatusId) this else copy(statusId = newStatusId, updatedAt = Instant.now())
 
     fun categoriseAs(newCategoryIds: Set<UUID>): Task = copy(categoryIds = newCategoryIds, updatedAt = Instant.now())

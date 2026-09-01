@@ -17,9 +17,6 @@ data class ResolvedLabel(
 
 internal fun Map<String, String>.resolveLabel(language: LanguageTag): ResolvedLabel {
     this[language.value]?.let { return ResolvedLabel(it, language.value) }
-    // Unreachable: both refs reject an empty name map at construction. Rendering an
-    // empty string here instead would put a blank chip on the board with nothing to
-    // trace it back to.
     val entry = entries.minByOrNull { it.key } ?: error("label projection has no names at all")
     return ResolvedLabel(entry.value, entry.key)
 }

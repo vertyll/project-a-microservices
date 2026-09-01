@@ -13,12 +13,6 @@ import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
-/**
- * Inbound Kafka adapter for the `mail-requested` topic.
- *
- * Decodes the Avro payload, dedupes via [ProcessedEventGuard] and delegates
- * the use case to the application layer ([EmailSagaUseCase]).
- */
 @Component
 internal class MailEventConsumerAdapter(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,

@@ -14,11 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * The entity graph names `roles.permissions`; `permissions` alone is not an attribute of
- * [UserJpaEntity], and Hibernate rejects such a query outright rather than merely fetching
- * lazily — so every lookup below fails at runtime if the path regresses.
- */
 internal class UserJpaRepositoryIntegrationTest
     @Autowired
     constructor(

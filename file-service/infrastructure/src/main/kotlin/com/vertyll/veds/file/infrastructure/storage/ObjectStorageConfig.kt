@@ -12,8 +12,6 @@ import java.net.URI
 
 @Configuration
 internal class ObjectStorageConfig {
-    // pathStyleAccessEnabled is required: Garage serves buckets as host/bucket/key,
-    // and virtual-host style would need wildcard DNS a compose file does not have.
     @Bean
     fun s3Client(properties: ObjectStorageProperties): S3Client =
         S3Client

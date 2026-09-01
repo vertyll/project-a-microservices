@@ -9,20 +9,6 @@ import com.vertyll.veds.iam.saga.SagaCompensationEvent
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 
-/**
- * Outbound side of the Anti-Corruption Layer for IAM compensation
- * events.
- *
- * Translates a typed application-layer [AuthCompensationCommand] into a
- * generated Avro [SagaCompensationEvent] SpecificRecord and delegates to
- * the Confluent Avro serializer (which registers the schema in Schema
- * Registry).
- *
- * Mirrors the tagged union declared in
- * `contracts/iam-service/saga-compensation-iam/v1/saga-compensation.avsc`
- * — exhaustive `when` over the sealed hierarchy means a new compensation
- * action becomes a compile-time error here too.
- */
 internal class IamCompensationEventSerializer(
     private val avroPayloadSerializer: AvroPayloadSerializer,
     private val topic: String,

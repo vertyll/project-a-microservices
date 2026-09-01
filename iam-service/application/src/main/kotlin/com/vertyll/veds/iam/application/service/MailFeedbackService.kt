@@ -10,10 +10,6 @@ class MailFeedbackService(
     private val logger: UseCaseLogger,
 ) : MailFeedbackUseCase {
     private companion object {
-        /**
-         * Saga types where the saga should NOT be completed on mail delivery —
-         * they require an additional user confirmation step.
-         */
         val SAGA_TYPES_AWAITING_USER_CONFIRMATION =
             setOf(
                 SagaTypes.EMAIL_CHANGE.value,

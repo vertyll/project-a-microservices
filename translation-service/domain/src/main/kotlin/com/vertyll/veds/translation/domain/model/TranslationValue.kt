@@ -20,8 +20,6 @@ data class TranslationValue(
     val isOverridden: Boolean
         get() = overrideValue != null
 
-    // Never touches overrideValue: merging the two columns would make every
-    // redeploy silently revert an administrator's correction.
     fun withSeededDefault(value: String): TranslationValue =
         if (defaultValue == value) this else copy(defaultValue = value, updatedAt = Instant.now())
 

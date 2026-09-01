@@ -28,11 +28,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * Inviting someone reaches outside this service — the mail is sent by another one — so the work is
- * a saga rather than a single write. Accepting is where an outsider first gains access, which makes
- * it the one place where identity has to be checked against the invitation itself.
- */
 internal class ProjectInvitationCommandServiceTest {
     private val invitations = InMemoryInvitationRepository()
     private val projects = InMemoryProjectRepository()
@@ -79,7 +74,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(owner, stored.inviterId)
     }
 
-    /** Mail is another service's job, so the request travels as an event, not a call. */
     @Test
     fun `inviting asks for the mail through an event`() {
         val response = invite(email = "new@example.com")
@@ -93,10 +87,6 @@ internal class ProjectInvitationCommandServiceTest {
         )
     }
 
-    /**
-     * The saga stays open after the invite: the mail service still has to answer, and until it does
-     * the workflow is not finished. Marking it complete here would leave a failed send unnoticed.
-     */
     @Test
     fun `the invitation saga is left awaiting the mail service`() {
         invite()
@@ -133,7 +123,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(ProjectError.ROLE_NOT_FOUND, error.error)
     }
 
-    /** Inviting the same address twice would send a second mail for an invitation already open. */
     @Test
     fun `a second invitation to a pending address is refused`() {
         invite(email = "new@example.com")
@@ -144,7 +133,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(1, invitations.stored.size)
     }
 
-    /** Once an invitation is settled the address is free again — a rejection is not a permanent ban. */
     @Test
     fun `an address whose invitation was rejected can be invited again`() {
         val first = invite(email = "new@example.com")
@@ -165,10 +153,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertTrue(events.published.isEmpty())
     }
 
-    /**
-     * Everything that can be rejected outright is checked before the saga opens, so a bad request
-     * leaves no half-started workflow for the watchdog to time out later.
-     */
     @Test
     fun `a request rejected up front never opens a saga`() {
         roles.stored.clear()
@@ -178,10 +162,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertTrue(saga.trail.isEmpty())
     }
 
-    /**
-     * Once the saga is open it has to be closed on the way out too. Leaving it running would keep a
-     * workflow alive that nothing is going to finish.
-     */
     @Test
     fun `a failure after the saga has opened marks it failed`() {
         val failing =
@@ -266,10 +246,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(membership.userId, users.findById(invitee.id)!!.userId)
     }
 
-    /**
-     * An invitation names an address, not a link that anyone holding it may redeem. Without this
-     * check an id leaked in a mail forward would be enough to join a private project.
-     */
     @Test
     fun `an invitation addressed to someone else cannot be accepted`() {
         val invitation = givenPendingInvitation(email = "intended@example.com")
@@ -281,7 +257,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertTrue(members.stored.isEmpty())
     }
 
-    /** Mail addresses are not case-sensitive, so the check must not be either. */
     @Test
     fun `the invitee's address is matched regardless of case`() {
         val invitation = givenPendingInvitation(email = "Invitee@Example.com")
@@ -320,7 +295,6 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(ProjectError.INVITATION_NOT_FOUND, error.error)
     }
 
-    /** Someone invited twice through different routes must not end up with two memberships. */
     @Test
     fun `an existing member cannot accept a second invitation`() {
         val invitation = givenPendingInvitation()

@@ -27,9 +27,6 @@ class ProjectCompensationService(
         reason: String,
     ) {
         logger.info("Compensating PersistInvitation - revoking invitation {} ({})", invitationId, reason)
-        // Nothing to revoke means the state this compensation exists to undo is not
-        // there. Not fatal — the outcome is what was wanted — but silence would hide
-        // a saga compensating something that never happened.
         val invitation =
             invitationRepository.findById(UUID.fromString(invitationId))
                 ?: run {

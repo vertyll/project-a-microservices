@@ -14,14 +14,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * task-service answers "who may see this board" and "what does this label say" without calling
- * project-service, from a local copy kept current by events. The copy is only as good as this
- * handler: a membership it fails to drop is access that outlives its revocation, and a category it
- * fails to remove is a chip on a card pointing at something that no longer exists.
- *
- * Delivery is at-least-once, so every one of these has to survive being applied twice.
- */
 internal class ProjectProjectionServiceTest {
     private val directory = InMemoryProjectDirectory()
     private val tasks = InMemoryTaskRepository()
@@ -58,10 +50,6 @@ internal class ProjectProjectionServiceTest {
         assertTrue(!stored.isActive, "tasks still reference the project, so the row has to stay")
     }
 
-    /**
-     * Events can arrive out of order or for a project this service never heard about. Creating a
-     * hollow row from an archival would invent a project with no name.
-     */
     @Test
     fun `archiving a project that was never projected is ignored`() {
         service.projectArchived(UUID.randomUUID())
@@ -80,10 +68,6 @@ internal class ProjectProjectionServiceTest {
         assertEquals(listOf(category), directory.findCategories(projectId))
     }
 
-    /**
-     * A task keeps its own list of category ids. Dropping the projection alone would leave those
-     * ids pointing at nothing, and the board would render a chip it cannot name.
-     */
     @Test
     fun `removing a category also strips it from the tasks carrying it`() {
         val category = categoryRef(projectId)
@@ -130,7 +114,6 @@ internal class ProjectProjectionServiceTest {
         assertEquals(listOf(status), directory.findStatuses(projectId))
     }
 
-    /** A card whose column was deleted has to fall back to no column, not to a dangling id. */
     @Test
     fun `removing a status clears it from the tasks sitting in it`() {
         val status = statusRef(projectId)
@@ -165,7 +148,6 @@ internal class ProjectProjectionServiceTest {
         assertEquals(joined, directory.findMembership(projectId, joined.userId))
     }
 
-    /** A role change arrives as another join; it must replace the row, not add a second one. */
     @Test
     fun `a role change replaces the existing membership`() {
         val userId = UUID.randomUUID()
@@ -176,7 +158,6 @@ internal class ProjectProjectionServiceTest {
         assertEquals(1, directory.findMemberships(projectId).size)
     }
 
-    /** Until this row is gone the removed member still passes every access check on this board. */
     @Test
     fun `a member being removed loses their local membership`() {
         val joined = membership(projectId)

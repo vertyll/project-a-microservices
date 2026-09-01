@@ -2,31 +2,12 @@ package com.vertyll.veds.template.infrastructure.saga
 
 import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensator
-import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import com.vertyll.veds.template.application.saga.model.SagaStepNames
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 import com.vertyll.veds.template.infrastructure.persistence.entity.SagaJpaEntity
 import com.vertyll.veds.template.infrastructure.persistence.entity.SagaStepJpaEntity
 import org.slf4j.LoggerFactory
 
-/**
- * Domain-side compensation logic for template-service sagas.
- *
- * Reads the JSON snapshot persisted with each saga step
- * (`saga_step.payload`, written by `SagaEngine.recordSagaStep`),
- * assembles a strongly-typed [TemplateCompensationCommand], and
- * publishes it via the [SagaCompensationContext] (Transactional Outbox
- * → Kafka).
- *
- * Steps that do not have a meaningful reverse operation intentionally
- * log and skip — they are not errors. Steps for which no compensation
- * is defined throw — `SagaCompensationRunner` marks them
- * `COMPENSATION_FAILED` so [SagaWatchdog] keeps retrying with cooldown
- * until the situation is resolved.
- *
- * Placeholder mapping — replace when cloning the template into a real
- * service.
- */
 internal class TemplateSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEntity, TemplateCompensationCommand> {
     private val logger = LoggerFactory.getLogger(TemplateSagaCompensator::class.java)
 

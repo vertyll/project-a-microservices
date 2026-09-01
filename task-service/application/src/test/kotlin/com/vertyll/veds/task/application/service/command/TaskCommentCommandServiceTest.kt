@@ -23,11 +23,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * A comment is somebody's own words, so only its author may change them — but a manager still has
- * to be able to take one down. Those two rules pull in opposite directions, and where the line
- * falls between editing and deleting is what these tests hold.
- */
 internal class TaskCommentCommandServiceTest {
     private val comments = InMemoryCommentRepository()
     private val tasks = InMemoryTaskRepository()
@@ -85,7 +80,6 @@ internal class TaskCommentCommandServiceTest {
         assertNotNull(users.findById(author.id))
     }
 
-    /** A client is deliberately allowed to comment even though they cannot move the card. */
     @Test
     fun `a client may comment`() {
         val client = actorWithRole("CLIENT")
@@ -116,7 +110,6 @@ internal class TaskCommentCommandServiceTest {
         assertEquals("Reworded", comments.findById(comment.id)!!.content)
     }
 
-    /** Editing puts different words in someone's mouth, so not even a manager may do it. */
     @Test
     fun `nobody else may edit a comment, not even a manager`() {
         val comment = givenComment()
@@ -155,11 +148,6 @@ internal class TaskCommentCommandServiceTest {
         assertNull(comments.findById(comment.id))
     }
 
-    /**
-     * Moderation follows the permission to manage the board rather than a role name, so everyone
-     * who can move a card can also take down a comment on it — a manager and an ordinary member
-     * alike.
-     */
     @Test
     fun `anyone who can manage the board may delete somebody else's comment`() {
         listOf("MANAGER", "MEMBER").forEach { roleCode ->
@@ -172,10 +160,6 @@ internal class TaskCommentCommandServiceTest {
         }
     }
 
-    /**
-     * A client can take part in the conversation without being able to end somebody else's part of
-     * it — the one role that comments but does not manage.
-     */
     @Test
     fun `a client may not delete somebody else's comment`() {
         val comment = givenComment()

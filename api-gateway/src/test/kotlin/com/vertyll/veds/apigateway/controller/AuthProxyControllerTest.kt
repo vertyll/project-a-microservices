@@ -71,11 +71,6 @@ internal class AuthProxyControllerTest {
             .forEach { assertTrue(query.contains(it), "missing $it in $query") }
     }
 
-    /**
-     * The requested scope is a space-separated list, and a raw space makes the
-     * whole location header an invalid URI - the redirect then fails with a 500
-     * before the browser ever reaches Keycloak.
-     */
     @Test
     fun `the location header is a usable URI even though the scope contains spaces`() {
         val location = authorize()
@@ -99,10 +94,6 @@ internal class AuthProxyControllerTest {
         assertTrue(authorize("UPDATE_PASSWORD").query.contains("kc_action=UPDATE_PASSWORD"))
     }
 
-    /**
-     * An open kc_action would let a caller push any user into any Keycloak flow,
-     * credential changes included, so anything unrecognised is dropped.
-     */
     @Test
     fun `an unrecognised account action is dropped rather than forwarded`() {
         assertTrue(!authorize("DELETE_ACCOUNT").query.contains("kc_action"))

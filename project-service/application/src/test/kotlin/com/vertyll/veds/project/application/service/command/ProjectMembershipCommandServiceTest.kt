@@ -25,11 +25,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/**
- * Membership is how everyone other than the owner gets access, so these commands are the ones an
- * attacker would aim at: demote the owner, or reach a member of a project you are not in. Both are
- * refused here rather than anywhere downstream.
- */
 internal class ProjectMembershipCommandServiceTest {
     private val projects = InMemoryProjectRepository()
     private val members = InMemoryMemberRepository()
@@ -84,10 +79,6 @@ internal class ProjectMembershipCommandServiceTest {
         assertEquals(listOf("MemberJoined(${existing.id},${member.userId},MANAGER)"), events.published)
     }
 
-    /**
-     * The owner's access is the project's last line of recovery. Letting a manager demote them
-     * would allow a project to be taken away from the person responsible for it.
-     */
     @Test
     fun `the owner's own membership cannot be reassigned`() {
         val ownerMembership = givenMember(userId = owner, roleId = managerRole.id)
@@ -101,10 +92,6 @@ internal class ProjectMembershipCommandServiceTest {
         assertEquals(managerRole.id, members.findById(ownerMembership.id)!!.roleId)
     }
 
-    /**
-     * Member ids are global, so the project in the path has to be checked against the row. Without
-     * it, knowing an id would be enough to edit a membership of a project you cannot even see.
-     */
     @Test
     fun `a member of another project cannot be reached through this one`() {
         val elsewhere = givenMember(projectId = UUID.randomUUID())
@@ -139,7 +126,6 @@ internal class ProjectMembershipCommandServiceTest {
         assertEquals(ProjectError.ROLE_NOT_FOUND, error.error)
     }
 
-    /** Two managers editing the same member must not silently overwrite one another. */
     @Test
     fun `a reassignment against a stale version is refused`() {
         val member = givenMember()
@@ -178,7 +164,6 @@ internal class ProjectMembershipCommandServiceTest {
         assertEquals(listOf("MemberRemoved(${existing.id},${member.userId})"), events.published)
     }
 
-    /** Removing the owner would leave the project with nobody able to administer it. */
     @Test
     fun `the owner cannot be removed from their own project`() {
         val ownerMembership = givenMember(userId = owner, roleId = managerRole.id)

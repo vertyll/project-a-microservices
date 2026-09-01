@@ -12,11 +12,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * A profile is copied into every service that shows who did what, and those copies only move when
- * this service announces a change. An update saved without its event leaves the rest of the system
- * displaying a name that is no longer current.
- */
 internal class UserCommandServiceTest {
     private val users = InMemoryUserRepository()
     private val events = RecordingAuthEventPublisher()
@@ -72,7 +67,6 @@ internal class UserCommandServiceTest {
         assertEquals(IamError.USER_NOT_FOUND, error.error)
     }
 
-    /** The event is keyed by the Keycloak id, which is what the other services know a user by. */
     @Test
     fun `a user with no identity yet is saved but not announced`() {
         val local = user(id = 2L, email = "local@example.com", keycloakId = null).copy(version = 0L).also { users.given(it) }

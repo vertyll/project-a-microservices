@@ -46,7 +46,6 @@ internal class TranslationSpreadsheet {
 
             return ByteArrayOutputStream().use { out ->
                 workbook.write(out)
-                // Releases the temporary files the streaming writer spilled to disk.
                 workbook.close()
                 out.toByteArray()
             }
@@ -71,7 +70,6 @@ internal class TranslationSpreadsheet {
 
                 languages.forEachIndexed { languageIndex, language ->
                     val value = row.stringAt(FIRST_LANGUAGE_COLUMN + languageIndex)?.trim()
-                    // A blank cell means "unchanged", not "clear this translation".
                     if (!value.isNullOrEmpty()) {
                         commands += ImportedTranslationCommand(key = key, language = language, value = value)
                     }

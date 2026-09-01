@@ -3,11 +3,6 @@ package com.vertyll.veds.project.application
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import java.util.UUID
 
-/**
- * Records what the application layer asked to be announced. Other services learn about a project
- * only through these events, so "did the use case publish it" is part of the behaviour under test,
- * not an implementation detail.
- */
 internal open class RecordingEventPublisher : ProjectEventPublisherPort {
     val published = mutableListOf<String>()
 

@@ -6,12 +6,6 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
 
-/**
- * Spring `JavaMailSender` adapter for the application-level [MailSenderPort].
- *
- * Translates simple port arguments into a properly configured MIME message
- * and delegates transport to the underlying Spring mail sender.
- */
 @Component
 internal class JavaMailSenderAdapter(
     private val mailSender: JavaMailSender,

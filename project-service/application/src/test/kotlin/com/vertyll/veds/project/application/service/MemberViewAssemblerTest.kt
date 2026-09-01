@@ -15,11 +15,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
-/**
- * A membership row holds only ids; the names shown in the member list come from a local projection
- * of what other services published. A gap in that projection means the system has forgotten who
- * someone is, which is worth saying out loud rather than rendering a blank row.
- */
 internal class MemberViewAssemblerTest {
     private val roles = InMemoryRoleRepository()
     private val users = InMemoryUserDirectory()
@@ -56,10 +51,6 @@ internal class MemberViewAssemblerTest {
         assertEquals(listOf(second.userId, first.userId), view.map { it.userId })
     }
 
-    /**
-     * A member whose user the directory never received is a broken projection, not an anonymous
-     * row: rendering them without a name would hide a replication problem behind a blank cell.
-     */
     @Test
     fun `a member the directory does not know is an error`() {
         val error = assertFailsWith<ApiException> { assembler.assemble(listOf(member(UUID.randomUUID())), ENGLISH) }

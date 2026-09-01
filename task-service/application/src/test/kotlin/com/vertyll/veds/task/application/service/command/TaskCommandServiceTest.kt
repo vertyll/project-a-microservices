@@ -28,12 +28,6 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * The rule these tests exist for is that an event goes out when something actually changed, and not
- * otherwise. notification-service turns each one into a message to a person, so a spurious
- * TaskAssigned is a notification nobody earned, and a missing one is work somebody never hears
- * about.
- */
 internal class TaskCommandServiceTest {
     private val tasks = InMemoryTaskRepository()
     private val comments = InMemoryCommentRepository()
@@ -115,7 +109,6 @@ internal class TaskCommandServiceTest {
         assertEquals(listOf("TaskCreated(${response.id})"), events.published)
     }
 
-    /** Comments and history name their author by id; without the directory entry they are nameless. */
     @Test
     fun `the creator is recorded in the user directory`() {
         service.createTask(createCommand(), actor)
@@ -161,7 +154,6 @@ internal class TaskCommandServiceTest {
         assertEquals(TaskPriority.HIGH, stored.priority)
     }
 
-    /** Somebody is now responsible for this work and has to be told. */
     @Test
     fun `gaining an assignee is announced`() {
         val existing = givenTask()
@@ -172,10 +164,6 @@ internal class TaskCommandServiceTest {
         assertEquals(listOf("TaskAssigned(${existing.id},1)"), events.published)
     }
 
-    /**
-     * An edit that leaves the assignees alone must not re-announce them; the people on the task
-     * would be notified again about an assignment they already have.
-     */
     @Test
     fun `an edit that does not touch the assignees announces nothing`() {
         val assignee = membership(projectId).also { directory.saveMembership(it) }
@@ -234,10 +222,6 @@ internal class TaskCommandServiceTest {
         assertEquals(listOf("TaskStatusChanged(${existing.id},${done.statusId})"), events.published)
     }
 
-    /**
-     * Dragging a card back into the column it came from is not a change. Announcing it would put a
-     * "status changed" notification in front of someone for a move that did not happen.
-     */
     @Test
     fun `dropping a task back into its own column announces nothing`() {
         val existing = givenTask(statusId = todo.statusId)
@@ -269,7 +253,6 @@ internal class TaskCommandServiceTest {
         assertEquals(225, tasks.findById(existing.id)!!.workedTime)
     }
 
-    /** Time already logged cannot be taken back by logging a negative amount. */
     @Test
     fun `negative work is rejected`() {
         val existing = givenTask()
@@ -291,10 +274,6 @@ internal class TaskCommandServiceTest {
         assertEquals(listOf("TaskArchived(${existing.id})"), events.published)
     }
 
-    /**
-     * An archived task takes no further change, archiving included. That refusal is what stops a
-     * second TaskArchived event reaching consumers as a duplicate.
-     */
     @Test
     fun `archiving an already archived task is refused`() {
         val archived = task(projectId, createdBy = actor.id).archive().also { tasks.given(it) }
@@ -334,10 +313,6 @@ internal class TaskCommandServiceTest {
         assertTrue(events.published.isEmpty())
     }
 
-    /**
-     * Permission is checked for every id before anything is written, so a batch containing one task
-     * the caller may not touch archives none of them.
-     */
     @Test
     fun `a batch containing an unreachable task archives nothing`() {
         val mine = givenTask()
