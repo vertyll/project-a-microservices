@@ -32,7 +32,10 @@ class NotificationCommandService(
 ) : NotificationCommandUseCase {
     override fun raise(command: RaiseNotificationCommand): Int {
         val targets = command.recipientIds - setOfNotNull(command.excludeUserId)
-        if (targets.isEmpty()) return 0
+        if (targets.isEmpty()) {
+            requestMailForRecipientWithoutAccount(command)
+            return 0
+        }
 
         var raised = 0
 
@@ -78,6 +81,11 @@ class NotificationCommandService(
             return
         }
 
+        mail.requestMail(to = address, type = command.type, params = command.params)
+    }
+
+    private fun requestMailForRecipientWithoutAccount(command: RaiseNotificationCommand) {
+        val address = command.fallbackEmail ?: return
         mail.requestMail(to = address, type = command.type, params = command.params)
     }
 

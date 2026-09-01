@@ -6,7 +6,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
 @Embeddable
-internal class TranslationEmbeddable(
+internal data class TranslationEmbeddable(
     @Column(name = "language", nullable = false, length = 16)
     var language: String = "",
     @Column(name = "name", nullable = false)

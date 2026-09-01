@@ -23,11 +23,9 @@ CREATE TABLE IF NOT EXISTS project_type_translation (
     project_type_id UUID NOT NULL REFERENCES project_type (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT
+    description TEXT,
+    CONSTRAINT uq_project_type_translation UNIQUE (project_type_id, language)
 );
-
-CREATE INDEX IF NOT EXISTS idx_project_type_translation_type
-    ON project_type_translation (project_type_id);
 
 -- ===============
 -- Reference data: project roles and the permissions they grant
@@ -50,11 +48,9 @@ CREATE TABLE IF NOT EXISTS project_role_translation (
     project_role_id UUID NOT NULL REFERENCES project_role (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT
+    description TEXT,
+    CONSTRAINT uq_project_role_translation UNIQUE (project_role_id, language)
 );
-
-CREATE INDEX IF NOT EXISTS idx_project_role_translation_role
-    ON project_role_translation (project_role_id);
 
 -- ===============
 -- Aggregate root
@@ -94,11 +90,9 @@ CREATE TABLE IF NOT EXISTS project_category_translation (
     project_category_id UUID NOT NULL REFERENCES project_category (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT
+    description TEXT,
+    CONSTRAINT uq_project_category_translation UNIQUE (project_category_id, language)
 );
-
-CREATE INDEX IF NOT EXISTS idx_project_category_translation_category
-    ON project_category_translation (project_category_id);
 
 -- ===============
 -- Per-project workflow statuses
@@ -118,11 +112,9 @@ CREATE TABLE IF NOT EXISTS project_status_translation (
     project_status_id UUID NOT NULL REFERENCES project_status (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    description TEXT
+    description TEXT,
+    CONSTRAINT uq_project_status_translation UNIQUE (project_status_id, language)
 );
-
-CREATE INDEX IF NOT EXISTS idx_project_status_translation_status
-    ON project_status_translation (project_status_id);
 
 -- ===============
 -- Membership: which user holds which role in which project

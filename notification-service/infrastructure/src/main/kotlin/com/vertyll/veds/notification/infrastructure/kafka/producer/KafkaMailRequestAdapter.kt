@@ -29,8 +29,8 @@ internal class KafkaMailRequestAdapter(
                 .setEventId(eventId)
                 .setTimestamp(Events.now())
                 .setTo(to)
-                .setSubject(type.key)
-                .setTemplateName(templateFor(type))
+                .setSubject(subjectFor(type))
+                .setTemplateName(type.name)
                 .setVariables(params)
                 .setReplyTo(null)
                 .setPriority(0)
@@ -48,5 +48,13 @@ internal class KafkaMailRequestAdapter(
         logger.debug("Queued notification e-mail to {} for {}", to, type)
     }
 
-    private fun templateFor(type: NotificationType): String = type.name.lowercase()
+    private fun subjectFor(type: NotificationType): String =
+        when (type) {
+            NotificationType.PROJECT_INVITATION -> "You have been invited to a project"
+            NotificationType.PROJECT_MEMBER_JOINED -> "A new member joined your project"
+            NotificationType.TASK_CREATED -> "A new task was created"
+            NotificationType.TASK_ASSIGNED -> "A task was assigned to you"
+            NotificationType.TASK_STATUS_CHANGED -> "A task changed status"
+            NotificationType.TASK_COMMENT_ADDED -> "New comment on a task"
+        }
 }

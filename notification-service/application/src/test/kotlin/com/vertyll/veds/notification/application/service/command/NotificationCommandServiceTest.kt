@@ -276,6 +276,20 @@ internal class NotificationCommandServiceTest {
         assertEquals(0, service.retire(RetireNotificationsCommand(UUID.randomUUID())))
     }
 
+    @Test
+    fun `an invitee with no account is e-mailed at the fallback address`() {
+        assertEquals(0, raise(emptySet(), NotificationType.PROJECT_INVITATION, fallbackEmail = "invitee@example.com"))
+
+        assertEquals(listOf("invitee@example.com:PROJECT_INVITATION"), mail.requested)
+    }
+
+    @Test
+    fun `no recipients and no fallback address sends nothing`() {
+        assertEquals(0, raise(emptySet()))
+
+        assertEquals(emptyList(), mail.requested)
+    }
+
     // ── Settings ────────────────────────────────────────────────────────
 
     @Test

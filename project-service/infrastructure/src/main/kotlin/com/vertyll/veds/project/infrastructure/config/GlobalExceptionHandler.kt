@@ -9,6 +9,7 @@ import com.vertyll.veds.project.infrastructure.web.error.ValidationErrorDetails
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authorization.AuthorizationDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -76,6 +77,17 @@ internal class GlobalExceptionHandler {
 
         return ApiResponse.buildResponse(
             data = ValidationErrorDetails(code = VALIDATION_FAILED, fields = mapOf(ex.name to INVALID_VALUE)),
+            message = VALIDATION_FAILED,
+            status = HttpStatus.BAD_REQUEST,
+        )
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleUnreadableBody(ex: HttpMessageNotReadableException): ResponseEntity<ApiResponse<ValidationErrorDetails>> {
+        logger.debug("Unreadable request body: {}", ex.message)
+
+        return ApiResponse.buildResponse(
+            data = ValidationErrorDetails(code = VALIDATION_FAILED, fields = emptyMap()),
             message = VALIDATION_FAILED,
             status = HttpStatus.BAD_REQUEST,
         )
