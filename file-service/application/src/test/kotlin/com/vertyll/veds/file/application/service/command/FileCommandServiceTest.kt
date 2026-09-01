@@ -151,7 +151,7 @@ class FileCommandServiceTest {
 
     /**
      * The declared size is a client claim made before the upload. What is recorded is the size the
-     * store reports afterwards, so a client cannot understate a file to get past the scope limit
+     * store reports afterward, so a client cannot understate a file to get past the scope limit
      * and then upload something larger.
      */
     @Test
