@@ -7,24 +7,12 @@ spring:
       ssl:
         enabled: ${REDIS_SSL_ENABLED:true}
         bundle: ${REDIS_SSL_BUNDLE:}
-  application:
-    name: api-gateway
 
-  # The gateway usually sits behind a TLS-terminating ingress. Without this, the
-  # OAuth redirect_uri and Set-Cookie would be built from the internal http
-  # scheme and the browser would refuse the Secure cookie.
   web:
     resources:
       add-mappings: false
 
   cloud:
-    config:
-      enabled: false
-    discovery:
-      enabled: false
-    service-registry:
-      auto-registration:
-        enabled: false
     gateway:
       server:
         webflux:
@@ -66,12 +54,8 @@ springdoc:
 
 server:
   port: ${SERVER_PORT:8080}
-  # Honor X-Forwarded-* from the ingress. Required for correct https redirect
-  # URIs; must only be enabled when a trusted proxy actually sets them.
   forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
   ssl:
-    # Set to true only when TLS terminates in this process rather than at the
-    # ingress. With an ingress, leave disabled and let it hold the certificate.
     enabled: ${SERVER_SSL_ENABLED:false}
     bundle: ${SERVER_SSL_BUNDLE:}
 

@@ -4,17 +4,8 @@ spring:
       host: localhost
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:local-redis-password}
-  application:
-    name: api-gateway
 
   cloud:
-    config:
-      enabled: false
-    discovery:
-      enabled: false
-    service-registry:
-      auto-registration:
-        enabled: false
     gateway:
       server:
         webflux:

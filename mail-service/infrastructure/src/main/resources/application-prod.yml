@@ -1,6 +1,6 @@
 spring:
-  application:
-    name: mail-service
+  thymeleaf:
+    cache: true
 
   datasource:
     url: ${DB_URL}
@@ -9,9 +9,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       data-source-properties:
-        # TLS to the database. `verify-full` also checks the certificate's
-        # hostname; `require` alone encrypts but accepts any certificate, which
-        # leaves the connection open to an active MITM.
         sslmode: ${DB_SSL_MODE:verify-full}
         sslrootcert: ${DB_SSL_ROOT_CERT:}
 
@@ -31,7 +28,6 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     properties:
-      # SASL_SSL in production; PLAINTEXT only for local compose.
       security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
       sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-512}
       sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
@@ -60,16 +56,6 @@ spring:
           timeout: 3000
           writetimeout: 5000
 
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates/
-    suffix: .html
-    mode: HTML
-    encoding: UTF-8
-
-server:
-  port: ${SERVER_PORT:8083}
-
 springdoc:
   api-docs:
     enabled: false
@@ -87,8 +73,7 @@ logging:
     org.springframework.mail: INFO
 
 server:
-  # TLS terminates at the ingress in the default deployment; flip on only if a
-  # service is exposed directly.
+  port: ${SERVER_PORT:8083}
   forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
   ssl:
     enabled: ${SERVER_SSL_ENABLED:false}
@@ -97,5 +82,4 @@ server:
 veds:
   translation:
     client:
-      # Where this service publishes its declared keys at start-up.
       base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}

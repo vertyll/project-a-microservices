@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: file-service
 
   datasource:
     url: jdbc:postgresql://localhost:5439/file_service

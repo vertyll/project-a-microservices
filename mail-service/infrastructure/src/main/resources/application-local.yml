@@ -1,6 +1,7 @@
 spring:
-  application:
-    name: mail-service
+  thymeleaf:
+    cache: false
+
     
   datasource:
     url: jdbc:postgresql://localhost:5433/mail_service
@@ -66,5 +67,4 @@ logging:
 veds:
   translation:
     client:
-      # Where this service publishes its declared keys at start-up.
       base-url: http://localhost:8087

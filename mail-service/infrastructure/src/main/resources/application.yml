@@ -3,7 +3,6 @@ spring:
     name: mail-service
 
   thymeleaf:
-    cache: false
     prefix: classpath:/templates/
     suffix: .html
     mode: HTML

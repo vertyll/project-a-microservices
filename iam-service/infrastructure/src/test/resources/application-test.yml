@@ -1,7 +1,3 @@
-# Integration-test profile.
-#
-# The datasource and Kafka addresses are injected by IntegrationTestBase from the
-# Testcontainers instances, so nothing here points at a fixed host.
 spring:
   jpa:
     hibernate:

@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: task-service
 
   datasource:
     url: ${DB_URL}
@@ -47,5 +45,4 @@ logging:
 veds:
   translation:
     client:
-      # Where this service publishes its declared keys at start-up.
       base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}

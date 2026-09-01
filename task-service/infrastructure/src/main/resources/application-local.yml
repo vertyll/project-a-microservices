@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: task-service
 
   datasource:
     url: jdbc:postgresql://localhost:5436/task_service
@@ -48,5 +46,4 @@ logging:
 veds:
   translation:
     client:
-      # Where this service publishes its declared keys at start-up.
       base-url: http://localhost:8087

@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: translation-service
 
   datasource:
     url: jdbc:postgresql://localhost:5438/translation_service

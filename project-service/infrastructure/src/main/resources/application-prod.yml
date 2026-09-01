@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: project-service
 
   datasource:
     url: ${DB_URL}
@@ -9,9 +7,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       data-source-properties:
-        # TLS to the database. `verify-full` also checks the certificate's
-        # hostname; `require` alone encrypts but accepts any certificate, which
-        # leaves the connection open to an active MITM.
         sslmode: ${DB_SSL_MODE:verify-full}
         sslrootcert: ${DB_SSL_ROOT_CERT:}
 
@@ -31,7 +26,6 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     properties:
-      # SASL_SSL in production; PLAINTEXT only for local compose.
       security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
       sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-512}
       sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
@@ -43,8 +37,6 @@ spring:
 
 server:
   port: ${SERVER_PORT:8084}
-  # TLS terminates at the ingress in the default deployment; flip on only if a
-  # service is exposed directly.
   forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:framework}
   ssl:
     enabled: ${SERVER_SSL_ENABLED:false}
@@ -68,8 +60,5 @@ logging:
 veds:
   translation:
     client:
-      # Where this service publishes its declared keys at start-up.
       base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}
-    # Seeded language catalogue. Moves to translation-service once it owns the
-    # catalogue; SupportedLanguagesAdapter is the only file that changes.
     supported-languages: ${SUPPORTED_LANGUAGES:pl,en}
