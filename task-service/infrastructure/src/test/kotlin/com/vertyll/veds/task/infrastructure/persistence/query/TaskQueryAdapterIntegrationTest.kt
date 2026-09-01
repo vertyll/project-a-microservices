@@ -64,6 +64,12 @@ internal class TaskQueryAdapterIntegrationTest
                 )
 
             assertEquals(1, page.content.size)
-            assertEquals(listOf("Ada Lovelace"), page.content.single().assignees.map { it.displayName })
+            assertEquals(
+                listOf("Ada Lovelace"),
+                page.content
+                    .single()
+                    .assignees
+                    .map { it.displayName },
+            )
         }
     }

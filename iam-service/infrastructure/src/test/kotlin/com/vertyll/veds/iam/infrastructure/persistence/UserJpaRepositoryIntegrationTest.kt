@@ -56,7 +56,13 @@ internal class UserJpaRepositoryIntegrationTest
 
             assertTrue(found.isPresent)
             assertEquals(1, found.get().roles.size)
-            assertNotNull(found.get().roles.first().permissions)
+            assertNotNull(
+                found
+                    .get()
+                    .roles
+                    .first()
+                    .permissions,
+            )
         }
 
         @Test
