@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.file.application.service.command
 
 import com.vertyll.veds.file.application.command.AttachFileCommand
@@ -18,6 +20,9 @@ import com.vertyll.veds.file.domain.repository.StoredFileRepository
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 @Suppress("LongParameterList")
 class FileCommandService(
@@ -47,7 +52,7 @@ class FileCommandService(
             )
         }
 
-        val fileId = UUID.randomUUID()
+        val fileId = Uuid.generateV7().toJavaUuid()
         val objectKey = objectKeyFor(command.scope.name, fileId, command.originalName)
 
         val file =

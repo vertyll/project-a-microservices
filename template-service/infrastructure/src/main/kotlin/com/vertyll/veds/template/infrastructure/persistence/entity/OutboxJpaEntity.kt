@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.template.infrastructure.persistence.entity
 
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
@@ -5,13 +7,14 @@ import com.vertyll.veds.shared.messaging.kafka.entity.BaseOutbox
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Entity
 @Table(name = "kafka_outbox")
 internal class OutboxJpaEntity(
     id: Long? = null,
-    eventId: String = UUID.randomUUID().toString(),
+    eventId: String = Uuid.generateV7().toString(),
     topic: String,
     key: String,
     payload: ByteArray,

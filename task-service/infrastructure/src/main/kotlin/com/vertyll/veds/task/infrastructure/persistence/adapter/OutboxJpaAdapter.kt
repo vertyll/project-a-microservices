@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.infrastructure.persistence.adapter
 
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessage
@@ -9,7 +11,8 @@ import com.vertyll.veds.task.infrastructure.persistence.repository.OutboxJpaRepo
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Component
 internal class OutboxJpaAdapter(
@@ -52,7 +55,7 @@ internal class OutboxJpaAdapter(
             key = key,
             payload = payload,
             sagaId = sagaId,
-            eventId = eventId ?: UUID.randomUUID().toString(),
+            eventId = eventId ?: Uuid.generateV7().toString(),
         )
 
     private fun copyToJpaEntity(message: OutboxMessage): OutboxJpaEntity =
