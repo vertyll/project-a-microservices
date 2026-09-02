@@ -74,6 +74,8 @@ internal class TaskPersistenceAdapter(
 
     override fun findAllByStatusId(statusId: UUID): List<Task> = repository.findAllByStatusId(statusId).map { it.toDomain() }
 
+    override fun highestNumberIn(projectId: UUID): Int = repository.highestNumberIn(projectId)
+
     override fun delete(id: UUID) = repository.deleteById(id)
 
     private fun <T> jakarta.persistence.TypedQuery<T>.applyCriteria(criteria: TaskSearchCriteria) =
@@ -114,6 +116,7 @@ private fun Task.toJpaEntity() =
     TaskJpaEntity(
         id = this.id,
         projectId = this.projectId,
+        number = this.number,
         description = this.description,
         additionalDescription = this.additionalDescription,
         priceEstimation = this.priceEstimation,
@@ -135,6 +138,7 @@ internal fun TaskJpaEntity.toDomain() =
     Task(
         id = this.id,
         projectId = this.projectId,
+        number = this.number,
         description = this.description,
         additionalDescription = this.additionalDescription,
         priceEstimation = this.priceEstimation,

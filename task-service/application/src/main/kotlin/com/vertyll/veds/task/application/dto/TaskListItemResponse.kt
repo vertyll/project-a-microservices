@@ -7,6 +7,7 @@ import java.util.UUID
 data class TaskListItemResponse(
     val id: UUID,
     val projectId: UUID,
+    val number: Int,
     val description: String,
     val priority: TaskPriority,
     val statusId: UUID?,

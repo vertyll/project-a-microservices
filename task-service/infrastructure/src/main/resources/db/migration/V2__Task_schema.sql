@@ -13,6 +13,7 @@
 CREATE TABLE IF NOT EXISTS task (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL,
+    number INTEGER NOT NULL,
     description TEXT NOT NULL,
     additional_description TEXT,
     price_estimation INTEGER NOT NULL DEFAULT 0,
@@ -26,7 +27,8 @@ CREATE TABLE IF NOT EXISTS task (
     updated_at TIMESTAMP NOT NULL,
     version BIGINT,
     CONSTRAINT chk_task_price_estimation CHECK (price_estimation >= 0),
-    CONSTRAINT chk_task_worked_time CHECK (worked_time >= 0)
+    CONSTRAINT chk_task_worked_time CHECK (worked_time >= 0),
+    CONSTRAINT uq_task_project_number UNIQUE (project_id, number)
 );
 
 CREATE INDEX IF NOT EXISTS idx_task_status_id ON task (status_id);

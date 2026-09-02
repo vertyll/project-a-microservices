@@ -43,6 +43,7 @@ class TaskCommandService(
             taskRepository.save(
                 Task.create(
                     projectId = command.projectId,
+                    number = taskRepository.highestNumberIn(command.projectId) + 1,
                     description = command.description,
                     additionalDescription = command.additionalDescription,
                     priority = command.priority,

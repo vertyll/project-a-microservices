@@ -19,4 +19,7 @@ internal interface TaskJpaRepository : JpaRepository<TaskJpaEntity, UUID> {
     fun findAllByStatusId(statusId: UUID): List<TaskJpaEntity>
 
     fun findAllByAttachmentIdsContaining(attachmentId: UUID): List<TaskJpaEntity>
+
+    @Query("SELECT COALESCE(MAX(t.number), 0) FROM TaskJpaEntity t WHERE t.projectId = :projectId")
+    fun highestNumberIn(projectId: UUID): Int
 }

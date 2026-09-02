@@ -6,6 +6,7 @@ import java.util.UUID
 data class Task(
     val id: UUID = UUID.randomUUID(),
     val projectId: UUID,
+    val number: Int,
     val description: String,
     val additionalDescription: String? = null,
     val priceEstimation: Int = 0,
@@ -89,6 +90,7 @@ data class Task(
         @Suppress("LongParameterList")
         fun create(
             projectId: UUID,
+            number: Int,
             description: String,
             additionalDescription: String?,
             priority: TaskPriority,
@@ -102,6 +104,7 @@ data class Task(
         ): Task =
             Task(
                 projectId = projectId,
+                number = number,
                 description = description,
                 additionalDescription = additionalDescription,
                 priority = priority,

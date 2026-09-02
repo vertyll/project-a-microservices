@@ -32,6 +32,8 @@ internal class TaskJpaEntity(
     var id: UUID,
     @Column(name = "project_id", nullable = false)
     var projectId: UUID,
+    @Column(name = "number", nullable = false, updatable = false)
+    var number: Int,
     @Column(name = "description", nullable = false, columnDefinition = "TEXT")
     var description: String,
     @Column(name = "additional_description", columnDefinition = "TEXT")

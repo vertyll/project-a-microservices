@@ -33,6 +33,7 @@ class TaskAccessPolicyTest {
         assignees: Set<UUID> = emptySet(),
     ) = Task(
         projectId = projectId,
+        number = 1,
         description = "Write the thing",
         createdBy = createdBy,
         isActive = isActive,

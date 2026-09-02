@@ -12,7 +12,7 @@ class TaskTest {
     private val creator = UUID.randomUUID()
     private val statusId = UUID.randomUUID()
 
-    private fun task() = Task(projectId = UUID.randomUUID(), description = "Write the thing", createdBy = creator)
+    private fun task() = Task(projectId = UUID.randomUUID(), number = 1, description = "Write the thing", createdBy = creator)
 
     @Test
     fun `moving to the same status returns the very same instance`() {
@@ -35,7 +35,7 @@ class TaskTest {
     @Test
     fun `rejects a blank description`() {
         assertFailsWith<IllegalArgumentException> {
-            Task(projectId = UUID.randomUUID(), description = "  ", createdBy = creator)
+            Task(projectId = UUID.randomUUID(), number = 1, description = "  ", createdBy = creator)
         }
     }
 

@@ -45,6 +45,7 @@ internal class TaskQueryAdapterIntegrationTest
                 TaskJpaEntity(
                     id = UUID.randomUUID(),
                     projectId = projectId,
+                    number = 1,
                     description = "assigned task",
                     createdBy = assigneeId,
                     assigneeIds = mutableSetOf(assigneeId),

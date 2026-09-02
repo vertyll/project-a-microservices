@@ -8,6 +8,7 @@ import java.util.UUID
 data class TaskResponse(
     val id: UUID,
     val projectId: UUID,
+    val number: Int,
     val description: String,
     val additionalDescription: String?,
     val priority: TaskPriority,
@@ -29,6 +30,7 @@ data class TaskResponse(
             TaskResponse(
                 id = task.id,
                 projectId = task.projectId,
+                number = task.number,
                 description = task.description,
                 additionalDescription = task.additionalDescription,
                 priority = task.priority,

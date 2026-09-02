@@ -78,7 +78,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
             entityManager
                 .createQuery(
                     """
-                    SELECT t.id, t.projectId, t.description, t.priority, t.statusId,
+                    SELECT t.id, t.projectId, t.number, t.description, t.priority, t.statusId,
                            t.workedTime, t.createdAt, t.updatedAt, t.version,
                            (SELECT COUNT(c) FROM TaskCommentJpaEntity c WHERE c.taskId = t.id)
                     FROM TaskJpaEntity t
@@ -106,23 +106,24 @@ internal class TaskQueryAdapter : TaskQueryPort {
             content =
                 rows.map { r ->
                     val id = r[0] as UUID
-                    val statusId = r[4] as UUID?
+                    val statusId = r[5] as UUID?
                     val status = statusId?.let { statuses[it] }
                     TaskListItemResponse(
                         id = id,
                         projectId = r[1] as UUID,
-                        description = r[2] as String,
-                        priority = r[3] as TaskPriority,
+                        number = r[2] as Int,
+                        description = r[3] as String,
+                        priority = r[4] as TaskPriority,
                         statusId = statusId,
                         statusName = status?.name,
                         statusColor = status?.color,
                         categories = categoriesByTask[id].orEmpty(),
                         assignees = assigneesByTask[id].orEmpty(),
-                        commentCount = (r[9] as Long).toInt(),
-                        workedTime = r[5] as Int,
-                        createdAt = r[6] as Instant,
-                        updatedAt = r[7] as Instant,
-                        version = r[8] as Long?,
+                        commentCount = (r[10] as Long).toInt(),
+                        workedTime = r[6] as Int,
+                        createdAt = r[7] as Instant,
+                        updatedAt = r[8] as Instant,
+                        version = r[9] as Long?,
                     )
                 },
             page = pageRequest.page,

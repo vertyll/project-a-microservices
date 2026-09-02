@@ -41,6 +41,7 @@ internal fun statusRef(
 
 internal fun task(
     projectId: UUID,
+    number: Int = 1,
     createdBy: UUID = UUID.randomUUID(),
     description: String = "Fix the thing",
     statusId: UUID? = null,
@@ -51,6 +52,7 @@ internal fun task(
     version: Long? = 0L,
 ) = Task(
     projectId = projectId,
+    number = number,
     description = description,
     statusId = statusId,
     categoryIds = categoryIds,
@@ -116,6 +118,8 @@ internal class InMemoryTaskRepository : TaskRepository {
     override fun save(task: Task) = task.also { stored[it.id] = it }
 
     override fun saveAll(tasks: Collection<Task>) = tasks.map { save(it) }
+
+    override fun highestNumberIn(projectId: UUID) = stored.values.filter { it.projectId == projectId }.maxOfOrNull { it.number } ?: 0
 
     override fun findById(id: UUID) = stored[id]
 
