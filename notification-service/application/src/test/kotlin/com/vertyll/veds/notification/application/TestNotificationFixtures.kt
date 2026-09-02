@@ -83,13 +83,16 @@ internal class RecordingPush : NotificationPushPort {
 
 internal class RecordingMailRequests : MailRequestPort {
     val requested = mutableListOf<String>()
+    val sagaIds = mutableListOf<String?>()
 
     override fun requestMail(
         to: String,
         type: NotificationType,
         params: Map<String, String>,
+        originSagaId: String?,
     ) {
         requested += "$to:${type.name}"
+        sagaIds += originSagaId
     }
 }
 

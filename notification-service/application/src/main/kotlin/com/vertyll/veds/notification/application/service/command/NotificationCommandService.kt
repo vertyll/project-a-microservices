@@ -81,12 +81,22 @@ class NotificationCommandService(
             return
         }
 
-        mail.requestMail(to = address, type = command.type, params = command.params)
+        mail.requestMail(
+            to = address,
+            type = command.type,
+            params = command.params,
+            originSagaId = command.originSagaId,
+        )
     }
 
     private fun requestMailForRecipientWithoutAccount(command: RaiseNotificationCommand) {
         val address = command.fallbackEmail ?: return
-        mail.requestMail(to = address, type = command.type, params = command.params)
+        mail.requestMail(
+            to = address,
+            type = command.type,
+            params = command.params,
+            originSagaId = command.originSagaId,
+        )
     }
 
     override fun markRead(

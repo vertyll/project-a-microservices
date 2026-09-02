@@ -11,4 +11,5 @@ data class RaiseNotificationCommand(
     val subjectId: UUID? = null,
     val fallbackEmail: String? = null,
     val excludeUserId: UUID? = null,
+    val originSagaId: String? = null,
 )

@@ -40,6 +40,7 @@ internal class NotificationCommandServiceTest {
         excludeUserId: UUID? = null,
         fallbackEmail: String? = null,
         subjectId: UUID? = null,
+        originSagaId: String? = null,
     ) = service.raise(
         RaiseNotificationCommand(
             recipientIds = recipientIds,
@@ -47,6 +48,7 @@ internal class NotificationCommandServiceTest {
             excludeUserId = excludeUserId,
             fallbackEmail = fallbackEmail,
             subjectId = subjectId,
+            originSagaId = originSagaId,
         ),
     )
 
@@ -281,6 +283,13 @@ internal class NotificationCommandServiceTest {
         assertEquals(0, raise(emptySet(), NotificationType.PROJECT_INVITATION, fallbackEmail = "invitee@example.com"))
 
         assertEquals(listOf("invitee@example.com:PROJECT_INVITATION"), mail.requested)
+    }
+
+    @Test
+    fun `the originating saga travels with the e-mail request`() {
+        raise(emptySet(), NotificationType.PROJECT_INVITATION, fallbackEmail = "i@example.com", originSagaId = "saga-7")
+
+        assertEquals(listOf<String?>("saga-7"), mail.sagaIds)
     }
 
     @Test

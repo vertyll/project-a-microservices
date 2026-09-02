@@ -21,6 +21,7 @@ internal class KafkaMailRequestAdapter(
         to: String,
         type: NotificationType,
         params: Map<String, String>,
+        originSagaId: String?,
     ) {
         val eventId = Events.newId()
         val event =
@@ -34,7 +35,7 @@ internal class KafkaMailRequestAdapter(
                 .setVariables(params)
                 .setReplyTo(null)
                 .setPriority(0)
-                .setSagaId(null)
+                .setSagaId(originSagaId)
                 .build()
 
         val payload = avroPayloadSerializer.serialize(NotificationKafkaTopics.MAIL_REQUESTED, event)
@@ -42,7 +43,7 @@ internal class KafkaMailRequestAdapter(
             topic = NotificationKafkaTopics.MAIL_REQUESTED,
             key = to,
             payload = payload,
-            sagaId = null,
+            sagaId = originSagaId,
             eventId = eventId,
         )
         logger.debug("Queued notification e-mail to {} for {}", to, type)

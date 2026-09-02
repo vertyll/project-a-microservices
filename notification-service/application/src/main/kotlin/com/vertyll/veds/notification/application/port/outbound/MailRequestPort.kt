@@ -8,5 +8,6 @@ interface MailRequestPort {
         to: String,
         type: NotificationType,
         params: Map<String, String>,
+        originSagaId: String?,
     )
 }
