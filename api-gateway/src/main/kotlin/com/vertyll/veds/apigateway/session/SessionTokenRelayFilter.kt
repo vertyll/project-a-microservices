@@ -59,11 +59,23 @@ internal class SessionTokenRelayFilter(
         return keycloakTokenClient
             .refresh(session.refreshToken)
             .flatMap { refreshed -> sessionStore.update(sessionId, refreshed).thenReturn(refreshed) }
-            .onErrorResume { ex ->
-                logger.debug("Refresh failed for session, dropping it: {}", ex.message)
-                sessionStore.delete(sessionId).then(Mono.empty())
-            }
+            .onErrorResume { ex -> sessionRefreshedElsewhere(sessionId, session, ex) }
     }
+
+    private fun sessionRefreshedElsewhere(
+        sessionId: String,
+        stale: AuthSession,
+        failure: Throwable,
+    ): Mono<AuthSession> =
+        sessionStore
+            .find(sessionId)
+            .filter { current -> current.refreshToken != stale.refreshToken }
+            .switchIfEmpty(
+                Mono.defer {
+                    logger.debug("Refresh failed for session, dropping it: {}", failure.message)
+                    sessionStore.delete(sessionId).then(Mono.empty<AuthSession>())
+                },
+            )
 
     private fun withBearer(
         exchange: ServerWebExchange,

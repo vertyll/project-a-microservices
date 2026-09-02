@@ -2,6 +2,7 @@ package com.vertyll.veds.apigateway.session
 
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
@@ -46,12 +47,14 @@ internal class SessionTokenRelayFilterTest {
         }
     }
 
-    private fun filterWith(store: SessionStore) =
-        SessionTokenRelayFilter(
-            sessionStore = store,
-            sessionCookies = SessionCookies(sharedConfig),
-            keycloakTokenClient = mock(KeycloakTokenClient::class.java),
-        )
+    private fun filterWith(
+        store: SessionStore,
+        tokenClient: KeycloakTokenClient = mock(KeycloakTokenClient::class.java),
+    ) = SessionTokenRelayFilter(
+        sessionStore = store,
+        sessionCookies = SessionCookies(sharedConfig),
+        keycloakTokenClient = tokenClient,
+    )
 
     private fun exchangeWithSession() =
         MockServerWebExchange.from(
@@ -90,6 +93,62 @@ internal class SessionTokenRelayFilterTest {
         filterWith(NoOpSessionStore()).filter(exchangeWithSession(), chain).block()
 
         assertEquals(listOf<String?>(null), chain.authorizationHeaders)
+    }
+
+    @Test
+    fun `a refresh that lost the race uses the session the winner stored instead of dropping it`() {
+        val stale = session().copy(accessTokenExpiresAt = Instant.now().minusSeconds(1))
+        val refreshedByWinner = session().copy(accessToken = "winner-token", refreshToken = "winner-refresh")
+        var deletions = 0
+        val store =
+            object : NoOpSessionStore() {
+                private var reads = 0
+
+                override fun find(sessionId: String): Mono<AuthSession> {
+                    reads++
+                    return Mono.just(if (reads == 1) stale else refreshedByWinner)
+                }
+
+                override fun delete(sessionId: String): Mono<Void> {
+                    deletions++
+                    return Mono.empty()
+                }
+            }
+        val rotatedAway =
+            mock(KeycloakTokenClient::class.java).also {
+                `when`(it.refresh(stale.refreshToken)).thenReturn(Mono.error(IllegalStateException("400 Bad Request")))
+            }
+        val chain = RecordingChain()
+
+        filterWith(store, rotatedAway).filter(exchangeWithSession(), chain).block()
+
+        assertEquals(listOf<String?>("Bearer winner-token"), chain.authorizationHeaders)
+        assertEquals(0, deletions, "a session another request has just refreshed must never be deleted")
+    }
+
+    @Test
+    fun `a refresh that nobody else won drops the session`() {
+        val stale = session().copy(accessTokenExpiresAt = Instant.now().minusSeconds(1))
+        var deletions = 0
+        val store =
+            object : NoOpSessionStore() {
+                override fun find(sessionId: String): Mono<AuthSession> = Mono.just(stale)
+
+                override fun delete(sessionId: String): Mono<Void> {
+                    deletions++
+                    return Mono.empty()
+                }
+            }
+        val dead =
+            mock(KeycloakTokenClient::class.java).also {
+                `when`(it.refresh(stale.refreshToken)).thenReturn(Mono.error(IllegalStateException("400 Bad Request")))
+            }
+        val chain = RecordingChain()
+
+        filterWith(store, dead).filter(exchangeWithSession(), chain).block()
+
+        assertEquals(listOf<String?>(null), chain.authorizationHeaders)
+        assertEquals(1, deletions)
     }
 
     private open class NoOpSessionStore : SessionStore {
