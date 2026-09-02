@@ -7,10 +7,6 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-    hikari:
-      data-source-properties:
-        sslmode: ${DB_SSL_MODE:verify-full}
-        sslrootcert: ${DB_SSL_ROOT_CERT:}
 
   jpa:
     hibernate:
@@ -27,13 +23,6 @@ spring:
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
-    properties:
-      security.protocol: ${KAFKA_SECURITY_PROTOCOL:SASL_SSL}
-      sasl.mechanism: ${KAFKA_SASL_MECHANISM:SCRAM-SHA-512}
-      sasl.jaas.config: ${KAFKA_SASL_JAAS_CONFIG:}
-      ssl.truststore.location: ${KAFKA_SSL_TRUSTSTORE:}
-      ssl.truststore.password: ${KAFKA_SSL_TRUSTSTORE_PASSWORD:}
-      ssl.endpoint.identification.algorithm: https
     consumer:
       group-id: mail-service-group
 
