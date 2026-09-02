@@ -98,6 +98,24 @@ login-flow cookies must be `Lax` — they are read on the callback, which *is* a
 > WebAuthn and identity brokering. `directAccessGrantsEnabled` is now `false` on the realm
 > client. The refresh endpoint existed only to hand the browser a token — there is none.
 
+### Refreshing a token is single-flight, per session
+
+The realm sets `revokeRefreshToken: true` with `refreshTokenMaxReuse: 0`, so a refresh token is strictly
+single-use. Presenting a spent one is treated as replay and **revokes the whole SSO session** — not just the
+rejected request.
+
+That makes concurrent refreshes destructive rather than merely wasteful. A page issuing several API calls at once
+would have them all read the same session, all call the token endpoint with the same refresh token, and all but one
+replay it — killing the session the winner had just refreshed, roughly every `accessTokenLifespan`.
+
+`SessionTokenRelayFilter` therefore claims a short-lived Redis lock (`gateway:refresh-lock:<sessionId>`) before
+refreshing. Only the claimant calls Keycloak; the others poll the session store until the new tokens appear and use
+those. A refresh that still fails re-reads the session first, and drops it only when nobody else has replaced it.
+
+> [!WARNING]
+> Turning `revokeRefreshToken` off would make the symptom disappear and remove the replay detection that catches a
+> stolen refresh token. The lock is the fix; the realm setting is not the problem.
+
 ### What lives where
 
 | Concern                                               | Owner           |
