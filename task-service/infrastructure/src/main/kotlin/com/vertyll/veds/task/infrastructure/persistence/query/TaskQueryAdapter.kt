@@ -79,7 +79,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 .createQuery(
                     """
                     SELECT t.id, t.projectId, t.description, t.priority, t.statusId,
-                           t.workedTime, t.createdAt, t.version,
+                           t.workedTime, t.createdAt, t.updatedAt, t.version,
                            (SELECT COUNT(c) FROM TaskCommentJpaEntity c WHERE c.taskId = t.id)
                     FROM TaskJpaEntity t
                     $where
@@ -118,10 +118,11 @@ internal class TaskQueryAdapter : TaskQueryPort {
                         statusColor = status?.color,
                         categories = categoriesByTask[id].orEmpty(),
                         assignees = assigneesByTask[id].orEmpty(),
-                        commentCount = (r[8] as Long).toInt(),
+                        commentCount = (r[9] as Long).toInt(),
                         workedTime = r[5] as Int,
                         createdAt = r[6] as Instant,
-                        version = r[7] as Long?,
+                        updatedAt = r[7] as Instant,
+                        version = r[8] as Long?,
                     )
                 },
             page = pageRequest.page,

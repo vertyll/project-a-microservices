@@ -17,6 +17,7 @@ data class TaskListItemResponse(
     val commentCount: Int,
     val workedTime: Int,
     val createdAt: Instant,
+    val updatedAt: Instant,
     val version: Long?,
 )
 
