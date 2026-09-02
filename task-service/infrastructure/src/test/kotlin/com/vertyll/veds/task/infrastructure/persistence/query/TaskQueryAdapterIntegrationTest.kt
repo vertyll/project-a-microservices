@@ -51,7 +51,7 @@ internal class TaskQueryAdapterIntegrationTest
                     id = Uuid.generateV7().toJavaUuid(),
                     projectId = projectId,
                     number = 1,
-                    description = "assigned task",
+                    name = "assigned task",
                     createdBy = assigneeId,
                     assigneeIds = mutableSetOf(assigneeId),
                 ),

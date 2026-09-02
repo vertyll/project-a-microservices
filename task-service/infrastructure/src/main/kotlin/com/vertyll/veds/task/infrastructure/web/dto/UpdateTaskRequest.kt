@@ -8,8 +8,8 @@ import java.util.UUID
 
 data class UpdateTaskRequest(
     @field:NotBlank(message = "validation.task.description_required")
-    val description: String = "",
-    val additionalDescription: String? = null,
+    val name: String = "",
+    val description: String? = null,
     val priority: TaskPriority = TaskPriority.MEDIUM,
     val statusId: UUID? = null,
     val categoryIds: Set<UUID> = emptySet(),
@@ -21,8 +21,8 @@ data class UpdateTaskRequest(
 ) {
     fun toCommand(): UpdateTaskCommand =
         UpdateTaskCommand(
+            name = name,
             description = description,
-            additionalDescription = additionalDescription,
             priority = priority,
             statusId = statusId,
             categoryIds = categoryIds,

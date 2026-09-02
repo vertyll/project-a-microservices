@@ -48,7 +48,7 @@ internal fun task(
     projectId: UUID,
     number: Int = 1,
     createdBy: UUID = Uuid.generateV7().toJavaUuid(),
-    description: String = "Fix the thing",
+    name: String = "Fix the thing",
     statusId: UUID? = null,
     categoryIds: Set<UUID> = emptySet(),
     assigneeIds: Set<UUID> = emptySet(),
@@ -58,7 +58,7 @@ internal fun task(
 ) = Task(
     projectId = projectId,
     number = number,
-    description = description,
+    name = name,
     statusId = statusId,
     categoryIds = categoryIds,
     assigneeIds = assigneeIds,

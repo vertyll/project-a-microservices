@@ -40,7 +40,7 @@ internal class TaskPersistenceAdapter(
                 TaskSortField.CREATED_AT -> "t.createdAt"
                 TaskSortField.UPDATED_AT -> "t.updatedAt"
                 TaskSortField.PRIORITY -> "t.priority"
-                TaskSortField.DESCRIPTION -> "t.description"
+                TaskSortField.NAME -> "t.name"
             } + if (criteria.sortDescending) " DESC" else " ASC"
 
         val rows =
@@ -100,8 +100,8 @@ internal class TaskPersistenceAdapter(
                     AND (:priority IS NULL OR t.priority = :priority)
                     AND (
                         :searchTerm IS NULL
-                        OR LOWER(t.description) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
-                        OR LOWER(COALESCE(t.additionalDescription, ''))
+                        OR LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
+                        OR LOWER(COALESCE(t.description, ''))
                             LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
                     )
                     """,
@@ -117,8 +117,8 @@ private fun Task.toJpaEntity() =
         id = this.id,
         projectId = this.projectId,
         number = this.number,
+        name = this.name,
         description = this.description,
-        additionalDescription = this.additionalDescription,
         priceEstimation = this.priceEstimation,
         workedTime = this.workedTime,
         priority = this.priority,
@@ -139,8 +139,8 @@ internal fun TaskJpaEntity.toDomain() =
         id = this.id,
         projectId = this.projectId,
         number = this.number,
+        name = this.name,
         description = this.description,
-        additionalDescription = this.additionalDescription,
         priceEstimation = this.priceEstimation,
         workedTime = this.workedTime,
         priority = this.priority,

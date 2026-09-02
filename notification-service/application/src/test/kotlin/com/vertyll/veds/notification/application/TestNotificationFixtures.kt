@@ -37,6 +37,8 @@ internal class InMemoryNotificationRepository : NotificationRepository {
 
     override fun findAllUnreadBy(recipientId: UUID) = stored.values.filter { it.recipientId == recipientId && !it.isRead }
 
+    override fun findAllActiveBy(recipientId: UUID) = stored.values.filter { it.recipientId == recipientId && it.isActive }
+
     override fun findAllBySubjectId(subjectId: UUID) = stored.values.filter { it.subjectId == subjectId }
 }
 

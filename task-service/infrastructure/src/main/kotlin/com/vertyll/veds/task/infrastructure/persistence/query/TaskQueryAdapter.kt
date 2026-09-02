@@ -60,8 +60,8 @@ internal class TaskQueryAdapter : TaskQueryPort {
             AND (:assigneeId IS NULL OR :assigneeId MEMBER OF t.assigneeIds)
             AND (
                 :searchTerm IS NULL
-                OR LOWER(t.description) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
-                OR LOWER(COALESCE(t.additionalDescription, '')) LIKE
+                OR LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
+                OR LOWER(COALESCE(t.description, '')) LIKE
                    LOWER(CONCAT('%', CAST(:searchTerm AS string), '%'))
             )
             """
@@ -71,14 +71,14 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 TaskSortField.CREATED_AT -> "t.createdAt"
                 TaskSortField.UPDATED_AT -> "t.updatedAt"
                 TaskSortField.PRIORITY -> "t.priority"
-                TaskSortField.DESCRIPTION -> "t.description"
+                TaskSortField.NAME -> "t.name"
             } + if (criteria.sortDescending) " DESC" else " ASC"
 
         val rows =
             entityManager
                 .createQuery(
                     """
-                    SELECT t.id, t.projectId, t.number, t.description, t.priority, t.statusId,
+                    SELECT t.id, t.projectId, t.number, t.name, t.priority, t.statusId,
                            t.workedTime, t.createdAt, t.updatedAt, t.version,
                            (SELECT COUNT(c) FROM TaskCommentJpaEntity c WHERE c.taskId = t.id)
                     FROM TaskJpaEntity t
@@ -112,7 +112,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
                         id = id,
                         projectId = r[1] as UUID,
                         number = r[2] as Int,
-                        description = r[3] as String,
+                        name = r[3] as String,
                         priority = r[4] as TaskPriority,
                         statusId = statusId,
                         statusName = status?.name,

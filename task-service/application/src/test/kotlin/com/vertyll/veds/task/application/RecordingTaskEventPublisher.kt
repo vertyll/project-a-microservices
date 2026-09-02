@@ -11,7 +11,7 @@ internal class RecordingTaskEventPublisher : TaskEventPublisherPort {
     override fun publishTaskCreated(
         taskId: UUID,
         projectId: UUID,
-        description: String,
+        name: String,
         createdBy: UUID,
         assigneeIds: Set<UUID>,
     ) {

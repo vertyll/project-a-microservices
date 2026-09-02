@@ -12,8 +12,8 @@ data class Task(
     val id: UUID = Uuid.generateV7().toJavaUuid(),
     val projectId: UUID,
     val number: Int,
-    val description: String,
-    val additionalDescription: String? = null,
+    val name: String,
+    val description: String? = null,
     val priceEstimation: Int = 0,
     val workedTime: Int = 0,
     val priority: TaskPriority = TaskPriority.MEDIUM,
@@ -29,18 +29,18 @@ data class Task(
     val version: Long? = null,
 ) {
     init {
-        require(description.isNotBlank()) { "task description must not be blank" }
+        require(name.isNotBlank()) { "task name must not be blank" }
         require(priceEstimation >= 0) { "price estimation must not be negative" }
         require(workedTime >= 0) { "worked time must not be negative" }
     }
 
     fun describe(
-        newDescription: String,
-        newAdditionalDescription: String?,
+        newName: String,
+        newDescription: String?,
     ): Task =
         copy(
+            name = newName,
             description = newDescription,
-            additionalDescription = newAdditionalDescription,
             updatedAt = Instant.now(),
         )
 
@@ -96,8 +96,8 @@ data class Task(
         fun create(
             projectId: UUID,
             number: Int,
-            description: String,
-            additionalDescription: String?,
+            name: String,
+            description: String?,
             priority: TaskPriority,
             statusId: UUID?,
             categoryIds: Set<UUID>,
@@ -110,8 +110,8 @@ data class Task(
             Task(
                 projectId = projectId,
                 number = number,
+                name = name,
                 description = description,
-                additionalDescription = additionalDescription,
                 priority = priority,
                 statusId = statusId,
                 categoryIds = categoryIds,

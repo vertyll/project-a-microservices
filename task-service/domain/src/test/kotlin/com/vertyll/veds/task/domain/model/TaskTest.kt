@@ -16,7 +16,7 @@ class TaskTest {
     private val creator = Uuid.generateV7().toJavaUuid()
     private val statusId = Uuid.generateV7().toJavaUuid()
 
-    private fun task() = Task(projectId = Uuid.generateV7().toJavaUuid(), number = 1, description = "Write the thing", createdBy = creator)
+    private fun task() = Task(projectId = Uuid.generateV7().toJavaUuid(), number = 1, name = "Write the thing", createdBy = creator)
 
     @Test
     fun `moving to the same status returns the very same instance`() {
@@ -39,7 +39,7 @@ class TaskTest {
     @Test
     fun `rejects a blank description`() {
         assertFailsWith<IllegalArgumentException> {
-            Task(projectId = Uuid.generateV7().toJavaUuid(), number = 1, description = "  ", createdBy = creator)
+            Task(projectId = Uuid.generateV7().toJavaUuid(), number = 1, name = "  ", createdBy = creator)
         }
     }
 

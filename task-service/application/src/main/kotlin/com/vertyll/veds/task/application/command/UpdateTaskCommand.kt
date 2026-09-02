@@ -4,8 +4,8 @@ import com.vertyll.veds.task.domain.model.TaskPriority
 import java.util.UUID
 
 data class UpdateTaskCommand(
-    val description: String,
-    val additionalDescription: String?,
+    val name: String,
+    val description: String?,
     val priority: TaskPriority,
     val statusId: UUID?,
     val categoryIds: Set<UUID>,

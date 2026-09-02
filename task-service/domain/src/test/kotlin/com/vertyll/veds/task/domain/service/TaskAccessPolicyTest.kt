@@ -39,7 +39,7 @@ class TaskAccessPolicyTest {
     ) = Task(
         projectId = projectId,
         number = 1,
-        description = "Write the thing",
+        name = "Write the thing",
         createdBy = createdBy,
         isActive = isActive,
         accessRoleId = accessRoleId,

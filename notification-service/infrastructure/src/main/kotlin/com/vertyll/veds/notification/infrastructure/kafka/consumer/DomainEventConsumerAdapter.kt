@@ -34,7 +34,7 @@ internal class DomainEventConsumerAdapter(
     private companion object {
         private const val GROUP_PREFIX = "notification-service:"
         private const val PARAM_PROJECT = "projectName"
-        private const val PARAM_TASK = "taskDescription"
+        private const val PARAM_TASK = "taskName"
         private const val PARAM_ACTOR = "actorId"
         private const val PARAM_EXCERPT = "excerpt"
     }
@@ -93,7 +93,7 @@ internal class DomainEventConsumerAdapter(
             RaiseNotificationCommand(
                 recipientIds = event.assigneeIds.map { UUID.fromString(it.toString()) }.toSet(),
                 type = NotificationType.TASK_CREATED,
-                params = mapOf(PARAM_TASK to event.description, PARAM_ACTOR to creator.toString()),
+                params = mapOf(PARAM_TASK to event.name, PARAM_ACTOR to creator.toString()),
                 projectId = UUID.fromString(event.projectId),
                 subjectId = UUID.fromString(event.taskId),
                 excludeUserId = creator,

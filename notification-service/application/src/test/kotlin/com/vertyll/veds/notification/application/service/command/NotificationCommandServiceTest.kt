@@ -8,6 +8,7 @@ import com.vertyll.veds.notification.application.InMemorySettingsRepository
 import com.vertyll.veds.notification.application.RecordingMailRequests
 import com.vertyll.veds.notification.application.RecordingPush
 import com.vertyll.veds.notification.application.SilentLogger
+import com.vertyll.veds.notification.application.command.DismissNotificationsCommand
 import com.vertyll.veds.notification.application.command.MarkReadCommand
 import com.vertyll.veds.notification.application.command.RaiseNotificationCommand
 import com.vertyll.veds.notification.application.command.RetireNotificationsCommand
@@ -239,6 +240,58 @@ internal class NotificationCommandServiceTest {
     @Test
     fun `marking everything read with nothing unread does nothing`() {
         assertEquals(0, service.markAllRead(alice))
+
+        assertTrue(push.unreadCounts.isEmpty())
+    }
+
+    // ── Dismissing ──────────────────────────────────────────────────────
+
+    @Test
+    fun `dismissing a notification takes it off the list and refreshes the badge`() {
+        val mine = givenNotification()
+
+        assertEquals(1, service.dismiss(DismissNotificationsCommand(setOf(mine.id)), alice))
+
+        assertTrue(!notifications.findById(mine.id)!!.isActive)
+        assertEquals(listOf(alice to 0L), push.unreadCounts)
+    }
+
+    @Test
+    fun `dismissing an already dismissed notification changes nothing`() {
+        val mine = givenNotification()
+        service.dismiss(DismissNotificationsCommand(setOf(mine.id)), alice)
+        push.unreadCounts.clear()
+
+        assertEquals(0, service.dismiss(DismissNotificationsCommand(setOf(mine.id)), alice))
+
+        assertTrue(push.unreadCounts.isEmpty())
+    }
+
+    @Test
+    fun `somebody else's notification cannot be dismissed and looks missing`() {
+        val theirs = givenNotification(recipientId = bob)
+
+        val error = assertFailsWith<ApiException> { service.dismiss(DismissNotificationsCommand(setOf(theirs.id)), alice) }
+
+        assertEquals(NotificationError.NOTIFICATION_NOT_FOUND, error.error)
+        assertTrue(notifications.findById(theirs.id)!!.isActive)
+    }
+
+    @Test
+    fun `dismissing everything clears the caller's own notifications only`() {
+        givenNotification()
+        givenNotification(isRead = true)
+        val theirs = givenNotification(recipientId = bob)
+
+        assertEquals(2, service.dismissAll(alice))
+
+        assertTrue(notifications.findById(theirs.id)!!.isActive)
+        assertEquals(listOf(alice to 0L), push.unreadCounts)
+    }
+
+    @Test
+    fun `dismissing everything with nothing left does nothing`() {
+        assertEquals(0, service.dismissAll(alice))
 
         assertTrue(push.unreadCounts.isEmpty())
     }

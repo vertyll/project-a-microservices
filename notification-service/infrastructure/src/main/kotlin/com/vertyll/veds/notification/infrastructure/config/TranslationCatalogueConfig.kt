@@ -31,8 +31,8 @@ internal class TranslationCatalogueConfig {
                 en("You joined the project as {roleCode}.")
             }
             key("notification.task_created") {
-                pl("Nowe zadanie: {taskDescription}.")
-                en("New task: {taskDescription}.")
+                pl("Nowe zadanie: {taskName}.")
+                en("New task: {taskName}.")
             }
             key("notification.task_assigned") {
                 pl("Przypisano Ci zadanie.")
@@ -61,6 +61,10 @@ internal class TranslationCatalogueConfig {
             key("notification.marked_read") {
                 pl("Oznaczono jako przeczytane.")
                 en("Marked as read.")
+            }
+            key("notification.dismissed") {
+                pl("Powiadomienia usunięte.")
+                en("Notifications dismissed.")
             }
             key("notification.settings_retrieved") {
                 pl("Ustawienia wczytane.")

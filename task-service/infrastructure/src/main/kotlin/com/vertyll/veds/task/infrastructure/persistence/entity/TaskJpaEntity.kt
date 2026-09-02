@@ -34,10 +34,10 @@ internal class TaskJpaEntity(
     var projectId: UUID,
     @Column(name = "number", nullable = false, updatable = false)
     var number: Int,
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    var description: String,
-    @Column(name = "additional_description", columnDefinition = "TEXT")
-    var additionalDescription: String? = null,
+    @Column(name = "name", nullable = false, columnDefinition = "TEXT")
+    var name: String,
+    @Column(name = "description", columnDefinition = "TEXT")
+    var description: String? = null,
     @Column(name = "price_estimation", nullable = false)
     var priceEstimation: Int = 0,
     @Column(name = "worked_time", nullable = false)

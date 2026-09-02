@@ -67,8 +67,8 @@ internal class TaskCommandServiceTest {
         assigneeIds: Set<UUID> = emptySet(),
     ) = CreateTaskCommand(
         projectId = projectId,
-        description = "Fix the thing",
-        additionalDescription = null,
+        name = "Fix the thing",
+        description = null,
         priority = TaskPriority.MEDIUM,
         statusId = statusId,
         categoryIds = emptySet(),
@@ -79,13 +79,13 @@ internal class TaskCommandServiceTest {
     )
 
     private fun updateCommand(
-        description: String = "Fix the thing",
+        name: String = "Fix the thing",
         statusId: UUID? = null,
         assigneeIds: Set<UUID> = emptySet(),
         priority: TaskPriority = TaskPriority.MEDIUM,
     ) = UpdateTaskCommand(
-        description = description,
-        additionalDescription = null,
+        name = name,
+        description = null,
         priority = priority,
         statusId = statusId,
         categoryIds = emptySet(),
@@ -104,7 +104,7 @@ internal class TaskCommandServiceTest {
         val stored = tasks.findById(response.id)!!
         assertEquals(projectId, stored.projectId)
         assertEquals(actor.id, stored.createdBy)
-        assertEquals("Fix the thing", stored.description)
+        assertEquals("Fix the thing", stored.name)
     }
 
     @Test
@@ -152,10 +152,10 @@ internal class TaskCommandServiceTest {
     fun `updating replaces the editable fields`() {
         val existing = givenTask()
 
-        service.updateTask(existing.id, updateCommand(description = "Fix it properly", priority = TaskPriority.HIGH), actor, 0L)
+        service.updateTask(existing.id, updateCommand(name = "Fix it properly", priority = TaskPriority.HIGH), actor, 0L)
 
         val stored = tasks.findById(existing.id)!!
-        assertEquals("Fix it properly", stored.description)
+        assertEquals("Fix it properly", stored.name)
         assertEquals(TaskPriority.HIGH, stored.priority)
     }
 
@@ -174,7 +174,7 @@ internal class TaskCommandServiceTest {
         val assignee = membership(projectId).also { directory.saveMembership(it) }
         val existing = givenTask(assigneeIds = setOf(assignee.userId))
 
-        service.updateTask(existing.id, updateCommand(description = "Reworded", assigneeIds = setOf(assignee.userId)), actor, 0L)
+        service.updateTask(existing.id, updateCommand(name = "Reworded", assigneeIds = setOf(assignee.userId)), actor, 0L)
 
         assertTrue(events.published.isEmpty())
     }
@@ -192,10 +192,10 @@ internal class TaskCommandServiceTest {
     fun `an update against a stale version is refused`() {
         val existing = givenTask()
 
-        val error = assertFailsWith<ApiException> { service.updateTask(existing.id, updateCommand(description = "New"), actor, 9L) }
+        val error = assertFailsWith<ApiException> { service.updateTask(existing.id, updateCommand(name = "New"), actor, 9L) }
 
         assertEquals(TaskError.VERSION_MISMATCH, error.error)
-        assertEquals("Fix the thing", tasks.findById(existing.id)!!.description)
+        assertEquals("Fix the thing", tasks.findById(existing.id)!!.name)
     }
 
     @Test

@@ -24,7 +24,7 @@ internal class KafkaTaskEventPublisherAdapter(
     override fun publishTaskCreated(
         taskId: UUID,
         projectId: UUID,
-        description: String,
+        name: String,
         createdBy: UUID,
         assigneeIds: Set<UUID>,
     ) {
@@ -36,7 +36,7 @@ internal class KafkaTaskEventPublisherAdapter(
                 .setTimestamp(Events.now())
                 .setTaskId(taskId.toString())
                 .setProjectId(projectId.toString())
-                .setDescription(description)
+                .setName(name)
                 .setCreatedBy(createdBy.toString())
                 .setAssigneeIds(assigneeIds.map { it.toString() })
                 .build()

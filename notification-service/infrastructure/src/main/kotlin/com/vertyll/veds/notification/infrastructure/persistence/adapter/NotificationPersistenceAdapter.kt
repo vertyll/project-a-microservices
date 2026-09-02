@@ -48,6 +48,9 @@ internal class NotificationPersistenceAdapter(
     override fun findAllUnreadBy(recipientId: UUID): List<Notification> =
         repository.findAllByRecipientIdAndIsReadFalseAndIsActiveTrue(recipientId).map { it.toDomain() }
 
+    override fun findAllActiveBy(recipientId: UUID): List<Notification> =
+        repository.findAllByRecipientIdAndIsActiveTrue(recipientId).map { it.toDomain() }
+
     override fun findAllBySubjectId(subjectId: UUID): List<Notification> = repository.findAllBySubjectId(subjectId).map { it.toDomain() }
 }
 

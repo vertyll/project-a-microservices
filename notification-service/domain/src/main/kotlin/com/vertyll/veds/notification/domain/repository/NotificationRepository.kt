@@ -22,5 +22,7 @@ interface NotificationRepository {
 
     fun findAllUnreadBy(recipientId: UUID): List<Notification>
 
+    fun findAllActiveBy(recipientId: UUID): List<Notification>
+
     fun findAllBySubjectId(subjectId: UUID): List<Notification>
 }

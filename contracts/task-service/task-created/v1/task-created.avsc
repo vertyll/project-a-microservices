@@ -24,7 +24,7 @@
       "type": "string"
     },
     {
-      "name": "description",
+      "name": "name",
       "type": "string"
     },
     {

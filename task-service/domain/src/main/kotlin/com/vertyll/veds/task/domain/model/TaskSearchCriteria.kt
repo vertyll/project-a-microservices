@@ -18,5 +18,5 @@ enum class TaskSortField {
     CREATED_AT,
     UPDATED_AT,
     PRIORITY,
-    DESCRIPTION,
+    NAME,
 }

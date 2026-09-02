@@ -44,8 +44,8 @@ class TaskCommandService(
                 Task.create(
                     projectId = command.projectId,
                     number = taskRepository.highestNumberIn(command.projectId) + 1,
+                    name = command.name,
                     description = command.description,
-                    additionalDescription = command.additionalDescription,
                     priority = command.priority,
                     statusId = command.statusId,
                     categoryIds = command.categoryIds,
@@ -60,7 +60,7 @@ class TaskCommandService(
         eventPublisher.publishTaskCreated(
             taskId = task.id,
             projectId = task.projectId,
-            description = task.description,
+            name = task.name,
             createdBy = actor.id,
             assigneeIds = task.assigneeIds,
         )
@@ -85,7 +85,7 @@ class TaskCommandService(
         val updated =
             taskRepository.save(
                 task
-                    .describe(command.description, command.additionalDescription)
+                    .describe(command.name, command.description)
                     .reprioritise(command.priority)
                     .moveTo(command.statusId)
                     .categoriseAs(command.categoryIds)

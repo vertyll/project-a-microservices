@@ -8,6 +8,7 @@ import com.vertyll.veds.notification.application.port.inbound.command.Notificati
 import com.vertyll.veds.notification.application.port.inbound.query.NotificationQueryUseCase
 import com.vertyll.veds.notification.domain.model.NotificationType
 import com.vertyll.veds.notification.infrastructure.response.ApiResponse
+import com.vertyll.veds.notification.infrastructure.web.dto.DismissNotificationsRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.MarkReadRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.UpdateSettingsRequest
 import com.vertyll.veds.notification.infrastructure.web.security.CurrentUser
@@ -41,6 +42,7 @@ internal class NotificationController(
         private const val LIST_RETRIEVED = "notification.list_retrieved"
         private const val COUNT_RETRIEVED = "notification.unread_count_retrieved"
         private const val MARKED_READ = "notification.marked_read"
+        private const val DISMISSED = "notification.dismissed"
         private const val SETTINGS_RETRIEVED = "notification.settings_retrieved"
         private const val SETTINGS_UPDATED = "notification.settings_updated"
         private const val DEFAULT_PAGE_SIZE = "20"
@@ -96,6 +98,26 @@ internal class NotificationController(
     ): ResponseEntity<ApiResponse<Int>> {
         val changed = commands.markAllRead(CurrentUser.idOf(jwt))
         return ApiResponse.buildResponse(changed, MARKED_READ, HttpStatus.OK)
+    }
+
+    @PostMapping("/dismiss")
+    @Operation(summary = "Dismiss notifications so they leave the list")
+    fun dismiss(
+        @AuthenticationPrincipal jwt: Jwt?,
+        @Valid @RequestBody
+        request: DismissNotificationsRequest,
+    ): ResponseEntity<ApiResponse<Int>> {
+        val dismissed = commands.dismiss(request.toCommand(), CurrentUser.idOf(jwt))
+        return ApiResponse.buildResponse(dismissed, DISMISSED, HttpStatus.OK)
+    }
+
+    @PostMapping("/dismiss-all")
+    @Operation(summary = "Dismiss every notification")
+    fun dismissAll(
+        @AuthenticationPrincipal jwt: Jwt?,
+    ): ResponseEntity<ApiResponse<Int>> {
+        val dismissed = commands.dismissAll(CurrentUser.idOf(jwt))
+        return ApiResponse.buildResponse(dismissed, DISMISSED, HttpStatus.OK)
     }
 
     @GetMapping("/settings")

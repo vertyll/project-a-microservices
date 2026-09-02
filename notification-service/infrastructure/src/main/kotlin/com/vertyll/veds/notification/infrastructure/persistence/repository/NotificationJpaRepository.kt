@@ -35,5 +35,7 @@ internal interface NotificationJpaRepository : JpaRepository<NotificationJpaEnti
 
     fun findAllByRecipientIdAndIsReadFalseAndIsActiveTrue(recipientId: UUID): List<NotificationJpaEntity>
 
+    fun findAllByRecipientIdAndIsActiveTrue(recipientId: UUID): List<NotificationJpaEntity>
+
     fun findAllBySubjectId(subjectId: UUID): List<NotificationJpaEntity>
 }

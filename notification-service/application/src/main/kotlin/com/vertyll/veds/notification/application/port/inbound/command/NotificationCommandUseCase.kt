@@ -1,5 +1,6 @@
 package com.vertyll.veds.notification.application.port.inbound.command
 
+import com.vertyll.veds.notification.application.command.DismissNotificationsCommand
 import com.vertyll.veds.notification.application.command.MarkReadCommand
 import com.vertyll.veds.notification.application.command.RaiseNotificationCommand
 import com.vertyll.veds.notification.application.command.RetireNotificationsCommand
@@ -16,6 +17,13 @@ interface NotificationCommandUseCase {
     ): Int
 
     fun markAllRead(actorId: UUID): Int
+
+    fun dismiss(
+        command: DismissNotificationsCommand,
+        actorId: UUID,
+    ): Int
+
+    fun dismissAll(actorId: UUID): Int
 
     fun updateSettings(
         command: UpdateSettingsCommand,

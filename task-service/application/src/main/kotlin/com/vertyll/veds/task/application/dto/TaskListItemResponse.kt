@@ -8,7 +8,7 @@ data class TaskListItemResponse(
     val id: UUID,
     val projectId: UUID,
     val number: Int,
-    val description: String,
+    val name: String,
     val priority: TaskPriority,
     val statusId: UUID?,
     val statusName: String?,

@@ -6,7 +6,7 @@ interface TaskEventPublisherPort {
     fun publishTaskCreated(
         taskId: UUID,
         projectId: UUID,
-        description: String,
+        name: String,
         createdBy: UUID,
         assigneeIds: Set<UUID>,
     )

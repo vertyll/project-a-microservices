@@ -1,5 +1,6 @@
 package com.vertyll.veds.notification.application.service.command
 
+import com.vertyll.veds.notification.application.command.DismissNotificationsCommand
 import com.vertyll.veds.notification.application.command.MarkReadCommand
 import com.vertyll.veds.notification.application.command.RaiseNotificationCommand
 import com.vertyll.veds.notification.application.command.RetireNotificationsCommand
@@ -103,22 +104,7 @@ class NotificationCommandService(
         command: MarkReadCommand,
         actorId: UUID,
     ): Int {
-        val notifications =
-            command.notificationIds.map { id ->
-                val notification =
-                    notificationRepository.findById(id)
-                        ?: throw ApiException(
-                            NotificationError.NOTIFICATION_NOT_FOUND,
-                            mapOf("notificationId" to id.toString()),
-                        )
-                if (!notification.isFor(actorId)) {
-                    throw ApiException(
-                        NotificationError.NOTIFICATION_NOT_FOUND,
-                        mapOf("notificationId" to id.toString()),
-                    )
-                }
-                notification
-            }
+        val notifications = command.notificationIds.map { ownedBy(actorId, it) }
 
         val changed = notifications.filterNot { it.isRead }
         if (changed.isEmpty()) return 0
@@ -128,6 +114,20 @@ class NotificationCommandService(
         return changed.size
     }
 
+    private fun ownedBy(
+        actorId: UUID,
+        notificationId: UUID,
+    ): Notification {
+        val notification = notificationRepository.findById(notificationId)
+        if (notification == null || !notification.isFor(actorId)) {
+            throw ApiException(
+                NotificationError.NOTIFICATION_NOT_FOUND,
+                mapOf("notificationId" to notificationId.toString()),
+            )
+        }
+        return notification
+    }
+
     override fun markAllRead(actorId: UUID): Int {
         val unread = notificationRepository.findAllUnreadBy(actorId)
         if (unread.isEmpty()) return 0
@@ -135,6 +135,28 @@ class NotificationCommandService(
         notificationRepository.saveAll(unread.map { it.markRead() })
         push.pushUnreadCount(actorId, 0)
         return unread.size
+    }
+
+    override fun dismiss(
+        command: DismissNotificationsCommand,
+        actorId: UUID,
+    ): Int {
+        val owned = command.notificationIds.map { ownedBy(actorId, it) }
+        val active = owned.filter { it.isActive }
+        if (active.isEmpty()) return 0
+
+        notificationRepository.saveAll(active.map { it.retire() })
+        push.pushUnreadCount(actorId, notificationRepository.countUnread(actorId))
+        return active.size
+    }
+
+    override fun dismissAll(actorId: UUID): Int {
+        val active = notificationRepository.findAllActiveBy(actorId)
+        if (active.isEmpty()) return 0
+
+        notificationRepository.saveAll(active.map { it.retire() })
+        push.pushUnreadCount(actorId, 0)
+        return active.size
     }
 
     override fun updateSettings(
