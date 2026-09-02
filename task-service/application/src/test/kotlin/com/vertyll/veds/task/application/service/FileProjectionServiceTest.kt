@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service
 
 import com.vertyll.veds.task.application.InMemoryCommentRepository
@@ -9,6 +11,9 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class FileProjectionServiceTest {
     private val tasks = InMemoryTaskRepository()
@@ -16,20 +21,20 @@ internal class FileProjectionServiceTest {
 
     private val service = FileProjectionService(tasks, comments, SilentLogger)
 
-    private val projectId = UUID.randomUUID()
-    private val deleted = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
+    private val deleted = Uuid.generateV7().toJavaUuid()
 
     private fun comment(vararg attachmentIds: UUID) =
         TaskComment(
-            taskId = UUID.randomUUID(),
-            authorId = UUID.randomUUID(),
+            taskId = Uuid.generateV7().toJavaUuid(),
+            authorId = Uuid.generateV7().toJavaUuid(),
             content = "See the attachment",
             attachmentIds = attachmentIds.toSet(),
         ).also { comments.given(it) }
 
     @Test
     fun `a deleted file is dropped from the tasks that attached it`() {
-        val kept = UUID.randomUUID()
+        val kept = Uuid.generateV7().toJavaUuid()
         val attached = task(projectId, attachmentIds = setOf(deleted, kept)).also { tasks.given(it) }
 
         service.fileDeleted(deleted)
@@ -69,7 +74,7 @@ internal class FileProjectionServiceTest {
 
     @Test
     fun `a file nothing references is ignored`() {
-        val untouched = task(projectId, attachmentIds = setOf(UUID.randomUUID())).also { tasks.given(it) }
+        val untouched = task(projectId, attachmentIds = setOf(Uuid.generateV7().toJavaUuid())).also { tasks.given(it) }
 
         service.fileDeleted(deleted)
 

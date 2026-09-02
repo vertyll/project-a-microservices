@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.InMemoryInvitationRepository
@@ -27,6 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectInvitationCommandServiceTest {
     private val invitations = InMemoryInvitationRepository()
@@ -53,7 +58,7 @@ internal class ProjectInvitationCommandServiceTest {
             logger = SilentLogger,
         )
 
-    private val owner = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
     private val existing = project(ownerId = owner).also { projects.given(it) }
 
     private fun invite(
@@ -118,7 +123,7 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `an unknown role is rejected`() {
-        val error = assertFailsWith<ApiException> { invite(roleId = UUID.randomUUID()) }
+        val error = assertFailsWith<ApiException> { invite(roleId = Uuid.generateV7().toJavaUuid()) }
 
         assertEquals(ProjectError.ROLE_NOT_FOUND, error.error)
     }
@@ -136,7 +141,7 @@ internal class ProjectInvitationCommandServiceTest {
     @Test
     fun `an address whose invitation was rejected can be invited again`() {
         val first = invite(email = "new@example.com")
-        invitations.save(invitations.findById(first.id)!!.reject(UUID.randomUUID()))
+        invitations.save(invitations.findById(first.id)!!.reject(Uuid.generateV7().toJavaUuid()))
 
         val second = invite(email = "new@example.com")
 
@@ -145,7 +150,7 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `someone without the invite permission cannot invite`() {
-        val outsider = UUID.randomUUID()
+        val outsider = Uuid.generateV7().toJavaUuid()
 
         assertFailsWith<ApiException> { service.invite(existing.id, InviteMemberCommand("new@example.com", null), outsider) }
 
@@ -280,7 +285,7 @@ internal class ProjectInvitationCommandServiceTest {
     @Test
     fun `an invitation that was already settled cannot be accepted again`() {
         val invitation = givenPendingInvitation()
-        invitations.save(invitation.accept(UUID.randomUUID()))
+        invitations.save(invitation.accept(Uuid.generateV7().toJavaUuid()))
 
         val error =
             assertFailsWith<ApiException> { service.acceptInvitation(invitation.id, actor(email = invitation.inviteeEmail)) }
@@ -290,7 +295,7 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `an unknown invitation is reported as missing`() {
-        val error = assertFailsWith<ApiException> { service.acceptInvitation(UUID.randomUUID(), actor()) }
+        val error = assertFailsWith<ApiException> { service.acceptInvitation(Uuid.generateV7().toJavaUuid(), actor()) }
 
         assertEquals(ProjectError.INVITATION_NOT_FOUND, error.error)
     }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.iam.application.service.command
 
 import com.vertyll.veds.iam.application.InMemoryUserRepository
@@ -11,6 +13,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class UserCommandServiceTest {
     private val users = InMemoryUserRepository()
@@ -33,7 +38,7 @@ internal class UserCommandServiceTest {
 
     @Test
     fun `a profile update replaces every editable field`() {
-        val avatar = UUID.randomUUID()
+        val avatar = Uuid.generateV7().toJavaUuid()
 
         service.updateProfile(existing.id!!, profile(avatarFileId = avatar), version = 0L)
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.translation.application.service.command
 
 import com.vertyll.veds.translation.application.ENGLISH
@@ -19,11 +21,13 @@ import com.vertyll.veds.translation.domain.model.LanguageTag
 import com.vertyll.veds.translation.domain.model.TranslationKey
 import com.vertyll.veds.translation.domain.model.TranslationValue
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TranslationCommandServiceTest {
     private val keys = InMemoryKeyRepository()
@@ -32,7 +36,7 @@ internal class TranslationCommandServiceTest {
 
     private val service = TranslationCommandService(keys, values, languages, SilentLogger)
 
-    private val editor = UUID.randomUUID()
+    private val editor = Uuid.generateV7().toJavaUuid()
 
     init {
         languages.given(

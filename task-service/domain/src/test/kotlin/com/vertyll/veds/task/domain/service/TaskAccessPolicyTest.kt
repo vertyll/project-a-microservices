@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.domain.service
 
 import com.vertyll.veds.task.domain.error.TaskError
@@ -12,12 +14,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class TaskAccessPolicyTest {
-    private val projectId = UUID.randomUUID()
-    private val managerId = UUID.randomUUID()
-    private val clientId = UUID.randomUUID()
-    private val strangerId = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
+    private val managerId = Uuid.generateV7().toJavaUuid()
+    private val clientId = Uuid.generateV7().toJavaUuid()
+    private val strangerId = Uuid.generateV7().toJavaUuid()
 
     private fun project(isActive: Boolean = true) = ProjectRef(projectId = projectId, name = "Apollo", isActive = isActive)
 
@@ -115,7 +120,7 @@ class TaskAccessPolicyTest {
 
     @Nested
     inner class RestrictedTasks {
-        private val restriction = UUID.randomUUID()
+        private val restriction = Uuid.generateV7().toJavaUuid()
 
         @Test
         fun `an unrestricted task is visible to any member`() {

@@ -1,14 +1,18 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.file.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class StoredFileTest {
-    private val owner = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
 
     private fun pending() =
         StoredFile.pending(
@@ -68,6 +72,6 @@ class StoredFileTest {
     @Test
     fun `recognises its owner`() {
         assertTrue(pending().isOwnedBy(owner))
-        assertFalse(pending().isOwnedBy(UUID.randomUUID()))
+        assertFalse(pending().isOwnedBy(Uuid.generateV7().toJavaUuid()))
     }
 }

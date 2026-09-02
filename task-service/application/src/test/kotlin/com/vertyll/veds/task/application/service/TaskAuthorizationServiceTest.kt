@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service
 
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
@@ -13,6 +15,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TaskAuthorizationServiceTest {
     private val directory = InMemoryProjectDirectory()
@@ -20,7 +25,7 @@ internal class TaskAuthorizationServiceTest {
 
     private val service = TaskAuthorizationService(directory, tasks)
 
-    private val actor = UUID.randomUUID()
+    private val actor = Uuid.generateV7().toJavaUuid()
     private val project = projectRef().also { directory.saveProject(it) }
     private val projectId = project.projectId
 
@@ -69,7 +74,13 @@ internal class TaskAuthorizationServiceTest {
     @Test
     fun `a project this service has not heard about grants nothing`() {
         val error =
-            assertFailsWith<ApiException> { service.requireProjectPermission(UUID.randomUUID(), actor, TaskPermission.VIEW_TASKS) }
+            assertFailsWith<ApiException> {
+                service.requireProjectPermission(
+                    Uuid.generateV7().toJavaUuid(),
+                    actor,
+                    TaskPermission.VIEW_TASKS,
+                )
+            }
 
         assertEquals(TaskError.PROJECT_NOT_KNOWN, error.error)
     }
@@ -99,7 +110,14 @@ internal class TaskAuthorizationServiceTest {
     fun `an unknown task is reported as missing`() {
         givenRole("MEMBER")
 
-        val error = assertFailsWith<ApiException> { service.requireTaskPermission(UUID.randomUUID(), actor, TaskPermission.VIEW_TASKS) }
+        val error =
+            assertFailsWith<ApiException> {
+                service.requireTaskPermission(
+                    Uuid.generateV7().toJavaUuid(),
+                    actor,
+                    TaskPermission.VIEW_TASKS,
+                )
+            }
 
         assertEquals(TaskError.TASK_NOT_FOUND, error.error)
     }
@@ -116,7 +134,7 @@ internal class TaskAuthorizationServiceTest {
     @Test
     fun `a restricted task is invisible to an ordinary member`() {
         givenRole("MEMBER")
-        val restricted = task(projectId, accessRoleId = UUID.randomUUID()).also { tasks.given(it) }
+        val restricted = task(projectId, accessRoleId = Uuid.generateV7().toJavaUuid()).also { tasks.given(it) }
 
         val error = assertFailsWith<ApiException> { service.requireTaskPermission(restricted.id, actor, TaskPermission.VIEW_TASKS) }
 
@@ -126,7 +144,7 @@ internal class TaskAuthorizationServiceTest {
     @Test
     fun `the author of a restricted task can still see it`() {
         givenRole("MEMBER")
-        val restricted = task(projectId, createdBy = actor, accessRoleId = UUID.randomUUID()).also { tasks.given(it) }
+        val restricted = task(projectId, createdBy = actor, accessRoleId = Uuid.generateV7().toJavaUuid()).also { tasks.given(it) }
 
         assertEquals(restricted.id, service.requireTaskPermission(restricted.id, actor, TaskPermission.VIEW_TASKS).id)
     }
@@ -134,7 +152,7 @@ internal class TaskAuthorizationServiceTest {
     @Test
     fun `an assignee of a restricted task can see it`() {
         givenRole("MEMBER")
-        val restricted = task(projectId, assigneeIds = setOf(actor), accessRoleId = UUID.randomUUID()).also { tasks.given(it) }
+        val restricted = task(projectId, assigneeIds = setOf(actor), accessRoleId = Uuid.generateV7().toJavaUuid()).also { tasks.given(it) }
 
         assertEquals(restricted.id, service.requireTaskPermission(restricted.id, actor, TaskPermission.VIEW_TASKS).id)
     }
@@ -142,7 +160,7 @@ internal class TaskAuthorizationServiceTest {
     @Test
     fun `a manager can see any restricted task on their board`() {
         givenRole("MANAGER")
-        val restricted = task(projectId, accessRoleId = UUID.randomUUID()).also { tasks.given(it) }
+        val restricted = task(projectId, accessRoleId = Uuid.generateV7().toJavaUuid()).also { tasks.given(it) }
 
         assertEquals(restricted.id, service.requireTaskPermission(restricted.id, actor, TaskPermission.VIEW_TASKS).id)
     }

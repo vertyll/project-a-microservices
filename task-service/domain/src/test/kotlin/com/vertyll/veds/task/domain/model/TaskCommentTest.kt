@@ -1,16 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class TaskCommentTest {
-    private val author = UUID.randomUUID()
-    private val someoneElse = UUID.randomUUID()
+    private val author = Uuid.generateV7().toJavaUuid()
+    private val someoneElse = Uuid.generateV7().toJavaUuid()
 
-    private fun comment() = TaskComment.create(taskId = UUID.randomUUID(), authorId = author, content = "Looks good")
+    private fun comment() = TaskComment.create(taskId = Uuid.generateV7().toJavaUuid(), authorId = author, content = "Looks good")
 
     @Test
     fun `the author may edit`() {
@@ -27,7 +31,7 @@ class TaskCommentTest {
     @Test
     fun `rejects blank content`() {
         assertFailsWith<IllegalArgumentException> {
-            TaskComment.create(taskId = UUID.randomUUID(), authorId = author, content = "   ")
+            TaskComment.create(taskId = Uuid.generateV7().toJavaUuid(), authorId = author, content = "   ")
         }
     }
 

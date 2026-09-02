@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service
 
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
@@ -9,10 +11,12 @@ import com.vertyll.veds.task.application.projectRef
 import com.vertyll.veds.task.application.statusRef
 import com.vertyll.veds.task.application.task
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectProjectionServiceTest {
     private val directory = InMemoryProjectDirectory()
@@ -20,7 +24,7 @@ internal class ProjectProjectionServiceTest {
 
     private val service = ProjectProjectionService(directory, tasks, SilentLogger)
 
-    private val projectId = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
 
     // ── The project itself ──────────────────────────────────────────────
 
@@ -52,7 +56,7 @@ internal class ProjectProjectionServiceTest {
 
     @Test
     fun `archiving a project that was never projected is ignored`() {
-        service.projectArchived(UUID.randomUUID())
+        service.projectArchived(Uuid.generateV7().toJavaUuid())
 
         assertTrue(directory.projects.isEmpty())
     }
@@ -71,7 +75,7 @@ internal class ProjectProjectionServiceTest {
     @Test
     fun `removing a category also strips it from the tasks carrying it`() {
         val category = categoryRef(projectId)
-        val other = UUID.randomUUID()
+        val other = Uuid.generateV7().toJavaUuid()
         service.categoryChanged(category)
         val labelled = task(projectId, categoryIds = setOf(category.categoryId, other)).also { tasks.given(it) }
 
@@ -150,7 +154,7 @@ internal class ProjectProjectionServiceTest {
 
     @Test
     fun `a role change replaces the existing membership`() {
-        val userId = UUID.randomUUID()
+        val userId = Uuid.generateV7().toJavaUuid()
         service.memberJoined(membership(projectId, userId, roleCode = "MEMBER"))
         service.memberJoined(membership(projectId, userId, roleCode = "MANAGER"))
 

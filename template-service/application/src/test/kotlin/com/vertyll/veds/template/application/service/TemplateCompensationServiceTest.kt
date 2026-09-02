@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.template.application.service
 
 import com.vertyll.veds.template.application.InMemoryTemplateRepository
@@ -5,9 +7,10 @@ import com.vertyll.veds.template.application.SilentLogger
 import com.vertyll.veds.template.application.saga.model.TemplateCompensationCommand
 import com.vertyll.veds.template.domain.model.Template
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 internal class TemplateCompensationServiceTest {
     private val templates = InMemoryTemplateRepository()
@@ -37,7 +40,7 @@ internal class TemplateCompensationServiceTest {
 
     @Test
     fun `a template that no longer exists is not an error`() {
-        service.compensate(TemplateCompensationCommand.DeleteTemplate(UUID.randomUUID().toString()))
+        service.compensate(TemplateCompensationCommand.DeleteTemplate(Uuid.generateV7().toString()))
 
         assertTrue(templates.stored.isEmpty())
     }

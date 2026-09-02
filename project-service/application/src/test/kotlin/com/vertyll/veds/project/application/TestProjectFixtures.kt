@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application
 
 import com.vertyll.veds.project.application.dto.Actor
@@ -34,6 +36,9 @@ import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
 import com.vertyll.veds.shared.saga.SagaStepStatus
 import java.time.Instant
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal val ENGLISH = LanguageTag("en")
 internal val POLISH = LanguageTag("pl")
@@ -44,13 +49,13 @@ internal fun translation(
 ) = Translation(language = language, name = name)
 
 internal fun actor(
-    id: UUID = UUID.randomUUID(),
+    id: UUID = Uuid.generateV7().toJavaUuid(),
     email: String = "owner@example.com",
 ) = Actor(id = id, email = email, firstName = "Ada", lastName = "Lovelace")
 
 internal fun project(
     name: String = "Apollo",
-    ownerId: UUID = UUID.randomUUID(),
+    ownerId: UUID = Uuid.generateV7().toJavaUuid(),
     isPublic: Boolean = false,
     typeId: UUID? = null,
     version: Long? = 0L,
@@ -73,7 +78,7 @@ internal fun projectType(code: ProjectTypeCode = ProjectTypeCode.entries.first()
     ProjectType.create(code = code, translations = setOf(translation(code.name)))
 
 internal fun userRef(
-    userId: UUID = UUID.randomUUID(),
+    userId: UUID = Uuid.generateV7().toJavaUuid(),
     email: String = "member@example.com",
 ) = UserRef(userId = userId, email = email, firstName = "Grace", lastName = "Hopper")
 

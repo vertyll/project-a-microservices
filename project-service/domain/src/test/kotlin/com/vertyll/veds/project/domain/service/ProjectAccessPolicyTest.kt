@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.domain.service
 
 import com.vertyll.veds.project.domain.error.ProjectError
@@ -10,16 +12,18 @@ import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.Translation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class ProjectAccessPolicyTest {
-    private val ownerId = UUID.randomUUID()
-    private val memberId = UUID.randomUUID()
-    private val strangerId = UUID.randomUUID()
+    private val ownerId = Uuid.generateV7().toJavaUuid()
+    private val memberId = Uuid.generateV7().toJavaUuid()
+    private val strangerId = Uuid.generateV7().toJavaUuid()
 
     private val managerRole =
         ProjectRole(

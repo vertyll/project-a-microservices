@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.file.application.service.command
 
 import com.vertyll.veds.file.application.command.ConfirmUploadCommand
@@ -19,9 +21,12 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class FileCommandServiceTest {
-    private val actor = Actor(UUID.randomUUID(), "owner@example.com")
+    private val actor = Actor(Uuid.generateV7().toJavaUuid(), "owner@example.com")
     private val files = mutableMapOf<UUID, StoredFile>()
     private val confirmedEvents = mutableListOf<UUID>()
     private var storedSize: Long? = 1_000

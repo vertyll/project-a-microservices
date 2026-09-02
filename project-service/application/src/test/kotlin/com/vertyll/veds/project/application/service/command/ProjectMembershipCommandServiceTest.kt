@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.ENGLISH
@@ -24,6 +26,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectMembershipCommandServiceTest {
     private val projects = InMemoryProjectRepository()
@@ -45,11 +50,11 @@ internal class ProjectMembershipCommandServiceTest {
             eventPublisher = events,
         )
 
-    private val owner = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
     private val existing = project(ownerId = owner).also { projects.given(it) }
 
     private fun givenMember(
-        userId: UUID = UUID.randomUUID(),
+        userId: UUID = Uuid.generateV7().toJavaUuid(),
         roleId: UUID = memberRole.id,
         projectId: UUID = existing.id,
     ): ProjectMember {
@@ -94,7 +99,7 @@ internal class ProjectMembershipCommandServiceTest {
 
     @Test
     fun `a member of another project cannot be reached through this one`() {
-        val elsewhere = givenMember(projectId = UUID.randomUUID())
+        val elsewhere = givenMember(projectId = Uuid.generateV7().toJavaUuid())
 
         val error =
             assertFailsWith<ApiException> {
@@ -108,7 +113,14 @@ internal class ProjectMembershipCommandServiceTest {
     fun `an unknown member is reported as missing`() {
         val error =
             assertFailsWith<ApiException> {
-                service.updateMemberRole(existing.id, UUID.randomUUID(), UpdateMemberRoleCommand(managerRole.id), owner, ENGLISH, 0L)
+                service.updateMemberRole(
+                    existing.id,
+                    Uuid.generateV7().toJavaUuid(),
+                    UpdateMemberRoleCommand(managerRole.id),
+                    owner,
+                    ENGLISH,
+                    0L,
+                )
             }
 
         assertEquals(ProjectError.MEMBER_NOT_FOUND, error.error)
@@ -120,7 +132,14 @@ internal class ProjectMembershipCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.updateMemberRole(existing.id, member.id, UpdateMemberRoleCommand(UUID.randomUUID()), owner, ENGLISH, 0L)
+                service.updateMemberRole(
+                    existing.id,
+                    member.id,
+                    UpdateMemberRoleCommand(Uuid.generateV7().toJavaUuid()),
+                    owner,
+                    ENGLISH,
+                    0L,
+                )
             }
 
         assertEquals(ProjectError.ROLE_NOT_FOUND, error.error)
@@ -176,7 +195,7 @@ internal class ProjectMembershipCommandServiceTest {
 
     @Test
     fun `a member of another project cannot be removed through this one`() {
-        val elsewhere = givenMember(projectId = UUID.randomUUID())
+        val elsewhere = givenMember(projectId = Uuid.generateV7().toJavaUuid())
 
         assertFailsWith<ApiException> { service.removeMember(existing.id, elsewhere.id, owner) }
 

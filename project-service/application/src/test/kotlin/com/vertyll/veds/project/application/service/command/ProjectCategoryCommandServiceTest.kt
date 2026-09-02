@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.ENGLISH
@@ -27,6 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectCategoryCommandServiceTest {
     private val categories = InMemoryCategoryRepository()
@@ -43,7 +48,7 @@ internal class ProjectCategoryCommandServiceTest {
             translationCompleteness = TranslationCompletenessValidator { setOf(ENGLISH, POLISH) },
         )
 
-    private val owner = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
     private val existing = project(ownerId = owner).also { projects.given(it) }
 
     private val complete: Set<Translation> = setOf(translation("Bug", ENGLISH), translation("Błąd", POLISH))
@@ -93,7 +98,7 @@ internal class ProjectCategoryCommandServiceTest {
     @Test
     fun `someone without edit rights cannot add a category`() {
         val viewerRole = role(ProjectRoleCode.CLIENT, permissions = setOf(ProjectPermission.VIEW_PROJECT)).also { roles.given(it) }
-        val viewer = UUID.randomUUID()
+        val viewer = Uuid.generateV7().toJavaUuid()
         members.given(ProjectMember.create(projectId = existing.id, userId = viewer, roleId = viewerRole.id))
 
         assertFailsWith<ApiException> {
@@ -152,7 +157,7 @@ internal class ProjectCategoryCommandServiceTest {
 
     @Test
     fun `a category of another project cannot be reached through this one`() {
-        val elsewhere = givenCategory(projectId = UUID.randomUUID())
+        val elsewhere = givenCategory(projectId = Uuid.generateV7().toJavaUuid())
 
         val error =
             assertFailsWith<ApiException> {
@@ -166,7 +171,14 @@ internal class ProjectCategoryCommandServiceTest {
     fun `an unknown category is reported as missing`() {
         val error =
             assertFailsWith<ApiException> {
-                service.updateCategory(existing.id, UUID.randomUUID(), UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+                service.updateCategory(
+                    existing.id,
+                    Uuid.generateV7().toJavaUuid(),
+                    UpdateCategoryCommand("#00ff00", complete, true),
+                    owner,
+                    ENGLISH,
+                    0L,
+                )
             }
 
         assertEquals(ProjectError.CATEGORY_NOT_FOUND, error.error)
@@ -186,7 +198,7 @@ internal class ProjectCategoryCommandServiceTest {
 
     @Test
     fun `a category of another project cannot be deleted through this one`() {
-        val elsewhere = givenCategory(projectId = UUID.randomUUID())
+        val elsewhere = givenCategory(projectId = Uuid.generateV7().toJavaUuid())
 
         assertFailsWith<ApiException> { service.deleteCategory(existing.id, elsewhere.id, owner) }
 

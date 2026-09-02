@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service
 
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
@@ -10,13 +12,16 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TaskReferenceValidatorTest {
     private val directory = InMemoryProjectDirectory()
     private val validator = TaskReferenceValidator(directory)
 
-    private val projectId = UUID.randomUUID()
-    private val otherProjectId = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
+    private val otherProjectId = Uuid.generateV7().toJavaUuid()
 
     private fun validate(
         statusId: UUID? = null,
@@ -38,7 +43,7 @@ internal class TaskReferenceValidatorTest {
 
     @Test
     fun `an unknown status is refused`() {
-        val error = assertFailsWith<ApiException> { validate(statusId = UUID.randomUUID()) }
+        val error = assertFailsWith<ApiException> { validate(statusId = Uuid.generateV7().toJavaUuid()) }
 
         assertEquals(TaskError.STATUS_NOT_IN_PROJECT, error.error)
     }
@@ -63,7 +68,7 @@ internal class TaskReferenceValidatorTest {
     @Test
     fun `an unknown category is refused and named`() {
         val known = categoryRef(projectId).also { directory.saveCategory(it) }
-        val unknown = UUID.randomUUID()
+        val unknown = Uuid.generateV7().toJavaUuid()
 
         val error = assertFailsWith<ApiException> { validate(categoryIds = setOf(known.categoryId, unknown)) }
 
@@ -87,7 +92,7 @@ internal class TaskReferenceValidatorTest {
 
     @Test
     fun `someone who is not a member cannot be assigned`() {
-        val outsider = UUID.randomUUID()
+        val outsider = Uuid.generateV7().toJavaUuid()
 
         val error = assertFailsWith<ApiException> { validate(assigneeIds = setOf(outsider)) }
 
@@ -104,7 +109,13 @@ internal class TaskReferenceValidatorTest {
 
     @Test
     fun `a bad status is reported before a bad assignee`() {
-        val error = assertFailsWith<ApiException> { validate(statusId = UUID.randomUUID(), assigneeIds = setOf(UUID.randomUUID())) }
+        val error =
+            assertFailsWith<ApiException> {
+                validate(
+                    statusId = Uuid.generateV7().toJavaUuid(),
+                    assigneeIds = setOf(Uuid.generateV7().toJavaUuid()),
+                )
+            }
 
         assertEquals(TaskError.STATUS_NOT_IN_PROJECT, error.error)
     }

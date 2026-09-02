@@ -1,16 +1,20 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.translation.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class TranslationValueTest {
-    private val editor = UUID.randomUUID()
+    private val editor = Uuid.generateV7().toJavaUuid()
     private val pl = LanguageTag.of("pl")
 
     private fun seeded() = TranslationValue.seeded("project.not_found", pl, "Nie znaleziono projektu.")

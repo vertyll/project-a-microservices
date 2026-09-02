@@ -1,19 +1,23 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.domain.model
 
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class ProjectInvitationTest {
-    private val projectId = UUID.randomUUID()
-    private val inviterId = UUID.randomUUID()
-    private val inviteeId = UUID.randomUUID()
-    private val roleId = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
+    private val inviterId = Uuid.generateV7().toJavaUuid()
+    private val inviteeId = Uuid.generateV7().toJavaUuid()
+    private val roleId = Uuid.generateV7().toJavaUuid()
 
     private fun pending() =
         ProjectInvitation.create(

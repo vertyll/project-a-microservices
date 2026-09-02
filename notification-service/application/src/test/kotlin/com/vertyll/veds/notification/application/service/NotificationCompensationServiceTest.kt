@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.notification.application.service
 
 import com.vertyll.veds.notification.application.InMemoryNotificationRepository
@@ -6,16 +8,18 @@ import com.vertyll.veds.notification.application.saga.model.NotificationCompensa
 import com.vertyll.veds.notification.domain.model.Notification
 import com.vertyll.veds.notification.domain.model.NotificationType
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class NotificationCompensationServiceTest {
     private val notifications = InMemoryNotificationRepository()
     private val service = NotificationCompensationService(notifications, SilentLogger)
 
     private fun givenNotification() =
-        Notification(recipientId = UUID.randomUUID(), type = NotificationType.PROJECT_INVITATION)
+        Notification(recipientId = Uuid.generateV7().toJavaUuid(), type = NotificationType.PROJECT_INVITATION)
             .also { notifications.given(it) }
 
     @Test
@@ -42,7 +46,7 @@ internal class NotificationCompensationServiceTest {
 
     @Test
     fun `a notification that no longer exists is not an error`() {
-        service.compensate(NotificationCompensationCommand.DeleteNotification(UUID.randomUUID().toString()))
+        service.compensate(NotificationCompensationCommand.DeleteNotification(Uuid.generateV7().toString()))
 
         assertTrue(notifications.stored.isEmpty())
     }

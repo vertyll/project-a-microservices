@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class TranslationTest {
     private val pl = LanguageTag.of("pl")
@@ -13,7 +17,7 @@ class TranslationTest {
     fun `accepts a single language`() {
         val category =
             ProjectCategory.create(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 color = "#fff",
                 translations = setOf(Translation(pl, "Blad")),
             )
@@ -25,7 +29,7 @@ class TranslationTest {
     fun `rejects an empty translation set`() {
         assertFailsWith<IllegalArgumentException> {
             ProjectStatus.create(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 color = "#fff",
                 translations = emptySet(),
             )
@@ -36,7 +40,7 @@ class TranslationTest {
     fun `rejects two translations for the same language`() {
         assertFailsWith<IllegalArgumentException> {
             ProjectCategory.create(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 color = "#fff",
                 translations = setOf(Translation(pl, "Blad"), Translation(pl, "Usterka")),
             )
@@ -47,7 +51,7 @@ class TranslationTest {
     fun `resolves the requested language when present`() {
         val category =
             ProjectCategory.create(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 color = "#fff",
                 translations = setOf(Translation(pl, "Blad"), Translation(en, "Bug")),
             )
@@ -60,7 +64,7 @@ class TranslationTest {
     fun `falls back to what the author wrote when the language is missing`() {
         val category =
             ProjectCategory.create(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 color = "#fff",
                 translations = setOf(Translation(pl, "Blad")),
             )

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.infrastructure.persistence.query
 
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
@@ -14,6 +16,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.assertEquals
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TaskQueryAdapterIntegrationTest
     @Autowired
@@ -22,8 +27,8 @@ internal class TaskQueryAdapterIntegrationTest
         private val tasks: TaskJpaRepository,
         private val userRefs: UserRefJpaRepository,
     ) : IntegrationTestBase() {
-        private val projectId: UUID = UUID.randomUUID()
-        private val assigneeId: UUID = UUID.randomUUID()
+        private val projectId: UUID = Uuid.generateV7().toJavaUuid()
+        private val assigneeId: UUID = Uuid.generateV7().toJavaUuid()
 
         @BeforeEach
         fun resetSharedState() {
@@ -43,7 +48,7 @@ internal class TaskQueryAdapterIntegrationTest
             )
             tasks.save(
                 TaskJpaEntity(
-                    id = UUID.randomUUID(),
+                    id = Uuid.generateV7().toJavaUuid(),
                     projectId = projectId,
                     number = 1,
                     description = "assigned task",

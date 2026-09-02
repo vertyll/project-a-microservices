@@ -1,22 +1,26 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.notification.domain.model
 
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class NotificationTest {
-    private val recipient = UUID.randomUUID()
+    private val recipient = Uuid.generateV7().toJavaUuid()
 
     private fun notification() =
         Notification.create(
             recipientId = recipient,
             type = NotificationType.TASK_ASSIGNED,
-            params = mapOf("actorId" to UUID.randomUUID().toString()),
+            params = mapOf("actorId" to Uuid.generateV7().toString()),
         )
 
     @Test
@@ -59,6 +63,6 @@ class NotificationTest {
     @Test
     fun `recognises its recipient`() {
         assertTrue(notification().isFor(recipient))
-        assertFalse(notification().isFor(UUID.randomUUID()))
+        assertFalse(notification().isFor(Uuid.generateV7().toJavaUuid()))
     }
 }

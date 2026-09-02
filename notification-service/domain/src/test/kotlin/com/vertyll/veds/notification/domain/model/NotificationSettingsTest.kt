@@ -1,12 +1,16 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.notification.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class NotificationSettingsTest {
-    private val userId = UUID.randomUUID()
+    private val userId = Uuid.generateV7().toJavaUuid()
 
     @Test
     fun `defaults notify in-app for everything`() {

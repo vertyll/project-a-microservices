@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service.command
 
 import com.vertyll.veds.task.application.InMemoryCommentRepository
@@ -22,6 +24,9 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TaskCommentCommandServiceTest {
     private val comments = InMemoryCommentRepository()
@@ -42,7 +47,7 @@ internal class TaskCommentCommandServiceTest {
     private val projectId = project.projectId
 
     private fun actorWithRole(roleCode: String): Actor {
-        val id = UUID.randomUUID()
+        val id = Uuid.generateV7().toJavaUuid()
         directory.saveMembership(membership(projectId, id, roleCode))
         return Actor(id = id, email = "$roleCode@example.com", firstName = "Test", lastName = "User")
     }
@@ -91,7 +96,7 @@ internal class TaskCommentCommandServiceTest {
 
     @Test
     fun `someone with no membership cannot comment`() {
-        val outsider = Actor(UUID.randomUUID(), "out@example.com", null, null)
+        val outsider = Actor(Uuid.generateV7().toJavaUuid(), "out@example.com", null, null)
 
         assertFailsWith<ApiException> { service.addComment(existingTask.id, CreateCommentCommand("Hello", emptySet()), outsider) }
 
@@ -132,7 +137,8 @@ internal class TaskCommentCommandServiceTest {
 
     @Test
     fun `an unknown comment is reported as missing`() {
-        val error = assertFailsWith<ApiException> { service.editComment(UUID.randomUUID(), UpdateCommentCommand("x"), author, 0L) }
+        val error =
+            assertFailsWith<ApiException> { service.editComment(Uuid.generateV7().toJavaUuid(), UpdateCommentCommand("x"), author, 0L) }
 
         assertEquals(TaskError.COMMENT_NOT_FOUND, error.error)
     }
@@ -183,7 +189,7 @@ internal class TaskCommentCommandServiceTest {
 
     @Test
     fun `deleting an unknown comment is reported as missing`() {
-        val error = assertFailsWith<ApiException> { service.deleteComment(UUID.randomUUID(), author) }
+        val error = assertFailsWith<ApiException> { service.deleteComment(Uuid.generateV7().toJavaUuid(), author) }
 
         assertEquals(TaskError.COMMENT_NOT_FOUND, error.error)
     }

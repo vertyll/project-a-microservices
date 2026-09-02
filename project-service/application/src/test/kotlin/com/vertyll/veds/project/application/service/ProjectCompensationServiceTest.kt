@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.InMemoryInvitationRepository
@@ -8,9 +10,11 @@ import com.vertyll.veds.project.application.saga.model.ProjectCompensationComman
 import com.vertyll.veds.project.domain.model.InvitationStatus
 import com.vertyll.veds.project.domain.model.ProjectInvitation
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectCompensationServiceTest {
     private val invitations = InMemoryInvitationRepository()
@@ -24,10 +28,10 @@ internal class ProjectCompensationServiceTest {
     fun `a pending invitation is expired`() {
         val invitation =
             ProjectInvitation(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 inviteeEmail = "a@example.com",
-                inviterId = UUID.randomUUID(),
-                roleId = UUID.randomUUID(),
+                inviterId = Uuid.generateV7().toJavaUuid(),
+                roleId = Uuid.generateV7().toJavaUuid(),
             ).also { invitations.given(it) }
 
         service.compensate(ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), "mail failed"))
@@ -39,11 +43,11 @@ internal class ProjectCompensationServiceTest {
     fun `an invitation that is no longer pending is left as it is`() {
         val accepted =
             ProjectInvitation(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 inviteeEmail = "a@example.com",
-                inviterId = UUID.randomUUID(),
-                roleId = UUID.randomUUID(),
-            ).accept(UUID.randomUUID())
+                inviterId = Uuid.generateV7().toJavaUuid(),
+                roleId = Uuid.generateV7().toJavaUuid(),
+            ).accept(Uuid.generateV7().toJavaUuid())
                 .also { invitations.given(it) }
 
         service.compensate(ProjectCompensationCommand.RevokeInvitation(accepted.id.toString(), "mail failed"))
@@ -55,10 +59,10 @@ internal class ProjectCompensationServiceTest {
     fun `revoking twice is harmless`() {
         val invitation =
             ProjectInvitation(
-                projectId = UUID.randomUUID(),
+                projectId = Uuid.generateV7().toJavaUuid(),
                 inviteeEmail = "a@example.com",
-                inviterId = UUID.randomUUID(),
-                roleId = UUID.randomUUID(),
+                inviterId = Uuid.generateV7().toJavaUuid(),
+                roleId = Uuid.generateV7().toJavaUuid(),
             ).also { invitations.given(it) }
         val command = ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), "mail failed")
 
@@ -70,7 +74,7 @@ internal class ProjectCompensationServiceTest {
 
     @Test
     fun `an invitation that no longer exists is not an error`() {
-        service.compensate(ProjectCompensationCommand.RevokeInvitation(UUID.randomUUID().toString(), "mail failed"))
+        service.compensate(ProjectCompensationCommand.RevokeInvitation(Uuid.generateV7().toString(), "mail failed"))
 
         assertTrue(invitations.stored.isEmpty())
     }
@@ -108,7 +112,7 @@ internal class ProjectCompensationServiceTest {
 
     @Test
     fun `a project that no longer exists is not an error`() {
-        service.compensate(ProjectCompensationCommand.RestoreProject(UUID.randomUUID().toString(), "downstream refused"))
+        service.compensate(ProjectCompensationCommand.RestoreProject(Uuid.generateV7().toString(), "downstream refused"))
 
         assertTrue(projects.stored.isEmpty())
     }

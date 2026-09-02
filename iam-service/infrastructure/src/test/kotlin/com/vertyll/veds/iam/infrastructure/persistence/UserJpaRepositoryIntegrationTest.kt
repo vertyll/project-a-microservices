@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.iam.infrastructure.persistence
 
 import com.vertyll.veds.iam.infrastructure.IntegrationTestBase
@@ -13,6 +15,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class UserJpaRepositoryIntegrationTest
     @Autowired
@@ -20,7 +25,7 @@ internal class UserJpaRepositoryIntegrationTest
         private val users: UserJpaRepository,
         private val roles: RoleJpaRepository,
     ) : IntegrationTestBase() {
-        private val keycloakId: UUID = UUID.randomUUID()
+        private val keycloakId: UUID = Uuid.generateV7().toJavaUuid()
 
         private companion object {
             private const val EMAIL = "entity-graph-probe@example.com"

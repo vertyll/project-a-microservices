@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.infrastructure.saga
 
 import com.vertyll.veds.project.infrastructure.IntegrationTestBase
@@ -7,9 +9,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
-import java.util.UUID
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class ProcessedEventGuardIntegrationTest : IntegrationTestBase() {
     @Autowired
@@ -27,7 +30,7 @@ class ProcessedEventGuardIntegrationTest : IntegrationTestBase() {
 
     @Test
     fun `a failed handler leaves no claim, so the redelivery is a retry`() {
-        val eventId = UUID.randomUUID().toString()
+        val eventId = Uuid.generateV7().toString()
 
         runCatching {
             inTransaction {
@@ -44,7 +47,7 @@ class ProcessedEventGuardIntegrationTest : IntegrationTestBase() {
 
     @Test
     fun `a committed handler keeps its claim, so a duplicate is skipped`() {
-        val eventId = UUID.randomUUID().toString()
+        val eventId = Uuid.generateV7().toString()
 
         inTransaction { assertTrue(guard.claim(eventId, group)) }
 

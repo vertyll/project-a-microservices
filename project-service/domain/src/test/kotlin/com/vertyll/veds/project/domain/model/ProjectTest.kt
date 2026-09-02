@@ -1,15 +1,19 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.domain.model
 
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class ProjectTest {
-    private val ownerId = UUID.randomUUID()
+    private val ownerId = Uuid.generateV7().toJavaUuid()
 
     private fun project() = Project.create("Apollo", null, false, null, ownerId)
 
@@ -55,6 +59,6 @@ class ProjectTest {
         val project = project()
 
         assertTrue(project.isOwnedBy(ownerId))
-        assertFalse(project.isOwnedBy(UUID.randomUUID()))
+        assertFalse(project.isOwnedBy(Uuid.generateV7().toJavaUuid()))
     }
 }

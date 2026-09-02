@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.infrastructure.saga
 
 import com.vertyll.veds.project.application.command.CreateProjectCommand
@@ -16,10 +18,12 @@ import com.vertyll.veds.shared.saga.SagaStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
     @Autowired
@@ -47,7 +51,7 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
 
     private fun owner() =
         Actor(
-            id = UUID.randomUUID(),
+            id = Uuid.generateV7().toJavaUuid(),
             email = "owner@example.com",
             firstName = "Ada",
             lastName = "Lovelace",

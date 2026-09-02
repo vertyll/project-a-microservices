@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.ENGLISH
@@ -14,6 +16,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class MemberViewAssemblerTest {
     private val roles = InMemoryRoleRepository()
@@ -21,7 +26,7 @@ internal class MemberViewAssemblerTest {
 
     private val assembler = MemberViewAssembler(roles, users)
 
-    private val projectId = UUID.randomUUID()
+    private val projectId = Uuid.generateV7().toJavaUuid()
     private val memberRole = role(ProjectRoleCode.MEMBER).also { roles.given(it) }
 
     private fun member(userId: UUID) = ProjectMember.create(projectId = projectId, userId = userId, roleId = memberRole.id)
@@ -53,7 +58,7 @@ internal class MemberViewAssemblerTest {
 
     @Test
     fun `a member the directory does not know is an error`() {
-        val error = assertFailsWith<ApiException> { assembler.assemble(listOf(member(UUID.randomUUID())), ENGLISH) }
+        val error = assertFailsWith<ApiException> { assembler.assemble(listOf(member(Uuid.generateV7().toJavaUuid())), ENGLISH) }
 
         assertEquals(ProjectError.MEMBER_NOT_FOUND, error.error)
     }
@@ -61,7 +66,7 @@ internal class MemberViewAssemblerTest {
     @Test
     fun `a membership pointing at a role that no longer exists is an error`() {
         val user = userRef().also { users.given(it) }
-        val orphaned = ProjectMember.create(projectId = projectId, userId = user.userId, roleId = UUID.randomUUID())
+        val orphaned = ProjectMember.create(projectId = projectId, userId = user.userId, roleId = Uuid.generateV7().toJavaUuid())
 
         val error = assertFailsWith<ApiException> { assembler.assemble(listOf(orphaned), ENGLISH) }
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.iam.application.service.command
 
 import com.vertyll.veds.iam.application.InMemoryRoleRepository
@@ -10,10 +12,12 @@ import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.Role
 import com.vertyll.veds.iam.domain.model.RoleType
 import org.junit.jupiter.api.Test
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class UserProvisioningServiceTest {
     private val users = InMemoryUserRepository()
@@ -24,7 +28,7 @@ internal class UserProvisioningServiceTest {
 
     private val identity =
         AuthenticatedIdentity(
-            keycloakId = UUID.randomUUID(),
+            keycloakId = Uuid.generateV7().toJavaUuid(),
             email = "keycloak-native@example.com",
             firstName = "Keycloak",
             lastName = "Native",

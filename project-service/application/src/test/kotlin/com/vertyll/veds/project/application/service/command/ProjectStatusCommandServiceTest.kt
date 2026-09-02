@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.ENGLISH
@@ -27,6 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectStatusCommandServiceTest {
     private val statuses = InMemoryStatusRepository()
@@ -43,7 +48,7 @@ internal class ProjectStatusCommandServiceTest {
             translationCompleteness = TranslationCompletenessValidator { setOf(ENGLISH, POLISH) },
         )
 
-    private val owner = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
     private val existing = project(ownerId = owner).also { projects.given(it) }
 
     private val complete: Set<Translation> = setOf(translation("In progress", ENGLISH), translation("W toku", POLISH))
@@ -98,7 +103,7 @@ internal class ProjectStatusCommandServiceTest {
     @Test
     fun `someone without edit rights cannot add a status`() {
         val viewerRole = role(ProjectRoleCode.CLIENT, permissions = setOf(ProjectPermission.VIEW_PROJECT)).also { roles.given(it) }
-        val viewer = UUID.randomUUID()
+        val viewer = Uuid.generateV7().toJavaUuid()
         members.given(ProjectMember.create(projectId = existing.id, userId = viewer, roleId = viewerRole.id))
 
         assertFailsWith<ApiException> {
@@ -157,7 +162,7 @@ internal class ProjectStatusCommandServiceTest {
 
     @Test
     fun `a status of another project cannot be reached through this one`() {
-        val elsewhere = givenStatus(projectId = UUID.randomUUID())
+        val elsewhere = givenStatus(projectId = Uuid.generateV7().toJavaUuid())
 
         val error =
             assertFailsWith<ApiException> {
@@ -171,7 +176,14 @@ internal class ProjectStatusCommandServiceTest {
     fun `an unknown status is reported as missing`() {
         val error =
             assertFailsWith<ApiException> {
-                service.updateStatus(existing.id, UUID.randomUUID(), UpdateStatusCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+                service.updateStatus(
+                    existing.id,
+                    Uuid.generateV7().toJavaUuid(),
+                    UpdateStatusCommand("#00ff00", complete, true),
+                    owner,
+                    ENGLISH,
+                    0L,
+                )
             }
 
         assertEquals(ProjectError.STATUS_NOT_FOUND, error.error)
@@ -191,7 +203,7 @@ internal class ProjectStatusCommandServiceTest {
 
     @Test
     fun `a status of another project cannot be deleted through this one`() {
-        val elsewhere = givenStatus(projectId = UUID.randomUUID())
+        val elsewhere = givenStatus(projectId = Uuid.generateV7().toJavaUuid())
 
         assertFailsWith<ApiException> { service.deleteStatus(existing.id, elsewhere.id, owner) }
 

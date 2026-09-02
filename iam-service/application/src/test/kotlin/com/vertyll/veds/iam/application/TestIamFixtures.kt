@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.iam.application
 
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
@@ -19,11 +21,14 @@ import com.vertyll.veds.shared.saga.SagaStepStatus
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal fun user(
     id: Long = 1L,
     email: String = "ada@example.com",
-    keycloakId: UUID? = UUID.randomUUID(),
+    keycloakId: UUID? = Uuid.generateV7().toJavaUuid(),
     roles: Set<Role> = emptySet(),
 ) = User(id = id, keycloakId = keycloakId, email = email, firstName = "Ada", lastName = "Lovelace", roles = roles)
 

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.notification.application.service.command
 
 import com.vertyll.veds.notification.application.InMemoryNotificationRepository
@@ -21,6 +23,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class NotificationCommandServiceTest {
     private val notifications = InMemoryNotificationRepository()
@@ -31,8 +36,8 @@ internal class NotificationCommandServiceTest {
 
     private val service = NotificationCommandService(notifications, settings, recipients, push, mail, SilentLogger)
 
-    private val alice = UUID.randomUUID()
-    private val bob = UUID.randomUUID()
+    private val alice = Uuid.generateV7().toJavaUuid()
+    private val bob = Uuid.generateV7().toJavaUuid()
 
     private fun raise(
         recipientIds: Set<UUID>,
@@ -214,7 +219,7 @@ internal class NotificationCommandServiceTest {
 
     @Test
     fun `an unknown notification is reported as missing`() {
-        val error = assertFailsWith<ApiException> { service.markRead(MarkReadCommand(setOf(UUID.randomUUID())), alice) }
+        val error = assertFailsWith<ApiException> { service.markRead(MarkReadCommand(setOf(Uuid.generateV7().toJavaUuid())), alice) }
 
         assertEquals(NotificationError.NOTIFICATION_NOT_FOUND, error.error)
     }
@@ -242,7 +247,7 @@ internal class NotificationCommandServiceTest {
 
     @Test
     fun `notifications about a vanished subject are retired`() {
-        val subject = UUID.randomUUID()
+        val subject = Uuid.generateV7().toJavaUuid()
         val about = givenNotification(subjectId = subject)
         val unrelated = givenNotification()
 
@@ -254,7 +259,7 @@ internal class NotificationCommandServiceTest {
 
     @Test
     fun `retiring refreshes the badge of everyone affected`() {
-        val subject = UUID.randomUUID()
+        val subject = Uuid.generateV7().toJavaUuid()
         givenNotification(recipientId = alice, subjectId = subject)
         givenNotification(recipientId = bob, subjectId = subject)
 
@@ -266,7 +271,7 @@ internal class NotificationCommandServiceTest {
 
     @Test
     fun `retiring a subject twice is harmless`() {
-        val subject = UUID.randomUUID()
+        val subject = Uuid.generateV7().toJavaUuid()
         givenNotification(subjectId = subject)
 
         assertEquals(1, service.retire(RetireNotificationsCommand(subject)))
@@ -275,7 +280,7 @@ internal class NotificationCommandServiceTest {
 
     @Test
     fun `a subject nothing points at retires nothing`() {
-        assertEquals(0, service.retire(RetireNotificationsCommand(UUID.randomUUID())))
+        assertEquals(0, service.retire(RetireNotificationsCommand(Uuid.generateV7().toJavaUuid())))
     }
 
     @Test

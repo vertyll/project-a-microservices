@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.task.application.service.command
 
 import com.vertyll.veds.task.application.InMemoryCommentRepository
@@ -27,6 +29,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class TaskCommandServiceTest {
     private val tasks = InMemoryTaskRepository()
@@ -48,7 +53,7 @@ internal class TaskCommandServiceTest {
     private val project = projectRef().also { directory.saveProject(it) }
     private val projectId = project.projectId
 
-    private val actor = Actor(id = UUID.randomUUID(), email = "ada@example.com", firstName = "Ada", lastName = "Lovelace")
+    private val actor = Actor(id = Uuid.generateV7().toJavaUuid(), email = "ada@example.com", firstName = "Ada", lastName = "Lovelace")
 
     init {
         directory.saveMembership(membership(projectId, actor.id, roleCode = "MANAGER"))
@@ -118,7 +123,7 @@ internal class TaskCommandServiceTest {
 
     @Test
     fun `a status from another project cannot be used`() {
-        val elsewhere = statusRef(UUID.randomUUID()).also { directory.saveStatus(it) }
+        val elsewhere = statusRef(Uuid.generateV7().toJavaUuid()).also { directory.saveStatus(it) }
 
         val error = assertFailsWith<ApiException> { service.createTask(createCommand(statusId = elsewhere.statusId), actor) }
 
@@ -128,7 +133,7 @@ internal class TaskCommandServiceTest {
 
     @Test
     fun `someone who is not a member cannot create a task`() {
-        val outsider = Actor(UUID.randomUUID(), "out@example.com", null, null)
+        val outsider = Actor(Uuid.generateV7().toJavaUuid(), "out@example.com", null, null)
 
         assertFailsWith<ApiException> { service.createTask(createCommand(), outsider) }
 
@@ -201,7 +206,7 @@ internal class TaskCommandServiceTest {
             assertFailsWith<ApiException> {
                 service.updateTask(
                     existing.id,
-                    updateCommand(assigneeIds = setOf(UUID.randomUUID())),
+                    updateCommand(assigneeIds = setOf(Uuid.generateV7().toJavaUuid())),
                     actor,
                     0L,
                 )
@@ -234,7 +239,7 @@ internal class TaskCommandServiceTest {
     @Test
     fun `a status from another project cannot be moved to`() {
         val existing = givenTask(statusId = todo.statusId)
-        val elsewhere = statusRef(UUID.randomUUID()).also { directory.saveStatus(it) }
+        val elsewhere = statusRef(Uuid.generateV7().toJavaUuid()).also { directory.saveStatus(it) }
 
         assertFailsWith<ApiException> { service.changeStatus(existing.id, ChangeTaskStatusCommand(elsewhere.statusId), actor, 0L) }
 
@@ -316,7 +321,7 @@ internal class TaskCommandServiceTest {
     @Test
     fun `a batch containing an unreachable task archives nothing`() {
         val mine = givenTask()
-        val elsewhere = task(UUID.randomUUID()).also { tasks.given(it) }
+        val elsewhere = task(Uuid.generateV7().toJavaUuid()).also { tasks.given(it) }
 
         assertFailsWith<ApiException> { service.archiveTasks(BatchDeleteTasksCommand(setOf(mine.id, elsewhere.id)), actor) }
 

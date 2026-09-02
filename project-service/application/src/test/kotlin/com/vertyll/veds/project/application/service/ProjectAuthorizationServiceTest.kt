@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.InMemoryMemberRepository
@@ -15,6 +17,9 @@ import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectAuthorizationServiceTest {
     private val projects = InMemoryProjectRepository()
@@ -23,8 +28,8 @@ internal class ProjectAuthorizationServiceTest {
 
     private val service = ProjectAuthorizationService(projects, members, roles)
 
-    private val owner = UUID.randomUUID()
-    private val outsider = UUID.randomUUID()
+    private val owner = Uuid.generateV7().toJavaUuid()
+    private val outsider = Uuid.generateV7().toJavaUuid()
 
     private fun givenMember(
         projectId: UUID,
@@ -52,7 +57,13 @@ internal class ProjectAuthorizationServiceTest {
         val onExisting =
             assertFailsWith<ApiException> { service.requirePermission(existing.id, outsider, ProjectPermission.VIEW_PROJECT) }
         val onMissing =
-            assertFailsWith<ApiException> { service.requirePermission(UUID.randomUUID(), outsider, ProjectPermission.VIEW_PROJECT) }
+            assertFailsWith<ApiException> {
+                service.requirePermission(
+                    Uuid.generateV7().toJavaUuid(),
+                    outsider,
+                    ProjectPermission.VIEW_PROJECT,
+                )
+            }
 
         assertEquals(ProjectError.PROJECT_NOT_FOUND, onExisting.error)
         assertEquals(onMissing.error, onExisting.error)
@@ -98,7 +109,13 @@ internal class ProjectAuthorizationServiceTest {
     @Test
     fun `a missing project is reported before anything else is checked`() {
         val error =
-            assertFailsWith<ApiException> { service.requirePermission(UUID.randomUUID(), owner, ProjectPermission.VIEW_PROJECT) }
+            assertFailsWith<ApiException> {
+                service.requirePermission(
+                    Uuid.generateV7().toJavaUuid(),
+                    owner,
+                    ProjectPermission.VIEW_PROJECT,
+                )
+            }
 
         assertEquals(ProjectError.PROJECT_NOT_FOUND, error.error)
     }
@@ -138,6 +155,6 @@ internal class ProjectAuthorizationServiceTest {
 
     @Test
     fun `asking about a project that does not exist is an error`() {
-        assertFailsWith<ApiException> { service.effectivePermissions(UUID.randomUUID(), owner) }
+        assertFailsWith<ApiException> { service.effectivePermissions(Uuid.generateV7().toJavaUuid(), owner) }
     }
 }

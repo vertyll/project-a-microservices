@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.InMemoryMemberRepository
@@ -24,6 +26,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 internal class ProjectCommandServiceTest {
     private val projects = InMemoryProjectRepository()
@@ -110,14 +115,14 @@ internal class ProjectCommandServiceTest {
 
     @Test
     fun `an unknown project type is rejected`() {
-        val error = assertFailsWith<ApiException> { service.createProject(createCommand(typeId = UUID.randomUUID()), creator) }
+        val error = assertFailsWith<ApiException> { service.createProject(createCommand(typeId = Uuid.generateV7().toJavaUuid()), creator) }
 
         assertEquals(ProjectError.TYPE_NOT_FOUND, error.error)
     }
 
     @Test
     fun `a project with an unknown type is not saved`() {
-        runCatching { service.createProject(createCommand(typeId = UUID.randomUUID()), creator) }
+        runCatching { service.createProject(createCommand(typeId = Uuid.generateV7().toJavaUuid()), creator) }
 
         assertTrue(projects.stored.isEmpty())
         assertTrue(events.published.isEmpty())
@@ -191,7 +196,7 @@ internal class ProjectCommandServiceTest {
     @Test
     fun `someone without edit rights cannot update`() {
         val existing = givenManagedProject()
-        val outsider = UUID.randomUUID()
+        val outsider = Uuid.generateV7().toJavaUuid()
 
         val error =
             assertFailsWith<ApiException> {
@@ -229,7 +234,7 @@ internal class ProjectCommandServiceTest {
 
     @Test
     fun `archiving requires the delete permission`() {
-        val existing = project(ownerId = UUID.randomUUID())
+        val existing = project(ownerId = Uuid.generateV7().toJavaUuid())
         val viewerRole = role(ProjectRoleCode.CLIENT, permissions = setOf(ProjectPermission.VIEW_PROJECT))
         roles.given(viewerRole)
         projects.given(existing)
