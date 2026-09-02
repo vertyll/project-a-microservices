@@ -7,6 +7,7 @@ data class TaskDetailsResponse(
     val statusName: String?,
     val categories: List<TaskCategoryView>,
     val assignees: List<TaskUserView>,
+    val createdBy: TaskUserView?,
     val comments: List<TaskCommentResponse>,
     val permissions: Set<TaskPermission>,
 )

@@ -74,7 +74,7 @@ class ProjectCommandService(
             roleCode = managerRole.code.name,
         )
 
-        return ProjectResponse.from(project)
+        return ProjectResponse.from(project, authorization.effectivePermissions(project.id, actor.id))
     }
 
     override fun updateProject(
@@ -105,7 +105,7 @@ class ProjectCommandService(
 
         eventPublisher.publishProjectUpdated(updated.id, updated.name)
 
-        return ProjectResponse.from(updated)
+        return ProjectResponse.from(updated, authorization.effectivePermissions(updated.id, actorId))
     }
 
     override fun archiveProject(

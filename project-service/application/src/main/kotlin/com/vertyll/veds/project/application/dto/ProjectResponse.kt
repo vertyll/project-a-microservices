@@ -1,6 +1,7 @@
 package com.vertyll.veds.project.application.dto
 
 import com.vertyll.veds.project.domain.model.Project
+import com.vertyll.veds.project.domain.model.ProjectPermission
 import java.time.Instant
 import java.util.UUID
 
@@ -16,9 +17,13 @@ data class ProjectResponse(
     val createdAt: Instant,
     val updatedAt: Instant,
     val version: Long?,
+    val permissions: Set<ProjectPermission> = emptySet(),
 ) {
     companion object {
-        fun from(project: Project): ProjectResponse =
+        fun from(
+            project: Project,
+            permissions: Set<ProjectPermission> = emptySet(),
+        ): ProjectResponse =
             ProjectResponse(
                 id = project.id,
                 name = project.name,
@@ -31,6 +36,7 @@ data class ProjectResponse(
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt,
                 version = project.version,
+                permissions = permissions,
             )
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.time.Instant
 
 @Component
@@ -20,6 +21,9 @@ internal class SessionTokenRelayFilter(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     private companion object {
+        private val REFRESH_LOCK_TTL: Duration = Duration.ofSeconds(10)
+        private val REFRESH_WAIT_INTERVAL: Duration = Duration.ofMillis(150)
+        private const val REFRESH_WAIT_ATTEMPTS = 20
         private const val REFRESH_SKEW_SECONDS = 30L
         private const val BEARER_PREFIX = "Bearer "
 
@@ -56,11 +60,32 @@ internal class SessionTokenRelayFilter(
     ): Mono<AuthSession> {
         if (!session.needsRefreshAt(Instant.now(), REFRESH_SKEW_SECONDS)) return Mono.just(session)
 
-        return keycloakTokenClient
+        return sessionStore
+            .claimRefresh(sessionId, REFRESH_LOCK_TTL)
+            .flatMap { claimed ->
+                if (claimed) refreshNow(sessionId, session) else awaitRefreshedElsewhere(sessionId, session)
+            }
+    }
+
+    private fun refreshNow(
+        sessionId: String,
+        session: AuthSession,
+    ): Mono<AuthSession> =
+        keycloakTokenClient
             .refresh(session.refreshToken)
             .flatMap { refreshed -> sessionStore.update(sessionId, refreshed).thenReturn(refreshed) }
             .onErrorResume { ex -> sessionRefreshedElsewhere(sessionId, session, ex) }
-    }
+
+    private fun awaitRefreshedElsewhere(
+        sessionId: String,
+        stale: AuthSession,
+    ): Mono<AuthSession> =
+        Mono
+            .defer { sessionStore.find(sessionId) }
+            .filter { current -> current.refreshToken != stale.refreshToken }
+            .repeatWhenEmpty(REFRESH_WAIT_ATTEMPTS) { attempts -> attempts.delayElements(REFRESH_WAIT_INTERVAL) }
+            .onErrorReturn(stale)
+            .defaultIfEmpty(stale)
 
     private fun sessionRefreshedElsewhere(
         sessionId: String,

@@ -2,7 +2,10 @@ package com.vertyll.veds.apigateway.session
 
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.never
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
@@ -151,6 +154,33 @@ internal class SessionTokenRelayFilterTest {
         assertEquals(1, deletions)
     }
 
+    @Test
+    fun `a request that does not win the claim never calls Keycloak and waits for the new tokens`() {
+        val stale = session().copy(accessTokenExpiresAt = Instant.now().minusSeconds(1))
+        val refreshedByWinner = session().copy(accessToken = "winner-token", refreshToken = "winner-refresh")
+        val store =
+            object : NoOpSessionStore() {
+                private var reads = 0
+
+                override fun find(sessionId: String): Mono<AuthSession> {
+                    reads++
+                    return Mono.just(if (reads < 3) stale else refreshedByWinner)
+                }
+
+                override fun claimRefresh(
+                    sessionId: String,
+                    ttl: java.time.Duration,
+                ): Mono<Boolean> = Mono.just(false)
+            }
+        val keycloak = mock(KeycloakTokenClient::class.java)
+        val chain = RecordingChain()
+
+        filterWith(store, keycloak).filter(exchangeWithSession(), chain).block()
+
+        assertEquals(listOf<String?>("Bearer winner-token"), chain.authorizationHeaders)
+        verify(keycloak, never()).refresh(anyString())
+    }
+
     private open class NoOpSessionStore : SessionStore {
         override fun create(session: AuthSession): Mono<String> = Mono.empty()
 
@@ -162,5 +192,10 @@ internal class SessionTokenRelayFilterTest {
         ): Mono<Void> = Mono.empty()
 
         override fun delete(sessionId: String): Mono<Void> = Mono.empty()
+
+        override fun claimRefresh(
+            sessionId: String,
+            ttl: java.time.Duration,
+        ): Mono<Boolean> = Mono.just(true)
     }
 }

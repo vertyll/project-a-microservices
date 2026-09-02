@@ -91,16 +91,18 @@ class TaskQueryService(
                     ?.name
             }
 
-        val assignees =
-            userDirectory.findAllByIds(task.assigneeIds).map {
-                TaskUserView(id = it.userId, displayName = it.displayName, avatarFileId = it.avatarFileId)
-            }
+        val people = userDirectory.findAllByIds(task.assigneeIds + task.createdBy).associateBy { it.userId }
+        val toView = { userId: UUID ->
+            people[userId]?.let { TaskUserView(id = it.userId, displayName = it.displayName, avatarFileId = it.avatarFileId) }
+        }
+        val assignees = task.assigneeIds.mapNotNull(toView)
 
         return TaskDetailsResponse(
             task = TaskResponse.from(task),
             statusName = statusName,
             categories = categories,
             assignees = assignees,
+            createdBy = toView(task.createdBy),
             comments = queryPort.findComments(taskId),
             permissions = authorization.effectivePermissions(task.projectId, actorId),
         )

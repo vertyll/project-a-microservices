@@ -29,7 +29,8 @@ class ProjectQueryService(
         actorId: UUID,
     ): ProjectResponse {
         authorization.requirePermission(projectId, actorId, ProjectPermission.VIEW_PROJECT)
-        return queryPort.findProject(projectId) ?: throw ApiException(ProjectError.PROJECT_NOT_FOUND)
+        val project = queryPort.findProject(projectId) ?: throw ApiException(ProjectError.PROJECT_NOT_FOUND)
+        return project.copy(permissions = authorization.effectivePermissions(projectId, actorId))
     }
 
     override fun getProjectDetails(

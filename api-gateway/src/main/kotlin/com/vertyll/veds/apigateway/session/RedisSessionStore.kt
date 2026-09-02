@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.security.GeneralSecurityException
 import java.security.SecureRandom
+import java.time.Duration
 import java.util.Base64
 
 @Component
@@ -21,6 +22,7 @@ internal class RedisSessionStore(
 
     private companion object {
         private const val KEY_PREFIX = "gateway:session:"
+        private const val REFRESH_LOCK_PREFIX = "gateway:refresh-lock:"
         private const val SESSION_ID_BYTES = 32
     }
 
@@ -61,6 +63,11 @@ internal class RedisSessionStore(
             .then()
 
     override fun delete(sessionId: String): Mono<Void> = redis.delete(key(sessionId)).then()
+
+    override fun claimRefresh(
+        sessionId: String,
+        ttl: Duration,
+    ): Mono<Boolean> = redis.opsForValue().setIfAbsent("$REFRESH_LOCK_PREFIX$sessionId", "1", ttl)
 
     private fun seal(session: AuthSession): String = sessionCipher.encrypt(objectMapper.writeValueAsString(session))
 
