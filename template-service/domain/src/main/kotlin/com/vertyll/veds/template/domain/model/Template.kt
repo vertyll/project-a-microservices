@@ -1,10 +1,13 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.template.domain.model
 
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class Template(
-    val id: String = UUID.randomUUID().toString(),
+    val id: String = Uuid.generateV7().toString(),
     val name: String,
     val payload: String,
     val status: TemplateStatus = TemplateStatus.CREATED,

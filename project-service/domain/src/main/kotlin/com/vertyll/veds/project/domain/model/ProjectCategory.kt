@@ -1,10 +1,15 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.project.domain.model
 
 import java.time.Instant
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 data class ProjectCategory(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID = Uuid.generateV7().toJavaUuid(),
     val projectId: UUID,
     val color: String,
     val isActive: Boolean = true,

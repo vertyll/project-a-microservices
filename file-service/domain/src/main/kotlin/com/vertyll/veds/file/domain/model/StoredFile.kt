@@ -1,10 +1,15 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.file.domain.model
 
 import java.time.Instant
 import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
+import kotlin.uuid.toJavaUuid
 
 data class StoredFile(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID = Uuid.generateV7().toJavaUuid(),
     val objectKey: String,
     val originalName: String,
     val contentType: String,

@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.shared.messaging.event
 
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Tiny shared helpers used when assembling event payloads in outbound adapters.
@@ -12,7 +15,7 @@ import java.util.UUID
  */
 object Events {
     /** Returns a fresh UUID v4 string suitable for use as an `eventId`. */
-    fun newId(): String = UUID.randomUUID().toString()
+    fun newId(): String = Uuid.generateV7().toString()
 
     /** Returns the current instant. Indirection kept for test stubbing convenience. */
     fun now(): Instant = Instant.now()

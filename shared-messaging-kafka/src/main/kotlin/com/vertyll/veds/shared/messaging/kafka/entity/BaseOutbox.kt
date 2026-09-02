@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.shared.messaging.kafka.entity
 
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessage
@@ -11,7 +13,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.MappedSuperclass
 import jakarta.persistence.Version
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * JPA `@MappedSuperclass` providing the column mapping for a Kafka outbox
@@ -34,7 +37,7 @@ abstract class BaseOutbox(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     override var id: Long? = null,
-    eventId: String = UUID.randomUUID().toString(),
+    eventId: String = Uuid.generateV7().toString(),
     @Column(nullable = false)
     override var topic: String,
     @Column(nullable = false)

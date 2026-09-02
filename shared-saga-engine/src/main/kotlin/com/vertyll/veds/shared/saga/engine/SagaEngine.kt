@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package com.vertyll.veds.shared.saga.engine
 
 import com.vertyll.veds.shared.saga.Saga
@@ -15,7 +17,8 @@ import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import tools.jackson.databind.ObjectMapper
 import java.time.Instant
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /**
  * Reusable saga participant engine for the **choreography** pattern.
@@ -96,7 +99,7 @@ open class SagaEngine<S : Saga<S>, T : SagaStep<T>>(
         val payloadJson = payload as? String ?: objectMapper.writeValueAsString(payload)
         val saga =
             entityFactory.createSaga(
-                id = UUID.randomUUID().toString(),
+                id = Uuid.generateV7().toString(),
                 type = sagaType,
                 status = SagaStatus.STARTED,
                 payload = payloadJson,
