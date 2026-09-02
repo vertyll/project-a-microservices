@@ -67,7 +67,7 @@ class ProjectQueryService(
 
         val page = queryPort.searchProjects(criteria, PageRequest(params.page, params.size))
         return PagedResponse(
-            items = page.content,
+            items = page.content.map { it.copy(permissions = authorization.effectivePermissions(it.id, actorId)) },
             pagination =
                 PaginationMeta(
                     total = page.totalElements,
