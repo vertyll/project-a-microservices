@@ -1,13 +1,12 @@
 package com.vertyll.veds.iam.domain.model
 
 import java.time.Instant
-import java.time.LocalDateTime
 
 data class VerificationToken(
     val id: Long? = null,
     val token: String,
     val username: String,
-    val expiryDate: LocalDateTime,
+    val expiryDate: Instant,
     val used: Boolean = false,
     val tokenType: String,
     val additionalData: String? = null,

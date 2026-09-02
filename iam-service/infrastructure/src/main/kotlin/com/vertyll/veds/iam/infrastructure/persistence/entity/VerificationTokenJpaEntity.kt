@@ -9,7 +9,6 @@ import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import java.time.Instant
-import java.time.LocalDateTime
 
 @Entity
 @Table(
@@ -28,7 +27,7 @@ internal class VerificationTokenJpaEntity(
     @Column(nullable = false)
     var username: String,
     @Column(nullable = false)
-    var expiryDate: LocalDateTime,
+    var expiryDate: Instant,
     @Column(nullable = false)
     var used: Boolean = false,
     @Column(nullable = false)

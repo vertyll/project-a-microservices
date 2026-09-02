@@ -18,7 +18,8 @@ import com.vertyll.veds.iam.application.verificationToken
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.TokenTypes
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -141,7 +142,7 @@ internal class AuthCommandServiceTest {
                 token = "t",
                 username = existing.email,
                 tokenType = TokenTypes.ACCOUNT_ACTIVATION.value,
-                expiryDate = LocalDateTime.now().minusHours(1),
+                expiryDate = Instant.now().minus(1, ChronoUnit.HOURS),
             ),
         )
 

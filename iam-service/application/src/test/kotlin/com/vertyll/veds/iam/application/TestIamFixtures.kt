@@ -16,7 +16,8 @@ import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
 import com.vertyll.veds.shared.saga.SagaStepStatus
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 internal fun user(
@@ -37,7 +38,7 @@ internal fun verificationToken(
     username: String = "ada@example.com",
     tokenType: String,
     used: Boolean = false,
-    expiryDate: LocalDateTime = LocalDateTime.now().plusHours(24),
+    expiryDate: Instant = Instant.now().plus(24, ChronoUnit.HOURS),
     additionalData: String? = null,
     sagaId: String? = null,
 ) = VerificationToken(

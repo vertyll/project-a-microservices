@@ -21,7 +21,8 @@ import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
 import com.vertyll.veds.shared.saga.SagaStepStatus
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import com.vertyll.veds.iam.domain.model.User as DomainUser
 
@@ -546,7 +547,7 @@ class AuthCommandService(
         additionalData: String? = null,
         sagaId: String? = null,
     ): VerificationToken {
-        val expiryDate = LocalDateTime.now().plusHours(DEFAULT_VERIFICATION_TOKEN_EXPIRY_HOURS)
+        val expiryDate = Instant.now().plus(DEFAULT_VERIFICATION_TOKEN_EXPIRY_HOURS, ChronoUnit.HOURS)
         val verificationToken =
             VerificationToken(
                 token = token,
@@ -560,7 +561,7 @@ class AuthCommandService(
     }
 
     private fun validateVerificationToken(verificationToken: VerificationToken) {
-        if (verificationToken.used || verificationToken.expiryDate.isBefore(LocalDateTime.now())) {
+        if (verificationToken.used || verificationToken.expiryDate.isBefore(Instant.now())) {
             throw ApiException(IamError.TOKEN_EXPIRED_OR_USED)
         }
     }
