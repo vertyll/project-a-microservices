@@ -2,8 +2,8 @@ package com.vertyll.veds.apigateway.session
 
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
 import org.springframework.mock.web.server.MockServerWebExchange
