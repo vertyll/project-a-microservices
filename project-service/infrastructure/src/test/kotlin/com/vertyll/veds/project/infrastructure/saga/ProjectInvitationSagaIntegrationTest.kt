@@ -114,6 +114,34 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `a delivered invitation closes the saga so the watchdog cannot revoke it`() {
+        val actor = owner()
+        val project = projectFor(actor)
+
+        val invitation =
+            invitationCommands.invite(
+                project.id,
+                InviteMemberCommand(email = "delivered@example.com", roleId = null),
+                actor.id,
+            )
+        val sagaId = openSagaId()
+
+        mailFeedback.handleMailSent(sagaId, "delivered@example.com")
+
+        val saga = sagaProcess.findSagaDomainById(sagaId)
+        assertNotNull(saga)
+        assertEquals(
+            SagaStatus.COMPLETED,
+            saga.status,
+            "a saga left open after delivery is timed out by the watchdog, which revokes the invitation",
+        )
+
+        val stored = invitationRepository.findById(invitation.id)
+        assertNotNull(stored)
+        assertEquals(InvitationStatus.PENDING, stored.status)
+    }
+
+    @Test
     fun `replaying the same mail feedback is a no-op`() {
         val actor = owner()
         val project = projectFor(actor)
