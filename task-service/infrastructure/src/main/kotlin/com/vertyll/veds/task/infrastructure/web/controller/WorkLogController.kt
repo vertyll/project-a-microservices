@@ -3,9 +3,12 @@ package com.vertyll.veds.task.infrastructure.web.controller
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
 import com.vertyll.veds.task.application.dto.WorkLogPageResponse
+import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.command.WorkLogCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.WorkLogQueryUseCase
+import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.PageRequest
+import com.vertyll.veds.task.domain.model.WorkLogVisibility
 import com.vertyll.veds.task.infrastructure.response.ApiResponse
 import com.vertyll.veds.task.infrastructure.web.dto.LogWorkRequest
 import com.vertyll.veds.task.infrastructure.web.dto.UpdateWorkLogRequest
@@ -51,10 +54,13 @@ internal class WorkLogController(
         @PathVariable taskId: UUID,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-        @RequestParam(required = false) hidden: Boolean?,
+        @RequestParam(defaultValue = "ALL") visibility: String,
     ): ResponseEntity<ApiResponse<WorkLogPageResponse>> {
+        val chosen =
+            WorkLogVisibility.fromString(visibility)
+                ?: throw ApiException(TaskError.INVALID_WORK_LOG_VISIBILITY, mapOf("visibility" to visibility))
         val entries =
-            workLogQueries.getEntries(taskId, CurrentUser.idOf(jwt), hidden, PageRequest(page = page, size = size))
+            workLogQueries.getEntries(taskId, CurrentUser.idOf(jwt), chosen, PageRequest(page = page, size = size))
         return ApiResponse.buildResponse(entries, ENTRIES_RETRIEVED, HttpStatus.OK)
     }
 

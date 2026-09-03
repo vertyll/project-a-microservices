@@ -24,8 +24,6 @@ class PermissionAuthorizer(
         return source.isUnrestricted(roles) || permission in source.forRoles(roles)
     }
 
-    fun hasAny(vararg permissions: String): Boolean = permissions.any { has(it) }
-
     private fun currentRoles(): Set<String> =
         SecurityContextHolder
             .getContext()

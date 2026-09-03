@@ -13,6 +13,7 @@ import com.vertyll.veds.task.domain.model.PageResult
 import com.vertyll.veds.task.domain.model.TaskPriority
 import com.vertyll.veds.task.domain.model.TaskSearchCriteria
 import com.vertyll.veds.task.domain.model.TaskSortField
+import com.vertyll.veds.task.domain.model.WorkLogVisibility
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.persistence.TypedQuery
@@ -196,24 +197,28 @@ internal class TaskQueryAdapter : TaskQueryPort {
         taskId: UUID,
         readerId: UUID,
         readsHidden: Boolean,
-        hiddenOnly: Boolean?,
+        visibility: WorkLogVisibility,
         pageRequest: PageRequest,
     ): WorkLogPageResponse {
-        val visibility =
+        val readableByCaller =
             if (readsHidden) "" else "AND (e.hidden = FALSE OR e.authorId = :readerId)"
-        val chosen = if (hiddenOnly == null) "" else "AND e.hidden = :hiddenOnly"
+        val chosen =
+            when (visibility) {
+                WorkLogVisibility.ALL -> ""
+                WorkLogVisibility.HIDDEN -> "AND e.hidden = TRUE"
+                WorkLogVisibility.VISIBLE -> "AND e.hidden = FALSE"
+            }
 
         val total =
             entityManager
                 .createQuery(
                     """
                     SELECT COUNT(e) FROM WorkLogEntryJpaEntity e
-                    WHERE e.taskId = :taskId $visibility $chosen
+                    WHERE e.taskId = :taskId $readableByCaller $chosen
                     """,
                     java.lang.Long::class.java,
                 ).setParameter("taskId", taskId)
                 .also { if (!readsHidden) it.setParameter("readerId", readerId) }
-                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
                 .singleResult
                 .toLong()
 
@@ -222,12 +227,11 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 .createQuery(
                     """
                     SELECT COALESCE(SUM(e.minutes), 0) FROM WorkLogEntryJpaEntity e
-                    WHERE e.taskId = :taskId $visibility $chosen
+                    WHERE e.taskId = :taskId $readableByCaller $chosen
                     """,
                     java.lang.Long::class.java,
                 ).setParameter("taskId", taskId)
                 .also { if (!readsHidden) it.setParameter("readerId", readerId) }
-                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
                 .singleResult
                 .toInt()
 
@@ -240,13 +244,12 @@ internal class TaskQueryAdapter : TaskQueryPort {
                            u.email, u.firstName, u.lastName, u.avatarFileId, e.hidden
                     FROM WorkLogEntryJpaEntity e
                     LEFT JOIN UserRefJpaEntity u ON u.userId = e.authorId
-                    WHERE e.taskId = :taskId $visibility $chosen
+                    WHERE e.taskId = :taskId $readableByCaller $chosen
                     ORDER BY e.workedOn DESC, e.createdAt DESC
                     """,
                     Array<Any>::class.java,
                 ).setParameter("taskId", taskId)
                 .also { if (!readsHidden) it.setParameter("readerId", readerId) }
-                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
                 .setFirstResult(pageRequest.page * pageRequest.size)
                 .setMaxResults(pageRequest.size)
                 .resultList

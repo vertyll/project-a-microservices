@@ -30,6 +30,10 @@ internal class TranslationCatalogueConfig {
                 pl("Możesz edytować tylko własne komentarze.")
                 en("You can only edit your own comments.")
             }
+            key("task.work_log.invalid_visibility") {
+                pl("Nieznany zakres widoczności dziennika pracy.")
+                en("Unknown work log visibility.")
+            }
             key("task.work_log.not_found") {
                 pl("Nie znaleziono wpisu czasu pracy.")
                 en("Work log entry not found.")

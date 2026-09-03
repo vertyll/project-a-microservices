@@ -7,6 +7,7 @@ import com.vertyll.veds.task.domain.model.LanguageTag
 import com.vertyll.veds.task.domain.model.PageRequest
 import com.vertyll.veds.task.domain.model.PageResult
 import com.vertyll.veds.task.domain.model.TaskSearchCriteria
+import com.vertyll.veds.task.domain.model.WorkLogVisibility
 import java.util.UUID
 
 interface TaskQueryPort {
@@ -22,7 +23,7 @@ interface TaskQueryPort {
         taskId: UUID,
         readerId: UUID,
         readsHidden: Boolean,
-        hiddenOnly: Boolean?,
+        visibility: WorkLogVisibility,
         pageRequest: PageRequest,
     ): WorkLogPageResponse
 }
