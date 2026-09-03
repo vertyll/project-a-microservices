@@ -94,12 +94,11 @@ class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
         val actor = owner()
         val project = projectFor(actor)
 
-        val invitation =
-            invitationCommands.invite(
-                project.id,
-                InviteMemberCommand(email = "bounces@example.com", roleId = null),
-                actor.id,
-            )
+        invitationCommands.invite(
+            project.id,
+            InviteMemberCommand(email = "bounces@example.com", roleId = null),
+            actor.id,
+        )
 
         val sagaId = openSagaId()
 

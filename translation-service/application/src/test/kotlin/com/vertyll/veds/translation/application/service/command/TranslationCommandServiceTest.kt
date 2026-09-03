@@ -7,6 +7,8 @@ import com.vertyll.veds.translation.application.InMemoryKeyRepository
 import com.vertyll.veds.translation.application.InMemoryLanguageRepository
 import com.vertyll.veds.translation.application.InMemoryValueRepository
 import com.vertyll.veds.translation.application.POLISH
+import com.vertyll.veds.translation.application.PROJECT_NOT_FOUND_KEY
+import com.vertyll.veds.translation.application.PROJECT_SERVICE
 import com.vertyll.veds.translation.application.SilentLogger
 import com.vertyll.veds.translation.application.command.CatalogueEntryCommand
 import com.vertyll.veds.translation.application.command.ClearOverrideCommand
@@ -17,7 +19,6 @@ import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
 import com.vertyll.veds.translation.application.exception.ApiException
 import com.vertyll.veds.translation.domain.error.TranslationError
 import com.vertyll.veds.translation.domain.model.Language
-import com.vertyll.veds.translation.domain.model.LanguageTag
 import com.vertyll.veds.translation.domain.model.TranslationKey
 import com.vertyll.veds.translation.domain.model.TranslationValue
 import org.junit.jupiter.api.Test
@@ -46,13 +47,13 @@ internal class TranslationCommandServiceTest {
     }
 
     private fun entry(
-        key: String = "project.not_found",
+        key: String = PROJECT_NOT_FOUND_KEY,
         description: String? = null,
         defaults: Map<String, String> = mapOf("en" to "Project not found"),
     ) = CatalogueEntryCommand(key = key, description = description, defaultValues = defaults)
 
     private fun register(
-        sourceService: String = "project-service",
+        sourceService: String = PROJECT_SERVICE,
         vararg entries: CatalogueEntryCommand,
     ) = service.registerCatalogue(RegisterCatalogueCommand(sourceService, entries.toList()))
 
@@ -62,16 +63,16 @@ internal class TranslationCommandServiceTest {
     fun `a service's keys are registered under its own name`() {
         register(entries = arrayOf(entry()))
 
-        val key = keys.findByKey("project.not_found")!!
-        assertEquals("project-service", key.sourceService)
+        val key = keys.findByKey(PROJECT_NOT_FOUND_KEY)!!
+        assertEquals(PROJECT_SERVICE, key.sourceService)
     }
 
     @Test
     fun `defaults are seeded for every language they are given in`() {
         assertEquals(2, register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found", "pl" to "Nie znaleziono")))))
 
-        assertEquals("Not found", values.find("project.not_found", ENGLISH)!!.defaultValue)
-        assertEquals("Nie znaleziono", values.find("project.not_found", POLISH)!!.defaultValue)
+        assertEquals("Not found", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.defaultValue)
+        assertEquals("Nie znaleziono", values.find(PROJECT_NOT_FOUND_KEY, POLISH)!!.defaultValue)
     }
 
     @Test
@@ -86,29 +87,29 @@ internal class TranslationCommandServiceTest {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found"))))
 
         assertEquals(1, register(entries = arrayOf(entry(defaults = mapOf("en" to "No such project")))))
-        assertEquals("No such project", values.find("project.not_found", ENGLISH)!!.defaultValue)
+        assertEquals("No such project", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.defaultValue)
     }
 
     @Test
     fun `re-registering does not undo an administrator's correction`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found"))))
-        service.override(OverrideTranslationCommand("project.not_found", "en", "We could not find that project"), editor, null)
+        service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "We could not find that project"), editor, null)
 
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Project missing"))))
 
-        val stored = values.find("project.not_found", ENGLISH)!!
+        val stored = values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!
         assertEquals("We could not find that project", stored.effectiveValue)
         assertEquals("Project missing", stored.defaultValue)
     }
 
     @Test
     fun `another service cannot take over a key`() {
-        register(sourceService = "project-service", entries = arrayOf(entry()))
+        register(sourceService = PROJECT_SERVICE, entries = arrayOf(entry()))
 
         val error = assertFailsWith<ApiException> { register(sourceService = "task-service", entries = arrayOf(entry())) }
 
         assertEquals(TranslationError.KEY_OWNED_BY_ANOTHER_SERVICE, error.error)
-        assertEquals("project-service", keys.findByKey("project.not_found")!!.sourceService)
+        assertEquals(PROJECT_SERVICE, keys.findByKey(PROJECT_NOT_FOUND_KEY)!!.sourceService)
     }
 
     @Test
@@ -117,7 +118,7 @@ internal class TranslationCommandServiceTest {
 
         register(entries = arrayOf(entry(description = "Shown when a project id does not resolve")))
 
-        assertEquals("Shown when a project id does not resolve", keys.findByKey("project.not_found")!!.description)
+        assertEquals("Shown when a project id does not resolve", keys.findByKey(PROJECT_NOT_FOUND_KEY)!!.description)
     }
 
     @Test
@@ -126,7 +127,7 @@ internal class TranslationCommandServiceTest {
 
         assertNull(
             values.find(
-                "project.not_found",
+                PROJECT_NOT_FOUND_KEY,
                 com.vertyll.veds.translation.domain.model
                     .LanguageTag("de"),
             ),
@@ -135,17 +136,17 @@ internal class TranslationCommandServiceTest {
 
     // ── Overriding ──────────────────────────────────────────────────────
 
-    private fun givenKey(key: String = "project.not_found") =
-        TranslationKey(key = key, sourceService = "project-service").also { keys.given(it) }
+    private fun givenKey(key: String = PROJECT_NOT_FOUND_KEY) =
+        TranslationKey(key = key, sourceService = PROJECT_SERVICE).also { keys.given(it) }
 
     @Test
     fun `an override becomes the value users see and records who wrote it`() {
         givenKey()
-        values.given(TranslationValue.seeded("project.not_found", ENGLISH, "Not found"))
+        values.given(TranslationValue.seeded(PROJECT_NOT_FOUND_KEY, ENGLISH, "Not found"))
 
-        service.override(OverrideTranslationCommand("project.not_found", "en", "We could not find that"), editor, null)
+        service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "We could not find that"), editor, null)
 
-        val stored = values.find("project.not_found", ENGLISH)!!
+        val stored = values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!
         assertEquals("We could not find that", stored.effectiveValue)
         assertEquals(editor, stored.updatedBy)
         assertTrue(stored.isOverridden)
@@ -164,7 +165,13 @@ internal class TranslationCommandServiceTest {
         givenKey()
 
         val error =
-            assertFailsWith<ApiException> { service.override(OverrideTranslationCommand("project.not_found", "de", "Hallo"), editor, null) }
+            assertFailsWith<ApiException> {
+                service.override(
+                    OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "de", "Hallo"),
+                    editor,
+                    null,
+                )
+            }
 
         assertEquals(TranslationError.LANGUAGE_NOT_FOUND, error.error)
     }
@@ -175,21 +182,21 @@ internal class TranslationCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.override(OverrideTranslationCommand("project.not_found", "en", "Hello {name"), editor, null)
+                service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "Hello {name"), editor, null)
             }
 
         assertEquals(TranslationError.INVALID_ICU_PATTERN, error.error)
-        assertNull(values.find("project.not_found", ENGLISH))
+        assertNull(values.find(PROJECT_NOT_FOUND_KEY, ENGLISH))
     }
 
     @Test
     fun `an override against a stale version is refused`() {
         givenKey()
-        values.given(TranslationValue(key = "project.not_found", language = ENGLISH, version = 3L))
+        values.given(TranslationValue(key = PROJECT_NOT_FOUND_KEY, language = ENGLISH, version = 3L))
 
         val error =
             assertFailsWith<ApiException> {
-                service.override(OverrideTranslationCommand("project.not_found", "en", "New"), editor, version = 1L)
+                service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "New"), editor, version = 1L)
             }
 
         assertEquals(TranslationError.VERSION_MISMATCH, error.error)
@@ -201,12 +208,12 @@ internal class TranslationCommandServiceTest {
     fun `clearing an override restores the shipped default`() {
         givenKey()
         values.given(
-            TranslationValue.seeded("project.not_found", ENGLISH, "Not found").overriddenBy(editor, "Custom"),
+            TranslationValue.seeded(PROJECT_NOT_FOUND_KEY, ENGLISH, "Not found").overriddenBy(editor, "Custom"),
         )
 
-        service.clearOverride(ClearOverrideCommand("project.not_found", "en"), editor)
+        service.clearOverride(ClearOverrideCommand(PROJECT_NOT_FOUND_KEY, "en"), editor)
 
-        val stored = values.find("project.not_found", ENGLISH)!!
+        val stored = values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!
         assertEquals("Not found", stored.effectiveValue)
         assertTrue(!stored.isOverridden)
     }
@@ -215,7 +222,7 @@ internal class TranslationCommandServiceTest {
     fun `clearing a value that was never written is refused`() {
         givenKey()
 
-        val error = assertFailsWith<ApiException> { service.clearOverride(ClearOverrideCommand("project.not_found", "en"), editor) }
+        val error = assertFailsWith<ApiException> { service.clearOverride(ClearOverrideCommand(PROJECT_NOT_FOUND_KEY, "en"), editor) }
 
         assertEquals(TranslationError.VALUE_NOT_FOUND, error.error)
     }
@@ -234,10 +241,10 @@ internal class TranslationCommandServiceTest {
     fun `imported rows become overrides`() {
         givenKey()
 
-        val report = import(Triple("project.not_found", "en", "Imported wording"))
+        val report = import(Triple(PROJECT_NOT_FOUND_KEY, "en", "Imported wording"))
 
         assertEquals(1, report.applied)
-        assertEquals("Imported wording", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+        assertEquals("Imported wording", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.effectiveValue)
     }
 
     @Test
@@ -246,9 +253,9 @@ internal class TranslationCommandServiceTest {
 
         val report =
             import(
-                Triple("project.not_found", "en", "Imported wording"),
+                Triple(PROJECT_NOT_FOUND_KEY, "en", "Imported wording"),
                 Triple("made.up_key", "en", "Orphan"),
-                Triple("project.not_found", "de", "Nicht gefunden"),
+                Triple(PROJECT_NOT_FOUND_KEY, "de", "Nicht gefunden"),
             )
 
         assertEquals(1, report.applied)
@@ -260,30 +267,30 @@ internal class TranslationCommandServiceTest {
     fun `a row with a malformed pattern is rejected with its reason`() {
         givenKey()
 
-        val report = import(Triple("project.not_found", "en", "Hello {name"))
+        val report = import(Triple(PROJECT_NOT_FOUND_KEY, "en", "Hello {name"))
 
         assertEquals(0, report.applied)
         assertEquals(1, report.rejectedPatterns.size)
-        assertEquals("project.not_found", report.rejectedPatterns.single().key)
-        assertNull(values.find("project.not_found", ENGLISH))
+        assertEquals(PROJECT_NOT_FOUND_KEY, report.rejectedPatterns.single().key)
+        assertNull(values.find(PROJECT_NOT_FOUND_KEY, ENGLISH))
     }
 
     @Test
     fun `an import reports the gaps it did not close`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found"))))
 
-        val report = import(Triple("project.not_found", "en", "No such project"))
+        val report = import(Triple(PROJECT_NOT_FOUND_KEY, "en", "No such project"))
 
         assertEquals(1, report.applied)
         assertEquals(listOf("pl"), report.missingAfterImport.map { it.language })
-        assertEquals("project.not_found", report.missingAfterImport.single().key)
+        assertEquals(PROJECT_NOT_FOUND_KEY, report.missingAfterImport.single().key)
     }
 
     @Test
     fun `an import that fills every language reports no gaps`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found", "pl" to "Nie znaleziono"))))
 
-        val report = import(Triple("project.not_found", "en", "No such project"))
+        val report = import(Triple(PROJECT_NOT_FOUND_KEY, "en", "No such project"))
 
         assertTrue(report.missingAfterImport.isEmpty())
     }
@@ -294,9 +301,9 @@ internal class TranslationCommandServiceTest {
     fun `an override keeping the default's arguments is accepted`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "{count} tasks left"))))
 
-        service.override(OverrideTranslationCommand("project.not_found", "en", "Tasks remaining: {count}"), editor, null)
+        service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "Tasks remaining: {count}"), editor, null)
 
-        assertEquals("Tasks remaining: {count}", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+        assertEquals("Tasks remaining: {count}", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.effectiveValue)
     }
 
     @Test
@@ -305,11 +312,11 @@ internal class TranslationCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.override(OverrideTranslationCommand("project.not_found", "en", "{liczba} tasks left"), editor, null)
+                service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "{liczba} tasks left"), editor, null)
             }
 
         assertEquals(TranslationError.UNKNOWN_ARGUMENTS, error.error)
-        assertEquals("{count} tasks left", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+        assertEquals("{count} tasks left", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.effectiveValue)
     }
 
     @Test
@@ -317,7 +324,7 @@ internal class TranslationCommandServiceTest {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "{name} has {count} tasks"))))
 
         assertFailsWith<ApiException> {
-            service.override(OverrideTranslationCommand("project.not_found", "en", "{name} is busy"), editor, null)
+            service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "{name} is busy"), editor, null)
         }
     }
 
@@ -325,20 +332,20 @@ internal class TranslationCommandServiceTest {
     fun `a key with no shipped default accepts any arguments`() {
         register(entries = arrayOf(entry(defaults = mapOf("pl" to "Nie znaleziono"))))
 
-        service.override(OverrideTranslationCommand("project.not_found", "en", "{whatever} works"), editor, null)
+        service.override(OverrideTranslationCommand(PROJECT_NOT_FOUND_KEY, "en", "{whatever} works"), editor, null)
 
-        assertEquals("{whatever} works", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+        assertEquals("{whatever} works", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.effectiveValue)
     }
 
     @Test
     fun `an imported row with drifting arguments is reported, not applied`() {
         register(entries = arrayOf(entry(defaults = mapOf("en" to "{count} tasks left"))))
 
-        val report = import(Triple("project.not_found", "en", "{liczba} tasks left"))
+        val report = import(Triple(PROJECT_NOT_FOUND_KEY, "en", "{liczba} tasks left"))
 
         assertEquals(0, report.applied)
         assertEquals(1, report.rejectedPatterns.size)
-        assertEquals("{count} tasks left", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+        assertEquals("{count} tasks left", values.find(PROJECT_NOT_FOUND_KEY, ENGLISH)!!.effectiveValue)
     }
 
     @Test
