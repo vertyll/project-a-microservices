@@ -4,10 +4,9 @@
 ALTER TABLE project
     ADD COLUMN hidden_work_log_enabled BOOLEAN NOT NULL DEFAULT FALSE;
 
-CREATE TABLE project_hidden_work_log_role
-(
-    project_id UUID        NOT NULL REFERENCES project (id) ON DELETE CASCADE,
-    role_code  VARCHAR(32) NOT NULL,
+CREATE TABLE project_hidden_work_log_role (
+    project_id UUID NOT NULL REFERENCES project (id) ON DELETE CASCADE,
+    role_code VARCHAR(32) NOT NULL,
 
     PRIMARY KEY (project_id, role_code)
 );
