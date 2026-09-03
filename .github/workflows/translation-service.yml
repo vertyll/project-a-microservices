@@ -12,6 +12,11 @@ on:
       - "shared-web/**"
       - "shared-archunit/**"
       - "shared-translation/**"
+      - "shared-authz/**"
+      - "shared-authz-client/**"
+      - "shared-messaging-kafka/**"
+      - "iam-contracts/**"
+      - "contracts/iam-service/role-permissions-changed/**"
       - ".github/workflows/translation-service.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:

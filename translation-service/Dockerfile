@@ -7,11 +7,19 @@ WORKDIR /app
 
 # Copy the shared libraries first: each is a composite build included by the
 # service, so every one of them has to exist before Gradle configures.
-# translation-service owns the catalogue, so it needs no messaging or saga
-# libraries - it is not a saga participant and publishes no events.
+# translation-service takes no saga library: it orchestrates nothing. It does
+# consume role-permissions-changed, so it carries the messaging library and the
+# iam contracts, and the inbox that goes with them.
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
+COPY shared-authz/ ./shared-authz/
+COPY shared-authz-client/ ./shared-authz-client/
+COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 COPY shared-archunit/ ./shared-archunit/
+
+# The Avro schemas the contracts module generates from.
+COPY contracts/ ./contracts/
+COPY iam-contracts/ ./iam-contracts/
 
 # Copy the service code
 COPY translation-service/ ./translation-service/

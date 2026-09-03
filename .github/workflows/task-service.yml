@@ -20,6 +20,8 @@ on:
       - "iam-contracts/**"
       - "file-contracts/**"
       - "contracts/**"
+      - "shared-authz/**"
+      - "shared-authz-client/**"
       - ".github/workflows/task-service.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:

@@ -19,6 +19,8 @@ on:
       - "mail-contracts/**"
       - "iam-contracts/**"
       - "contracts/**"
+      - "shared-authz/**"
+      - "shared-authz-client/**"
       - ".github/workflows/project-service.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:
