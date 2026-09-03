@@ -3,7 +3,6 @@ package com.vertyll.veds.task.application.service.command
 import com.vertyll.veds.task.application.command.BatchDeleteTasksCommand
 import com.vertyll.veds.task.application.command.ChangeTaskStatusCommand
 import com.vertyll.veds.task.application.command.CreateTaskCommand
-import com.vertyll.veds.task.application.command.LogWorkCommand
 import com.vertyll.veds.task.application.command.UpdateTaskCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.dto.TaskResponse
@@ -124,15 +123,6 @@ class TaskCommandService(
         val saved = taskRepository.save(moved)
         eventPublisher.publishTaskStatusChanged(saved.id, saved.projectId, saved.statusId, actor.id)
         return TaskResponse.from(saved)
-    }
-
-    override fun logWork(
-        taskId: UUID,
-        command: LogWorkCommand,
-        actor: Actor,
-    ): TaskResponse {
-        val task = authorization.requireTaskPermission(taskId, actor.id, TaskPermission.MANAGE_TASKS)
-        return TaskResponse.from(taskRepository.save(task.logWork(command.hundredthsOfHour)))
     }
 
     override fun archiveTask(

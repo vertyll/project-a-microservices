@@ -5,8 +5,10 @@ import com.vertyll.veds.task.application.port.inbound.ProjectProjectionUseCase
 import com.vertyll.veds.task.application.port.inbound.TaskCompensationUseCase
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
+import com.vertyll.veds.task.application.port.inbound.command.WorkLogCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.TaskCommentQueryUseCase
 import com.vertyll.veds.task.application.port.inbound.query.TaskQueryUseCase
+import com.vertyll.veds.task.application.port.inbound.query.WorkLogQueryUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskEventPublisherPort
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.application.service.FileProjectionService
@@ -16,12 +18,15 @@ import com.vertyll.veds.task.application.service.TaskCompensationService
 import com.vertyll.veds.task.application.service.TaskReferenceValidator
 import com.vertyll.veds.task.application.service.command.TaskCommandService
 import com.vertyll.veds.task.application.service.command.TaskCommentCommandService
+import com.vertyll.veds.task.application.service.command.WorkLogCommandService
 import com.vertyll.veds.task.application.service.query.TaskCommentQueryService
 import com.vertyll.veds.task.application.service.query.TaskQueryService
+import com.vertyll.veds.task.application.service.query.WorkLogQueryService
 import com.vertyll.veds.task.domain.repository.ProjectDirectoryRepository
 import com.vertyll.veds.task.domain.repository.TaskCommentRepository
 import com.vertyll.veds.task.domain.repository.TaskRepository
 import com.vertyll.veds.task.domain.repository.UserDirectoryRepository
+import com.vertyll.veds.task.domain.repository.WorkLogEntryRepository
 import com.vertyll.veds.task.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.task.infrastructure.transaction.TransactionalUseCaseFactory
 import org.springframework.context.annotation.Bean
@@ -131,6 +136,44 @@ internal class ApplicationBeansConfig {
                 eventPublisher,
             ),
             NO_METHODS,
+        )
+
+    @Bean
+    fun workLogCommandUseCase(
+        transactions: TransactionalUseCaseFactory,
+        entryRepository: WorkLogEntryRepository,
+        taskRepository: TaskRepository,
+        userDirectory: UserDirectoryRepository,
+        projectDirectory: ProjectDirectoryRepository,
+        authorization: TaskAuthorizationService,
+    ): WorkLogCommandUseCase =
+        transactions.wrap(
+            WorkLogCommandUseCase::class.java,
+            WorkLogCommandService(
+                entryRepository,
+                taskRepository,
+                userDirectory,
+                projectDirectory,
+                authorization,
+            ),
+            NO_METHODS,
+        )
+
+    @Bean
+    fun workLogQueryUseCase(
+        transactions: TransactionalUseCaseFactory,
+        queryPort: TaskQueryPort,
+        projectDirectory: ProjectDirectoryRepository,
+        authorization: TaskAuthorizationService,
+    ): WorkLogQueryUseCase =
+        transactions.wrap(
+            WorkLogQueryUseCase::class.java,
+            WorkLogQueryService(
+                queryPort,
+                projectDirectory,
+                authorization,
+            ),
+            ALL_METHODS,
         )
 
     @Bean

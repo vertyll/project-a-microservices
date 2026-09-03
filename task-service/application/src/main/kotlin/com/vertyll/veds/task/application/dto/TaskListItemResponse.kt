@@ -16,7 +16,7 @@ data class TaskListItemResponse(
     val categories: List<TaskCategoryView>,
     val assignees: List<TaskUserView>,
     val commentCount: Int,
-    val workedTime: Int,
+    val workedMinutes: Int,
     val createdAt: Instant,
     val updatedAt: Instant,
     val version: Long?,

@@ -5,4 +5,5 @@ data class ImportReportResponse(
     val skippedUnknownKeys: List<String>,
     val skippedUnknownLanguages: List<String>,
     val rejectedPatterns: List<RejectedPatternResponse>,
+    val missingAfterImport: List<MissingTranslationResponse>,
 )

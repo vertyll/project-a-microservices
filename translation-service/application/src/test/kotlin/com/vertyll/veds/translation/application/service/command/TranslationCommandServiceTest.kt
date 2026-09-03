@@ -269,6 +269,79 @@ internal class TranslationCommandServiceTest {
     }
 
     @Test
+    fun `an import reports the gaps it did not close`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found"))))
+
+        val report = import(Triple("project.not_found", "en", "No such project"))
+
+        assertEquals(1, report.applied)
+        assertEquals(listOf("pl"), report.missingAfterImport.map { it.language })
+        assertEquals("project.not_found", report.missingAfterImport.single().key)
+    }
+
+    @Test
+    fun `an import that fills every language reports no gaps`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "Not found", "pl" to "Nie znaleziono"))))
+
+        val report = import(Triple("project.not_found", "en", "No such project"))
+
+        assertTrue(report.missingAfterImport.isEmpty())
+    }
+
+    // ── Argument drift ──────────────────────────────────────────────────
+
+    @Test
+    fun `an override keeping the default's arguments is accepted`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "{count} tasks left"))))
+
+        service.override(OverrideTranslationCommand("project.not_found", "en", "Tasks remaining: {count}"), editor, null)
+
+        assertEquals("Tasks remaining: {count}", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+    }
+
+    @Test
+    fun `an override that renames an argument is refused`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "{count} tasks left"))))
+
+        val error =
+            assertFailsWith<ApiException> {
+                service.override(OverrideTranslationCommand("project.not_found", "en", "{liczba} tasks left"), editor, null)
+            }
+
+        assertEquals(TranslationError.UNKNOWN_ARGUMENTS, error.error)
+        assertEquals("{count} tasks left", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+    }
+
+    @Test
+    fun `an override that drops an argument is refused`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "{name} has {count} tasks"))))
+
+        assertFailsWith<ApiException> {
+            service.override(OverrideTranslationCommand("project.not_found", "en", "{name} is busy"), editor, null)
+        }
+    }
+
+    @Test
+    fun `a key with no shipped default accepts any arguments`() {
+        register(entries = arrayOf(entry(defaults = mapOf("pl" to "Nie znaleziono"))))
+
+        service.override(OverrideTranslationCommand("project.not_found", "en", "{whatever} works"), editor, null)
+
+        assertEquals("{whatever} works", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+    }
+
+    @Test
+    fun `an imported row with drifting arguments is reported, not applied`() {
+        register(entries = arrayOf(entry(defaults = mapOf("en" to "{count} tasks left"))))
+
+        val report = import(Triple("project.not_found", "en", "{liczba} tasks left"))
+
+        assertEquals(0, report.applied)
+        assertEquals(1, report.rejectedPatterns.size)
+        assertEquals("{count} tasks left", values.find("project.not_found", ENGLISH)!!.effectiveValue)
+    }
+
+    @Test
     fun `an empty import reports nothing applied`() {
         val report = import()
 

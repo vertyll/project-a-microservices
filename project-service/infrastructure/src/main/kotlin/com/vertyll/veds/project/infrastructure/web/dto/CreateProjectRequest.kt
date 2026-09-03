@@ -1,6 +1,7 @@
 package com.vertyll.veds.project.infrastructure.web.dto
 
 import com.vertyll.veds.project.application.command.CreateProjectCommand
+import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import java.util.UUID
@@ -14,6 +15,8 @@ data class CreateProjectRequest(
     val isPublic: Boolean = false,
     val typeId: UUID? = null,
     val iconFileId: UUID? = null,
+    val hiddenWorkLogEnabled: Boolean = false,
+    val hiddenWorkLogRoles: Set<ProjectRoleCode> = emptySet(),
 ) {
     fun toCommand(): CreateProjectCommand =
         CreateProjectCommand(
@@ -22,5 +25,7 @@ data class CreateProjectRequest(
             isPublic = isPublic,
             typeId = typeId,
             iconFileId = iconFileId,
+            hiddenWorkLogEnabled = hiddenWorkLogEnabled,
+            hiddenWorkLogRoles = hiddenWorkLogRoles,
         )
 }

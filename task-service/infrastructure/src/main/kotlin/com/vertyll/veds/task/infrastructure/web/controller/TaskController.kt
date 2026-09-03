@@ -16,7 +16,6 @@ import com.vertyll.veds.task.infrastructure.web.LanguageHeader
 import com.vertyll.veds.task.infrastructure.web.dto.BatchDeleteTasksRequest
 import com.vertyll.veds.task.infrastructure.web.dto.ChangeTaskStatusRequest
 import com.vertyll.veds.task.infrastructure.web.dto.CreateTaskRequest
-import com.vertyll.veds.task.infrastructure.web.dto.LogWorkRequest
 import com.vertyll.veds.task.infrastructure.web.dto.UpdateTaskRequest
 import com.vertyll.veds.task.infrastructure.web.security.CurrentUser
 import io.swagger.v3.oas.annotations.Operation
@@ -55,7 +54,6 @@ internal class TaskController(
         private const val TASKS_RETRIEVED = "task.list_retrieved"
         private const val TASK_ARCHIVED = "task.archived"
         private const val TASKS_ARCHIVED = "task.batch_archived"
-        private const val WORK_LOGGED = "task.work_logged"
         private const val PERMISSIONS_RETRIEVED = "task.permissions_retrieved"
         private const val DEFAULT_PAGE_SIZE = "25"
     }
@@ -165,18 +163,6 @@ internal class TaskController(
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
         return withETag(task, task.version, TASK_UPDATED)
-    }
-
-    @PostMapping("/{taskId}/worklog")
-    @Operation(summary = "Log work against a task")
-    fun logWork(
-        @AuthenticationPrincipal jwt: Jwt?,
-        @PathVariable taskId: UUID,
-        @Valid @RequestBody
-        request: LogWorkRequest,
-    ): ResponseEntity<ApiResponse<TaskResponse>> {
-        val task = taskCommands.logWork(taskId, request.toCommand(), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(task, WORK_LOGGED, HttpStatus.OK)
     }
 
     @DeleteMapping("/{taskId}")

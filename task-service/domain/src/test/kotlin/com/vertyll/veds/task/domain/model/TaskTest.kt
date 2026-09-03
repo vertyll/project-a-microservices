@@ -46,14 +46,14 @@ class TaskTest {
     @Test
     fun `rejects negative money and time`() {
         assertFailsWith<IllegalArgumentException> { task().estimateAt(-1) }
-        assertFailsWith<IllegalArgumentException> { task().logWork(-1) }
+        assertFailsWith<IllegalArgumentException> { task().withWorkedMinutes(-1) }
     }
 
     @Test
-    fun `logging work accumulates`() {
-        val worked = task().logWork(150).logWork(50)
+    fun `worked minutes are replaced, not accumulated`() {
+        val worked = task().withWorkedMinutes(150).withWorkedMinutes(200)
 
-        assertEquals(200, worked.workedTime)
+        assertEquals(200, worked.workedMinutes)
     }
 
     @Test

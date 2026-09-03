@@ -30,6 +30,14 @@ internal class TranslationCatalogueConfig {
                 pl("Możesz edytować tylko własne komentarze.")
                 en("You can only edit your own comments.")
             }
+            key("task.work_log.not_found") {
+                pl("Nie znaleziono wpisu czasu pracy.")
+                en("Work log entry not found.")
+            }
+            key("task.work_log.not_authored_by_caller") {
+                pl("Możesz edytować tylko własne wpisy czasu pracy.")
+                en("You can only edit your own work log entries.")
+            }
             key("task.project.not_known") {
                 pl("Projekt nie jest jeszcze znany tej usłudze.")
                 en("This service does not know that project yet.")
@@ -58,9 +66,21 @@ internal class TranslationCatalogueConfig {
                 pl("Wycena nie może być ujemna.")
                 en("The estimate cannot be negative.")
             }
-            key("validation.task.worked_time_negative") {
-                pl("Czas pracy nie może być ujemny.")
-                en("Logged time cannot be negative.")
+            key("validation.task.work_log.minutes_positive") {
+                pl("Zalogowany czas musi być większy od zera.")
+                en("Logged time must be greater than zero.")
+            }
+            key("validation.task.work_log.minutes_too_large") {
+                pl("Pojedynczy wpis nie może przekraczać 24 godzin.")
+                en("A single entry cannot exceed 24 hours.")
+            }
+            key("validation.task.work_log.worked_on_required") {
+                pl("Data wykonania pracy jest wymagana.")
+                en("The date the work was done is required.")
+            }
+            key("validation.task.work_log.description_too_long") {
+                pl("Opis wpisu może mieć najwyżej 500 znaków.")
+                en("An entry description may be at most 500 characters.")
             }
             key("validation.task.batch_empty") {
                 pl("Nie wybrano żadnego zadania.")
@@ -113,6 +133,22 @@ internal class TranslationCatalogueConfig {
             key("task.comment.list_retrieved") {
                 pl("Komentarze wczytane.")
                 en("Comments loaded.")
+            }
+            key("task.work_log.added") {
+                pl("Czas pracy zapisany.")
+                en("Work logged.")
+            }
+            key("task.work_log.updated") {
+                pl("Wpis czasu pracy zaktualizowany.")
+                en("Work log entry updated.")
+            }
+            key("task.work_log.deleted") {
+                pl("Wpis czasu pracy usunięty.")
+                en("Work log entry deleted.")
+            }
+            key("task.work_log.list_retrieved") {
+                pl("Czas pracy wczytany.")
+                en("Work log loaded.")
             }
         }
 }

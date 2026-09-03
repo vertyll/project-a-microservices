@@ -44,7 +44,7 @@ class TranslationExportService(
         val resolver = MessageResolver(snapshotSource(tag))
 
         val fixed = HEADER_KEYS.map { resolver.resolve(it, tag.value) }
-        val languageColumns = languageRepository.findAll().map { it.displayName }
+        val languageColumns = languageRepository.findAll().map { it.tag.value }
         return fixed + languageColumns
     }
 

@@ -45,7 +45,8 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                 .createQuery(
                     """
                     SELECT p.id, p.name, p.description, p.isPublic, p.isActive,
-                           p.typeId, p.iconFileId, p.ownerId, p.createdAt, p.updatedAt, p.version
+                           p.typeId, p.iconFileId, p.ownerId, p.createdAt, p.updatedAt, p.version,
+                           p.hiddenWorkLogEnabled
                     FROM ProjectJpaEntity p
                     WHERE p.id = :projectId
                     """,
@@ -66,9 +67,24 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                 createdAt = r[8] as Instant,
                 updatedAt = r[9] as Instant,
                 version = r[10] as Long?,
+                hiddenWorkLogEnabled = r[11] as Boolean,
+                hiddenWorkLogRoles = hiddenWorkLogRolesFor(projectId),
             )
         }
     }
+
+    private fun hiddenWorkLogRolesFor(projectId: UUID): Set<ProjectRoleCode> =
+        entityManager
+            .createQuery(
+                """
+                SELECT r
+                FROM ProjectJpaEntity p JOIN p.hiddenWorkLogRoles r
+                WHERE p.id = :projectId
+                """,
+                String::class.java,
+            ).setParameter("projectId", projectId)
+            .resultList
+            .mapTo(mutableSetOf()) { ProjectRoleCode.valueOf(it) }
 
     override fun searchProjects(
         criteria: ProjectSearchCriteria,

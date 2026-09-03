@@ -44,7 +44,12 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_CREATED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_CREATED, payload) as ProjectCreatedEvent
         projections.projectChanged(
-            ProjectRef(projectId = UUID.fromString(event.projectId), name = event.name.toString()),
+            ProjectRef(
+                projectId = UUID.fromString(event.projectId),
+                name = event.name.toString(),
+                hiddenWorkLogEnabled = event.hiddenWorkLogEnabled,
+                hiddenWorkLogRoles = event.hiddenWorkLogRoles.mapTo(mutableSetOf()) { it.toString() },
+            ),
         )
     }
 
@@ -56,7 +61,12 @@ internal class ProjectEventConsumerAdapter(
     ) = consume(eventId, TaskKafkaTopics.Consumed.PROJECT_UPDATED) {
         val event = decode(TaskKafkaTopics.Consumed.PROJECT_UPDATED, payload) as ProjectUpdatedEvent
         projections.projectChanged(
-            ProjectRef(projectId = UUID.fromString(event.projectId), name = event.name.toString()),
+            ProjectRef(
+                projectId = UUID.fromString(event.projectId),
+                name = event.name.toString(),
+                hiddenWorkLogEnabled = event.hiddenWorkLogEnabled,
+                hiddenWorkLogRoles = event.hiddenWorkLogRoles.mapTo(mutableSetOf()) { it.toString() },
+            ),
         )
     }
 

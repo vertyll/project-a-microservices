@@ -10,7 +10,6 @@ import com.vertyll.veds.task.application.RecordingTaskEventPublisher
 import com.vertyll.veds.task.application.command.BatchDeleteTasksCommand
 import com.vertyll.veds.task.application.command.ChangeTaskStatusCommand
 import com.vertyll.veds.task.application.command.CreateTaskCommand
-import com.vertyll.veds.task.application.command.LogWorkCommand
 import com.vertyll.veds.task.application.command.UpdateTaskCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.exception.ApiException
@@ -244,25 +243,6 @@ internal class TaskCommandServiceTest {
         assertFailsWith<ApiException> { service.changeStatus(existing.id, ChangeTaskStatusCommand(elsewhere.statusId), actor, 0L) }
 
         assertEquals(todo.statusId, tasks.findById(existing.id)!!.statusId)
-    }
-
-    // ── Logging work ────────────────────────────────────────────────────
-
-    @Test
-    fun `logged work accumulates on the task`() {
-        val existing = givenTask()
-
-        service.logWork(existing.id, LogWorkCommand(150), actor)
-        service.logWork(existing.id, LogWorkCommand(75), actor)
-
-        assertEquals(225, tasks.findById(existing.id)!!.workedTime)
-    }
-
-    @Test
-    fun `negative work is rejected`() {
-        val existing = givenTask()
-
-        assertFailsWith<IllegalArgumentException> { service.logWork(existing.id, LogWorkCommand(-10), actor) }
     }
 
     // ── Archiving ───────────────────────────────────────────────────────

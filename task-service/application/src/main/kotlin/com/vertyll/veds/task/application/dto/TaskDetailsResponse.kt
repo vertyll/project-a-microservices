@@ -10,4 +10,5 @@ data class TaskDetailsResponse(
     val createdBy: TaskUserView?,
     val comments: List<TaskCommentResponse>,
     val permissions: Set<TaskPermission>,
+    val hiddenWorkLogEnabled: Boolean,
 )

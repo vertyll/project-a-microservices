@@ -11,6 +11,9 @@ enum class TaskError(
     COMMENT_NOT_FOUND("task.comment.not_found", ErrorKind.NOT_FOUND),
     COMMENT_NOT_AUTHORED_BY_CALLER("task.comment.not_authored_by_caller", ErrorKind.ACCESS_DENIED),
 
+    WORK_LOG_NOT_FOUND("task.work_log.not_found", ErrorKind.NOT_FOUND),
+    WORK_LOG_NOT_AUTHORED_BY_CALLER("task.work_log.not_authored_by_caller", ErrorKind.ACCESS_DENIED),
+
     PROJECT_NOT_KNOWN("task.project.not_known", ErrorKind.NOT_FOUND),
     PROJECT_ARCHIVED("task.project.archived", ErrorKind.CONFLICT),
     STATUS_NOT_IN_PROJECT("task.status.not_in_project", ErrorKind.INVALID),

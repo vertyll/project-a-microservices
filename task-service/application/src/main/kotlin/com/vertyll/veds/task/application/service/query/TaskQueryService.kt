@@ -105,6 +105,7 @@ class TaskQueryService(
             createdBy = toView(task.createdBy),
             comments = queryPort.findComments(taskId),
             permissions = authorization.effectivePermissions(task.projectId, actorId),
+            hiddenWorkLogEnabled = projectDirectory.findProject(task.projectId)?.hiddenWorkLogEnabled ?: false,
         )
     }
 

@@ -7,8 +7,12 @@ data class ProjectRef(
     val projectId: UUID,
     val name: String,
     val isActive: Boolean = true,
+    val hiddenWorkLogEnabled: Boolean = false,
+    val hiddenWorkLogRoles: Set<String> = emptySet(),
     val updatedAt: Instant = Instant.now(),
-)
+) {
+    fun allowsHiddenWorkLogFor(roleCode: String?): Boolean = hiddenWorkLogEnabled && roleCode != null && roleCode in hiddenWorkLogRoles
+}
 
 data class ResolvedLabel(
     val name: String,

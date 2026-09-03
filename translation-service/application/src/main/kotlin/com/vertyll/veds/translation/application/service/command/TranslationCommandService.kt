@@ -6,6 +6,7 @@ import com.vertyll.veds.translation.application.command.ImportTranslationsComman
 import com.vertyll.veds.translation.application.command.OverrideTranslationCommand
 import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
 import com.vertyll.veds.translation.application.dto.ImportReportResponse
+import com.vertyll.veds.translation.application.dto.MissingTranslationResponse
 import com.vertyll.veds.translation.application.dto.RejectedPatternResponse
 import com.vertyll.veds.translation.application.dto.TranslationValueResponse
 import com.vertyll.veds.translation.application.exception.ApiException
@@ -89,6 +90,8 @@ class TranslationCommandService(
             valueRepository.find(command.key, tag)
                 ?: TranslationValue(key = command.key, language = tag)
 
+        requireSameArguments(command.key, tag, current.defaultValue, command.value)
+
         VersionGuard.requireMatch(current.version, version) {
             ApiException(TranslationError.VERSION_MISMATCH)
         }
@@ -138,6 +141,11 @@ class TranslationCommandService(
             }
 
             val current = valueRepository.find(row.key, tag) ?: TranslationValue(key = row.key, language = tag)
+            val argumentDrift = argumentDrift(tag, current.defaultValue, row.value)
+            if (argumentDrift != null) {
+                rejected += RejectedPatternResponse(key = row.key, language = tag.value, reason = argumentDrift)
+                return@forEach
+            }
             valueRepository.save(current.overriddenBy(command.importedBy, row.value))
             applied++
         }
@@ -155,8 +163,27 @@ class TranslationCommandService(
             skippedUnknownKeys = unknownKeys.sorted(),
             skippedUnknownLanguages = unknownLanguages.sorted(),
             rejectedPatterns = rejected,
+            missingAfterImport = missingAfterImport(knownKeys, knownLanguages),
         )
     }
+
+    /**
+     * A spreadsheet is the whole catalogue, so what it leaves empty stays empty. The
+     * gaps are listed rather than counted: the point of the import is to close them,
+     * and a number alone does not say which ones are still open.
+     */
+    private fun missingAfterImport(
+        knownKeys: Set<String>,
+        knownLanguages: Set<LanguageTag>,
+    ): List<MissingTranslationResponse> =
+        knownKeys
+            .sorted()
+            .flatMap { key ->
+                knownLanguages
+                    .sortedBy { it.value }
+                    .filter { valueRepository.find(key, it)?.effectiveValue.isNullOrBlank() }
+                    .map { MissingTranslationResponse(key = key, language = it.value) }
+            }
 
     private fun requireKnownLanguage(raw: String): LanguageTag {
         val tag =
@@ -170,6 +197,41 @@ class TranslationCommandService(
     private fun requireExistingKey(key: String): TranslationKey =
         keyRepository.findByKey(key)
             ?: throw ApiException(TranslationError.KEY_NOT_FOUND, mapOf("key" to key))
+
+    /**
+     * A pattern that compiles can still be wrong: swapping `{count}` for `{liczba}`
+     * renders an empty slot at run time, on a page nobody was editing. The shipped
+     * default is the contract, so an override must use exactly its arguments.
+     */
+    private fun argumentDrift(
+        tag: LanguageTag,
+        defaultValue: String?,
+        newValue: String,
+    ): String? {
+        val expected = defaultValue?.let { IcuPatternValidator.argumentsOf(tag.value, it) } ?: return null
+        val actual = IcuPatternValidator.argumentsOf(tag.value, newValue)
+        if (expected == actual) return null
+
+        val missing = expected - actual
+        val unexpected = actual - expected
+        return listOfNotNull(
+            missing.takeIf { it.isNotEmpty() }?.let { "missing " + it.sorted().joinToString(", ") },
+            unexpected.takeIf { it.isNotEmpty() }?.let { "unexpected " + it.sorted().joinToString(", ") },
+        ).joinToString("; ")
+    }
+
+    private fun requireSameArguments(
+        key: String,
+        tag: LanguageTag,
+        defaultValue: String?,
+        newValue: String,
+    ) {
+        val drift = argumentDrift(tag, defaultValue, newValue) ?: return
+        throw ApiException(
+            TranslationError.UNKNOWN_ARGUMENTS,
+            mapOf("key" to key, "language" to tag.value, "reason" to drift),
+        )
+    }
 
     private fun validatePattern(
         key: String,

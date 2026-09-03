@@ -48,6 +48,8 @@ class ProjectCommandService(
                     typeId = command.typeId,
                     ownerId = actor.id,
                     iconFileId = command.iconFileId,
+                    hiddenWorkLogEnabled = command.hiddenWorkLogEnabled,
+                    hiddenWorkLogRoles = command.hiddenWorkLogRoles,
                 ),
             )
 
@@ -66,7 +68,13 @@ class ProjectCommandService(
                 ),
             )
 
-        eventPublisher.publishProjectCreated(project.id, project.name, actor.id)
+        eventPublisher.publishProjectCreated(
+            projectId = project.id,
+            name = project.name,
+            ownerId = actor.id,
+            hiddenWorkLogEnabled = project.hiddenWorkLogEnabled,
+            hiddenWorkLogRoles = project.hiddenWorkLogRoles.map { it.name }.toSet(),
+        )
         eventPublisher.publishMemberJoined(
             projectId = project.id,
             memberId = manager.id,
@@ -100,10 +108,16 @@ class ProjectCommandService(
                     .describe(command.description)
                     .changeVisibility(command.isPublic)
                     .changeType(command.typeId)
-                    .changeIcon(command.iconFileId),
+                    .changeIcon(command.iconFileId)
+                    .configureHiddenWorkLog(command.hiddenWorkLogEnabled, command.hiddenWorkLogRoles),
             )
 
-        eventPublisher.publishProjectUpdated(updated.id, updated.name)
+        eventPublisher.publishProjectUpdated(
+            projectId = updated.id,
+            name = updated.name,
+            hiddenWorkLogEnabled = updated.hiddenWorkLogEnabled,
+            hiddenWorkLogRoles = updated.hiddenWorkLogRoles.map { it.name }.toSet(),
+        )
 
         return ProjectResponse.from(updated, authorization.effectivePermissions(updated.id, actorId))
     }

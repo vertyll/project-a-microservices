@@ -12,9 +12,11 @@ import com.vertyll.veds.task.domain.model.ProjectStatusRef
 import com.vertyll.veds.task.domain.model.Task
 import com.vertyll.veds.task.domain.model.TaskComment
 import com.vertyll.veds.task.domain.model.TaskSearchCriteria
+import com.vertyll.veds.task.domain.model.WorkLogEntry
 import com.vertyll.veds.task.domain.repository.ProjectDirectoryRepository
 import com.vertyll.veds.task.domain.repository.TaskCommentRepository
 import com.vertyll.veds.task.domain.repository.TaskRepository
+import com.vertyll.veds.task.domain.repository.WorkLogEntryRepository
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -24,7 +26,15 @@ internal fun projectRef(
     projectId: UUID = Uuid.generateV7().toJavaUuid(),
     name: String = "Apollo",
     isActive: Boolean = true,
-) = ProjectRef(projectId = projectId, name = name, isActive = isActive)
+    hiddenWorkLogEnabled: Boolean = false,
+    hiddenWorkLogRoles: Set<String> = emptySet(),
+) = ProjectRef(
+    projectId = projectId,
+    name = name,
+    isActive = isActive,
+    hiddenWorkLogEnabled = hiddenWorkLogEnabled,
+    hiddenWorkLogRoles = hiddenWorkLogRoles,
+)
 
 internal fun membership(
     projectId: UUID,
@@ -170,6 +180,22 @@ internal class InMemoryCommentRepository : TaskCommentRepository {
     override fun deleteAllByTaskId(taskId: UUID) {
         stored.values.removeAll { it.taskId == taskId }
     }
+}
+
+internal class InMemoryWorkLogRepository : WorkLogEntryRepository {
+    val stored = linkedMapOf<UUID, WorkLogEntry>()
+
+    override fun save(entry: WorkLogEntry) = entry.also { stored[it.id] = it }
+
+    override fun findById(id: UUID) = stored[id]
+
+    override fun findAllByTaskId(taskId: UUID) = stored.values.filter { it.taskId == taskId }
+
+    override fun deleteById(id: UUID) {
+        stored.remove(id)
+    }
+
+    override fun sumMinutesByTaskId(taskId: UUID) = stored.values.filter { it.taskId == taskId }.sumOf { it.minutes }
 }
 
 internal object SilentLogger : UseCaseLogger {

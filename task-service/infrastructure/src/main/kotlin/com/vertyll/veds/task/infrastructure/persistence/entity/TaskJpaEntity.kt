@@ -40,8 +40,8 @@ internal class TaskJpaEntity(
     var description: String? = null,
     @Column(name = "price_estimation", nullable = false)
     var priceEstimation: Int = 0,
-    @Column(name = "worked_time", nullable = false)
-    var workedTime: Int = 0,
+    @Column(name = "worked_minutes", nullable = false)
+    var workedMinutes: Int = 0,
     @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false, length = 16)
     var priority: TaskPriority = TaskPriority.MEDIUM,

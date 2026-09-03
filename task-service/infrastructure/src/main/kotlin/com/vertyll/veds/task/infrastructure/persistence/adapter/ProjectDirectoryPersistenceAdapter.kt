@@ -33,6 +33,8 @@ internal class ProjectDirectoryPersistenceAdapter(
                     projectId = project.projectId,
                     name = project.name,
                     isActive = project.isActive,
+                    hiddenWorkLogEnabled = project.hiddenWorkLogEnabled,
+                    hiddenWorkLogRoles = project.hiddenWorkLogRoles.toMutableSet(),
                     updatedAt = project.updatedAt,
                 ),
             ).toDomain()
@@ -97,7 +99,15 @@ internal class ProjectDirectoryPersistenceAdapter(
         memberships.findAllByProjectId(projectId).map { it.toDomain() }
 }
 
-private fun ProjectRefJpaEntity.toDomain() = ProjectRef(projectId = projectId, name = name, isActive = isActive, updatedAt = updatedAt)
+private fun ProjectRefJpaEntity.toDomain() =
+    ProjectRef(
+        projectId = projectId,
+        name = name,
+        isActive = isActive,
+        hiddenWorkLogEnabled = hiddenWorkLogEnabled,
+        hiddenWorkLogRoles = hiddenWorkLogRoles.toSet(),
+        updatedAt = updatedAt,
+    )
 
 private fun ProjectCategoryRefJpaEntity.toDomain() =
     ProjectCategoryRef(

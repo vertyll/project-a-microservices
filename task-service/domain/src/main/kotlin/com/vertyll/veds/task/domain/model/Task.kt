@@ -15,7 +15,7 @@ data class Task(
     val name: String,
     val description: String? = null,
     val priceEstimation: Int = 0,
-    val workedTime: Int = 0,
+    val workedMinutes: Int = 0,
     val priority: TaskPriority = TaskPriority.MEDIUM,
     val statusId: UUID? = null,
     val categoryIds: Set<UUID> = emptySet(),
@@ -31,7 +31,7 @@ data class Task(
     init {
         require(name.isNotBlank()) { "task name must not be blank" }
         require(priceEstimation >= 0) { "price estimation must not be negative" }
-        require(workedTime >= 0) { "worked time must not be negative" }
+        require(workedMinutes >= 0) { "worked time must not be negative" }
     }
 
     fun describe(
@@ -63,9 +63,9 @@ data class Task(
             this
         }
 
-    fun logWork(additionalHundredths: Int): Task {
-        require(additionalHundredths >= 0) { "logged work must not be negative" }
-        return copy(workedTime = workedTime + additionalHundredths, updatedAt = Instant.now())
+    fun withWorkedMinutes(totalMinutes: Int): Task {
+        require(totalMinutes >= 0) { "worked time must not be negative" }
+        return copy(workedMinutes = totalMinutes, updatedAt = Instant.now())
     }
 
     fun estimateAt(hundredths: Int): Task {

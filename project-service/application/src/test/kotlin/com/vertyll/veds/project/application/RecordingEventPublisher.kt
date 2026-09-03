@@ -10,6 +10,8 @@ internal open class RecordingEventPublisher : ProjectEventPublisherPort {
         projectId: UUID,
         name: String,
         ownerId: UUID,
+        hiddenWorkLogEnabled: Boolean,
+        hiddenWorkLogRoles: Set<String>,
     ) {
         published += "ProjectCreated($projectId)"
     }
@@ -17,6 +19,8 @@ internal open class RecordingEventPublisher : ProjectEventPublisherPort {
     override fun publishProjectUpdated(
         projectId: UUID,
         name: String,
+        hiddenWorkLogEnabled: Boolean,
+        hiddenWorkLogRoles: Set<String>,
     ) {
         published += "ProjectUpdated($projectId)"
     }

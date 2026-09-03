@@ -1,9 +1,13 @@
 package com.vertyll.veds.project.infrastructure.persistence.entity
 
+import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
+import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.Index
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import java.time.Instant
@@ -34,6 +38,12 @@ internal class ProjectJpaEntity(
     var typeId: UUID? = null,
     @Column(name = "owner_id", nullable = false)
     var ownerId: UUID,
+    @Column(name = "hidden_work_log_enabled", nullable = false)
+    var hiddenWorkLogEnabled: Boolean = false,
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "project_hidden_work_log_role", joinColumns = [JoinColumn(name = "project_id")])
+    @Column(name = "role_code", nullable = false)
+    var hiddenWorkLogRoles: MutableSet<String> = mutableSetOf(),
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true,
     @Column(name = "created_at", nullable = false, updatable = false)

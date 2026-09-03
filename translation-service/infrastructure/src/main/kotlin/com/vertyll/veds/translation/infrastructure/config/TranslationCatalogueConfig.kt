@@ -71,8 +71,8 @@ internal class TranslationCatalogueConfig {
                 en("Invalid ICU pattern: {reason}")
             }
             key("translation.value.unknown_arguments") {
-                pl("Wzorzec używa nieznanych argumentów.")
-                en("The pattern uses unknown arguments.")
+                pl("Wzorzec musi używać tych samych zmiennych co wartość domyślna: {reason}")
+                en("The pattern must use the same arguments as the shipped default: {reason}")
             }
             key("translation.import.malformed") {
                 pl("Nie udało się odczytać pliku.")

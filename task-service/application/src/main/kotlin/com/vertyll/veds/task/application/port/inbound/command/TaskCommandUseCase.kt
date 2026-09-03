@@ -3,7 +3,6 @@ package com.vertyll.veds.task.application.port.inbound.command
 import com.vertyll.veds.task.application.command.BatchDeleteTasksCommand
 import com.vertyll.veds.task.application.command.ChangeTaskStatusCommand
 import com.vertyll.veds.task.application.command.CreateTaskCommand
-import com.vertyll.veds.task.application.command.LogWorkCommand
 import com.vertyll.veds.task.application.command.UpdateTaskCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.dto.TaskResponse
@@ -27,12 +26,6 @@ interface TaskCommandUseCase {
         command: ChangeTaskStatusCommand,
         actor: Actor,
         version: Long? = null,
-    ): TaskResponse
-
-    fun logWork(
-        taskId: UUID,
-        command: LogWorkCommand,
-        actor: Actor,
     ): TaskResponse
 
     fun archiveTask(

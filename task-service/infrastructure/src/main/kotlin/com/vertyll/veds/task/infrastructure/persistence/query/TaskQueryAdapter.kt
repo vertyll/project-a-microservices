@@ -4,6 +4,7 @@ import com.vertyll.veds.task.application.dto.TaskCategoryView
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.dto.TaskListItemResponse
 import com.vertyll.veds.task.application.dto.TaskUserView
+import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.domain.model.LanguageTag
 import com.vertyll.veds.task.domain.model.PageRequest
@@ -16,6 +17,7 @@ import jakarta.persistence.PersistenceContext
 import jakarta.persistence.TypedQuery
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 @Component
@@ -33,6 +35,21 @@ internal class TaskQueryAdapter : TaskQueryPort {
         private const val COMMENT_AUTHOR_FIRST_NAME = 8
         private const val COMMENT_AUTHOR_LAST_NAME = 9
         private const val COMMENT_AUTHOR_AVATAR = 10
+
+        private const val WORK_LOG_ID = 0
+        private const val WORK_LOG_TASK_ID = 1
+        private const val WORK_LOG_AUTHOR_ID = 2
+        private const val WORK_LOG_MINUTES = 3
+        private const val WORK_LOG_WORKED_ON = 4
+        private const val WORK_LOG_DESCRIPTION = 5
+        private const val WORK_LOG_CREATED_AT = 6
+        private const val WORK_LOG_UPDATED_AT = 7
+        private const val WORK_LOG_VERSION = 8
+        private const val WORK_LOG_AUTHOR_EMAIL = 9
+        private const val WORK_LOG_AUTHOR_FIRST_NAME = 10
+        private const val WORK_LOG_AUTHOR_LAST_NAME = 11
+        private const val WORK_LOG_AUTHOR_AVATAR = 12
+        private const val WORK_LOG_HIDDEN = 13
 
         private const val ASSIGNEE_TASK_ID = 0
         private const val ASSIGNEE_USER_ID = 1
@@ -79,7 +96,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 .createQuery(
                     """
                     SELECT t.id, t.projectId, t.number, t.name, t.priority, t.statusId,
-                           t.workedTime, t.createdAt, t.updatedAt, t.version,
+                           t.workedMinutes, t.createdAt, t.updatedAt, t.version,
                            (SELECT COUNT(c) FROM TaskCommentJpaEntity c WHERE c.taskId = t.id)
                     FROM TaskJpaEntity t
                     $where
@@ -120,7 +137,7 @@ internal class TaskQueryAdapter : TaskQueryPort {
                         categories = categoriesByTask[id].orEmpty(),
                         assignees = assigneesByTask[id].orEmpty(),
                         commentCount = (r[10] as Long).toInt(),
-                        workedTime = r[6] as Int,
+                        workedMinutes = r[6] as Int,
                         createdAt = r[7] as Instant,
                         updatedAt = r[8] as Instant,
                         version = r[9] as Long?,
@@ -170,6 +187,48 @@ internal class TaskQueryAdapter : TaskQueryPort {
                 createdAt = r[COMMENT_CREATED_AT] as Instant,
                 updatedAt = r[COMMENT_UPDATED_AT] as Instant,
                 version = r[COMMENT_VERSION] as Long?,
+            )
+        }
+    }
+
+    override fun findWorkLog(taskId: UUID): List<WorkLogEntryResponse> {
+        val rows =
+            entityManager
+                .createQuery(
+                    """
+                    SELECT e.id, e.taskId, e.authorId, e.minutes, e.workedOn, e.description,
+                           e.createdAt, e.updatedAt, e.version,
+                           u.email, u.firstName, u.lastName, u.avatarFileId, e.hidden
+                    FROM WorkLogEntryJpaEntity e
+                    LEFT JOIN UserRefJpaEntity u ON u.userId = e.authorId
+                    WHERE e.taskId = :taskId
+                    ORDER BY e.workedOn DESC, e.createdAt DESC
+                    """,
+                    Array<Any>::class.java,
+                ).setParameter("taskId", taskId)
+                .resultList
+
+        return rows.map { r ->
+            val email = r[WORK_LOG_AUTHOR_EMAIL] as String?
+            WorkLogEntryResponse(
+                id = r[WORK_LOG_ID] as UUID,
+                taskId = r[WORK_LOG_TASK_ID] as UUID,
+                author =
+                    TaskUserView(
+                        id = r[WORK_LOG_AUTHOR_ID] as UUID,
+                        displayName =
+                            listOfNotNull(r[WORK_LOG_AUTHOR_FIRST_NAME] as String?, r[WORK_LOG_AUTHOR_LAST_NAME] as String?)
+                                .joinToString(" ")
+                                .ifBlank { email ?: (r[WORK_LOG_AUTHOR_ID] as UUID).toString() },
+                        avatarFileId = r[WORK_LOG_AUTHOR_AVATAR] as UUID?,
+                    ),
+                minutes = r[WORK_LOG_MINUTES] as Int,
+                workedOn = r[WORK_LOG_WORKED_ON] as LocalDate,
+                description = r[WORK_LOG_DESCRIPTION] as String?,
+                hidden = r[WORK_LOG_HIDDEN] as Boolean,
+                createdAt = r[WORK_LOG_CREATED_AT] as Instant,
+                updatedAt = r[WORK_LOG_UPDATED_AT] as Instant,
+                version = r[WORK_LOG_VERSION] as Long?,
             )
         }
     }
