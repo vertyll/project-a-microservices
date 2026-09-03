@@ -12,4 +12,10 @@ interface PermissionRepository {
     fun existsByName(name: String): Boolean
 
     fun findAll(): List<Permission>
+
+    fun findByModule(module: String): List<Permission>
+
+    fun findAllByNames(names: Collection<String>): List<Permission>
+
+    fun delete(permission: Permission)
 }

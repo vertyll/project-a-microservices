@@ -3,6 +3,7 @@
 package com.vertyll.veds.task.application.service.command
 
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
+import com.vertyll.veds.task.application.InMemoryRolePermissions
 import com.vertyll.veds.task.application.InMemoryTaskRepository
 import com.vertyll.veds.task.application.InMemoryUserDirectory
 import com.vertyll.veds.task.application.InMemoryWorkLogRepository
@@ -31,13 +32,15 @@ internal class WorkLogCommandServiceTest {
     private val directory = InMemoryProjectDirectory()
     private val users = InMemoryUserDirectory()
 
+    private val roles = InMemoryRolePermissions()
+
     private val service =
         WorkLogCommandService(
             entryRepository = entries,
             taskRepository = tasks,
             userDirectory = users,
             projectDirectory = directory,
-            authorization = TaskAuthorizationService(directory, tasks),
+            authorization = TaskAuthorizationService(directory, tasks, roles),
         )
 
     private val project = projectRef().also { directory.saveProject(it) }

@@ -58,6 +58,30 @@ internal class TranslationCatalogueConfig {
                 pl("Nie znaleziono roli.")
                 en("Role not found.")
             }
+            key("iam.role.already_exists") {
+                pl("Rola o tej nazwie już istnieje.")
+                en("A role with this name already exists.")
+            }
+            key("iam.role.is_system") {
+                pl("Tej roli nie można usunąć — należy do platformy.")
+                en("This role belongs to the platform and cannot be deleted.")
+            }
+            key("iam.role.still_assigned") {
+                pl("Rola jest nadal przypisana użytkownikom.")
+                en("The role is still assigned to users.")
+            }
+            key("iam.permission.out_of_scope") {
+                pl("Tego uprawnienia nie można nadać roli o tym zakresie.")
+                en("This permission cannot be held by a role in that scope.")
+            }
+            key("iam.role.last_unrestricted") {
+                pl("To ostatnia rola z pełnymi uprawnieniami — nie można jej odebrać ani usunąć.")
+                en("This is the last role holding every permission; it cannot be removed.")
+            }
+            key("iam.permission.not_found") {
+                pl("Nie znaleziono uprawnienia.")
+                en("Permission not found.")
+            }
             key("iam.role.default_not_configured") {
                 pl("Rola domyślna nie jest skonfigurowana.")
                 en("The default role is not configured.")

@@ -3,25 +3,18 @@ package com.vertyll.veds.task.domain.service
 import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.ProjectMembershipRef
 import com.vertyll.veds.task.domain.model.ProjectRef
+import com.vertyll.veds.task.domain.model.RolePermissionsRef
 import com.vertyll.veds.task.domain.model.Task
 import com.vertyll.veds.task.domain.model.TaskPermission
 import java.util.UUID
 
 object TaskAccessPolicy {
-    private const val MANAGER_ROLE_CODE = "MANAGER"
-
-    private val ROLE_PERMISSIONS: Map<String, Set<TaskPermission>> =
-        mapOf(
-            MANAGER_ROLE_CODE to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),
-            "MEMBER" to setOf(TaskPermission.VIEW_TASKS, TaskPermission.MANAGE_TASKS, TaskPermission.COMMENT),
-            "CLIENT" to setOf(TaskPermission.VIEW_TASKS, TaskPermission.COMMENT),
-        )
-
     private val MUTATING = setOf(TaskPermission.MANAGE_TASKS)
 
     fun evaluate(
         project: ProjectRef,
         membership: ProjectMembershipRef?,
+        role: RolePermissionsRef?,
         permission: TaskPermission,
         task: Task? = null,
     ): AccessDecision {
@@ -32,23 +25,28 @@ object TaskAccessPolicy {
             return AccessDecision.Deny(TaskError.TASK_ARCHIVED)
         }
 
-        val granted = membership?.let { ROLE_PERMISSIONS[it.roleCode] }.orEmpty()
-        return if (permission in granted) {
+        return if (membership != null && role != null && role.grants(permission)) {
             AccessDecision.Permit
         } else {
             AccessDecision.Deny(TaskError.TASK_ACCESS_DENIED)
         }
     }
 
-    fun permissionsOf(membership: ProjectMembershipRef?): Set<TaskPermission> = membership?.let { ROLE_PERMISSIONS[it.roleCode] }.orEmpty()
+    fun permissionsOf(
+        membership: ProjectMembershipRef?,
+        role: RolePermissionsRef?,
+    ): Set<TaskPermission> {
+        if (membership == null || role == null) return emptySet()
+        return TaskPermission.entries.filterTo(mutableSetOf()) { role.grants(it) }
+    }
 
     fun canSeeRestrictedTask(
         task: Task,
-        membership: ProjectMembershipRef?,
+        role: RolePermissionsRef?,
         userId: UUID,
     ): Boolean {
         task.accessRoleId ?: return true
         if (task.wasCreatedBy(userId) || task.isAssignedTo(userId)) return true
-        return membership?.roleCode == MANAGER_ROLE_CODE
+        return role?.grants(TaskPermission.VIEW_RESTRICTED_TASKS) == true
     }
 }

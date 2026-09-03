@@ -1,0 +1,133 @@
+import dev.detekt.gradle.Detekt
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    jacoco
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.dokka)
+}
+
+group = "com.vertyll.veds"
+version = "0.0.1-SNAPSHOT"
+description = "Start-up registration of a service's permission catalogue with iam-service"
+
+extra["author"] = "Mikołaj Gawron"
+extra["email"] = "gawrmiko@gmail.com"
+
+repositories {
+    mavenCentral()
+}
+
+configure<JavaPluginExtension> {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+dependencyManagement {
+    imports {
+        mavenBom(
+            libs.spring.boot.dependencies
+                .get()
+                .toString(),
+        )
+    }
+}
+
+// This creates a JAR without a main class (library)
+tasks.bootJar {
+    enabled = false
+}
+
+tasks.jar {
+    enabled = true
+}
+
+dependencies {
+    // The permission-declaration DSL whose catalogues this client ships to
+    // iam-service. `api`, because a service declares its permissions with it.
+    api("com.vertyll.veds:shared-authz")
+
+    implementation(libs.spring.boot.starter)
+    implementation(libs.springframework.web)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.stdlib.jdk8)
+
+    kapt(libs.spring.boot.configuration.processor)
+
+    testImplementation(libs.spring.boot.starter.test)
+}
+
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    debug.set(false)
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    outputColorName.set("RED")
+    ignoreFailures.set(false)
+    enableExperimentalRules.set(true)
+    filter {
+        exclude { element -> element.file.path.contains("generated/") }
+        include("**/src/**/*.kt")
+        include("**/src/**/*.kts")
+    }
+}
+
+tasks.withType<Detekt>().configureEach {
+    config.setFrom(files("${rootProject.projectDir}/../config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+tasks.named("check") {
+    dependsOn("detekt")
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-Xjsr305=strict",
+        )
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+// --- Dokka (KDoc -> HTML API docs) ---
+dokka {
+    moduleName.set("shared-translation-client")
+    dokkaPublications.named("html") {
+        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-translation-client"))
+    }
+    dokkaSourceSets.named("main") {
+        jdkVersion.set(25)
+        reportUndocumented.set(false)
+        skipDeprecated.set(false)
+        suppressGeneratedFiles.set(true)
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://github.com/vertyll/veds/tree/main/shared-translation-client/src/main/kotlin")
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("test") {
+    finalizedBy("jacocoTestReport")
+}

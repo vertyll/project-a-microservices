@@ -3,6 +3,7 @@
 package com.vertyll.veds.task.application.service
 
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
+import com.vertyll.veds.task.application.InMemoryRolePermissions
 import com.vertyll.veds.task.application.InMemoryTaskRepository
 import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.membership
@@ -23,7 +24,9 @@ internal class TaskAuthorizationServiceTest {
     private val directory = InMemoryProjectDirectory()
     private val tasks = InMemoryTaskRepository()
 
-    private val service = TaskAuthorizationService(directory, tasks)
+    private val roles = InMemoryRolePermissions()
+
+    private val service = TaskAuthorizationService(directory, tasks, roles)
 
     private val actor = Uuid.generateV7().toJavaUuid()
     private val project = projectRef().also { directory.saveProject(it) }

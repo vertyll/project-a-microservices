@@ -1,6 +1,7 @@
 package com.vertyll.veds.project
 
 import com.vertyll.veds.project.infrastructure.config.TranslationLanguagesProperties
+import com.vertyll.veds.shared.authz.client.AuthzClientProperties
 import com.vertyll.veds.shared.translation.client.TranslationClientProperties
 import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -20,6 +21,7 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.project",
     "com.vertyll.veds.shared.messaging",
     "com.vertyll.veds.shared.translation.client",
+    "com.vertyll.veds.shared.authz.client",
 )
 @EnableJpaRepositories(
     "com.vertyll.veds.project.infrastructure.persistence.repository",
@@ -28,7 +30,11 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.project.infrastructure.persistence.entity",
 )
 @EnableKafka
-@EnableConfigurationProperties(TranslationClientProperties::class, TranslationLanguagesProperties::class)
+@EnableConfigurationProperties(
+    TranslationClientProperties::class,
+    TranslationLanguagesProperties::class,
+    AuthzClientProperties::class,
+)
 class ProjectServiceApplication
 
 fun main(args: Array<String>) {

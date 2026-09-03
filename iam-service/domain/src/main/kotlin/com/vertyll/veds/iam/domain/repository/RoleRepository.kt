@@ -12,4 +12,8 @@ interface RoleRepository {
     fun existsByName(name: String): Boolean
 
     fun findAll(): List<Role>
+
+    fun findAllByNames(names: Collection<String>): List<Role>
+
+    fun delete(role: Role)
 }

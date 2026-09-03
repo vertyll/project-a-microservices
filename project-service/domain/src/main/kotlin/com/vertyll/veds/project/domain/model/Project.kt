@@ -17,7 +17,6 @@ data class Project(
     val typeId: UUID? = null,
     val ownerId: UUID,
     val hiddenWorkLogEnabled: Boolean = false,
-    val hiddenWorkLogRoles: Set<ProjectRoleCode> = emptySet(),
     val isActive: Boolean = true,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
@@ -26,22 +25,13 @@ data class Project(
     init {
         require(name.isNotBlank()) { NAME_BLANK }
         require(name.length <= MAX_NAME_LENGTH) { NAME_TOO_LONG }
-        require(hiddenWorkLogEnabled || hiddenWorkLogRoles.isEmpty()) { HIDDEN_WORK_LOG_ROLES_WITHOUT_FEATURE }
     }
 
     fun rename(newName: String): Project = copy(name = newName, updatedAt = Instant.now())
 
     fun describe(newDescription: String?): Project = copy(description = newDescription, updatedAt = Instant.now())
 
-    fun configureHiddenWorkLog(
-        enabled: Boolean,
-        roles: Set<ProjectRoleCode>,
-    ): Project =
-        copy(
-            hiddenWorkLogEnabled = enabled,
-            hiddenWorkLogRoles = if (enabled) roles else emptySet(),
-            updatedAt = Instant.now(),
-        )
+    fun configureHiddenWorkLog(enabled: Boolean): Project = copy(hiddenWorkLogEnabled = enabled, updatedAt = Instant.now())
 
     fun changeType(newTypeId: UUID?): Project = copy(typeId = newTypeId, updatedAt = Instant.now())
 
@@ -59,8 +49,6 @@ data class Project(
         private const val MAX_NAME_LENGTH = 255
         private const val NAME_BLANK = "project name must not be blank"
         private const val NAME_TOO_LONG = "project name must not exceed 255 characters"
-        private const val HIDDEN_WORK_LOG_ROLES_WITHOUT_FEATURE =
-            "roles may only see a hidden work log the project actually has"
 
         fun create(
             name: String,
@@ -70,7 +58,6 @@ data class Project(
             ownerId: UUID,
             iconFileId: UUID? = null,
             hiddenWorkLogEnabled: Boolean = false,
-            hiddenWorkLogRoles: Set<ProjectRoleCode> = emptySet(),
         ): Project =
             Project(
                 name = name,
@@ -80,7 +67,6 @@ data class Project(
                 ownerId = ownerId,
                 iconFileId = iconFileId,
                 hiddenWorkLogEnabled = hiddenWorkLogEnabled,
-                hiddenWorkLogRoles = if (hiddenWorkLogEnabled) hiddenWorkLogRoles else emptySet(),
             )
     }
 }

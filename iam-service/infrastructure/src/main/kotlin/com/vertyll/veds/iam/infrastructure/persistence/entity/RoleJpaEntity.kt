@@ -30,6 +30,10 @@ internal class RoleJpaEntity(
         inverseJoinColumns = [JoinColumn(name = "permission_id")],
     )
     var permissions: MutableSet<PermissionJpaEntity> = mutableSetOf(),
+    @Column(name = "unrestricted", nullable = false)
+    var unrestricted: Boolean = false,
+    @Column(name = "scope", nullable = false, length = 16)
+    var scope: String = "GLOBAL",
     @Column(nullable = false)
     var createdAt: Instant = Instant.now(),
     @Column(nullable = false)

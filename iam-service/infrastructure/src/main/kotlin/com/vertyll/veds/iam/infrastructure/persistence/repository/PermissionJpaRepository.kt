@@ -10,4 +10,8 @@ internal interface PermissionJpaRepository : JpaRepository<PermissionJpaEntity, 
     fun findByName(name: String): Optional<PermissionJpaEntity>
 
     fun existsByName(name: String): Boolean
+
+    fun findByModule(module: String): List<PermissionJpaEntity>
+
+    fun findByNameIn(names: Collection<String>): List<PermissionJpaEntity>
 }

@@ -7,6 +7,7 @@ import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import jakarta.ws.rs.core.Response
 import org.keycloak.admin.client.KeycloakBuilder
 import org.keycloak.representations.idm.CredentialRepresentation
+import org.keycloak.representations.idm.RoleRepresentation
 import org.keycloak.representations.idm.UserRepresentation
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -120,6 +121,29 @@ internal class KeycloakIdentityProviderAdapter(
         userRepresentation.username = newEmail
         userResource.update(userRepresentation)
         logger.info("Updated email for Keycloak user: {} to {}", keycloakId, newEmail)
+    }
+
+    override fun createRole(
+        roleName: String,
+        description: String?,
+    ) {
+        if (realmResource.roles().list(roleName, true).any { it.name == roleName }) {
+            logger.debug("Realm role already present, leaving it alone: {}", roleName)
+            return
+        }
+
+        realmResource.roles().create(
+            RoleRepresentation().apply {
+                name = roleName
+                this.description = description
+            },
+        )
+        logger.info("Created realm role: {}", roleName)
+    }
+
+    override fun deleteRole(roleName: String) {
+        realmResource.roles().deleteRole(roleName)
+        logger.info("Deleted realm role: {}", roleName)
     }
 
     override fun assignRole(

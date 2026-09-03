@@ -25,7 +25,6 @@ data class AccessRequest(
                 setOf(
                     ProjectPermission.EDIT_PROJECT,
                     ProjectPermission.DELETE_PROJECT,
-                    ProjectPermission.MANAGE_TASKS,
                     ProjectPermission.INVITE_USERS,
                     ProjectPermission.MANAGE_MEMBERS,
                 )

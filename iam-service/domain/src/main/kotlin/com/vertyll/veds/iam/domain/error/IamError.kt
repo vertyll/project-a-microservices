@@ -21,6 +21,12 @@ enum class IamError(
     IDENTITY_PROVIDER_FAILED("iam.identity_provider.failed", ErrorKind.MISCONFIGURED),
 
     ROLE_NOT_FOUND("iam.role.not_found", ErrorKind.NOT_FOUND),
+    ROLE_ALREADY_EXISTS("iam.role.already_exists", ErrorKind.CONFLICT),
+    ROLE_IS_SYSTEM("iam.role.is_system", ErrorKind.CONFLICT),
+    ROLE_STILL_ASSIGNED("iam.role.still_assigned", ErrorKind.CONFLICT),
+    PERMISSION_NOT_FOUND("iam.permission.not_found", ErrorKind.NOT_FOUND),
+    PERMISSION_OUT_OF_SCOPE("iam.permission.out_of_scope", ErrorKind.INVALID),
+    LAST_UNRESTRICTED_ROLE("iam.role.last_unrestricted", ErrorKind.CONFLICT),
     DEFAULT_ROLE_NOT_CONFIGURED("iam.role.default_not_configured", ErrorKind.MISCONFIGURED),
 
     VERSION_MISMATCH("common.version_mismatch", ErrorKind.PRECONDITION_FAILED),

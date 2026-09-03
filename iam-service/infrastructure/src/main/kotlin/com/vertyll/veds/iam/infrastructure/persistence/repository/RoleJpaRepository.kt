@@ -10,4 +10,6 @@ internal interface RoleJpaRepository : JpaRepository<RoleJpaEntity, Long> {
     fun findByName(name: String): Optional<RoleJpaEntity>
 
     fun existsByName(name: String): Boolean
+
+    fun findByNameIn(names: Collection<String>): List<RoleJpaEntity>
 }

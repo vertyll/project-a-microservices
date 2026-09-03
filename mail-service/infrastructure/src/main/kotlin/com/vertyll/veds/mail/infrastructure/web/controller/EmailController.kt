@@ -28,7 +28,7 @@ internal class EmailController(
     private val emailBatchService: EmailBatchUseCase,
 ) {
     @GetMapping("/logs")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@authz.has('MAIL_LOGS_VIEW')")
     fun getEmailLogs(): ResponseEntity<ApiResponse<PageResult<EmailLogResponse>>> {
         val logs = emailService.getEmailLogs()
         return ApiResponse.buildResponse(

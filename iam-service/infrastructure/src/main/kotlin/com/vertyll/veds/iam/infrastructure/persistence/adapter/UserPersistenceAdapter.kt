@@ -63,6 +63,8 @@ internal class UserPersistenceAdapter(
         )
     }
 
+    override fun countByRole(roleId: Long): Long = repository.countByRoleId(roleId)
+
     override fun deleteById(id: Long) {
         repository.deleteById(id)
     }

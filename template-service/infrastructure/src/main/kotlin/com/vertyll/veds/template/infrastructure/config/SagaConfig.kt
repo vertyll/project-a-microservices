@@ -32,7 +32,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import tools.jackson.databind.ObjectMapper
 
 @Configuration
-@EnableScheduling // Enable scheduling for outbox processing
+@EnableScheduling
 internal class SagaConfig {
     companion object {
         const val SAGA_COMPENSATION_TOPIC: String = SagaCompensationTopic.PREFIX + "template"

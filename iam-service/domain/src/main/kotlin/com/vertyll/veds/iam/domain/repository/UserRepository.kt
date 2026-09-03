@@ -18,5 +18,7 @@ interface UserRepository {
 
     fun findAll(pageRequest: PageRequest): PageResult<User>
 
+    fun countByRole(roleId: Long): Long
+
     fun deleteById(id: Long)
 }

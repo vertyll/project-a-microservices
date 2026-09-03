@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/admin/translations")
 @Tag(name = "Translation administration", description = "Spreadsheet import and export")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@authz.has('TRANSLATIONS_VIEW')")
 internal class TranslationSpreadsheetController(
     private val exports: TranslationExportUseCase,
     private val queries: TranslationQueryUseCase,
@@ -64,6 +64,7 @@ internal class TranslationSpreadsheetController(
             .body(file)
     }
 
+    @PreAuthorize("@authz.has('TRANSLATIONS_EDIT')")
     @PostMapping("/import", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "Apply translations from a spreadsheet")
     fun import(

@@ -72,7 +72,12 @@ internal fun project(
 internal fun role(
     code: ProjectRoleCode = ProjectRoleCode.MANAGER,
     permissions: Set<ProjectPermission> = ProjectPermission.entries.toSet(),
-) = ProjectRole.create(code = code, permissions = permissions, translations = setOf(translation(code.name)))
+    extraPermissions: Set<String> = emptySet(),
+) = ProjectRole.create(
+    code = code,
+    permissions = permissions.mapTo(mutableSetOf()) { it.name } + extraPermissions,
+    translations = setOf(translation(code.value)),
+)
 
 internal fun projectType(code: ProjectTypeCode = ProjectTypeCode.entries.first()) =
     ProjectType.create(code = code, translations = setOf(translation(code.name)))

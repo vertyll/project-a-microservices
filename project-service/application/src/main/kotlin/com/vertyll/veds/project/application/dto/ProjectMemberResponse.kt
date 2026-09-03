@@ -1,7 +1,6 @@
 package com.vertyll.veds.project.application.dto
 
 import com.vertyll.veds.project.domain.model.ProjectMember
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.UserRef
 import java.time.Instant
 import java.util.UUID
@@ -14,7 +13,8 @@ data class ProjectMemberResponse(
     val displayName: String,
     val avatarFileId: UUID?,
     val roleId: UUID,
-    val roleCode: ProjectRoleCode,
+    val roleCode: String,
+    val rolePermissions: Set<String>,
     val roleName: String,
     val assignedAt: Instant,
     val version: Long?,
@@ -34,6 +34,7 @@ data class ProjectMemberResponse(
                 avatarFileId = user.avatarFileId,
                 roleId = member.roleId,
                 roleCode = role.code,
+                rolePermissions = role.permissions,
                 roleName = role.name,
                 assignedAt = member.assignedAt,
                 version = member.version,

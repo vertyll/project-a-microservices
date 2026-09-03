@@ -2,7 +2,6 @@ package com.vertyll.veds.project.application.port.inbound.query
 
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.domain.model.LanguageTag
-import com.vertyll.veds.project.domain.model.ProjectPermission
 import java.util.UUID
 
 interface ProjectMembershipQueryUseCase {
@@ -15,5 +14,5 @@ interface ProjectMembershipQueryUseCase {
     fun getEffectivePermissions(
         projectId: UUID,
         actorId: UUID,
-    ): Set<ProjectPermission>
+    ): Set<String>
 }

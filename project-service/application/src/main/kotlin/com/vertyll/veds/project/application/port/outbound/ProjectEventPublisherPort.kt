@@ -9,14 +9,12 @@ interface ProjectEventPublisherPort {
         name: String,
         ownerId: UUID,
         hiddenWorkLogEnabled: Boolean,
-        hiddenWorkLogRoles: Set<String>,
     )
 
     fun publishProjectUpdated(
         projectId: UUID,
         name: String,
         hiddenWorkLogEnabled: Boolean,
-        hiddenWorkLogRoles: Set<String>,
     )
 
     fun publishProjectArchived(

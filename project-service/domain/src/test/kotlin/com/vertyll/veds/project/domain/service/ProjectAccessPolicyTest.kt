@@ -28,14 +28,14 @@ class ProjectAccessPolicyTest {
     private val managerRole =
         ProjectRole(
             code = ProjectRoleCode.MANAGER,
-            permissions = ProjectPermission.entries.toSet(),
+            permissions = ProjectPermission.entries.mapTo(mutableSetOf()) { it.name },
             translations = allLanguages("Manager"),
         )
 
     private val clientRole =
         ProjectRole(
             code = ProjectRoleCode.CLIENT,
-            permissions = setOf(ProjectPermission.VIEW_PROJECT, ProjectPermission.SHOW_TASKS),
+            permissions = setOf(ProjectPermission.VIEW_PROJECT.name, "VIEW_TASKS"),
             translations = allLanguages("Client"),
         )
 
@@ -99,7 +99,7 @@ class ProjectAccessPolicyTest {
             val member = membership(project, clientRole)
 
             ProjectPermission.entries.forEach { permission ->
-                val expected = permission in clientRole.permissions
+                val expected = permission.name in clientRole.permissions
                 assertEquals(
                     expected,
                     ProjectAccessPolicy.permits(project, memberId, member, clientRole, permission).isPermitted,
@@ -195,7 +195,12 @@ class ProjectAccessPolicyTest {
                 val evaluated =
                     ProjectPermission.entries
                         .filter { ProjectAccessPolicy.permits(project, subject, membership, role, it).isPermitted }
-                        .toSet()
+                        .mapTo(mutableSetOf()) { it.name } +
+                        role
+                            ?.permissions
+                            .orEmpty()
+                            .takeIf { role?.isActive == true && membership != null }
+                            .orEmpty()
 
                 assertEquals(evaluated, reported, "subject $subject")
             }

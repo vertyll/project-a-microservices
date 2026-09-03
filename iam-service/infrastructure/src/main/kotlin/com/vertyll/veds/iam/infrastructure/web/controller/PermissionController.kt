@@ -1,5 +1,6 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
+import com.vertyll.veds.iam.application.dto.PermissionModuleResponse
 import com.vertyll.veds.iam.application.dto.PermissionResponse
 import com.vertyll.veds.iam.application.port.inbound.query.PermissionQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/permissions")
 @Tag(name = "Permissions", description = "Platform permission catalogue")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@authz.has('ROLES_VIEW')")
 internal class PermissionController(
     private val permissionQueries: PermissionQueryUseCase,
 ) {
@@ -27,4 +28,9 @@ internal class PermissionController(
     @Operation(summary = "List every permission with the roles that grant it")
     fun getPermissions(): ResponseEntity<ApiResponse<List<PermissionResponse>>> =
         ApiResponse.buildResponse(permissionQueries.getAllPermissions(), PERMISSIONS_RETRIEVED, HttpStatus.OK)
+
+    @GetMapping("/modules")
+    @Operation(summary = "List every permission grouped by the module that declares it")
+    fun getPermissionsByModule(): ResponseEntity<ApiResponse<List<PermissionModuleResponse>>> =
+        ApiResponse.buildResponse(permissionQueries.getPermissionsByModule(), PERMISSIONS_RETRIEVED, HttpStatus.OK)
 }

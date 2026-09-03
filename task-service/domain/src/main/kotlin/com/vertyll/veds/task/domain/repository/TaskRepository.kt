@@ -28,7 +28,6 @@ interface TaskRepository {
 
     fun findAllByAttachmentId(attachmentId: UUID): List<Task>
 
-    /** Highest number used in the project, or 0 when it has no tasks yet. */
     fun highestNumberIn(projectId: UUID): Int
 
     fun delete(id: UUID)

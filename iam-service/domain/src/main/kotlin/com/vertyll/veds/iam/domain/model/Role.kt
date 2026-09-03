@@ -7,11 +7,17 @@ data class Role(
     val name: String,
     val description: String? = null,
     val permissions: Set<Permission> = emptySet(),
+    val unrestricted: Boolean = false,
+    val scope: RoleScope = RoleScope.GLOBAL,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
     val version: Long? = null,
 ) {
-    fun grants(permissionName: String): Boolean = permissions.any { it.name == permissionName }
+    fun grants(permissionName: String): Boolean = unrestricted || permissions.any { it.name == permissionName }
+
+    fun withPermissions(granted: Set<Permission>): Role = copy(permissions = granted, updatedAt = Instant.now())
+
+    fun withDescription(value: String?): Role = copy(description = value, updatedAt = Instant.now())
 
     fun withPermission(permission: Permission): Role {
         if (permission.id == null || permissions.any { it.id == permission.id }) return this
@@ -28,11 +34,15 @@ data class Role(
             name: String,
             description: String? = null,
             permissions: Set<Permission> = emptySet(),
+            unrestricted: Boolean = false,
+            scope: RoleScope = RoleScope.GLOBAL,
         ): Role =
             Role(
                 name = name,
                 description = description,
                 permissions = permissions,
+                unrestricted = unrestricted,
+                scope = scope,
             )
     }
 }

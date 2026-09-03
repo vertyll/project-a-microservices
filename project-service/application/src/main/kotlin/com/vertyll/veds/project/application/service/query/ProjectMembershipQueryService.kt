@@ -24,5 +24,5 @@ class ProjectMembershipQueryService(
     override fun getEffectivePermissions(
         projectId: UUID,
         actorId: UUID,
-    ): Set<ProjectPermission> = authorization.effectivePermissions(projectId, actorId)
+    ): Set<String> = authorization.effectivePermissions(projectId, actorId)
 }

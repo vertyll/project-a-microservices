@@ -7,6 +7,7 @@ import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
+import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -15,6 +16,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -38,8 +41,8 @@ internal class UserController(
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Get all users (Admin only)")
+    @PreAuthorize("@authz.has('USERS_VIEW')")
+    @Operation(summary = "Get all users")
     fun getAllUsers(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
@@ -48,6 +51,7 @@ internal class UserController(
         return ApiResponse.buildResponse(users, USERS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }
 
+    @PreAuthorize("@authz.has('USERS_VIEW')")
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID")
     fun getUserById(
@@ -59,6 +63,7 @@ internal class UserController(
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
+    @PreAuthorize("@authz.has('USERS_VIEW')")
     @GetMapping("/email/{email}")
     @Operation(summary = "Get user by email")
     fun getUserByEmail(
@@ -70,9 +75,24 @@ internal class UserController(
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/me")
+    @Operation(summary = "Update your own profile")
+    fun updateOwnProfile(
+        @AuthenticationPrincipal jwt: Jwt?,
+        @Valid @RequestBody request: UpdateProfileRequest,
+        @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
+    ): ResponseEntity<ApiResponse<UserResponse>> {
+        val version = ETagUtils.parseIfMatchToVersion(ifMatch)
+        val me = userServiceQueries.getUserByKeycloakId(CurrentUser.keycloakIdOf(jwt))
+        val user = userServiceCommands.updateProfile(me.id, request.toCommand(), version)
+        val etag = ETagUtils.buildWeakETag(user.version)
+        val response = ApiResponse.buildResponse(user, PROFILE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
+    }
+
+    @PreAuthorize("@authz.has('USERS_MANAGE')")
     @PutMapping("/{id}")
-    @Operation(summary = "Update user profile (Admin only)")
+    @Operation(summary = "Update somebody else's profile")
     fun updateProfile(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateProfileRequest,

@@ -44,6 +44,9 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 veds:
+  authz:
+    client:
+      base-url: http://localhost:8082
   translation:
     client:
       base-url: http://localhost:8087

@@ -48,7 +48,6 @@ internal class ProjectEventConsumerAdapter(
                 projectId = UUID.fromString(event.projectId),
                 name = event.name.toString(),
                 hiddenWorkLogEnabled = event.hiddenWorkLogEnabled,
-                hiddenWorkLogRoles = event.hiddenWorkLogRoles.mapTo(mutableSetOf()) { it.toString() },
             ),
         )
     }
@@ -65,7 +64,6 @@ internal class ProjectEventConsumerAdapter(
                 projectId = UUID.fromString(event.projectId),
                 name = event.name.toString(),
                 hiddenWorkLogEnabled = event.hiddenWorkLogEnabled,
-                hiddenWorkLogRoles = event.hiddenWorkLogRoles.mapTo(mutableSetOf()) { it.toString() },
             ),
         )
     }

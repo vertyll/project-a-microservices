@@ -25,6 +25,8 @@ dependencies {
     implementation(project(":task-application"))
     implementation(project(":task-domain"))
     implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-authz")
+    implementation("com.vertyll.veds:shared-authz-client")
     implementation("com.vertyll.veds:shared-translation")
     implementation("com.vertyll.veds:shared-translation-client")
     implementation("com.vertyll.veds:shared-saga-engine")

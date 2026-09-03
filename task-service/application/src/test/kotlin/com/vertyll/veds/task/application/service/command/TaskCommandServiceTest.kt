@@ -4,6 +4,7 @@ package com.vertyll.veds.task.application.service.command
 
 import com.vertyll.veds.task.application.InMemoryCommentRepository
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
+import com.vertyll.veds.task.application.InMemoryRolePermissions
 import com.vertyll.veds.task.application.InMemoryTaskRepository
 import com.vertyll.veds.task.application.InMemoryUserDirectory
 import com.vertyll.veds.task.application.RecordingTaskEventPublisher
@@ -39,12 +40,14 @@ internal class TaskCommandServiceTest {
     private val users = InMemoryUserDirectory()
     private val events = RecordingTaskEventPublisher()
 
+    private val roles = InMemoryRolePermissions()
+
     private val service =
         TaskCommandService(
             taskRepository = tasks,
             commentRepository = comments,
             userDirectory = users,
-            authorization = TaskAuthorizationService(directory, tasks),
+            authorization = TaskAuthorizationService(directory, tasks, roles),
             references = TaskReferenceValidator(directory),
             eventPublisher = events,
         )

@@ -46,7 +46,7 @@ class ProjectAuthorizationService(
     fun effectivePermissions(
         projectId: UUID,
         actorId: UUID,
-    ): Set<ProjectPermission> {
+    ): Set<String> {
         val project =
             projectRepository.findById(projectId)
                 ?: throw ApiException(ProjectError.PROJECT_NOT_FOUND)

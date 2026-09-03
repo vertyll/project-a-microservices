@@ -23,6 +23,7 @@ import com.vertyll.veds.task.application.service.query.TaskCommentQueryService
 import com.vertyll.veds.task.application.service.query.TaskQueryService
 import com.vertyll.veds.task.application.service.query.WorkLogQueryService
 import com.vertyll.veds.task.domain.repository.ProjectDirectoryRepository
+import com.vertyll.veds.task.domain.repository.RolePermissionsRepository
 import com.vertyll.veds.task.domain.repository.TaskCommentRepository
 import com.vertyll.veds.task.domain.repository.TaskRepository
 import com.vertyll.veds.task.domain.repository.UserDirectoryRepository
@@ -94,7 +95,8 @@ internal class ApplicationBeansConfig {
     fun taskAuthorizationService(
         projectDirectory: ProjectDirectoryRepository,
         taskRepository: TaskRepository,
-    ): TaskAuthorizationService = TaskAuthorizationService(projectDirectory, taskRepository)
+        rolePermissions: RolePermissionsRepository,
+    ): TaskAuthorizationService = TaskAuthorizationService(projectDirectory, taskRepository, rolePermissions)
 
     @Bean
     fun taskCommandUseCase(
@@ -163,14 +165,12 @@ internal class ApplicationBeansConfig {
     fun workLogQueryUseCase(
         transactions: TransactionalUseCaseFactory,
         queryPort: TaskQueryPort,
-        projectDirectory: ProjectDirectoryRepository,
         authorization: TaskAuthorizationService,
     ): WorkLogQueryUseCase =
         transactions.wrap(
             WorkLogQueryUseCase::class.java,
             WorkLogQueryService(
                 queryPort,
-                projectDirectory,
                 authorization,
             ),
             ALL_METHODS,

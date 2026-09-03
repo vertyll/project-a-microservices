@@ -9,11 +9,14 @@ import com.vertyll.veds.task.domain.model.ProjectCategoryRef
 import com.vertyll.veds.task.domain.model.ProjectMembershipRef
 import com.vertyll.veds.task.domain.model.ProjectRef
 import com.vertyll.veds.task.domain.model.ProjectStatusRef
+import com.vertyll.veds.task.domain.model.RolePermissionsRef
 import com.vertyll.veds.task.domain.model.Task
 import com.vertyll.veds.task.domain.model.TaskComment
+import com.vertyll.veds.task.domain.model.TaskPermission
 import com.vertyll.veds.task.domain.model.TaskSearchCriteria
 import com.vertyll.veds.task.domain.model.WorkLogEntry
 import com.vertyll.veds.task.domain.repository.ProjectDirectoryRepository
+import com.vertyll.veds.task.domain.repository.RolePermissionsRepository
 import com.vertyll.veds.task.domain.repository.TaskCommentRepository
 import com.vertyll.veds.task.domain.repository.TaskRepository
 import com.vertyll.veds.task.domain.repository.WorkLogEntryRepository
@@ -27,13 +30,11 @@ internal fun projectRef(
     name: String = "Apollo",
     isActive: Boolean = true,
     hiddenWorkLogEnabled: Boolean = false,
-    hiddenWorkLogRoles: Set<String> = emptySet(),
 ) = ProjectRef(
     projectId = projectId,
     name = name,
     isActive = isActive,
     hiddenWorkLogEnabled = hiddenWorkLogEnabled,
-    hiddenWorkLogRoles = hiddenWorkLogRoles,
 )
 
 internal fun membership(
@@ -77,6 +78,39 @@ internal fun task(
     createdBy = createdBy,
     version = version,
 )
+
+internal class InMemoryRolePermissions : RolePermissionsRepository {
+    private val stored = linkedMapOf<String, RolePermissionsRef>()
+
+    init {
+        stockRole("MANAGER", TaskPermission.entries.toSet())
+        stockRole(
+            "MEMBER",
+            setOf(
+                TaskPermission.VIEW_TASKS,
+                TaskPermission.MANAGE_TASKS,
+                TaskPermission.COMMENT,
+                TaskPermission.LOG_WORK,
+            ),
+        )
+        stockRole("CLIENT", setOf(TaskPermission.VIEW_TASKS, TaskPermission.COMMENT))
+    }
+
+    fun stockRole(
+        name: String,
+        granted: Set<TaskPermission>,
+    ) = save(RolePermissionsRef(roleName = name, permissions = granted.mapTo(mutableSetOf()) { it.name }))
+
+    override fun save(role: RolePermissionsRef) = role.also { stored[it.roleName] = it }
+
+    override fun findByName(roleName: String) = stored[roleName]
+
+    override fun findAll() = stored.values.toList()
+
+    override fun deleteByName(roleName: String) {
+        stored.remove(roleName)
+    }
+}
 
 internal class InMemoryProjectDirectory : ProjectDirectoryRepository {
     val projects = linkedMapOf<UUID, ProjectRef>()

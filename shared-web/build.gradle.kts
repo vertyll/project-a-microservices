@@ -52,6 +52,7 @@ tasks.jar {
 }
 
 dependencies {
+    api("com.vertyll.veds:shared-authz")
     // --- Common ---
     implementation(libs.spring.boot.starter)
     implementation(libs.kotlin.reflect)

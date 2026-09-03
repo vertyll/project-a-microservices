@@ -9,4 +9,8 @@ internal object ProjectKafkaTopics {
     const val PROJECT_MEMBER_REMOVED = "project-member-removed"
     const val PROJECT_CATEGORY_CHANGED = "project-category-changed"
     const val PROJECT_STATUS_CHANGED = "project-status-changed"
+
+    object Consumed {
+        const val ROLE_PERMISSIONS_CHANGED = "role-permissions-changed"
+    }
 }

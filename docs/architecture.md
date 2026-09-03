@@ -44,7 +44,11 @@ Each service documents its own decisions in its `README.md`; this page covers wh
 |-----------------------------------------|------------------------------------------------------------------------------------------------------|
 | `SessionTokenRelayFilter.getOrder`      | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                         |
 | `ProjectAccessPolicy.RULES`             | Reordering lets an owner edit an archived project                                                    |
-| `TaskAccessPolicy.ROLE_PERMISSIONS`     | Adding a default for unknown codes grants new project roles task permissions nobody decided on       |
+| `TaskAccessPolicy.evaluate`             | Falling back to a default when the projection has no such role grants a role nobody decided on       |
+| `PermissionAuthorizer` with no source   | Falling back to the token's role turns a service with no projection into one that trusts the token   |
+| `TranslationServiceApplication` filters | Dropping the outbox exclusion makes a consume-only service demand outbox tables it never writes      |
+| `RolePermissionsAnnouncer`              | Announcing only on change leaves a service that joined later with an empty projection, granting none |
+| `Permission.scope`                      | Allowing a role to hold either scope grants names the enforcing service will never honour            |
 | `Task.moveTo`                           | "Fixing" the `this` return makes every board drag notify every watcher                               |
 | `TranslationValue.withSeededDefault`    | Merging the two columns makes each redeploy revert administrators' edits                             |
 | `IamError.INVALID_CREDENTIALS`          | Splitting it into two codes is a user-enumeration oracle                                             |
@@ -254,10 +258,10 @@ Benefits:
 
 They are different mechanisms and must not be mixed.
 
-| Level    | Question it answers                         | Where                                     |
-|----------|---------------------------------------------|-------------------------------------------|
-| Platform | may this person administer the application? | realm roles + `Permission` in iam-service |
-| Project  | may this person edit *this* project?        | `ProjectRole` + `ProjectAccessPolicy`     |
+| Level    | Question it answers                         | Where                                                       |
+|----------|---------------------------------------------|-------------------------------------------------------------|
+| Platform | may this person administer the application? | `GLOBAL` permissions, checked by `@authz.has('…')`          |
+| Project  | may this person edit *this* project?        | `PROJECT` permissions, checked by the access policy objects |
 
 The project level is attribute-based: `ProjectAccessPolicy` reads attributes of the resource (`isPublic`, `isActive`),
 not only the subject's role, which is why "nobody may edit an archived project, not even its owner" is expressible
@@ -265,6 +269,9 @@ there.
 
 The platform level is plain RBAC, deliberately. There is no resource attribute an administration decision could depend
 on — editing translations is not something one can be allowed to do inside one project and not another.
+
+Both levels draw from one registry of permissions, and a permission names the level it belongs to. See
+[Authorization](./authorization.md) for how a service learns what a role grants.
 
 ### Permissions belong to roles
 

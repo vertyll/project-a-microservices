@@ -9,7 +9,6 @@ import com.vertyll.veds.project.application.port.outbound.ProjectQueryPort
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.PageRequest
 import com.vertyll.veds.project.domain.model.PageResult
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.ProjectSearchCriteria
 import com.vertyll.veds.project.domain.model.ProjectSortField
 import com.vertyll.veds.project.domain.model.Translation
@@ -68,23 +67,9 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                 updatedAt = r[9] as Instant,
                 version = r[10] as Long?,
                 hiddenWorkLogEnabled = r[11] as Boolean,
-                hiddenWorkLogRoles = hiddenWorkLogRolesFor(projectId),
             )
         }
     }
-
-    private fun hiddenWorkLogRolesFor(projectId: UUID): Set<ProjectRoleCode> =
-        entityManager
-            .createQuery(
-                """
-                SELECT r
-                FROM ProjectJpaEntity p JOIN p.hiddenWorkLogRoles r
-                WHERE p.id = :projectId
-                """,
-                String::class.java,
-            ).setParameter("projectId", projectId)
-            .resultList
-            .mapTo(mutableSetOf()) { ProjectRoleCode.valueOf(it) }
 
     override fun searchProjects(
         criteria: ProjectSearchCriteria,
@@ -182,6 +167,7 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                 .resultList
 
         val roleNames = translationsOf("project_role_translation", "project_role_id", language)
+        val rolePermissions = permissionsByRole(rows.mapTo(mutableSetOf()) { it[MEMBER_ROLE_ID] as UUID })
 
         return rows.map { r ->
             val roleId = r[MEMBER_ROLE_ID] as UUID
@@ -196,12 +182,26 @@ internal class ProjectQueryAdapter : ProjectQueryPort {
                         .ifBlank { r[MEMBER_EMAIL] as String },
                 avatarFileId = r[MEMBER_AVATAR_FILE_ID] as UUID?,
                 roleId = roleId,
-                roleCode = r[MEMBER_ROLE_CODE] as ProjectRoleCode,
+                roleCode = r[MEMBER_ROLE_CODE] as String,
+                rolePermissions = rolePermissions[roleId].orEmpty(),
                 roleName = roleNames[roleId]?.name ?: error("missing $language translation for role $roleId"),
                 assignedAt = r[MEMBER_ASSIGNED_AT] as Instant,
                 version = r[MEMBER_VERSION] as Long?,
             )
         }
+    }
+
+    private fun permissionsByRole(roleIds: Set<UUID>): Map<UUID, Set<String>> {
+        if (roleIds.isEmpty()) return emptyMap()
+
+        return entityManager
+            .createNativeQuery(
+                "SELECT project_role_id, permission FROM project_role_permission WHERE project_role_id IN (:roleIds)",
+            ).setParameter("roleIds", roleIds)
+            .resultList
+            .map { it as Array<*> }
+            .groupBy({ it[0] as UUID }, { it[1] as String })
+            .mapValues { (_, permissions) -> permissions.toSet() }
     }
 
     override fun findCategories(

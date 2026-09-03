@@ -167,11 +167,6 @@ class TranslationCommandService(
         )
     }
 
-    /**
-     * A spreadsheet is the whole catalogue, so what it leaves empty stays empty. The
-     * gaps are listed rather than counted: the point of the import is to close them,
-     * and a number alone does not say which ones are still open.
-     */
     private fun missingAfterImport(
         knownKeys: Set<String>,
         knownLanguages: Set<LanguageTag>,
@@ -198,11 +193,6 @@ class TranslationCommandService(
         keyRepository.findByKey(key)
             ?: throw ApiException(TranslationError.KEY_NOT_FOUND, mapOf("key" to key))
 
-    /**
-     * A pattern that compiles can still be wrong: swapping `{count}` for `{liczba}`
-     * renders an empty slot at run time, on a page nobody was editing. The shipped
-     * default is the contract, so an override must use exactly its arguments.
-     */
     private fun argumentDrift(
         tag: LanguageTag,
         defaultValue: String?,

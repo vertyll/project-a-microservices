@@ -1,7 +1,6 @@
 package com.vertyll.veds.project.infrastructure.config
 
 import com.vertyll.veds.project.domain.model.LanguageTag
-import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.ProjectRole
 import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.ProjectType
@@ -22,31 +21,6 @@ internal class ReferenceDataInitializer(
 ) : ApplicationRunner {
     private companion object {
         private val logger = LoggerFactory.getLogger(ReferenceDataInitializer::class.java)
-
-        private val ROLE_PERMISSIONS =
-            mapOf(
-                ProjectRoleCode.MANAGER to
-                    setOf(
-                        ProjectPermission.VIEW_PROJECT,
-                        ProjectPermission.EDIT_PROJECT,
-                        ProjectPermission.DELETE_PROJECT,
-                        ProjectPermission.SHOW_TASKS,
-                        ProjectPermission.MANAGE_TASKS,
-                        ProjectPermission.INVITE_USERS,
-                        ProjectPermission.MANAGE_MEMBERS,
-                    ),
-                ProjectRoleCode.MEMBER to
-                    setOf(
-                        ProjectPermission.VIEW_PROJECT,
-                        ProjectPermission.SHOW_TASKS,
-                        ProjectPermission.MANAGE_TASKS,
-                    ),
-                ProjectRoleCode.CLIENT to
-                    setOf(
-                        ProjectPermission.VIEW_PROJECT,
-                        ProjectPermission.SHOW_TASKS,
-                    ),
-            )
 
         private val ROLE_TRANSLATIONS =
             mapOf(
@@ -89,7 +63,7 @@ internal class ReferenceDataInitializer(
     }
 
     private fun seedRoles() {
-        ProjectRoleCode.entries.forEach { code ->
+        ProjectRoleCode.stock.forEach { code ->
             if (roleRepository.existsByCode(code)) {
                 logger.debug("Project role already exists, skipping: {}", code)
                 return@forEach
@@ -97,8 +71,7 @@ internal class ReferenceDataInitializer(
             roleRepository.save(
                 ProjectRole.create(
                     code = code,
-                    permissions =
-                        requireNotNull(ROLE_PERMISSIONS[code]) { "no permission set declared for role $code" },
+                    permissions = emptySet(),
                     translations =
                         requireNotNull(ROLE_TRANSLATIONS[code]) { "no translations declared for role $code" },
                 ),

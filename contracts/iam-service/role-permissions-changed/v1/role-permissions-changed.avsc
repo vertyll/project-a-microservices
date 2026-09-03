@@ -1,0 +1,51 @@
+{
+  "type": "record",
+  "name": "RolePermissionsChangedEvent",
+  "namespace": "com.vertyll.veds.iam",
+  "doc": "Published whenever what a role grants changes. Every service that enforces its own permissions keeps a projection built from this, so an authorization decision costs no call to iam-service and survives its absence.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    },
+    {
+      "name": "role",
+      "type": "string",
+      "doc": "Role name, matching the realm role in Keycloak that lands in the token."
+    },
+    {
+      "name": "scope",
+      "type": "string",
+      "default": "PROJECT",
+      "doc": "GLOBAL for a role held across the platform, PROJECT for one held inside a project. A consumer keeps only the scope its own policy can act on."
+    },
+    {
+      "name": "removed",
+      "type": "boolean",
+      "default": false,
+      "doc": "True when the role itself is gone; consumers drop their projection of it and grant nothing."
+    },
+    {
+      "name": "unrestricted",
+      "type": "boolean",
+      "default": false,
+      "doc": "True for the administrator role, which grants every permission including ones declared after it was created."
+    },
+    {
+      "name": "permissions",
+      "type": {
+        "type": "array",
+        "items": "string"
+      },
+      "default": [],
+      "doc": "Every permission the role grants, across all modules. A consumer keeps only the names its own catalogue declares."
+    }
+  ]
+}

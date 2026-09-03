@@ -53,7 +53,7 @@ class ProjectMembershipCommandService(
             projectId = projectId,
             memberId = updated.id,
             userId = updated.userId,
-            roleCode = role.code.name,
+            roleCode = role.code.value,
         )
 
         return memberViewAssembler.assemble(listOf(updated), language).single()

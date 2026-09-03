@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-    // The application layer depends on the domain and the saga contracts, and nothing else.
     implementation(project(":template-domain"))
     implementation("com.vertyll.veds:shared-saga-api")
 

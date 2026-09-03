@@ -8,5 +8,8 @@ project(":infrastructure").name = "translation-infrastructure"
 
 includeBuild("../shared-web")
 includeBuild("../shared-archunit")
-// ICU rendering and the key-declaration DSL.
 includeBuild("../shared-translation")
+includeBuild("../shared-authz")
+includeBuild("../shared-authz-client")
+includeBuild("../shared-messaging-kafka")
+includeBuild("../iam-contracts")

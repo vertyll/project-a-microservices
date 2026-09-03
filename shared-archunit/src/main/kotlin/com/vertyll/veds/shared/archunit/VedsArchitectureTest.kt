@@ -96,5 +96,5 @@ abstract class VedsArchitectureTest(
  * "interfaces only" rule fails on every interface that has a default method.
  */
 private object NoKotlinCompilerArtefacts : ImportOption {
-    override fun includes(location: Location): Boolean = !location.contains("\$DefaultImpls") && !location.contains("\$WhenMappings")
+    override fun includes(location: Location): Boolean = !location.contains($$"$DefaultImpls") && !location.contains($$"$WhenMappings")
 }

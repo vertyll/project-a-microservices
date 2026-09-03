@@ -11,7 +11,8 @@ import kotlin.uuid.toJavaUuid
 data class ProjectRole(
     val id: UUID = Uuid.generateV7().toJavaUuid(),
     val code: ProjectRoleCode,
-    val permissions: Set<ProjectPermission> = emptySet(),
+    val permissions: Set<String> = emptySet(),
+    val unrestricted: Boolean = false,
     val isActive: Boolean = true,
     val translations: Set<Translation> = emptySet(),
     val createdAt: Instant = Instant.now(),
@@ -22,21 +23,25 @@ data class ProjectRole(
         requireAtLeastOneTranslation(translations)
     }
 
-    fun grants(permission: ProjectPermission): Boolean = isActive && permission in permissions
+    fun grants(permission: ProjectPermission): Boolean = grants(permission.name)
+
+    fun grants(permission: String): Boolean = isActive && (unrestricted || permission in permissions)
 
     fun translationFor(language: LanguageTag): Translation = translations.resolveFor(language)
 
-    fun withPermissions(newPermissions: Set<ProjectPermission>): ProjectRole = copy(permissions = newPermissions, updatedAt = Instant.now())
+    fun withPermissions(newPermissions: Set<String>): ProjectRole = copy(permissions = newPermissions, updatedAt = Instant.now())
 
     companion object {
         fun create(
             code: ProjectRoleCode,
-            permissions: Set<ProjectPermission>,
+            permissions: Set<String>,
             translations: Set<Translation>,
+            unrestricted: Boolean = false,
         ): ProjectRole =
             ProjectRole(
                 code = code,
                 permissions = permissions,
+                unrestricted = unrestricted,
                 translations = translations,
             )
     }

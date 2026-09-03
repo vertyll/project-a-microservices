@@ -15,5 +15,6 @@ internal object TaskKafkaTopics {
         const val PROJECT_MEMBER_REMOVED = "project-member-removed"
         const val PROJECT_CATEGORY_CHANGED = "project-category-changed"
         const val PROJECT_STATUS_CHANGED = "project-status-changed"
+        const val ROLE_PERMISSIONS_CHANGED = "role-permissions-changed"
     }
 }

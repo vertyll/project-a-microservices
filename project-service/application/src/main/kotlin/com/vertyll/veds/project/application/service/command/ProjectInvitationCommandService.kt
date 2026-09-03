@@ -138,7 +138,7 @@ class ProjectInvitationCommandService(
             projectId = invitation.projectId,
             memberId = member.id,
             userId = actor.id,
-            roleCode = role.code.name,
+            roleCode = role.code.value,
         )
 
         val projectName = projectRepository.findById(invitation.projectId)?.name

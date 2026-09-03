@@ -46,9 +46,8 @@ data class WorkLogEntry(
 
     fun isVisibleTo(
         userId: UUID,
-        project: ProjectRef,
-        roleCode: String?,
-    ): Boolean = !hidden || isAuthoredBy(userId) || project.allowsHiddenWorkLogFor(roleCode)
+        role: RolePermissionsRef?,
+    ): Boolean = !hidden || isAuthoredBy(userId) || role?.grants(TaskPermission.VIEW_HIDDEN_WORK_LOG) == true
 
     fun isAuthoredBy(userId: UUID): Boolean = authorId == userId
 

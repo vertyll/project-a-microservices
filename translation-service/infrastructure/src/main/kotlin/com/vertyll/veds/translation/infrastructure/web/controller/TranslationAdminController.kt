@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/admin/translations")
 @Tag(name = "Translation administration", description = "Editing the translation catalogue")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@authz.has('TRANSLATIONS_VIEW')")
 internal class TranslationAdminController(
     private val commands: TranslationCommandUseCase,
     private val queries: TranslationQueryUseCase,
@@ -67,6 +67,7 @@ internal class TranslationAdminController(
     ): ResponseEntity<ApiResponse<TranslationKeyDetailsResponse>> =
         ApiResponse.buildResponse(queries.keyDetails(key), KEY_RETRIEVED, HttpStatus.OK)
 
+    @PreAuthorize("@authz.has('TRANSLATIONS_EDIT')")
     @PutMapping("/keys/{key}/languages/{language}")
     @Operation(summary = "Set the translation of one key in one language")
     fun override(
@@ -86,6 +87,7 @@ internal class TranslationAdminController(
         return ApiResponse.buildResponse(value, VALUE_UPDATED, HttpStatus.OK)
     }
 
+    @PreAuthorize("@authz.has('TRANSLATIONS_EDIT')")
     @DeleteMapping("/keys/{key}/languages/{language}")
     @Operation(summary = "Drop an override and fall back to the shipped default")
     fun clearOverride(

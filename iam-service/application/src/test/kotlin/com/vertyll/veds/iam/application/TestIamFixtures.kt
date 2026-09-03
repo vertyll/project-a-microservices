@@ -4,6 +4,7 @@ package com.vertyll.veds.iam.application
 
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
+import com.vertyll.veds.iam.application.port.outbound.RolePermissionsEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.iam.application.saga.model.Saga
@@ -11,9 +12,12 @@ import com.vertyll.veds.iam.application.saga.model.SagaStepNames
 import com.vertyll.veds.iam.application.saga.model.SagaTypes
 import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
+import com.vertyll.veds.iam.domain.model.Permission
 import com.vertyll.veds.iam.domain.model.Role
+import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.domain.model.User
 import com.vertyll.veds.iam.domain.model.VerificationToken
+import com.vertyll.veds.iam.domain.repository.PermissionRepository
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
@@ -35,7 +39,17 @@ internal fun user(
 internal fun role(
     id: Long = 1L,
     name: String = "USER",
-) = Role(id = id, name = name)
+    permissions: Set<Permission> = emptySet(),
+    unrestricted: Boolean = false,
+) = Role(id = id, name = name, permissions = permissions, unrestricted = unrestricted)
+
+internal fun permission(
+    id: Long = 1L,
+    name: String = "TASKS_VIEW",
+    module: String = "task",
+    scope: RoleScope = RoleScope.PROJECT,
+    description: String? = null,
+) = Permission(id = id, name = name, module = module, scope = scope, description = description)
 
 internal fun verificationToken(
     id: Long = 1L,
@@ -80,6 +94,8 @@ internal class InMemoryUserRepository : UserRepository {
     override fun findAll(pageRequest: PageRequest) =
         PageResult(content = stored.values.toList(), page = 0, size = stored.size, totalElements = stored.size.toLong())
 
+    override fun countByRole(roleId: Long) = stored.values.count { user -> user.roles.any { it.id == roleId } }.toLong()
+
     override fun deleteById(id: Long) {
         stored.remove(id)
     }
@@ -87,10 +103,20 @@ internal class InMemoryUserRepository : UserRepository {
 
 internal class InMemoryRoleRepository : RoleRepository {
     val stored = mutableListOf<Role>()
+    private var nextId = 100L
 
-    fun given(vararg roles: Role) = roles.forEach { stored += it }
+    fun given(vararg roles: Role) =
+        roles.forEach {
+            stored += it
+            nextId = maxOf(nextId, (it.id ?: 0L) + 1)
+        }
 
-    override fun save(role: Role) = role.also { stored += it }
+    override fun save(role: Role): Role {
+        val withId = role.id?.let { role } ?: role.copy(id = nextId++)
+        stored.removeAll { it.id == withId.id }
+        stored += withId
+        return withId
+    }
 
     override fun findById(id: Long) = stored.firstOrNull { it.id == id }
 
@@ -99,6 +125,62 @@ internal class InMemoryRoleRepository : RoleRepository {
     override fun existsByName(name: String) = findByName(name) != null
 
     override fun findAll() = stored.toList()
+
+    override fun findAllByNames(names: Collection<String>) = stored.filter { it.name in names }
+
+    override fun delete(role: Role) {
+        stored.removeAll { it.id == role.id }
+    }
+}
+
+internal class InMemoryPermissionRepository : PermissionRepository {
+    val stored = mutableListOf<Permission>()
+    private var nextId = 1L
+
+    fun given(vararg permissions: Permission) =
+        permissions.forEach {
+            stored += it
+            nextId = maxOf(nextId, (it.id ?: 0L) + 1)
+        }
+
+    override fun save(permission: Permission): Permission {
+        val withId = permission.id?.let { permission } ?: permission.copy(id = nextId++)
+        stored.removeAll { it.id == withId.id }
+        stored += withId
+        return withId
+    }
+
+    override fun findById(id: Long) = stored.firstOrNull { it.id == id }
+
+    override fun findByName(name: String) = stored.firstOrNull { it.name == name }
+
+    override fun existsByName(name: String) = findByName(name) != null
+
+    override fun findAll() = stored.toList()
+
+    override fun findByModule(module: String) = stored.filter { it.module == module }
+
+    override fun findAllByNames(names: Collection<String>) = stored.filter { it.name in names }
+
+    override fun delete(permission: Permission) {
+        stored.removeAll { it.id == permission.id }
+    }
+}
+
+internal class RecordingRolePermissionsPublisher : RolePermissionsEventPublisherPort {
+    val changed = mutableListOf<Role>()
+    val removed = mutableListOf<String>()
+
+    override fun publishChanged(role: Role) {
+        changed += role
+    }
+
+    override fun publishRemoved(
+        roleName: String,
+        scope: RoleScope,
+    ) {
+        removed += roleName
+    }
 }
 
 internal class InMemoryVerificationTokenRepository : VerificationTokenRepository {
@@ -167,6 +249,17 @@ internal class FakeIdentityProvider : IdentityProviderPort {
         newEmail: String,
     ) {
         calls += "updateEmail($keycloakId,$newEmail)"
+    }
+
+    override fun createRole(
+        roleName: String,
+        description: String?,
+    ) {
+        calls += "createRole($roleName)"
+    }
+
+    override fun deleteRole(roleName: String) {
+        calls += "deleteRole($roleName)"
     }
 
     override fun assignRole(

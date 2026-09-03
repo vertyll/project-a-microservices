@@ -5,6 +5,7 @@ import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.mapper.RoleResponseMapper
 import com.vertyll.veds.iam.application.port.inbound.query.RoleQueryUseCase
 import com.vertyll.veds.iam.domain.error.IamError
+import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 
@@ -21,6 +22,9 @@ class RoleQueryService(
         val role = roleRepository.findByName(name) ?: throw ApiException(IamError.ROLE_NOT_FOUND)
         return RoleResponseMapper.toResponse(role)
     }
+
+    override fun getRolesInScope(scope: RoleScope): List<RoleResponse> =
+        roleRepository.findAll().filter { it.scope == scope }.map(RoleResponseMapper::toResponse)
 
     override fun getAllRoles(): List<RoleResponse> = roleRepository.findAll().map(RoleResponseMapper::toResponse)
 

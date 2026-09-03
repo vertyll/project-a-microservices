@@ -33,15 +33,6 @@
       "type": "boolean",
       "default": false,
       "doc": "Whether the project keeps a hidden work log alongside the normal one."
-    },
-    {
-      "name": "hiddenWorkLogRoles",
-      "type": {
-        "type": "array",
-        "items": "string"
-      },
-      "default": [],
-      "doc": "Project role codes allowed to read hidden work log entries. Empty unless the feature is on."
     }
   ]
 }

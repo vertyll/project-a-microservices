@@ -88,11 +88,11 @@ internal class ProjectAuthorizationServiceTest {
     @Test
     fun `a member is granted exactly what their role carries`() {
         val existing = project(ownerId = owner).also { projects.given(it) }
-        givenMember(existing.id, outsider, setOf(ProjectPermission.VIEW_PROJECT, ProjectPermission.SHOW_TASKS))
+        givenMember(existing.id, outsider, setOf(ProjectPermission.VIEW_PROJECT, ProjectPermission.INVITE_USERS))
 
-        service.requirePermission(existing.id, outsider, ProjectPermission.SHOW_TASKS)
+        service.requirePermission(existing.id, outsider, ProjectPermission.INVITE_USERS)
 
-        val error = assertFailsWith<ApiException> { service.requirePermission(existing.id, outsider, ProjectPermission.MANAGE_TASKS) }
+        val error = assertFailsWith<ApiException> { service.requirePermission(existing.id, outsider, ProjectPermission.EDIT_PROJECT) }
         assertEquals(ProjectError.PROJECT_ACCESS_DENIED, error.error)
     }
 
@@ -126,14 +126,17 @@ internal class ProjectAuthorizationServiceTest {
     fun `an owner's effective permissions cover everything`() {
         val existing = project(ownerId = owner).also { projects.given(it) }
 
-        assertEquals(ProjectPermission.entries.toSet(), service.effectivePermissions(existing.id, owner))
+        assertEquals(
+            ProjectPermission.entries.mapTo(mutableSetOf()) { it.name },
+            service.effectivePermissions(existing.id, owner),
+        )
     }
 
     @Test
     fun `an outsider on a public project may only view it`() {
         val existing = project(ownerId = owner, isPublic = true).also { projects.given(it) }
 
-        assertEquals(setOf(ProjectPermission.VIEW_PROJECT), service.effectivePermissions(existing.id, outsider))
+        assertEquals(setOf(ProjectPermission.VIEW_PROJECT.name), service.effectivePermissions(existing.id, outsider))
     }
 
     @Test
@@ -149,8 +152,8 @@ internal class ProjectAuthorizationServiceTest {
 
         val effective = service.effectivePermissions(existing.id, owner)
 
-        assertTrue(ProjectPermission.EDIT_PROJECT !in effective)
-        assertTrue(ProjectPermission.VIEW_PROJECT in effective)
+        assertTrue(ProjectPermission.EDIT_PROJECT.name !in effective)
+        assertTrue(ProjectPermission.VIEW_PROJECT.name in effective)
     }
 
     @Test

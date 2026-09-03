@@ -8,11 +8,14 @@ import com.vertyll.veds.task.application.dto.TaskListItemResponse
 import com.vertyll.veds.task.application.dto.TaskResponse
 import com.vertyll.veds.task.application.dto.TaskSearchParams
 import com.vertyll.veds.task.application.dto.TaskUserView
+import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.query.TaskQueryUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.application.service.TaskAuthorizationService
+import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.LanguageTag
 import com.vertyll.veds.task.domain.model.PageRequest
+import com.vertyll.veds.task.domain.model.ProjectRef
 import com.vertyll.veds.task.domain.model.TaskPermission
 import com.vertyll.veds.task.domain.model.TaskSearchCriteria
 import com.vertyll.veds.task.domain.repository.ProjectDirectoryRepository
@@ -105,7 +108,7 @@ class TaskQueryService(
             createdBy = toView(task.createdBy),
             comments = queryPort.findComments(taskId),
             permissions = authorization.effectivePermissions(task.projectId, actorId),
-            hiddenWorkLogEnabled = projectDirectory.findProject(task.projectId)?.hiddenWorkLogEnabled ?: false,
+            hiddenWorkLogEnabled = projectOf(task.projectId).hiddenWorkLogEnabled,
         )
     }
 
@@ -113,4 +116,8 @@ class TaskQueryService(
         projectId: UUID,
         actorId: UUID,
     ): Set<TaskPermission> = authorization.effectivePermissions(projectId, actorId)
+
+    private fun projectOf(projectId: UUID): ProjectRef =
+        projectDirectory.findProject(projectId)
+            ?: throw ApiException(TaskError.PROJECT_NOT_KNOWN, mapOf("projectId" to projectId.toString()))
 }

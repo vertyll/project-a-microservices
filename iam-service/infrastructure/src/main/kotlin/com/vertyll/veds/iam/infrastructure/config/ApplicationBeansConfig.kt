@@ -3,6 +3,7 @@ package com.vertyll.veds.iam.infrastructure.config
 import com.vertyll.veds.iam.application.port.inbound.AuthCompensationUseCase
 import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
+import com.vertyll.veds.iam.application.port.inbound.command.PermissionCatalogueUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.SecurityCommandUseCase
@@ -14,10 +15,12 @@ import com.vertyll.veds.iam.application.port.inbound.query.SecurityQueryUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
+import com.vertyll.veds.iam.application.port.outbound.RolePermissionsEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.service.AuthCompensationService
 import com.vertyll.veds.iam.application.service.MailFeedbackService
 import com.vertyll.veds.iam.application.service.command.AuthCommandService
+import com.vertyll.veds.iam.application.service.command.PermissionCatalogueService
 import com.vertyll.veds.iam.application.service.command.RoleCommandService
 import com.vertyll.veds.iam.application.service.command.SecurityCommandService
 import com.vertyll.veds.iam.application.service.command.UserCommandService
@@ -104,15 +107,36 @@ internal class ApplicationBeansConfig {
     fun roleCommandUseCase(
         transactions: TransactionalUseCaseFactory,
         roleRepository: RoleRepository,
+        permissionRepository: PermissionRepository,
         userRepository: UserRepository,
         identityProvider: IdentityProviderPort,
+        rolePermissionsEventPublisher: RolePermissionsEventPublisherPort,
     ): RoleCommandUseCase =
         transactions.wrap(
             RoleCommandUseCase::class.java,
             RoleCommandService(
                 roleRepository,
+                permissionRepository,
                 userRepository,
                 identityProvider,
+                rolePermissionsEventPublisher,
+            ),
+            NO_METHODS,
+        )
+
+    @Bean
+    fun permissionCatalogueUseCase(
+        transactions: TransactionalUseCaseFactory,
+        permissionRepository: PermissionRepository,
+        roleRepository: RoleRepository,
+        rolePermissionsEventPublisher: RolePermissionsEventPublisherPort,
+    ): PermissionCatalogueUseCase =
+        transactions.wrap(
+            PermissionCatalogueUseCase::class.java,
+            PermissionCatalogueService(
+                permissionRepository,
+                roleRepository,
+                rolePermissionsEventPublisher,
             ),
             NO_METHODS,
         )

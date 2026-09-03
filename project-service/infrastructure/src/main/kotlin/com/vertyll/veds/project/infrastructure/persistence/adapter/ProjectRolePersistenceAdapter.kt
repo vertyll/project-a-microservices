@@ -18,9 +18,9 @@ internal class ProjectRolePersistenceAdapter(
 
     override fun findById(id: UUID): ProjectRole? = repository.findByIdOrNull(id)?.toDomain()
 
-    override fun findByCode(code: ProjectRoleCode): ProjectRole? = repository.findByCode(code).orElse(null)?.toDomain()
+    override fun findByCode(code: ProjectRoleCode): ProjectRole? = repository.findByCode(code.value).orElse(null)?.toDomain()
 
-    override fun existsByCode(code: ProjectRoleCode): Boolean = repository.existsByCode(code)
+    override fun existsByCode(code: ProjectRoleCode): Boolean = repository.existsByCode(code.value)
 
     override fun findAll(): List<ProjectRole> = repository.findAll().map { it.toDomain() }
 }
@@ -28,8 +28,9 @@ internal class ProjectRolePersistenceAdapter(
 private fun ProjectRole.toJpaEntity() =
     ProjectRoleJpaEntity(
         id = this.id,
-        code = this.code,
+        code = this.code.value,
         permissions = this.permissions.toMutableSet(),
+        unrestricted = this.unrestricted,
         isActive = this.isActive,
         translations = this.translations.map { TranslationEmbeddable.from(it) }.toMutableSet(),
         createdAt = this.createdAt,
@@ -40,8 +41,9 @@ private fun ProjectRole.toJpaEntity() =
 internal fun ProjectRoleJpaEntity.toDomain() =
     ProjectRole(
         id = this.id,
-        code = this.code,
+        code = ProjectRoleCode(this.code),
         permissions = this.permissions.toSet(),
+        unrestricted = this.unrestricted,
         isActive = this.isActive,
         translations = this.translations.map { it.toDomain() }.toSet(),
         createdAt = this.createdAt,

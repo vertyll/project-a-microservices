@@ -33,6 +33,7 @@ Kotlin standard library only. Safe to name from an application layer.
 |----------------------|------------------------------------------------------------------------------------------------|
 | `shared-saga-api`    | The saga vocabulary: `Saga`, `SagaStep`, `SagaStatus`, `SagaStepStatus`, `SagaTypeValue`       |
 | `shared-translation` | The key-declaration DSL, the ICU renderer and pattern validation (ICU4J is its one dependency) |
+| `shared-authz`       | The permission-declaration DSL, role scopes, and the projection port every service implements  |
 
 ### Spring
 
@@ -42,6 +43,7 @@ Kotlin standard library only. Safe to name from an application layer.
 | `shared-messaging-kafka`    | Transactional outbox, consumer deduplication, Avro serialisation and Schema Registry wiring                 |
 | `shared-saga-engine`        | Saga orchestration, compensation, the watchdog, and the JPA flavour of the saga ports                       |
 | `shared-translation-client` | Start-up registration of a service's translation keys with `translation-service`                            |
+| `shared-authz-client`       | Start-up registration of a service's permission catalogue with `iam-service`                                |
 | `shared-archunit`           | The architecture rules every service is checked against, as executable tests                                |
 
 ## The dependency graph
@@ -57,26 +59,31 @@ graph TD
     msg[shared-messaging-kafka]
     eng[shared-saga-engine]
     trc[shared-translation-client]
+    az[shared-authz]:::pure
+    azc[shared-authz-client]
 
     eng --> api
     eng --> msg
     trc --> tr
+    azc --> az
+    web --> az
 
     classDef pure fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
 ```
 
-`shared-web` and `shared-messaging-kafka` depend on no other shared module. That is deliberate:
-`shared-web` is the only library the reactive gateway takes, so anything added to it is added
-to the gateway too.
+`shared-messaging-kafka` depends on no other shared module. `shared-web` takes one:
+`shared-authz`, for the `@authz.has('…')` guard every servlet service writes. It stays
+framework-free and adds nothing the reactive gateway cannot carry — `shared-web` is the
+only library the gateway takes, so anything heavier added to it is added to the gateway too.
 
 ## Who takes what
 
-| Service                                          | Takes                                                               |
-|--------------------------------------------------|---------------------------------------------------------------------|
-| api-gateway                                      | `shared-web`                                                        |
-| translation-service                              | `shared-web`, `shared-translation`                                  |
-| file-service                                     | `shared-web`, `shared-translation-client`, `shared-messaging-kafka` |
-| iam, mail, project, task, notification, template | all six                                                             |
+| Service                                          | Takes                                                                                               |
+|--------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| api-gateway                                      | `shared-web`                                                                                        |
+| translation-service                              | `shared-web`, `shared-translation`, `shared-authz`, `shared-authz-client`, `shared-messaging-kafka` |
+| file-service                                     | `shared-web`, `shared-translation-client`, `shared-messaging-kafka`                                 |
+| iam, mail, project, task, notification, template | all six                                                                                             |
 
 Two of these are worth reading as evidence that the boundaries are real rather than decorative:
 

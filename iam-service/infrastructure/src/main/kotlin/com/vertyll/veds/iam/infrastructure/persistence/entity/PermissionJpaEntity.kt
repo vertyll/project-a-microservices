@@ -17,6 +17,10 @@ internal class PermissionJpaEntity(
     var id: Long? = null,
     @Column(nullable = false, unique = true)
     var name: String,
+    @Column(name = "module", nullable = false, length = 64)
+    var module: String = "admin",
+    @Column(name = "scope", nullable = false, length = 16)
+    var scope: String = "PROJECT",
     @Column(nullable = true)
     var description: String? = null,
     @Column(nullable = false)

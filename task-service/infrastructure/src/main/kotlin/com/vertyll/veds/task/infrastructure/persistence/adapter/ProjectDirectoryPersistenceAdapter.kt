@@ -34,7 +34,6 @@ internal class ProjectDirectoryPersistenceAdapter(
                     name = project.name,
                     isActive = project.isActive,
                     hiddenWorkLogEnabled = project.hiddenWorkLogEnabled,
-                    hiddenWorkLogRoles = project.hiddenWorkLogRoles.toMutableSet(),
                     updatedAt = project.updatedAt,
                 ),
             ).toDomain()
@@ -105,7 +104,6 @@ private fun ProjectRefJpaEntity.toDomain() =
         name = name,
         isActive = isActive,
         hiddenWorkLogEnabled = hiddenWorkLogEnabled,
-        hiddenWorkLogRoles = hiddenWorkLogRoles.toSet(),
         updatedAt = updatedAt,
     )
 

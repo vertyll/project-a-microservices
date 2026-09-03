@@ -47,6 +47,9 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: INFO
 
 veds:
+  authz:
+    client:
+      base-url: ${IAM_SERVICE_URL:http://iam-service:8082}
   translation:
     client:
       base-url: ${TRANSLATION_SERVICE_URL:http://translation-service:8087}

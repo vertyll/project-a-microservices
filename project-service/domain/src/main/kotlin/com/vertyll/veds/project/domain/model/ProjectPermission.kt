@@ -4,8 +4,11 @@ enum class ProjectPermission {
     VIEW_PROJECT,
     EDIT_PROJECT,
     DELETE_PROJECT,
-    SHOW_TASKS,
-    MANAGE_TASKS,
     INVITE_USERS,
     MANAGE_MEMBERS,
+    ;
+
+    companion object {
+        fun of(name: String): ProjectPermission? = entries.find { it.name == name }
+    }
 }

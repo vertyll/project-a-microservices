@@ -1,8 +1,6 @@
 package com.vertyll.veds.project.application.dto
 
 import com.vertyll.veds.project.domain.model.Project
-import com.vertyll.veds.project.domain.model.ProjectPermission
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import java.time.Instant
 import java.util.UUID
 
@@ -16,16 +14,15 @@ data class ProjectResponse(
     val iconFileId: UUID?,
     val ownerId: UUID,
     val hiddenWorkLogEnabled: Boolean,
-    val hiddenWorkLogRoles: Set<ProjectRoleCode>,
     val createdAt: Instant,
     val updatedAt: Instant,
     val version: Long?,
-    val permissions: Set<ProjectPermission> = emptySet(),
+    val permissions: Set<String> = emptySet(),
 ) {
     companion object {
         fun from(
             project: Project,
-            permissions: Set<ProjectPermission> = emptySet(),
+            permissions: Set<String> = emptySet(),
         ): ProjectResponse =
             ProjectResponse(
                 id = project.id,
@@ -37,7 +34,6 @@ data class ProjectResponse(
                 iconFileId = project.iconFileId,
                 ownerId = project.ownerId,
                 hiddenWorkLogEnabled = project.hiddenWorkLogEnabled,
-                hiddenWorkLogRoles = project.hiddenWorkLogRoles,
                 createdAt = project.createdAt,
                 updatedAt = project.updatedAt,
                 version = project.version,

@@ -56,10 +56,20 @@ object ProjectAccessPolicy {
         userId: UUID,
         member: ProjectMember?,
         role: ProjectRole?,
-    ): Set<ProjectPermission> =
-        ProjectPermission.entries
-            .filter { permits(project, userId, member, role, it).isPermitted }
-            .toSet()
+    ): Set<String> {
+        val own = ProjectPermission.entries.filter { permits(project, userId, member, role, it).isPermitted }
+        val mine = own.mapTo(mutableSetOf()) { it.name }
+        if (!isGrantedByMembership(project, userId, member, role)) return mine
+
+        return mine + role!!.permissions
+    }
+
+    private fun isGrantedByMembership(
+        project: Project,
+        userId: UUID,
+        member: ProjectMember?,
+        role: ProjectRole?,
+    ): Boolean = role != null && role.isActive && permits(project, userId, member, role, ProjectPermission.VIEW_PROJECT).isPermitted
 }
 
 internal fun interface AccessRule {

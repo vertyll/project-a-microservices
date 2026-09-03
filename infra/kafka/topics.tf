@@ -5,6 +5,7 @@ locals {
     "mail-failed",
     "user-registered",
     "user-profile-updated",
+    "role-permissions-changed",
     "saga-compensation-iam",
     "saga-compensation-mail",
 

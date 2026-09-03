@@ -1,7 +1,6 @@
 package com.vertyll.veds.project.application.dto
 
 import com.vertyll.veds.project.domain.model.Project
-import com.vertyll.veds.project.domain.model.ProjectPermission
 import java.time.Instant
 import java.util.UUID
 
@@ -16,7 +15,7 @@ data class ProjectListItemResponse(
     val memberCount: Int,
     val createdAt: Instant,
     val version: Long?,
-    val permissions: Set<ProjectPermission> = emptySet(),
+    val permissions: Set<String> = emptySet(),
 ) {
     companion object {
         fun from(

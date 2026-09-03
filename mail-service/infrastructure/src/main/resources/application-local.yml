@@ -65,6 +65,9 @@ logging:
     org.springframework.mail: DEBUG
 
 veds:
+  authz:
+    client:
+      base-url: http://localhost:8082
   translation:
     client:
       base-url: http://localhost:8087

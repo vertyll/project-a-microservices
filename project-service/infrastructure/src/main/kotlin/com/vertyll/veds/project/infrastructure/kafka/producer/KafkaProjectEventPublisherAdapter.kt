@@ -30,7 +30,6 @@ internal class KafkaProjectEventPublisherAdapter(
         name: String,
         ownerId: UUID,
         hiddenWorkLogEnabled: Boolean,
-        hiddenWorkLogRoles: Set<String>,
     ) {
         val eventId = Events.newId()
         val event =
@@ -42,7 +41,6 @@ internal class KafkaProjectEventPublisherAdapter(
                 .setName(name)
                 .setOwnerId(ownerId.toString())
                 .setHiddenWorkLogEnabled(hiddenWorkLogEnabled)
-                .setHiddenWorkLogRoles(hiddenWorkLogRoles.toList())
                 .build()
         enqueue(ProjectKafkaTopics.PROJECT_CREATED, projectId, eventId, event)
     }
@@ -51,7 +49,6 @@ internal class KafkaProjectEventPublisherAdapter(
         projectId: UUID,
         name: String,
         hiddenWorkLogEnabled: Boolean,
-        hiddenWorkLogRoles: Set<String>,
     ) {
         val eventId = Events.newId()
         val event =
@@ -62,7 +59,6 @@ internal class KafkaProjectEventPublisherAdapter(
                 .setProjectId(projectId.toString())
                 .setName(name)
                 .setHiddenWorkLogEnabled(hiddenWorkLogEnabled)
-                .setHiddenWorkLogRoles(hiddenWorkLogRoles.toList())
                 .build()
         enqueue(ProjectKafkaTopics.PROJECT_UPDATED, projectId, eventId, event)
     }

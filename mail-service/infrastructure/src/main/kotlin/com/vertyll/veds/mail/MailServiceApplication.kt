@@ -1,5 +1,6 @@
 package com.vertyll.veds.mail
 
+import com.vertyll.veds.shared.authz.client.AuthzClientProperties
 import com.vertyll.veds.shared.translation.client.TranslationClientProperties
 import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -19,6 +20,7 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.mail",
     "com.vertyll.veds.shared.messaging",
     "com.vertyll.veds.shared.translation.client",
+    "com.vertyll.veds.shared.authz.client",
 )
 @EnableJpaRepositories(
     "com.vertyll.veds.mail.infrastructure.persistence.repository",
@@ -27,7 +29,7 @@ import org.springframework.kafka.annotation.EnableKafka
     "com.vertyll.veds.mail.infrastructure.persistence.entity",
 )
 @EnableKafka
-@EnableConfigurationProperties(TranslationClientProperties::class)
+@EnableConfigurationProperties(TranslationClientProperties::class, AuthzClientProperties::class)
 class MailServiceApplication
 
 fun main(args: Array<String>) {

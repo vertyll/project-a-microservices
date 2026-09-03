@@ -3,7 +3,6 @@ package com.vertyll.veds.project.infrastructure.persistence.adapter
 import com.vertyll.veds.project.domain.model.PageRequest
 import com.vertyll.veds.project.domain.model.PageResult
 import com.vertyll.veds.project.domain.model.Project
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.ProjectSearchCriteria
 import com.vertyll.veds.project.domain.model.ProjectSortField
 import com.vertyll.veds.project.domain.repository.ProjectRepository
@@ -78,7 +77,6 @@ private fun Project.toJpaEntity() =
         typeId = this.typeId,
         ownerId = this.ownerId,
         hiddenWorkLogEnabled = this.hiddenWorkLogEnabled,
-        hiddenWorkLogRoles = this.hiddenWorkLogRoles.map { it.name }.toMutableSet(),
         isActive = this.isActive,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
@@ -95,7 +93,6 @@ internal fun ProjectJpaEntity.toDomain() =
         typeId = this.typeId,
         ownerId = this.ownerId,
         hiddenWorkLogEnabled = this.hiddenWorkLogEnabled,
-        hiddenWorkLogRoles = this.hiddenWorkLogRoles.mapTo(mutableSetOf()) { ProjectRoleCode.valueOf(it) },
         isActive = this.isActive,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,

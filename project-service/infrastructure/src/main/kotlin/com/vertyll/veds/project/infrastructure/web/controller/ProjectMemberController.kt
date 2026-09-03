@@ -3,7 +3,6 @@ package com.vertyll.veds.project.infrastructure.web.controller
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.application.port.inbound.command.ProjectMembershipCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectMembershipQueryUseCase
-import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.infrastructure.response.ApiResponse
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateMemberRoleRequest
@@ -62,7 +61,7 @@ internal class ProjectMemberController(
     fun getMyPermissions(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
-    ): ResponseEntity<ApiResponse<Set<ProjectPermission>>> {
+    ): ResponseEntity<ApiResponse<Set<String>>> {
         val permissions = membershipServiceQueries.getEffectivePermissions(projectId, CurrentUser.idOf(jwt))
         return ApiResponse.buildResponse(permissions, PERMISSIONS_RETRIEVED, HttpStatus.OK)
     }

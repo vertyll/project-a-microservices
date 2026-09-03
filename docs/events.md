@@ -10,27 +10,28 @@ mail-service even though mail-service never produces it.
 
 ## Domain events
 
-| Topic                      | Owner           | Consumed by                 |
-|----------------------------|-----------------|-----------------------------|
-| `user-registered`          | iam-service     | project, task, notification |
-| `user-profile-updated`     | iam-service     | project, task, notification |
-| `project-created`          | project-service | task                        |
-| `project-updated`          | project-service | task                        |
-| `project-archived`         | project-service | task, notification          |
-| `project-member-invited`   | project-service | notification                |
-| `project-member-joined`    | project-service | task, notification          |
-| `project-member-removed`   | project-service | task                        |
-| `project-category-changed` | project-service | task                        |
-| `project-status-changed`   | project-service | task                        |
-| `task-created`             | task-service    | notification                |
-| `task-assigned`            | task-service    | notification                |
-| `task-status-changed`      | task-service    | notification                |
-| `task-archived`            | task-service    | notification                |
-| `task-comment-added`       | task-service    | notification                |
-| `file-confirmed`           | file-service    | —                           |
-| `file-deleted`             | file-service    | task                        |
-| `mail-sent`                | mail-service    | iam, project                |
-| `mail-failed`              | mail-service    | iam, project                |
+| Topic                      | Owner           | Consumed by                      |
+|----------------------------|-----------------|----------------------------------|
+| `user-registered`          | iam-service     | project, task, notification      |
+| `user-profile-updated`     | iam-service     | project, task, notification      |
+| `role-permissions-changed` | iam-service     | project, task, translation, mail |
+| `project-created`          | project-service | task                             |
+| `project-updated`          | project-service | task                             |
+| `project-archived`         | project-service | task, notification               |
+| `project-member-invited`   | project-service | notification                     |
+| `project-member-joined`    | project-service | task, notification               |
+| `project-member-removed`   | project-service | task                             |
+| `project-category-changed` | project-service | task                             |
+| `project-status-changed`   | project-service | task                             |
+| `task-created`             | task-service    | notification                     |
+| `task-assigned`            | task-service    | notification                     |
+| `task-status-changed`      | task-service    | notification                     |
+| `task-archived`            | task-service    | notification                     |
+| `task-comment-added`       | task-service    | notification                     |
+| `file-confirmed`           | file-service    | —                                |
+| `file-deleted`             | file-service    | task                             |
+| `mail-sent`                | mail-service    | iam, project                     |
+| `mail-failed`              | mail-service    | iam, project                     |
 
 `file-confirmed` has no consumer yet. It is published because the alternative — adding it later, once something needs
 it — means a producer change at the moment a consumer is already waiting.

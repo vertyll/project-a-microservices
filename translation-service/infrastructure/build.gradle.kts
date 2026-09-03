@@ -25,6 +25,10 @@ dependencies {
     implementation(project(":translation-application"))
     implementation(project(":translation-domain"))
     implementation("com.vertyll.veds:shared-web")
+    implementation("com.vertyll.veds:shared-authz")
+    implementation("com.vertyll.veds:shared-authz-client")
+    implementation("com.vertyll.veds:shared-messaging-kafka")
+    implementation("com.vertyll.veds:iam-contracts")
     implementation("com.vertyll.veds:shared-translation")
     implementation(libs.poi.ooxml)
 

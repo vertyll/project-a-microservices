@@ -1,17 +1,15 @@
 package com.vertyll.veds.project.application.dto
 
 import com.vertyll.veds.project.domain.model.LanguageTag
-import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.ProjectRole
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import java.util.UUID
 
 data class ProjectRoleResponse(
     val id: UUID,
-    val code: ProjectRoleCode,
+    val code: String,
     val name: String,
     val description: String?,
-    val permissions: Set<ProjectPermission>,
+    val permissions: Set<String>,
     val isActive: Boolean,
     val version: Long?,
 ) {
@@ -22,7 +20,7 @@ data class ProjectRoleResponse(
         ): ProjectRoleResponse =
             ProjectRoleResponse(
                 id = role.id,
-                code = role.code,
+                code = role.code.value,
                 name = role.translationFor(language).name,
                 description = role.translationFor(language).description,
                 permissions = role.permissions,

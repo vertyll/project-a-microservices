@@ -24,6 +24,13 @@ interface IdentityProviderPort {
         newEmail: String,
     )
 
+    fun createRole(
+        roleName: String,
+        description: String?,
+    )
+
+    fun deleteRole(roleName: String)
+
     fun assignRole(
         keycloakUserId: String,
         roleName: String,

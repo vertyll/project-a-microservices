@@ -40,6 +40,7 @@ internal class SecurityConfig(
                 auth
                     .requestMatchers(
                         "/actuator/**",
+                        "/internal/**",
                         "/api-docs/**",
                         "/v3/api-docs/**",
                         "/swagger-ui/**",

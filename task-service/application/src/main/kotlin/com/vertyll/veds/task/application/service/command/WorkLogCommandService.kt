@@ -30,7 +30,7 @@ class WorkLogCommandService(
         command: LogWorkCommand,
         actor: Actor,
     ): WorkLogEntryResponse {
-        val task = authorization.requireTaskPermission(taskId, actor.id, TaskPermission.COMMENT)
+        val task = authorization.requireTaskPermission(taskId, actor.id, TaskPermission.LOG_WORK)
         val project =
             projectDirectory.findProject(task.projectId)
                 ?: throw ApiException(TaskError.PROJECT_NOT_KNOWN, mapOf("projectId" to task.projectId.toString()))
@@ -90,7 +90,10 @@ class WorkLogCommandService(
         val task =
             taskRepository.findById(taskId)
                 ?: throw ApiException(TaskError.TASK_NOT_FOUND, mapOf("taskId" to taskId.toString()))
-        return projectDirectory.findProject(task.projectId)?.hiddenWorkLogEnabled ?: false
+        val project =
+            projectDirectory.findProject(task.projectId)
+                ?: throw ApiException(TaskError.PROJECT_NOT_KNOWN, mapOf("projectId" to task.projectId.toString()))
+        return project.hiddenWorkLogEnabled
     }
 
     private fun ownedBy(
@@ -101,7 +104,7 @@ class WorkLogCommandService(
             entryRepository.findById(entryId)
                 ?: throw ApiException(TaskError.WORK_LOG_NOT_FOUND, mapOf("entryId" to entryId.toString()))
 
-        authorization.requireTaskPermission(entry.taskId, actor.id, TaskPermission.COMMENT)
+        authorization.requireTaskPermission(entry.taskId, actor.id, TaskPermission.LOG_WORK)
 
         if (!entry.isAuthoredBy(actor.id)) {
             throw ApiException(

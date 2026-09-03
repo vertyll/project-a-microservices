@@ -1,13 +1,9 @@
 package com.vertyll.veds.project.infrastructure.persistence.entity
 
-import com.vertyll.veds.project.domain.model.ProjectPermission
-import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
 import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
@@ -22,17 +18,17 @@ internal class ProjectRoleJpaEntity(
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     var id: UUID,
-    @Enumerated(EnumType.STRING)
     @Column(name = "code", nullable = false, unique = true, length = 32)
-    var code: ProjectRoleCode,
+    var code: String,
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
         name = "project_role_permission",
         joinColumns = [JoinColumn(name = "project_role_id")],
     )
-    @Enumerated(EnumType.STRING)
     @Column(name = "permission", nullable = false, length = 64)
-    var permissions: MutableSet<ProjectPermission> = mutableSetOf(),
+    var permissions: MutableSet<String> = mutableSetOf(),
+    @Column(name = "unrestricted", nullable = false)
+    var unrestricted: Boolean = false,
     @Column(name = "is_active", nullable = false)
     var isActive: Boolean = true,
     @ElementCollection(fetch = FetchType.EAGER)
