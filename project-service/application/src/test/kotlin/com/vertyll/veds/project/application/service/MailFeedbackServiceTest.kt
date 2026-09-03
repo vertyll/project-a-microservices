@@ -17,7 +17,7 @@ internal class MailFeedbackServiceTest {
     fun `a delivered mail completes the saga that asked for it`() {
         val own = givenOwnSaga()
 
-        service.handleMailSent(own.id, to = "invitee@example.com")
+        service.handleMailSent(own.id, to = INVITEE_EMAIL)
 
         assertEquals(listOf("completed"), saga.trail)
     }
@@ -26,24 +26,27 @@ internal class MailFeedbackServiceTest {
     fun `a failed delivery fails the saga and keeps the reason`() {
         val own = givenOwnSaga()
 
-        service.handleMailFailed(own.id, to = "invitee@example.com", error = "mailbox full")
+        service.handleMailFailed(own.id, to = INVITEE_EMAIL, error = MAILBOX_FULL)
 
         assertEquals(listOf("failed(Mail delivery failed: mailbox full)"), saga.trail)
     }
 
     @Test
     fun `a saga belonging to another service is ignored`() {
-        service.handleMailSent("someone-elses-saga", to = "invitee@example.com")
-        service.handleMailFailed("someone-elses-saga", to = "invitee@example.com", error = "mailbox full")
+        service.handleMailSent("someone-elses-saga", to = INVITEE_EMAIL)
+        service.handleMailFailed("someone-elses-saga", to = INVITEE_EMAIL, error = MAILBOX_FULL)
 
         assertTrue(saga.trail.isEmpty())
     }
 
     @Test
     fun `a mail sent outside any saga is ignored`() {
-        service.handleMailSent(null, to = "invitee@example.com")
-        service.handleMailFailed(null, to = "invitee@example.com", error = "mailbox full")
+        service.handleMailSent(null, to = INVITEE_EMAIL)
+        service.handleMailFailed(null, to = INVITEE_EMAIL, error = MAILBOX_FULL)
 
         assertTrue(saga.trail.isEmpty())
     }
 }
+
+private const val INVITEE_EMAIL = "invitee@example.com"
+private const val MAILBOX_FULL = "mailbox full"
