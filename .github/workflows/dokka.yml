@@ -11,6 +11,8 @@ on:
       - "shared-translation-client/**"
       - "shared-messaging-kafka/**"
       - "shared-translation/**"
+      - "shared-authz/**"
+      - "shared-authz-client/**"
       - "build.gradle.kts"
       - ".github/workflows/dokka.yml"
   workflow_dispatch:

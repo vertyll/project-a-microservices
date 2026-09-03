@@ -88,10 +88,12 @@ val documentedLibraries =
     listOf(
         DocumentedLibrary("shared-saga-api", "The saga vocabulary spoken by the application layers", true),
         DocumentedLibrary("shared-translation", "Translation key DSL and the ICU message renderer", true),
+        DocumentedLibrary("shared-authz", "Permission catalogue DSL, role scopes and the projection port", true),
         DocumentedLibrary("shared-web", "Keycloak authentication, HTTP concurrency helpers and shared configuration", false),
         DocumentedLibrary("shared-messaging-kafka", "Transactional outbox, idempotent consumption and Avro over Kafka", false),
         DocumentedLibrary("shared-saga-engine", "Saga orchestration, compensation and the JPA flavour of its ports", false),
         DocumentedLibrary("shared-translation-client", "Start-up registration of a service's translation keys", false),
+        DocumentedLibrary("shared-authz-client", "Start-up registration of a module's permission catalogue with iam-service", false),
     )
 
 tasks.register("docs") {

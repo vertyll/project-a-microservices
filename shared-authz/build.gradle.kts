@@ -62,9 +62,9 @@ tasks.named("check") {
 }
 
 dokka {
-    moduleName.set("shared-translation")
+    moduleName.set("shared-authz")
     dokkaPublications.named("html") {
-        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-translation"))
+        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-authz"))
     }
     dokkaSourceSets.named("main") {
         jdkVersion.set(25)

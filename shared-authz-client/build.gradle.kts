@@ -104,9 +104,9 @@ tasks.withType<Test> {
 
 // --- Dokka (KDoc -> HTML API docs) ---
 dokka {
-    moduleName.set("shared-translation-client")
+    moduleName.set("shared-authz-client")
     dokkaPublications.named("html") {
-        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-translation-client"))
+        outputDirectory.set(rootProject.layout.projectDirectory.dir("../docs/dokka/shared-authz-client"))
     }
     dokkaSourceSets.named("main") {
         jdkVersion.set(25)
@@ -115,7 +115,7 @@ dokka {
         suppressGeneratedFiles.set(true)
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl("https://github.com/vertyll/veds/tree/main/shared-translation-client/src/main/kotlin")
+            remoteUrl("https://github.com/vertyll/veds/tree/main/shared-authz-client/src/main/kotlin")
             remoteLineSuffix.set("#L")
         }
     }
