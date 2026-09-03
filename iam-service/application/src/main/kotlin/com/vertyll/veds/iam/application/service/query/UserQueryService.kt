@@ -16,6 +16,16 @@ class UserQueryService(
     override fun getAllUsers(pageRequest: PageRequest): PageResult<UserResponse> =
         userRepository.findAll(pageRequest).map(UserResponseMapper::toResponse)
 
+    override fun searchUsers(
+        term: String,
+        pageRequest: PageRequest,
+    ): PageResult<UserResponse> =
+        if (term.isBlank()) {
+            getAllUsers(pageRequest)
+        } else {
+            userRepository.search(term.trim(), pageRequest).map(UserResponseMapper::toResponse)
+        }
+
     override fun getUserById(id: Long): UserResponse {
         val user = userRepository.findById(id) ?: throw ApiException(IamError.USER_NOT_FOUND)
         return UserResponseMapper.toResponse(user)

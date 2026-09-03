@@ -23,6 +23,9 @@ internal class KeycloakTokenClient(
         private const val ROLES_CLAIM = "roles"
         private const val JWT_PAYLOAD_INDEX = 1
         private const val JWT_PART_COUNT = 3
+
+        private const val DEFAULT_ROLES_PREFIX = "default-roles-"
+        private val KEYCLOAK_OWN_ROLES = setOf("offline_access", "uma_authorization")
     }
 
     private val client: WebClient by lazy { WebClient.builder().build() }
@@ -89,9 +92,15 @@ internal class KeycloakTokenClient(
             accessTokenExpiresAt = Instant.now().plusSeconds(expiresIn),
             subject = claims[SUBJECT_CLAIM] as? String ?: error("access token has no 'sub' claim"),
             email = claims[EMAIL_CLAIM] as? String ?: error("access token has no 'email' claim"),
-            roles = (realmAccess?.get(ROLES_CLAIM) as? List<*>).orEmpty().filterIsInstance<String>(),
+            roles = applicationRoles(realmAccess?.get(ROLES_CLAIM)),
         )
     }
+
+    private fun applicationRoles(claim: Any?): List<String> =
+        (claim as? List<*>)
+            .orEmpty()
+            .filterIsInstance<String>()
+            .filterNot { it in KEYCLOAK_OWN_ROLES || it.startsWith(DEFAULT_ROLES_PREFIX) }
 
     private fun decodeClaims(jwt: String): Map<String, Any> {
         val parts = jwt.split('.')

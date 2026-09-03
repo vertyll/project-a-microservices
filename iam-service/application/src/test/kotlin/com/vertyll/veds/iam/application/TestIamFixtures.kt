@@ -94,6 +94,19 @@ internal class InMemoryUserRepository : UserRepository {
     override fun findAll(pageRequest: PageRequest) =
         PageResult(content = stored.values.toList(), page = 0, size = stored.size, totalElements = stored.size.toLong())
 
+    override fun search(
+        term: String,
+        pageRequest: PageRequest,
+    ): PageResult<User> {
+        val matching =
+            stored.values.filter {
+                it.email.contains(term, ignoreCase = true) ||
+                    it.firstName.contains(term, ignoreCase = true) ||
+                    it.lastName.contains(term, ignoreCase = true)
+            }
+        return PageResult(content = matching, page = 0, size = matching.size, totalElements = matching.size.toLong())
+    }
+
     override fun countByRole(roleId: Long) = stored.values.count { user -> user.roles.any { it.id == roleId } }.toLong()
 
     override fun deleteById(id: Long) {

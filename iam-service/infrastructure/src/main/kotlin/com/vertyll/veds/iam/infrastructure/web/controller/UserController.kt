@@ -46,8 +46,9 @@ internal class UserController(
     fun getAllUsers(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) searchTerm: String?,
     ): ResponseEntity<ApiResponse<PageResult<UserResponse>>> {
-        val users = userServiceQueries.getAllUsers(PageRequest(page = page, size = size))
+        val users = userServiceQueries.searchUsers(searchTerm.orEmpty(), PageRequest(page = page, size = size))
         return ApiResponse.buildResponse(users, USERS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
     }
 

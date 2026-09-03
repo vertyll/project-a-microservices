@@ -5,6 +5,7 @@ import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.dto.TaskListItemResponse
 import com.vertyll.veds.task.application.dto.TaskUserView
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
+import com.vertyll.veds.task.application.dto.WorkLogPageResponse
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.domain.model.LanguageTag
 import com.vertyll.veds.task.domain.model.PageRequest
@@ -191,7 +192,45 @@ internal class TaskQueryAdapter : TaskQueryPort {
         }
     }
 
-    override fun findWorkLog(taskId: UUID): List<WorkLogEntryResponse> {
+    override fun findWorkLog(
+        taskId: UUID,
+        readerId: UUID,
+        readsHidden: Boolean,
+        hiddenOnly: Boolean?,
+        pageRequest: PageRequest,
+    ): WorkLogPageResponse {
+        val visibility =
+            if (readsHidden) "" else "AND (e.hidden = FALSE OR e.authorId = :readerId)"
+        val chosen = if (hiddenOnly == null) "" else "AND e.hidden = :hiddenOnly"
+
+        val total =
+            entityManager
+                .createQuery(
+                    """
+                    SELECT COUNT(e) FROM WorkLogEntryJpaEntity e
+                    WHERE e.taskId = :taskId $visibility $chosen
+                    """,
+                    java.lang.Long::class.java,
+                ).setParameter("taskId", taskId)
+                .also { if (!readsHidden) it.setParameter("readerId", readerId) }
+                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
+                .singleResult
+                .toLong()
+
+        val totalMinutes =
+            entityManager
+                .createQuery(
+                    """
+                    SELECT COALESCE(SUM(e.minutes), 0) FROM WorkLogEntryJpaEntity e
+                    WHERE e.taskId = :taskId $visibility $chosen
+                    """,
+                    java.lang.Long::class.java,
+                ).setParameter("taskId", taskId)
+                .also { if (!readsHidden) it.setParameter("readerId", readerId) }
+                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
+                .singleResult
+                .toInt()
+
         val rows =
             entityManager
                 .createQuery(
@@ -201,36 +240,49 @@ internal class TaskQueryAdapter : TaskQueryPort {
                            u.email, u.firstName, u.lastName, u.avatarFileId, e.hidden
                     FROM WorkLogEntryJpaEntity e
                     LEFT JOIN UserRefJpaEntity u ON u.userId = e.authorId
-                    WHERE e.taskId = :taskId
+                    WHERE e.taskId = :taskId $visibility $chosen
                     ORDER BY e.workedOn DESC, e.createdAt DESC
                     """,
                     Array<Any>::class.java,
                 ).setParameter("taskId", taskId)
+                .also { if (!readsHidden) it.setParameter("readerId", readerId) }
+                .also { if (hiddenOnly != null) it.setParameter("hiddenOnly", hiddenOnly) }
+                .setFirstResult(pageRequest.page * pageRequest.size)
+                .setMaxResults(pageRequest.size)
                 .resultList
 
-        return rows.map { r ->
-            val email = r[WORK_LOG_AUTHOR_EMAIL] as String?
-            WorkLogEntryResponse(
-                id = r[WORK_LOG_ID] as UUID,
-                taskId = r[WORK_LOG_TASK_ID] as UUID,
-                author =
-                    TaskUserView(
-                        id = r[WORK_LOG_AUTHOR_ID] as UUID,
-                        displayName =
-                            listOfNotNull(r[WORK_LOG_AUTHOR_FIRST_NAME] as String?, r[WORK_LOG_AUTHOR_LAST_NAME] as String?)
-                                .joinToString(" ")
-                                .ifBlank { email ?: (r[WORK_LOG_AUTHOR_ID] as UUID).toString() },
-                        avatarFileId = r[WORK_LOG_AUTHOR_AVATAR] as UUID?,
-                    ),
-                minutes = r[WORK_LOG_MINUTES] as Int,
-                workedOn = r[WORK_LOG_WORKED_ON] as LocalDate,
-                description = r[WORK_LOG_DESCRIPTION] as String?,
-                hidden = r[WORK_LOG_HIDDEN] as Boolean,
-                createdAt = r[WORK_LOG_CREATED_AT] as Instant,
-                updatedAt = r[WORK_LOG_UPDATED_AT] as Instant,
-                version = r[WORK_LOG_VERSION] as Long?,
-            )
-        }
+        val content =
+            rows.map { r ->
+                val email = r[WORK_LOG_AUTHOR_EMAIL] as String?
+                WorkLogEntryResponse(
+                    id = r[WORK_LOG_ID] as UUID,
+                    taskId = r[WORK_LOG_TASK_ID] as UUID,
+                    author =
+                        TaskUserView(
+                            id = r[WORK_LOG_AUTHOR_ID] as UUID,
+                            displayName =
+                                listOfNotNull(r[WORK_LOG_AUTHOR_FIRST_NAME] as String?, r[WORK_LOG_AUTHOR_LAST_NAME] as String?)
+                                    .joinToString(" ")
+                                    .ifBlank { email ?: (r[WORK_LOG_AUTHOR_ID] as UUID).toString() },
+                            avatarFileId = r[WORK_LOG_AUTHOR_AVATAR] as UUID?,
+                        ),
+                    minutes = r[WORK_LOG_MINUTES] as Int,
+                    workedOn = r[WORK_LOG_WORKED_ON] as LocalDate,
+                    description = r[WORK_LOG_DESCRIPTION] as String?,
+                    hidden = r[WORK_LOG_HIDDEN] as Boolean,
+                    createdAt = r[WORK_LOG_CREATED_AT] as Instant,
+                    updatedAt = r[WORK_LOG_UPDATED_AT] as Instant,
+                    version = r[WORK_LOG_VERSION] as Long?,
+                )
+            }
+
+        return WorkLogPageResponse(
+            content = content,
+            page = pageRequest.page,
+            size = pageRequest.size,
+            totalElements = total,
+            totalMinutes = totalMinutes,
+        )
     }
 
     private fun categoriesFor(

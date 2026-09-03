@@ -1,8 +1,10 @@
 package com.vertyll.veds.iam.infrastructure.web.controller
 
+import com.vertyll.veds.iam.application.dto.UserResponse
 import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
+import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangeEmailRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangePasswordRequest
@@ -11,7 +13,7 @@ import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
-import com.vertyll.veds.shared.web.security.KeycloakJwtUtils
+import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -34,6 +36,7 @@ internal class AuthController(
     private val authServiceCommands: AuthCommandUseCase,
     private val authServiceQueries: AuthQueryUseCase,
     private val provisionCurrentUser: ProvisionCurrentUserUseCase,
+    private val userServiceQueries: UserQueryUseCase,
     private val sharedConfigProperties: SharedKeycloakProperties,
 ) {
     private companion object {
@@ -155,27 +158,21 @@ internal class AuthController(
     }
 
     @GetMapping("/me")
-    @Operation(summary = "Get current authenticated user details from JWT")
+    @Operation(summary = "Get the signed-in person's profile")
     fun getCurrentUser(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<Map<String, Any>>> {
+    ): ResponseEntity<ApiResponse<UserResponse>> {
         if (jwt == null) {
-            return ApiResponse.buildResponse(emptyMap(), MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
+            return ApiResponse.buildResponse(null, MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
         }
 
+        val keycloakId = CurrentUser.keycloakIdOf(jwt)
         provisionCurrentUser.provision(CurrentUser.identityOf(jwt))
 
-        val roles = KeycloakJwtUtils.extractRoles(jwt, sharedConfigProperties.rolesClaimPath)
-        val subject = CurrentUser.keycloakIdOf(jwt).toString()
-        val email = CurrentUser.emailOf(jwt)
-        val userInfo =
-            mapOf<String, Any>(
-                "sub" to subject,
-                "email" to email,
-                "roles" to roles,
-            )
-
-        return ApiResponse.buildResponse(userInfo, USER_DETAILS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        val user = userServiceQueries.getUserByKeycloakId(keycloakId)
+        val etag = ETagUtils.buildWeakETag(user.version)
+        val response = ApiResponse.buildResponse(user, USER_DETAILS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
     @GetMapping("/me/permissions")

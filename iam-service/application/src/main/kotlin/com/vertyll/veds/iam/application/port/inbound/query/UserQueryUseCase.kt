@@ -8,6 +8,11 @@ import java.util.UUID
 interface UserQueryUseCase {
     fun getAllUsers(pageRequest: PageRequest): PageResult<UserResponse>
 
+    fun searchUsers(
+        term: String,
+        pageRequest: PageRequest,
+    ): PageResult<UserResponse>
+
     fun getUserById(id: Long): UserResponse
 
     fun getUserByEmail(email: String): UserResponse

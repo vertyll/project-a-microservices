@@ -63,6 +63,25 @@ internal class UserPersistenceAdapter(
         )
     }
 
+    override fun search(
+        term: String,
+        pageRequest: DomainPageRequest,
+    ): PageResult<User> {
+        val springPage =
+            repository.findByEmailContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+                email = term,
+                firstName = term,
+                lastName = term,
+                pageable = SpringPageRequest.of(pageRequest.page, pageRequest.size),
+            )
+        return PageResult(
+            content = springPage.content.map { it.toDomain() },
+            page = pageRequest.page,
+            size = pageRequest.size,
+            totalElements = springPage.totalElements,
+        )
+    }
+
     override fun countByRole(roleId: Long): Long = repository.countByRoleId(roleId)
 
     override fun deleteById(id: Long) {

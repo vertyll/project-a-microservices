@@ -28,4 +28,12 @@ internal interface UserJpaRepository : JpaRepository<UserJpaEntity, Long> {
 
     @Query("SELECT COUNT(u) FROM UserJpaEntity u JOIN u.roles r WHERE r.id = :roleId")
     fun countByRoleId(roleId: Long): Long
+
+    @EntityGraph(attributePaths = ["roles", "roles.permissions"])
+    fun findByEmailContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+        email: String,
+        firstName: String,
+        lastName: String,
+        pageable: Pageable,
+    ): Page<UserJpaEntity>
 }
