@@ -6,7 +6,6 @@ import com.vertyll.veds.project.infrastructure.IntegrationTestBase
 import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import com.vertyll.veds.shared.messaging.kafka.contract.ProcessedEventRepositoryPort
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import kotlin.test.assertFalse
@@ -14,16 +13,11 @@ import kotlin.test.assertTrue
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class ProcessedEventGuardIntegrationTest : IntegrationTestBase() {
-    @Autowired
-    private lateinit var guard: ProcessedEventGuard
-
-    @Autowired
-    private lateinit var repository: ProcessedEventRepositoryPort
-
-    @Autowired
-    private lateinit var transactionManager: PlatformTransactionManager
-
+class ProcessedEventGuardIntegrationTest(
+    private val guard: ProcessedEventGuard,
+    private val repository: ProcessedEventRepositoryPort,
+    private val transactionManager: PlatformTransactionManager,
+) : IntegrationTestBase() {
     private val group = "project-service:test"
 
     private fun inTransaction(block: () -> Unit) = TransactionTemplate(transactionManager).executeWithoutResult { block() }

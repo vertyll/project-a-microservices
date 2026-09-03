@@ -17,7 +17,6 @@ import com.vertyll.veds.project.infrastructure.persistence.repository.OutboxJpaR
 import com.vertyll.veds.shared.saga.SagaStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -25,25 +24,14 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-class ProjectInvitationSagaIntegrationTest : IntegrationTestBase() {
-    @Autowired
-    private lateinit var projectCommands: ProjectCommandUseCase
-
-    @Autowired
-    private lateinit var invitationCommands: ProjectInvitationCommandUseCase
-
-    @Autowired
-    private lateinit var invitationRepository: ProjectInvitationRepository
-
-    @Autowired
-    private lateinit var outboxRepository: OutboxJpaRepository
-
-    @Autowired
-    private lateinit var mailFeedback: MailFeedbackUseCase
-
-    @Autowired
-    private lateinit var sagaProcess: SagaProcessPort
-
+internal class ProjectInvitationSagaIntegrationTest(
+    private val projectCommands: ProjectCommandUseCase,
+    private val invitationCommands: ProjectInvitationCommandUseCase,
+    private val invitationRepository: ProjectInvitationRepository,
+    private val outboxRepository: OutboxJpaRepository,
+    private val mailFeedback: MailFeedbackUseCase,
+    private val sagaProcess: SagaProcessPort,
+) : IntegrationTestBase() {
     @BeforeEach
     fun clearOutbox() {
         outboxRepository.deleteAll()

@@ -13,16 +13,13 @@ import com.vertyll.veds.task.infrastructure.persistence.repository.TaskJpaReposi
 import com.vertyll.veds.task.infrastructure.persistence.repository.UserRefJpaRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-internal class TaskQueryAdapterIntegrationTest
-    @Autowired
-    constructor(
+internal class TaskQueryAdapterIntegrationTest(
         private val taskQueries: TaskQueryPort,
         private val tasks: TaskJpaRepository,
         private val userRefs: UserRefJpaRepository,

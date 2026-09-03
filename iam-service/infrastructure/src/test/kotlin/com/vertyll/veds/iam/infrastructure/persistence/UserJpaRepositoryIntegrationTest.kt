@@ -8,7 +8,6 @@ import com.vertyll.veds.iam.infrastructure.persistence.repository.RoleJpaReposit
 import com.vertyll.veds.iam.infrastructure.persistence.repository.UserJpaRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
@@ -19,9 +18,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
 
-internal class UserJpaRepositoryIntegrationTest
-    @Autowired
-    constructor(
+internal class UserJpaRepositoryIntegrationTest(
         private val users: UserJpaRepository,
         private val roles: RoleJpaRepository,
     ) : IntegrationTestBase() {
