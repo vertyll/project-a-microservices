@@ -56,30 +56,30 @@ internal class ProjectStatusCommandServiceTest {
     private fun givenStatus(
         projectId: UUID = existing.id,
         isActive: Boolean = true,
-    ) = ProjectStatus(projectId = projectId, color = "#ff0000", translations = complete, isActive = isActive, version = 0L)
+    ) = ProjectStatus(projectId = projectId, color = FF0000, translations = complete, isActive = isActive, version = 0L)
         .also { statuses.given(it) }
 
     // ── Creating ────────────────────────────────────────────────────────
 
     @Test
     fun `a status is stored against its project`() {
-        val response = service.createStatus(existing.id, CreateStatusCommand("#ff0000", complete), owner, ENGLISH)
+        val response = service.createStatus(existing.id, CreateStatusCommand(FF0000, complete), owner, ENGLISH)
 
         val stored = statuses.findById(response.id)!!
         assertEquals(existing.id, stored.projectId)
-        assertEquals("#ff0000", stored.color)
+        assertEquals(FF0000, stored.color)
     }
 
     @Test
     fun `the response is rendered in the language asked for`() {
-        val response = service.createStatus(existing.id, CreateStatusCommand("#ff0000", complete), owner, POLISH)
+        val response = service.createStatus(existing.id, CreateStatusCommand(FF0000, complete), owner, POLISH)
 
         assertEquals("W toku", response.name)
     }
 
     @Test
     fun `creating announces the status to other services`() {
-        val response = service.createStatus(existing.id, CreateStatusCommand("#ff0000", complete), owner, ENGLISH)
+        val response = service.createStatus(existing.id, CreateStatusCommand(FF0000, complete), owner, ENGLISH)
 
         assertEquals(listOf("StatusChanged(${existing.id},${response.id},removed=false)"), events.published)
     }
@@ -90,7 +90,7 @@ internal class ProjectStatusCommandServiceTest {
             assertFailsWith<ApiException> {
                 service.createStatus(
                     existing.id,
-                    CreateStatusCommand("#ff0000", setOf(translation("In progress", ENGLISH))),
+                    CreateStatusCommand(FF0000, setOf(translation("In progress", ENGLISH))),
                     owner,
                     ENGLISH,
                 )
@@ -107,7 +107,7 @@ internal class ProjectStatusCommandServiceTest {
         members.given(ProjectMember.create(projectId = existing.id, userId = viewer, roleId = viewerRole.id))
 
         assertFailsWith<ApiException> {
-            service.createStatus(existing.id, CreateStatusCommand("#ff0000", complete), viewer, ENGLISH)
+            service.createStatus(existing.id, CreateStatusCommand(FF0000, complete), viewer, ENGLISH)
         }
 
         assertTrue(statuses.stored.isEmpty())
@@ -121,10 +121,10 @@ internal class ProjectStatusCommandServiceTest {
         val status = givenStatus()
         val renamed = setOf(translation("Blocked", ENGLISH), translation("Zablokowane", POLISH))
 
-        service.updateStatus(existing.id, status.id, UpdateStatusCommand("#00ff00", renamed, true), owner, ENGLISH, 0L)
+        service.updateStatus(existing.id, status.id, UpdateStatusCommand(V_00FF00, renamed, true), owner, ENGLISH, 0L)
 
         val stored = statuses.findById(status.id)!!
-        assertEquals("#00ff00", stored.color)
+        assertEquals(V_00FF00, stored.color)
         assertEquals("Blocked", stored.translationFor(ENGLISH).name)
     }
 
@@ -132,7 +132,7 @@ internal class ProjectStatusCommandServiceTest {
     fun `deactivating a status is announced as a removal`() {
         val status = givenStatus()
 
-        service.updateStatus(existing.id, status.id, UpdateStatusCommand("#ff0000", complete, isActive = false), owner, ENGLISH, 0L)
+        service.updateStatus(existing.id, status.id, UpdateStatusCommand(FF0000, complete, isActive = false), owner, ENGLISH, 0L)
 
         assertTrue(!statuses.findById(status.id)!!.isActive)
         assertEquals(listOf("StatusChanged(${existing.id},${status.id},removed=true)"), events.published)
@@ -142,7 +142,7 @@ internal class ProjectStatusCommandServiceTest {
     fun `reactivating a status is announced as a change`() {
         val status = givenStatus(isActive = false)
 
-        service.updateStatus(existing.id, status.id, UpdateStatusCommand("#ff0000", complete, isActive = true), owner, ENGLISH, 0L)
+        service.updateStatus(existing.id, status.id, UpdateStatusCommand(FF0000, complete, isActive = true), owner, ENGLISH, 0L)
 
         assertEquals(listOf("StatusChanged(${existing.id},${status.id},removed=false)"), events.published)
     }
@@ -153,11 +153,11 @@ internal class ProjectStatusCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.updateStatus(existing.id, status.id, UpdateStatusCommand("#00ff00", complete, true), owner, ENGLISH, 9L)
+                service.updateStatus(existing.id, status.id, UpdateStatusCommand(V_00FF00, complete, true), owner, ENGLISH, 9L)
             }
 
         assertEquals(ProjectError.VERSION_MISMATCH, error.error)
-        assertEquals("#ff0000", statuses.findById(status.id)!!.color)
+        assertEquals(FF0000, statuses.findById(status.id)!!.color)
     }
 
     @Test
@@ -166,7 +166,7 @@ internal class ProjectStatusCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.updateStatus(existing.id, elsewhere.id, UpdateStatusCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+                service.updateStatus(existing.id, elsewhere.id, UpdateStatusCommand(V_00FF00, complete, true), owner, ENGLISH, 0L)
             }
 
         assertEquals(ProjectError.STATUS_NOT_FOUND, error.error)
@@ -179,7 +179,7 @@ internal class ProjectStatusCommandServiceTest {
                 service.updateStatus(
                     existing.id,
                     Uuid.generateV7().toJavaUuid(),
-                    UpdateStatusCommand("#00ff00", complete, true),
+                    UpdateStatusCommand(V_00FF00, complete, true),
                     owner,
                     ENGLISH,
                     0L,
@@ -210,3 +210,6 @@ internal class ProjectStatusCommandServiceTest {
         assertEquals(1, statuses.stored.size)
     }
 }
+
+private const val FF0000 = "#ff0000"
+private const val V_00FF00 = "#00ff00"

@@ -89,11 +89,11 @@ class PermissionCatalogueService(
         command: RegisterPermissionCatalogueCommand,
         stored: Map<String, Permission>,
     ) {
-        val declared = command.permissions.mapTo(mutableSetOf()) { it.name }
+        val declared = command.permissions.map { it.name }.toSet()
         val withdrawn = stored.filterKeys { it !in declared }.values
         if (withdrawn.isEmpty()) return
 
-        val withdrawnNames = withdrawn.mapTo(mutableSetOf()) { it.name }
+        val withdrawnNames = withdrawn.map { it.name }.toSet()
         val affected = roleRepository.findAll().filter { role -> role.permissions.any { it.name in withdrawnNames } }
 
         withdrawn.forEach(permissionRepository::delete)

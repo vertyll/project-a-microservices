@@ -52,7 +52,6 @@ tasks.jar {
 }
 
 dependencies {
-    api("com.vertyll.veds:shared-authz")
     // --- Common ---
     implementation(libs.spring.boot.starter)
     implementation(libs.kotlin.reflect)
@@ -60,6 +59,7 @@ dependencies {
     implementation(libs.kotlin.logging)
 
     // --- Security, part of this module's public surface ---
+    api("com.vertyll.veds:shared-authz")
     api(libs.bundles.web.api)
     api(libs.springframework.tx)
 

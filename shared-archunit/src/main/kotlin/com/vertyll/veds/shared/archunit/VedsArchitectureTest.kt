@@ -95,6 +95,7 @@ abstract class VedsArchitectureTest(
  * Judging them reports compiler strategy, not architecture — `DefaultImpls` is a class, so an
  * "interfaces only" rule fails on every interface that has a default method.
  */
-private object NoKotlinCompilerArtefacts : ImportOption {
-    override fun includes(location: Location): Boolean = !location.contains($$"$DefaultImpls") && !location.contains($$"$WhenMappings")
-}
+private val NoKotlinCompilerArtefacts =
+    ImportOption { location: Location ->
+        !location.contains($$"$DefaultImpls") && !location.contains($$"$WhenMappings")
+    }

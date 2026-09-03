@@ -69,7 +69,7 @@ internal class TaskCommandServiceTest {
         assigneeIds: Set<UUID> = emptySet(),
     ) = CreateTaskCommand(
         projectId = projectId,
-        name = "Fix the thing",
+        name = FIX_THE_THING,
         description = null,
         priority = TaskPriority.MEDIUM,
         statusId = statusId,
@@ -81,7 +81,7 @@ internal class TaskCommandServiceTest {
     )
 
     private fun updateCommand(
-        name: String = "Fix the thing",
+        name: String = FIX_THE_THING,
         statusId: UUID? = null,
         assigneeIds: Set<UUID> = emptySet(),
         priority: TaskPriority = TaskPriority.MEDIUM,
@@ -106,7 +106,7 @@ internal class TaskCommandServiceTest {
         val stored = tasks.findById(response.id)!!
         assertEquals(projectId, stored.projectId)
         assertEquals(actor.id, stored.createdBy)
-        assertEquals("Fix the thing", stored.name)
+        assertEquals(FIX_THE_THING, stored.name)
     }
 
     @Test
@@ -197,7 +197,7 @@ internal class TaskCommandServiceTest {
         val error = assertFailsWith<ApiException> { service.updateTask(existing.id, updateCommand(name = "New"), actor, 9L) }
 
         assertEquals(TaskError.VERSION_MISMATCH, error.error)
-        assertEquals("Fix the thing", tasks.findById(existing.id)!!.name)
+        assertEquals(FIX_THE_THING, tasks.findById(existing.id)!!.name)
     }
 
     @Test
@@ -312,3 +312,5 @@ internal class TaskCommandServiceTest {
         assertTrue(events.published.isEmpty())
     }
 }
+
+private const val FIX_THE_THING = "Fix the thing"

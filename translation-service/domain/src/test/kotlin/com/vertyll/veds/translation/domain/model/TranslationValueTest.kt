@@ -17,31 +17,31 @@ class TranslationValueTest {
     private val editor = Uuid.generateV7().toJavaUuid()
     private val pl = LanguageTag.of("pl")
 
-    private fun seeded() = TranslationValue.seeded("project.not_found", pl, "Nie znaleziono projektu.")
+    private fun seeded() = TranslationValue.seeded("project.not_found", pl, NIE_ZNALEZIONO_PROJEKTU)
 
     @Test
     fun `a seeded value is effective until somebody overrides it`() {
         val value = seeded()
 
-        assertEquals("Nie znaleziono projektu.", value.effectiveValue)
+        assertEquals(NIE_ZNALEZIONO_PROJEKTU, value.effectiveValue)
         assertFalse(value.isOverridden)
     }
 
     @Test
     fun `an override wins over the shipped default`() {
-        val overridden = seeded().overriddenBy(editor, "Taki projekt nie istnieje.")
+        val overridden = seeded().overriddenBy(editor, TAKI_PROJEKT_NIE_ISTNIEJE)
 
-        assertEquals("Taki projekt nie istnieje.", overridden.effectiveValue)
+        assertEquals(TAKI_PROJEKT_NIE_ISTNIEJE, overridden.effectiveValue)
         assertTrue(overridden.isOverridden)
         assertEquals(editor, overridden.updatedBy)
     }
 
     @Test
     fun `re-seeding leaves the override alone`() {
-        val overridden = seeded().overriddenBy(editor, "Taki projekt nie istnieje.")
+        val overridden = seeded().overriddenBy(editor, TAKI_PROJEKT_NIE_ISTNIEJE)
         val reseeded = overridden.withSeededDefault("Project not found.")
 
-        assertEquals("Taki projekt nie istnieje.", reseeded.effectiveValue)
+        assertEquals(TAKI_PROJEKT_NIE_ISTNIEJE, reseeded.effectiveValue)
         assertEquals("Project not found.", reseeded.defaultValue)
     }
 
@@ -49,14 +49,14 @@ class TranslationValueTest {
     fun `re-seeding the same value returns the same instance`() {
         val value = seeded()
 
-        assertSame(value, value.withSeededDefault("Nie znaleziono projektu."))
+        assertSame(value, value.withSeededDefault(NIE_ZNALEZIONO_PROJEKTU))
     }
 
     @Test
     fun `clearing an override falls back to the shipped default`() {
         val reverted = seeded().overriddenBy(editor, "Coś innego.").overrideCleared(editor)
 
-        assertEquals("Nie znaleziono projektu.", reverted.effectiveValue)
+        assertEquals(NIE_ZNALEZIONO_PROJEKTU, reverted.effectiveValue)
         assertFalse(reverted.isOverridden)
     }
 
@@ -72,3 +72,6 @@ class TranslationValueTest {
         assertFailsWith<IllegalArgumentException> { seeded().overriddenBy(editor, "   ") }
     }
 }
+
+private const val NIE_ZNALEZIONO_PROJEKTU = "Nie znaleziono projektu."
+private const val TAKI_PROJEKT_NIE_ISTNIEJE = "Taki projekt nie istnieje."

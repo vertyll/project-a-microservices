@@ -43,40 +43,40 @@ class EmailBatchServiceTest {
 
     @Test
     fun `every recipient gets one mail`() {
-        val results = send(listOf("a@example.com", "b@example.com"))
+        val results = send(listOf(A_EXAMPLE_COM, B_EXAMPLE_COM))
 
-        assertEquals(listOf("a@example.com", "b@example.com"), sent.map { it.first })
-        assertEquals(mapOf("a@example.com" to true, "b@example.com" to true), results)
+        assertEquals(listOf(A_EXAMPLE_COM, B_EXAMPLE_COM), sent.map { it.first })
+        assertEquals(mapOf(A_EXAMPLE_COM to true, B_EXAMPLE_COM to true), results)
     }
 
     @Test
     fun `common variables reach every recipient`() {
-        send(listOf("a@example.com", "b@example.com"), common = mapOf("projectName" to "Apollo"))
+        send(listOf(A_EXAMPLE_COM, B_EXAMPLE_COM), common = mapOf(PROJECTNAME to APOLLO))
 
-        assertTrue(sent.all { it.second["projectName"] == "Apollo" })
+        assertTrue(sent.all { it.second[PROJECTNAME] == APOLLO })
     }
 
     @Test
     fun `a recipient's own variables override the common ones`() {
         send(
-            listOf("a@example.com", "b@example.com"),
-            common = mapOf("firstName" to "there", "projectName" to "Apollo"),
-            specific = mapOf("a@example.com" to mapOf("firstName" to "Ada")),
+            listOf(A_EXAMPLE_COM, B_EXAMPLE_COM),
+            common = mapOf(FIRSTNAME to "there", PROJECTNAME to APOLLO),
+            specific = mapOf(A_EXAMPLE_COM to mapOf(FIRSTNAME to "Ada")),
         )
 
-        assertEquals("Ada", sent.first { it.first == "a@example.com" }.second["firstName"])
-        assertEquals("there", sent.first { it.first == "b@example.com" }.second["firstName"])
-        assertEquals("Apollo", sent.first { it.first == "a@example.com" }.second["projectName"])
+        assertEquals("Ada", sent.first { it.first == A_EXAMPLE_COM }.second[FIRSTNAME])
+        assertEquals("there", sent.first { it.first == B_EXAMPLE_COM }.second[FIRSTNAME])
+        assertEquals(APOLLO, sent.first { it.first == A_EXAMPLE_COM }.second[PROJECTNAME])
     }
 
     @Test
     fun `a refused recipient does not stop the rest`() {
-        refuse = setOf("b@example.com")
+        refuse = setOf(B_EXAMPLE_COM)
 
-        val results = send(listOf("a@example.com", "b@example.com", "c@example.com"))
+        val results = send(listOf(A_EXAMPLE_COM, B_EXAMPLE_COM, "c@example.com"))
 
         assertEquals(3, sent.size)
-        assertEquals(mapOf("a@example.com" to true, "b@example.com" to false, "c@example.com" to true), results)
+        assertEquals(mapOf(A_EXAMPLE_COM to true, B_EXAMPLE_COM to false, "c@example.com" to true), results)
     }
 
     @Test
@@ -87,9 +87,15 @@ class EmailBatchServiceTest {
 
     @Test
     fun `personalisation for an absent recipient is ignored`() {
-        send(listOf("a@example.com"), specific = mapOf("nobody@example.com" to mapOf("firstName" to "Ghost")))
+        send(listOf(A_EXAMPLE_COM), specific = mapOf("nobody@example.com" to mapOf(FIRSTNAME to "Ghost")))
 
         assertEquals(1, sent.size)
         assertTrue(sent.single().second.isEmpty())
     }
 }
+
+private const val A_EXAMPLE_COM = "a@example.com"
+private const val B_EXAMPLE_COM = "b@example.com"
+private const val FIRSTNAME = "firstName"
+private const val PROJECTNAME = "projectName"
+private const val APOLLO = "Apollo"

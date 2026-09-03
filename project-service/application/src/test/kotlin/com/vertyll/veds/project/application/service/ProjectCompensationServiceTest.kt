@@ -29,12 +29,12 @@ internal class ProjectCompensationServiceTest {
         val invitation =
             ProjectInvitation(
                 projectId = Uuid.generateV7().toJavaUuid(),
-                inviteeEmail = "a@example.com",
+                inviteeEmail = A_EXAMPLE_COM,
                 inviterId = Uuid.generateV7().toJavaUuid(),
                 roleId = Uuid.generateV7().toJavaUuid(),
             ).also { invitations.given(it) }
 
-        service.compensate(ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), "mail failed"))
+        service.compensate(ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), MAIL_FAILED))
 
         assertEquals(InvitationStatus.EXPIRED, invitations.findById(invitation.id)!!.status)
     }
@@ -44,13 +44,13 @@ internal class ProjectCompensationServiceTest {
         val accepted =
             ProjectInvitation(
                 projectId = Uuid.generateV7().toJavaUuid(),
-                inviteeEmail = "a@example.com",
+                inviteeEmail = A_EXAMPLE_COM,
                 inviterId = Uuid.generateV7().toJavaUuid(),
                 roleId = Uuid.generateV7().toJavaUuid(),
             ).accept(Uuid.generateV7().toJavaUuid())
                 .also { invitations.given(it) }
 
-        service.compensate(ProjectCompensationCommand.RevokeInvitation(accepted.id.toString(), "mail failed"))
+        service.compensate(ProjectCompensationCommand.RevokeInvitation(accepted.id.toString(), MAIL_FAILED))
 
         assertEquals(InvitationStatus.ACCEPTED, invitations.findById(accepted.id)!!.status)
     }
@@ -60,11 +60,11 @@ internal class ProjectCompensationServiceTest {
         val invitation =
             ProjectInvitation(
                 projectId = Uuid.generateV7().toJavaUuid(),
-                inviteeEmail = "a@example.com",
+                inviteeEmail = A_EXAMPLE_COM,
                 inviterId = Uuid.generateV7().toJavaUuid(),
                 roleId = Uuid.generateV7().toJavaUuid(),
             ).also { invitations.given(it) }
-        val command = ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), "mail failed")
+        val command = ProjectCompensationCommand.RevokeInvitation(invitation.id.toString(), MAIL_FAILED)
 
         service.compensate(command)
         service.compensate(command)
@@ -74,7 +74,7 @@ internal class ProjectCompensationServiceTest {
 
     @Test
     fun `an invitation that no longer exists is not an error`() {
-        service.compensate(ProjectCompensationCommand.RevokeInvitation(Uuid.generateV7().toString(), "mail failed"))
+        service.compensate(ProjectCompensationCommand.RevokeInvitation(Uuid.generateV7().toString(), MAIL_FAILED))
 
         assertTrue(invitations.stored.isEmpty())
     }
@@ -85,7 +85,7 @@ internal class ProjectCompensationServiceTest {
     fun `an archived project is brought back`() {
         val archived = project(isActive = false).also { projects.given(it) }
 
-        service.compensate(ProjectCompensationCommand.RestoreProject(archived.id.toString(), "downstream refused"))
+        service.compensate(ProjectCompensationCommand.RestoreProject(archived.id.toString(), DOWNSTREAM_REFUSED))
 
         assertTrue(projects.findById(archived.id)!!.isActive)
     }
@@ -94,7 +94,7 @@ internal class ProjectCompensationServiceTest {
     fun `an active project is left alone`() {
         val active = project(isActive = true).also { projects.given(it) }
 
-        service.compensate(ProjectCompensationCommand.RestoreProject(active.id.toString(), "downstream refused"))
+        service.compensate(ProjectCompensationCommand.RestoreProject(active.id.toString(), DOWNSTREAM_REFUSED))
 
         assertTrue(projects.findById(active.id)!!.isActive)
     }
@@ -102,7 +102,7 @@ internal class ProjectCompensationServiceTest {
     @Test
     fun `restoring twice is harmless`() {
         val archived = project(isActive = false).also { projects.given(it) }
-        val command = ProjectCompensationCommand.RestoreProject(archived.id.toString(), "downstream refused")
+        val command = ProjectCompensationCommand.RestoreProject(archived.id.toString(), DOWNSTREAM_REFUSED)
 
         service.compensate(command)
         service.compensate(command)
@@ -112,8 +112,12 @@ internal class ProjectCompensationServiceTest {
 
     @Test
     fun `a project that no longer exists is not an error`() {
-        service.compensate(ProjectCompensationCommand.RestoreProject(Uuid.generateV7().toString(), "downstream refused"))
+        service.compensate(ProjectCompensationCommand.RestoreProject(Uuid.generateV7().toString(), DOWNSTREAM_REFUSED))
 
         assertTrue(projects.stored.isEmpty())
     }
 }
+
+private const val MAIL_FAILED = "mail failed"
+private const val DOWNSTREAM_REFUSED = "downstream refused"
+private const val A_EXAMPLE_COM = "a@example.com"

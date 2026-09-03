@@ -56,30 +56,30 @@ internal class ProjectCategoryCommandServiceTest {
     private fun givenCategory(
         projectId: UUID = existing.id,
         isActive: Boolean = true,
-    ) = ProjectCategory(projectId = projectId, color = "#ff0000", translations = complete, isActive = isActive, version = 0L)
+    ) = ProjectCategory(projectId = projectId, color = FF0000, translations = complete, isActive = isActive, version = 0L)
         .also { categories.given(it) }
 
     // ── Creating ────────────────────────────────────────────────────────
 
     @Test
     fun `a category is stored against its project`() {
-        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, ENGLISH)
+        val response = service.createCategory(existing.id, CreateCategoryCommand(FF0000, complete), owner, ENGLISH)
 
         val stored = categories.findById(response.id)!!
         assertEquals(existing.id, stored.projectId)
-        assertEquals("#ff0000", stored.color)
+        assertEquals(FF0000, stored.color)
     }
 
     @Test
     fun `the response is rendered in the language asked for`() {
-        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, POLISH)
+        val response = service.createCategory(existing.id, CreateCategoryCommand(FF0000, complete), owner, POLISH)
 
         assertEquals("Błąd", response.name)
     }
 
     @Test
     fun `creating announces the category to other services`() {
-        val response = service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), owner, ENGLISH)
+        val response = service.createCategory(existing.id, CreateCategoryCommand(FF0000, complete), owner, ENGLISH)
 
         assertEquals(listOf("CategoryChanged(${existing.id},${response.id},removed=false)"), events.published)
     }
@@ -88,7 +88,7 @@ internal class ProjectCategoryCommandServiceTest {
     fun `a category missing a language is refused`() {
         val error =
             assertFailsWith<ApiException> {
-                service.createCategory(existing.id, CreateCategoryCommand("#ff0000", setOf(translation("Bug", ENGLISH))), owner, ENGLISH)
+                service.createCategory(existing.id, CreateCategoryCommand(FF0000, setOf(translation("Bug", ENGLISH))), owner, ENGLISH)
             }
 
         assertEquals(ProjectError.TRANSLATION_MISSING, error.error)
@@ -102,7 +102,7 @@ internal class ProjectCategoryCommandServiceTest {
         members.given(ProjectMember.create(projectId = existing.id, userId = viewer, roleId = viewerRole.id))
 
         assertFailsWith<ApiException> {
-            service.createCategory(existing.id, CreateCategoryCommand("#ff0000", complete), viewer, ENGLISH)
+            service.createCategory(existing.id, CreateCategoryCommand(FF0000, complete), viewer, ENGLISH)
         }
 
         assertTrue(categories.stored.isEmpty())
@@ -116,10 +116,10 @@ internal class ProjectCategoryCommandServiceTest {
         val category = givenCategory()
         val renamed = setOf(translation("Defect", ENGLISH), translation("Usterka", POLISH))
 
-        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#00ff00", renamed, true), owner, ENGLISH, 0L)
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand(V_00FF00, renamed, true), owner, ENGLISH, 0L)
 
         val stored = categories.findById(category.id)!!
-        assertEquals("#00ff00", stored.color)
+        assertEquals(V_00FF00, stored.color)
         assertEquals("Defect", stored.translationFor(ENGLISH).name)
     }
 
@@ -127,7 +127,7 @@ internal class ProjectCategoryCommandServiceTest {
     fun `deactivating a category is announced as a removal`() {
         val category = givenCategory()
 
-        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#ff0000", complete, isActive = false), owner, ENGLISH, 0L)
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand(FF0000, complete, isActive = false), owner, ENGLISH, 0L)
 
         assertTrue(!categories.findById(category.id)!!.isActive)
         assertEquals(listOf("CategoryChanged(${existing.id},${category.id},removed=true)"), events.published)
@@ -137,7 +137,7 @@ internal class ProjectCategoryCommandServiceTest {
     fun `reactivating a category is announced as a change`() {
         val category = givenCategory(isActive = false)
 
-        service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#ff0000", complete, isActive = true), owner, ENGLISH, 0L)
+        service.updateCategory(existing.id, category.id, UpdateCategoryCommand(FF0000, complete, isActive = true), owner, ENGLISH, 0L)
 
         assertEquals(listOf("CategoryChanged(${existing.id},${category.id},removed=false)"), events.published)
     }
@@ -148,11 +148,11 @@ internal class ProjectCategoryCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.updateCategory(existing.id, category.id, UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 9L)
+                service.updateCategory(existing.id, category.id, UpdateCategoryCommand(V_00FF00, complete, true), owner, ENGLISH, 9L)
             }
 
         assertEquals(ProjectError.VERSION_MISMATCH, error.error)
-        assertEquals("#ff0000", categories.findById(category.id)!!.color)
+        assertEquals(FF0000, categories.findById(category.id)!!.color)
     }
 
     @Test
@@ -161,7 +161,7 @@ internal class ProjectCategoryCommandServiceTest {
 
         val error =
             assertFailsWith<ApiException> {
-                service.updateCategory(existing.id, elsewhere.id, UpdateCategoryCommand("#00ff00", complete, true), owner, ENGLISH, 0L)
+                service.updateCategory(existing.id, elsewhere.id, UpdateCategoryCommand(V_00FF00, complete, true), owner, ENGLISH, 0L)
             }
 
         assertEquals(ProjectError.CATEGORY_NOT_FOUND, error.error)
@@ -174,7 +174,7 @@ internal class ProjectCategoryCommandServiceTest {
                 service.updateCategory(
                     existing.id,
                     Uuid.generateV7().toJavaUuid(),
-                    UpdateCategoryCommand("#00ff00", complete, true),
+                    UpdateCategoryCommand(V_00FF00, complete, true),
                     owner,
                     ENGLISH,
                     0L,
@@ -205,3 +205,6 @@ internal class ProjectCategoryCommandServiceTest {
         assertEquals(1, categories.stored.size)
     }
 }
+
+private const val FF0000 = "#ff0000"
+private const val V_00FF00 = "#00ff00"

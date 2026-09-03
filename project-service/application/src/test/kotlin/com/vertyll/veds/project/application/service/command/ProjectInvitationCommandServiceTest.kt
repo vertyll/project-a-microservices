@@ -62,7 +62,7 @@ internal class ProjectInvitationCommandServiceTest {
     private val existing = project(ownerId = owner).also { projects.given(it) }
 
     private fun invite(
-        email: String = "new@example.com",
+        email: String = NEW_EXAMPLE_COM,
         roleId: UUID? = null,
     ) = service.invite(existing.id, InviteMemberCommand(email = email, roleId = roleId), owner)
 
@@ -81,7 +81,7 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `inviting asks for the mail through an event`() {
-        val response = invite(email = "new@example.com")
+        val response = invite(email = NEW_EXAMPLE_COM)
 
         assertEquals(listOf("MemberInvited(${existing.id},new@example.com)"), events.published)
         assertEquals(
@@ -130,9 +130,9 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `a second invitation to a pending address is refused`() {
-        invite(email = "new@example.com")
+        invite(email = NEW_EXAMPLE_COM)
 
-        val error = assertFailsWith<ApiException> { invite(email = "new@example.com") }
+        val error = assertFailsWith<ApiException> { invite(email = NEW_EXAMPLE_COM) }
 
         assertEquals(ProjectError.INVITATION_ALREADY_SENT, error.error)
         assertEquals(1, invitations.stored.size)
@@ -140,10 +140,10 @@ internal class ProjectInvitationCommandServiceTest {
 
     @Test
     fun `an address whose invitation was rejected can be invited again`() {
-        val first = invite(email = "new@example.com")
+        val first = invite(email = NEW_EXAMPLE_COM)
         invitations.save(invitations.findById(first.id)!!.reject(Uuid.generateV7().toJavaUuid()))
 
-        val second = invite(email = "new@example.com")
+        val second = invite(email = NEW_EXAMPLE_COM)
 
         assertTrue(second.id != first.id)
     }
@@ -152,7 +152,7 @@ internal class ProjectInvitationCommandServiceTest {
     fun `someone without the invite permission cannot invite`() {
         val outsider = Uuid.generateV7().toJavaUuid()
 
-        assertFailsWith<ApiException> { service.invite(existing.id, InviteMemberCommand("new@example.com", null), outsider) }
+        assertFailsWith<ApiException> { service.invite(existing.id, InviteMemberCommand(NEW_EXAMPLE_COM, null), outsider) }
 
         assertTrue(invitations.stored.isEmpty())
         assertTrue(events.published.isEmpty())
@@ -193,7 +193,7 @@ internal class ProjectInvitationCommandServiceTest {
             )
 
         assertFailsWith<ApiException> {
-            failing.invite(existing.id, InviteMemberCommand("new@example.com", null), owner)
+            failing.invite(existing.id, InviteMemberCommand(NEW_EXAMPLE_COM, null), owner)
         }
 
         assertEquals("step(PersistInvitation,FAILED)", saga.trail[saga.trail.size - 2])
@@ -203,7 +203,7 @@ internal class ProjectInvitationCommandServiceTest {
     // ── Accepting ───────────────────────────────────────────────────────
 
     private fun givenPendingInvitation(
-        email: String = "new@example.com",
+        email: String = NEW_EXAMPLE_COM,
         roleId: UUID = memberRole.id,
         expiresAt: Instant = Instant.now().plus(7, ChronoUnit.DAYS),
     ) = ProjectInvitation(
@@ -355,3 +355,5 @@ internal class ProjectInvitationCommandServiceTest {
         assertEquals(0, service.expireOverdueInvitations())
     }
 }
+
+private const val NEW_EXAMPLE_COM = "new@example.com"

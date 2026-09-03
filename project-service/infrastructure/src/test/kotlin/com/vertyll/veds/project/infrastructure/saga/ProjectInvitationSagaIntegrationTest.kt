@@ -140,15 +140,15 @@ internal class ProjectInvitationSagaIntegrationTest(
         val invitation =
             invitationCommands.invite(
                 project.id,
-                InviteMemberCommand(email = "duplicate@example.com", roleId = null),
+                InviteMemberCommand(email = DUPLICATE_EXAMPLE_COM, roleId = null),
                 actor.id,
             )
         val sagaId = openSagaId()
 
-        mailFeedback.handleMailSent(sagaId, "duplicate@example.com")
+        mailFeedback.handleMailSent(sagaId, DUPLICATE_EXAMPLE_COM)
         val afterFirst = sagaProcess.findSagaDomainById(sagaId)?.status
 
-        mailFeedback.handleMailSent(sagaId, "duplicate@example.com")
+        mailFeedback.handleMailSent(sagaId, DUPLICATE_EXAMPLE_COM)
         val afterSecond = sagaProcess.findSagaDomainById(sagaId)?.status
 
         assertEquals(afterFirst, afterSecond, "at-least-once delivery must not move a settled saga")
@@ -167,3 +167,5 @@ internal class ProjectInvitationSagaIntegrationTest(
         return message.sagaId!!
     }
 }
+
+private const val DUPLICATE_EXAMPLE_COM = "duplicate@example.com"

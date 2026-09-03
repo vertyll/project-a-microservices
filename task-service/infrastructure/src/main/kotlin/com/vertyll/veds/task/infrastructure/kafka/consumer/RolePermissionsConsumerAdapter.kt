@@ -56,7 +56,7 @@ internal class RolePermissionsConsumerAdapter(
         rolePermissions.save(
             RolePermissionsRef(
                 roleName = event.role.toString(),
-                permissions = event.permissions.mapTo(mutableSetOf()) { it.toString() }.intersect(catalogue.names),
+                permissions = event.permissions.map { it.toString() }.intersect(catalogue.names),
                 unrestricted = event.unrestricted,
             ),
         )

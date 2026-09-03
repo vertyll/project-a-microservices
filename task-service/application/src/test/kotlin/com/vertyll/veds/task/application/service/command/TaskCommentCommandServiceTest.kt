@@ -66,24 +66,24 @@ internal class TaskCommentCommandServiceTest {
 
     @Test
     fun `a comment is stored against its task and author`() {
-        val response = service.addComment(existingTask.id, CreateCommentCommand("Looks good", emptySet()), author)
+        val response = service.addComment(existingTask.id, CreateCommentCommand(LOOKS_GOOD, emptySet()), author)
 
         val stored = comments.findById(response.id)!!
         assertEquals(existingTask.id, stored.taskId)
         assertEquals(author.id, stored.authorId)
-        assertEquals("Looks good", stored.content)
+        assertEquals(LOOKS_GOOD, stored.content)
     }
 
     @Test
     fun `adding a comment announces it`() {
-        val response = service.addComment(existingTask.id, CreateCommentCommand("Looks good", emptySet()), author)
+        val response = service.addComment(existingTask.id, CreateCommentCommand(LOOKS_GOOD, emptySet()), author)
 
         assertEquals(listOf("CommentAdded(${existingTask.id},${response.id})"), events.published)
     }
 
     @Test
     fun `the author is recorded in the user directory`() {
-        service.addComment(existingTask.id, CreateCommentCommand("Looks good", emptySet()), author)
+        service.addComment(existingTask.id, CreateCommentCommand(LOOKS_GOOD, emptySet()), author)
 
         assertNotNull(users.findById(author.id))
     }
@@ -113,9 +113,9 @@ internal class TaskCommentCommandServiceTest {
     fun `the author may edit their own comment`() {
         val comment = givenComment()
 
-        service.editComment(comment.id, UpdateCommentCommand("Reworded"), author, 0L)
+        service.editComment(comment.id, UpdateCommentCommand(REWORDED), author, 0L)
 
-        assertEquals("Reworded", comments.findById(comment.id)!!.content)
+        assertEquals(REWORDED, comments.findById(comment.id)!!.content)
     }
 
     @Test
@@ -123,7 +123,7 @@ internal class TaskCommentCommandServiceTest {
         val comment = givenComment()
         val manager = actorWithRole("MANAGER")
 
-        val error = assertFailsWith<ApiException> { service.editComment(comment.id, UpdateCommentCommand("Reworded"), manager, 0L) }
+        val error = assertFailsWith<ApiException> { service.editComment(comment.id, UpdateCommentCommand(REWORDED), manager, 0L) }
 
         assertEquals(TaskError.COMMENT_NOT_AUTHORED_BY_CALLER, error.error)
         assertEquals("Working on it", comments.findById(comment.id)!!.content)
@@ -133,7 +133,7 @@ internal class TaskCommentCommandServiceTest {
     fun `an edit against a stale version is refused`() {
         val comment = givenComment()
 
-        val error = assertFailsWith<ApiException> { service.editComment(comment.id, UpdateCommentCommand("Reworded"), author, 9L) }
+        val error = assertFailsWith<ApiException> { service.editComment(comment.id, UpdateCommentCommand(REWORDED), author, 9L) }
 
         assertEquals(TaskError.VERSION_MISMATCH, error.error)
     }
@@ -197,3 +197,6 @@ internal class TaskCommentCommandServiceTest {
         assertEquals(TaskError.COMMENT_NOT_FOUND, error.error)
     }
 }
+
+private const val LOOKS_GOOD = "Looks good"
+private const val REWORDED = "Reworded"

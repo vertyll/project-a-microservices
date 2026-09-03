@@ -32,15 +32,15 @@ class EmailLogTest {
 
     @Test
     fun `a failed mail keeps the reason it failed`() {
-        val entry = log().markAsFailed("mailbox does not exist")
+        val entry = log().markAsFailed(MAILBOX_DOES_NOT_EXIST)
 
         assertEquals(EmailStatus.FAILED, entry.status)
-        assertEquals("mailbox does not exist", entry.errorMessage)
+        assertEquals(MAILBOX_DOES_NOT_EXIST, entry.errorMessage)
     }
 
     @Test
     fun `a failed mail carries no send time`() {
-        assertNull(log().markAsFailed("mailbox does not exist").sentAt)
+        assertNull(log().markAsFailed(MAILBOX_DOES_NOT_EXIST).sentAt)
     }
 
     @Test
@@ -55,3 +55,5 @@ class EmailLogTest {
         }
     }
 }
+
+private const val MAILBOX_DOES_NOT_EXIST = "mailbox does not exist"
