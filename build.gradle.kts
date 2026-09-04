@@ -92,7 +92,7 @@ val documentedLibraries =
         DocumentedLibrary("shared-error", "The error contract every service's catalogue implements", true),
         DocumentedLibrary("shared-web", "Keycloak authentication, HTTP concurrency helpers and shared configuration", false),
         DocumentedLibrary("shared-messaging-kafka", "Transactional outbox, idempotent consumption and Avro over Kafka", false),
-        DocumentedLibrary("shared-saga-engine", "Saga orchestration, compensation and the JPA flavour of its ports", false),
+        DocumentedLibrary("shared-saga-engine", "One service's local saga: state machine, compensation and the JPA flavour of its ports", false),
         DocumentedLibrary("shared-translation-client", "Start-up registration of a service's translation keys", false),
         DocumentedLibrary("shared-authz-client", "Start-up registration of a module's permission catalogue with iam-service", false),
     )

@@ -67,6 +67,7 @@ dependencies {
     // --- OpenAPI: only contributes a bean when the service already brings springdoc ---
     compileOnly(libs.swagger.core.models)
     testImplementation(libs.swagger.core.models)
+    testImplementation(libs.jackson.databind)
 
     // --- Reactor: only ReactiveKeycloakJwtAuthenticationConverter needs it
     compileOnly("io.projectreactor:reactor-core")

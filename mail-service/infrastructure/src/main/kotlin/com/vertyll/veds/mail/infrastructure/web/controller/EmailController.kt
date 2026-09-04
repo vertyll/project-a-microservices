@@ -6,13 +6,13 @@ import com.vertyll.veds.mail.application.dto.SendBatchEmailResponse
 import com.vertyll.veds.mail.application.dto.SendEmailResponse
 import com.vertyll.veds.mail.application.port.inbound.EmailBatchUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
+import com.vertyll.veds.mail.domain.error.MailError
 import com.vertyll.veds.mail.domain.model.EmailTemplate
 import com.vertyll.veds.mail.domain.model.PageResult
 import com.vertyll.veds.mail.infrastructure.web.dto.SendBatchEmailRequest
 import com.vertyll.veds.mail.infrastructure.web.dto.SendEmailRequest
-import com.vertyll.veds.shared.web.http.ApiResponse
+import com.vertyll.veds.sharederror.ApiException
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,27 +29,19 @@ internal class EmailController(
 ) {
     @GetMapping("/logs")
     @PreAuthorize("@authz.has('MAIL_LOGS_VIEW')")
-    fun getEmailLogs(): ResponseEntity<ApiResponse<PageResult<EmailLogResponse>>> {
+    fun getEmailLogs(): ResponseEntity<PageResult<EmailLogResponse>> {
         val logs = emailService.getEmailLogs()
-        return ApiResponse.buildResponse(
-            data = logs,
-            message = "Email logs retrieved successfully",
-            status = HttpStatus.OK,
-        )
+        return ResponseEntity.ok(logs)
     }
 
     @PostMapping("/send")
     fun sendEmail(
         @Valid @RequestBody
         request: SendEmailRequest,
-    ): ResponseEntity<ApiResponse<SendEmailResponse>> {
+    ): ResponseEntity<SendEmailResponse> {
         val template =
             EmailTemplate.fromTemplateName(request.templateName)
-                ?: return ApiResponse.buildResponse(
-                    data = null,
-                    message = "Invalid template name: ${request.templateName}",
-                    status = HttpStatus.BAD_REQUEST,
-                )
+                ?: throw ApiException(MailError.TEMPLATE_UNKNOWN, mapOf("templateName" to request.templateName))
 
         val success =
             emailService.sendEmail(
@@ -60,41 +52,22 @@ internal class EmailController(
                 replyTo = request.replyTo,
             )
 
-        return if (success) {
-            ApiResponse.buildResponse(
-                data =
-                    SendEmailResponse(
-                        success = true,
-                        message = "Email successfully sent to ${request.to}",
-                    ),
-                message = "Email successfully sent to ${request.to}",
-                status = HttpStatus.OK,
-            )
-        } else {
-            ApiResponse.buildResponse(
-                data =
-                    SendEmailResponse(
-                        success = false,
-                        message = "Failed to send email to ${request.to}",
-                    ),
-                message = "Failed to send email to ${request.to}",
-                status = HttpStatus.OK,
-            )
-        }
+        return ResponseEntity.ok(
+            SendEmailResponse(
+                success = success,
+                message = if (success) "Email successfully sent to ${request.to}" else "Failed to send email to ${request.to}",
+            ),
+        )
     }
 
     @PostMapping("/send-batch")
     fun sendBatchEmail(
         @Valid @RequestBody
         request: SendBatchEmailRequest,
-    ): ResponseEntity<ApiResponse<SendBatchEmailResponse>> {
+    ): ResponseEntity<SendBatchEmailResponse> {
         val template =
             EmailTemplate.fromTemplateName(request.templateName)
-                ?: return ApiResponse.buildResponse(
-                    data = null,
-                    message = "Invalid template name: ${request.templateName}",
-                    status = HttpStatus.BAD_REQUEST,
-                )
+                ?: throw ApiException(MailError.TEMPLATE_UNKNOWN, mapOf("templateName" to request.templateName))
 
         val results =
             emailBatchService.processEmailBatch(
@@ -109,19 +82,16 @@ internal class EmailController(
         val successCount = results.count { it.value }
         val failureCount = results.size - successCount
 
-        return ApiResponse.buildResponse(
-            data =
-                SendBatchEmailResponse(
-                    totalRecipients = results.size,
-                    successCount = successCount,
-                    failureCount = failureCount,
-                    details =
-                        results.map { (recipient, success) ->
-                            EmailResult(recipient, success)
-                        },
-                ),
-            message = "Batch email processing completed. Success: $successCount, Failed: $failureCount",
-            status = HttpStatus.OK,
+        return ResponseEntity.ok(
+            SendBatchEmailResponse(
+                totalRecipients = results.size,
+                successCount = successCount,
+                failureCount = failureCount,
+                details =
+                    results.map { (recipient, success) ->
+                        EmailResult(recipient, success)
+                    },
+            ),
         )
     }
 }

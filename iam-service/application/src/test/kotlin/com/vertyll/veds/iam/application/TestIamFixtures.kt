@@ -307,7 +307,7 @@ internal class FakeIdentityProvider : IdentityProviderPort {
 internal class RecordingAuthEventPublisher : AuthEventPublisherPort {
     val published = mutableListOf<String>()
 
-    override fun sendMailRequestedEvent(
+    override fun requestMail(
         to: String,
         subject: String,
         templateName: String,

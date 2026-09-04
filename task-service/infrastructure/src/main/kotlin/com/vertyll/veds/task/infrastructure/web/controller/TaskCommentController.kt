@@ -1,6 +1,5 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
@@ -34,21 +33,14 @@ internal class TaskCommentController(
     private val commentCommands: TaskCommentCommandUseCase,
     private val commentQueries: TaskCommentQueryUseCase,
 ) {
-    private companion object {
-        private const val COMMENTS_RETRIEVED = "task.comment.list_retrieved"
-        private const val COMMENT_ADDED = "task.comment.added"
-        private const val COMMENT_UPDATED = "task.comment.updated"
-        private const val COMMENT_DELETED = "task.comment.deleted"
-    }
-
     @GetMapping("/{taskId}/comments")
     @Operation(summary = "List comments on a task")
     fun getComments(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable taskId: UUID,
-    ): ResponseEntity<ApiResponse<List<TaskCommentResponse>>> {
+    ): ResponseEntity<List<TaskCommentResponse>> {
         val comments = commentQueries.getComments(taskId, CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(comments, COMMENTS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(comments)
     }
 
     @PostMapping("/{taskId}/comments")
@@ -58,9 +50,9 @@ internal class TaskCommentController(
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: CreateCommentRequest,
-    ): ResponseEntity<ApiResponse<TaskCommentResponse>> {
+    ): ResponseEntity<TaskCommentResponse> {
         val comment = commentCommands.addComment(taskId, request.toCommand(), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(comment, COMMENT_ADDED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(comment)
     }
 
     @PutMapping("/comments/{commentId}")
@@ -71,7 +63,7 @@ internal class TaskCommentController(
         @Valid @RequestBody
         request: UpdateCommentRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<TaskCommentResponse>> {
+    ): ResponseEntity<TaskCommentResponse> {
         val comment =
             commentCommands.editComment(
                 commentId = commentId,
@@ -79,7 +71,7 @@ internal class TaskCommentController(
                 actor = CurrentUser.actorOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(comment, COMMENT_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(comment)
     }
 
     @DeleteMapping("/comments/{commentId}")
@@ -87,8 +79,8 @@ internal class TaskCommentController(
     fun deleteComment(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable commentId: UUID,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         commentCommands.deleteComment(commentId, CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(null, COMMENT_DELETED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 }

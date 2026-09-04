@@ -1,6 +1,5 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.translation.application.command.ImportTranslationsCommand
 import com.vertyll.veds.translation.application.dto.ImportReportResponse
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
@@ -13,7 +12,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ContentDisposition
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -38,7 +36,6 @@ internal class TranslationSpreadsheetController(
     private val spreadsheet: TranslationSpreadsheet,
 ) {
     private companion object {
-        private const val IMPORT_COMPLETED = "translation.import_completed"
         private const val FILE_NAME = "translations.xlsx"
     }
 
@@ -70,7 +67,7 @@ internal class TranslationSpreadsheetController(
     fun import(
         @AuthenticationPrincipal jwt: Jwt?,
         @RequestParam("file") file: MultipartFile,
-    ): ResponseEntity<ApiResponse<ImportReportResponse>> {
+    ): ResponseEntity<ImportReportResponse> {
         val languages = queries.languages().map { it.tag }
         val entries = file.inputStream.use { spreadsheet.read(it, languages) }
 
@@ -78,6 +75,6 @@ internal class TranslationSpreadsheetController(
             commands.import(
                 ImportTranslationsCommand(entries = entries, importedBy = CurrentUser.idOf(jwt)),
             )
-        return ApiResponse.buildResponse(report, IMPORT_COMPLETED, HttpStatus.OK)
+        return ResponseEntity.ok(report)
     }
 }

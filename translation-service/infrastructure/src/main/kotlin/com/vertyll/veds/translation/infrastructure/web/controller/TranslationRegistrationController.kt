@@ -1,6 +1,5 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.translation.application.command.CatalogueEntryCommand
 import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
@@ -8,7 +7,6 @@ import com.vertyll.veds.translation.infrastructure.web.dto.RegisterCatalogueRequ
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -21,16 +19,12 @@ import org.springframework.web.bind.annotation.RestController
 internal class TranslationRegistrationController(
     private val commands: TranslationCommandUseCase,
 ) {
-    private companion object {
-        private const val CATALOGUE_REGISTERED = "translation.catalogue_registered"
-    }
-
     @PostMapping("/catalogue")
     @Operation(summary = "Register the calling service's translation keys")
     fun register(
         @Valid @RequestBody
         request: RegisterCatalogueRequest,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val applied =
             commands.registerCatalogue(
                 RegisterCatalogueCommand(
@@ -45,6 +39,6 @@ internal class TranslationRegistrationController(
                         },
                 ),
             )
-        return ApiResponse.buildResponse(applied, CATALOGUE_REGISTERED, HttpStatus.OK)
+        return ResponseEntity.ok(applied)
     }
 }

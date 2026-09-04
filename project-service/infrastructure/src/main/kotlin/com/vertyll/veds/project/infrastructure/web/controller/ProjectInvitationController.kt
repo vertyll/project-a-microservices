@@ -6,7 +6,6 @@ import com.vertyll.veds.project.application.port.inbound.query.ProjectInvitation
 import com.vertyll.veds.project.infrastructure.web.dto.InviteMemberRequest
 import com.vertyll.veds.project.infrastructure.web.dto.RespondToInvitationRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -29,13 +28,6 @@ internal class ProjectInvitationController(
     private val invitationServiceCommands: ProjectInvitationCommandUseCase,
     private val invitationServiceQueries: ProjectInvitationQueryUseCase,
 ) {
-    private companion object {
-        private const val INVITATION_SENT = "Invitation sent successfully"
-        private const val INVITATION_ACCEPTED = "Invitation accepted successfully"
-        private const val INVITATION_REJECTED = "Invitation rejected successfully"
-        private const val INVITATIONS_RETRIEVED = "Invitations retrieved successfully"
-    }
-
     @PostMapping("/{projectId}/invitations")
     @Operation(summary = "Invite a user to a project")
     fun invite(
@@ -43,18 +35,18 @@ internal class ProjectInvitationController(
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: InviteMemberRequest,
-    ): ResponseEntity<ApiResponse<ProjectInvitationResponse>> {
+    ): ResponseEntity<ProjectInvitationResponse> {
         val invitation = invitationServiceCommands.invite(projectId, request.toCommand(), CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(invitation, INVITATION_SENT, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(invitation)
     }
 
     @GetMapping("/invitations/me")
     @Operation(summary = "List the current user's pending invitations")
     fun getMyInvitations(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<List<ProjectInvitationResponse>>> {
+    ): ResponseEntity<List<ProjectInvitationResponse>> {
         val invitations = invitationServiceQueries.getMyInvitations(CurrentUser.emailOf(jwt))
-        return ApiResponse.buildResponse(invitations, INVITATIONS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(invitations)
     }
 
     @PostMapping("/invitations/accept")
@@ -63,13 +55,13 @@ internal class ProjectInvitationController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: RespondToInvitationRequest,
-    ): ResponseEntity<ApiResponse<ProjectInvitationResponse>> {
+    ): ResponseEntity<ProjectInvitationResponse> {
         val invitation =
             invitationServiceCommands.acceptInvitation(
                 invitationId = request.invitationId,
                 actor = CurrentUser.identityOf(jwt).toActor(),
             )
-        return ApiResponse.buildResponse(invitation, INVITATION_ACCEPTED, HttpStatus.OK)
+        return ResponseEntity.ok(invitation)
     }
 
     @PostMapping("/invitations/reject")
@@ -78,12 +70,12 @@ internal class ProjectInvitationController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: RespondToInvitationRequest,
-    ): ResponseEntity<ApiResponse<ProjectInvitationResponse>> {
+    ): ResponseEntity<ProjectInvitationResponse> {
         val invitation =
             invitationServiceCommands.rejectInvitation(
                 invitationId = request.invitationId,
                 actor = CurrentUser.identityOf(jwt).toActor(),
             )
-        return ApiResponse.buildResponse(invitation, INVITATION_REJECTED, HttpStatus.OK)
+        return ResponseEntity.ok(invitation)
     }
 }

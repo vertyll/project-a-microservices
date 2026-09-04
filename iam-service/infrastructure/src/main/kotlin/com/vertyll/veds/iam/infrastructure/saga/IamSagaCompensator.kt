@@ -36,7 +36,7 @@ internal class IamSagaCompensator : SagaCompensator<SagaJpaEntity, SagaStepJpaEn
                             },
                     )
                 }
-                SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT.value,
+                SagaStepNames.REQUEST_MAIL.value,
                 SagaStepNames.PUBLISH_USER_REGISTERED_EVENT.value,
                 SagaStepNames.VERIFY_CURRENT_PASSWORD.value,
                 -> {

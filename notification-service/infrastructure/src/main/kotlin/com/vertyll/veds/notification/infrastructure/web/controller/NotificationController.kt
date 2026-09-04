@@ -11,13 +11,11 @@ import com.vertyll.veds.notification.infrastructure.web.dto.DismissNotifications
 import com.vertyll.veds.notification.infrastructure.web.dto.MarkReadRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.UpdateSettingsRequest
 import com.vertyll.veds.notification.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -39,12 +37,6 @@ internal class NotificationController(
     private val queries: NotificationQueryUseCase,
 ) {
     private companion object {
-        private const val LIST_RETRIEVED = "notification.list_retrieved"
-        private const val COUNT_RETRIEVED = "notification.unread_count_retrieved"
-        private const val MARKED_READ = "notification.marked_read"
-        private const val DISMISSED = "notification.dismissed"
-        private const val SETTINGS_RETRIEVED = "notification.settings_retrieved"
-        private const val SETTINGS_UPDATED = "notification.settings_updated"
         private const val DEFAULT_PAGE_SIZE = "20"
     }
 
@@ -58,7 +50,7 @@ internal class NotificationController(
         @RequestParam(required = false) type: NotificationType?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) size: Int,
-    ): ResponseEntity<ApiResponse<PagedResponse<NotificationResponse>>> {
+    ): ResponseEntity<PagedResponse<NotificationResponse>> {
         val notifications =
             queries.list(
                 actorId = CurrentUser.idOf(jwt),
@@ -68,16 +60,16 @@ internal class NotificationController(
                 page = page,
                 size = size,
             )
-        return ApiResponse.buildResponse(notifications, LIST_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(notifications)
     }
 
     @GetMapping("/unread-count")
     @Operation(summary = "Count the caller's unread notifications")
     fun unreadCount(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<UnreadCountResponse>> {
+    ): ResponseEntity<UnreadCountResponse> {
         val unread = queries.unreadCount(CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(UnreadCountResponse(unread), COUNT_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(UnreadCountResponse(unread))
     }
 
     @PostMapping("/mark-read")
@@ -86,18 +78,18 @@ internal class NotificationController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: MarkReadRequest,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val changed = commands.markRead(request.toCommand(), CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(changed, MARKED_READ, HttpStatus.OK)
+        return ResponseEntity.ok(changed)
     }
 
     @PostMapping("/mark-all-read")
     @Operation(summary = "Mark every notification as read")
     fun markAllRead(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val changed = commands.markAllRead(CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(changed, MARKED_READ, HttpStatus.OK)
+        return ResponseEntity.ok(changed)
     }
 
     @PostMapping("/dismiss")
@@ -106,27 +98,27 @@ internal class NotificationController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: DismissNotificationsRequest,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val dismissed = commands.dismiss(request.toCommand(), CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(dismissed, DISMISSED, HttpStatus.OK)
+        return ResponseEntity.ok(dismissed)
     }
 
     @PostMapping("/dismiss-all")
     @Operation(summary = "Dismiss every notification")
     fun dismissAll(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val dismissed = commands.dismissAll(CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(dismissed, DISMISSED, HttpStatus.OK)
+        return ResponseEntity.ok(dismissed)
     }
 
     @GetMapping("/settings")
     @Operation(summary = "Get the caller's delivery settings")
     fun getSettings(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<NotificationSettingsResponse>> {
+    ): ResponseEntity<NotificationSettingsResponse> {
         val settings = queries.getSettings(CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(settings, SETTINGS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(settings)
     }
 
     @PutMapping("/settings")
@@ -136,13 +128,13 @@ internal class NotificationController(
         @Valid @RequestBody
         request: UpdateSettingsRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<NotificationSettingsResponse>> {
+    ): ResponseEntity<NotificationSettingsResponse> {
         val settings =
             commands.updateSettings(
                 command = request.toCommand(),
                 actorId = CurrentUser.idOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(settings, SETTINGS_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(settings)
     }
 }

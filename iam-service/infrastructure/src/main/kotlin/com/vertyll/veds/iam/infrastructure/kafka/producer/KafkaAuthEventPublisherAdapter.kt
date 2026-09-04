@@ -4,7 +4,7 @@ import com.vertyll.veds.iam.UserProfileUpdatedEvent
 import com.vertyll.veds.iam.UserRegisteredEvent
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.infrastructure.kafka.IamKafkaTopics
-import com.vertyll.veds.mail.mail.MailRequestedEvent
+import com.vertyll.veds.mail.mail.MailRequestedCommand
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.messaging.event.Events
 import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
@@ -19,7 +19,7 @@ internal class KafkaAuthEventPublisherAdapter(
 ) : AuthEventPublisherPort {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override fun sendMailRequestedEvent(
+    override fun requestMail(
         to: String,
         subject: String,
         templateName: String,
@@ -30,7 +30,7 @@ internal class KafkaAuthEventPublisherAdapter(
     ) {
         val eventId = Events.newId()
         val event =
-            MailRequestedEvent
+            MailRequestedCommand
                 .newBuilder()
                 .setEventId(eventId)
                 .setTimestamp(Events.now())

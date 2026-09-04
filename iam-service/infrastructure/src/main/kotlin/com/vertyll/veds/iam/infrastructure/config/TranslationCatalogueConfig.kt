@@ -146,10 +146,6 @@ internal class TranslationCatalogueConfig {
                 pl("Nazwisko musi mieć od 2 do 50 znaków.")
                 en("Last name must be 2 to 50 characters long.")
             }
-            key("iam.permissions_retrieved") {
-                pl("Uprawnienia wczytane.")
-                en("Permissions loaded.")
-            }
             key("iam.user.already_exists") {
                 pl("Konto o tym adresie już istnieje.")
                 en("An account with this address already exists.")
@@ -157,14 +153,6 @@ internal class TranslationCatalogueConfig {
             key("iam.identity_provider.failed") {
                 pl("Nie udało się utworzyć konta.")
                 en("The account could not be created.")
-            }
-            key("iam.security.settings_retrieved") {
-                pl("Ustawienia bezpieczeństwa wczytane.")
-                en("Security settings loaded.")
-            }
-            key("iam.security.two_factor_disabled") {
-                pl("Weryfikacja dwuetapowa wyłączona.")
-                en("Two-factor authentication disabled.")
             }
         }
 }

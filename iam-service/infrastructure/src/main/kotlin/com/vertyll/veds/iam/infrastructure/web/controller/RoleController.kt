@@ -9,7 +9,6 @@ import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.infrastructure.web.dto.CreateRoleRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateRoleRequest
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.sharederror.ApiException
 import io.swagger.v3.oas.annotations.Operation
@@ -37,25 +36,15 @@ internal class RoleController(
     private val roleServiceCommands: RoleCommandUseCase,
     private val roleServiceQueries: RoleQueryUseCase,
 ) {
-    private companion object {
-        private const val ROLE_RETRIEVED_SUCCESSFULLY = "Role retrieved successfully"
-        private const val USER_ROLES_RETRIEVED_SUCCESSFULLY = "User roles retrieved successfully"
-        private const val ROLE_ASSIGNED_SUCCESSFULLY = "Role assigned successfully"
-        private const val ROLE_REMOVED_SUCCESSFULLY = "Role removed successfully"
-        private const val ROLE_CREATED_SUCCESSFULLY = "Role created successfully"
-        private const val ROLE_UPDATED_SUCCESSFULLY = "Role updated successfully"
-        private const val ROLE_DELETED_SUCCESSFULLY = "Role deleted successfully"
-    }
-
     @PreAuthorize("@authz.has('ROLES_VIEW')")
     @GetMapping("/{id}")
     @Operation(summary = "Get role by ID")
     fun getRoleById(
         @PathVariable id: Long,
-    ): ResponseEntity<ApiResponse<RoleResponse>> {
+    ): ResponseEntity<RoleResponse> {
         val role = roleServiceQueries.getRoleById(id)
         val etag = ETagUtils.buildWeakETag(role.version)
-        val response = ApiResponse.buildResponse(role, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(role)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -64,10 +53,10 @@ internal class RoleController(
     @Operation(summary = "Get role by name")
     fun getRoleByName(
         @PathVariable name: String,
-    ): ResponseEntity<ApiResponse<RoleResponse>> {
+    ): ResponseEntity<RoleResponse> {
         val role = roleServiceQueries.getRoleByName(name)
         val etag = ETagUtils.buildWeakETag(role.version)
-        val response = ApiResponse.buildResponse(role, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(role)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -76,7 +65,7 @@ internal class RoleController(
     @Operation(summary = "Get all roles, optionally only those held in one scope")
     fun getAllRoles(
         @RequestParam(required = false) scope: String?,
-    ): ResponseEntity<ApiResponse<List<RoleResponse>>> {
+    ): ResponseEntity<List<RoleResponse>> {
         val roles =
             when (scope) {
                 null -> roleServiceQueries.getAllRoles()
@@ -85,7 +74,7 @@ internal class RoleController(
                         RoleScope.fromString(scope.uppercase()) ?: throw ApiException(IamError.ROLE_NOT_FOUND),
                     )
             }
-        return ApiResponse.buildResponse(roles, ROLE_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok(roles)
     }
 
     @PreAuthorize("@authz.has('ROLES_MANAGE')")
@@ -93,7 +82,7 @@ internal class RoleController(
     @Operation(summary = "Create a role")
     fun createRole(
         @Valid @RequestBody request: CreateRoleRequest,
-    ): ResponseEntity<ApiResponse<RoleResponse>> {
+    ): ResponseEntity<RoleResponse> {
         val role =
             roleServiceCommands.createRole(
                 CreateRoleCommand(
@@ -103,7 +92,7 @@ internal class RoleController(
                     scope = RoleScope.fromString(request.scope) ?: throw ApiException(IamError.ROLE_NOT_FOUND),
                 ),
             )
-        return ApiResponse.buildResponse(role, ROLE_CREATED_SUCCESSFULLY, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(role)
     }
 
     @PreAuthorize("@authz.has('ROLES_MANAGE')")
@@ -113,7 +102,7 @@ internal class RoleController(
         @PathVariable name: String,
         @Valid @RequestBody request: UpdateRoleRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<RoleResponse>> {
+    ): ResponseEntity<RoleResponse> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
         val role =
             roleServiceCommands.updateRole(
@@ -121,7 +110,7 @@ internal class RoleController(
                 command = UpdateRoleCommand(description = request.description, permissions = request.permissions),
                 version = version,
             )
-        return ApiResponse.buildResponse(role, ROLE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok(role)
     }
 
     @PreAuthorize("@authz.has('ROLES_MANAGE')")
@@ -129,9 +118,9 @@ internal class RoleController(
     @Operation(summary = "Delete a role")
     fun deleteRole(
         @PathVariable name: String,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         roleServiceCommands.deleteRole(name)
-        return ApiResponse.buildResponse(null, ROLE_DELETED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PreAuthorize("@authz.has('USERS_VIEW')")
@@ -139,9 +128,9 @@ internal class RoleController(
     @Operation(summary = "Get roles for a user")
     fun getRolesForUser(
         @PathVariable userId: Long,
-    ): ResponseEntity<ApiResponse<List<RoleResponse>>> {
+    ): ResponseEntity<List<RoleResponse>> {
         val roles = roleServiceQueries.getRolesForUser(userId)
-        return ApiResponse.buildResponse(roles, USER_ROLES_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok(roles)
     }
 
     @PreAuthorize("@authz.has('USERS_MANAGE')")
@@ -151,10 +140,10 @@ internal class RoleController(
         @PathVariable userId: Long,
         @PathVariable roleName: String,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
         roleServiceCommands.assignRoleToUser(userId, roleName, version)
-        return ApiResponse.buildResponse(null, ROLE_ASSIGNED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PreAuthorize("@authz.has('USERS_MANAGE')")
@@ -164,9 +153,9 @@ internal class RoleController(
         @PathVariable userId: Long,
         @PathVariable roleName: String,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
         roleServiceCommands.removeRoleFromUser(userId, roleName, version)
-        return ApiResponse.buildResponse(null, ROLE_REMOVED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 }

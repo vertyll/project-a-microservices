@@ -13,6 +13,7 @@ object ErrorHttpStatusMapper {
     fun toStatus(kind: ErrorKind): HttpStatus =
         when (kind) {
             ErrorKind.NOT_FOUND -> HttpStatus.NOT_FOUND
+            ErrorKind.UNAUTHENTICATED -> HttpStatus.UNAUTHORIZED
             ErrorKind.ACCESS_DENIED -> HttpStatus.FORBIDDEN
             ErrorKind.CONFLICT -> HttpStatus.CONFLICT
             ErrorKind.INVALID -> HttpStatus.BAD_REQUEST

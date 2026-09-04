@@ -8,7 +8,7 @@ enum class SagaStepNames(
     CREATE_USER("CreateUser"),
     PUBLISH_USER_REGISTERED_EVENT("PublishUserRegisteredEvent"),
     CREATE_VERIFICATION_TOKEN("CreateVerificationToken"),
-    PUBLISH_MAIL_REQUESTED_EVENT("PublishMailRequestedEvent"),
+    REQUEST_MAIL("RequestMail"),
     CREATE_RESET_TOKEN("CreateResetToken"),
     VERIFY_CURRENT_PASSWORD("VerifyCurrentPassword"),
     UPDATE_PASSWORD("UpdatePassword"),

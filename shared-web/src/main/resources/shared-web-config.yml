@@ -1,4 +1,10 @@
 spring:
+  mvc:
+    problemdetails:
+      enabled: true
+  webflux:
+    problemdetails:
+      enabled: true
   security:
     oauth2:
       resourceserver:

@@ -110,38 +110,6 @@ internal class TranslationCatalogueConfig {
                 pl("Opis")
                 en("Description")
             }
-            key("translation.import_completed") {
-                pl("Import zakończony.")
-                en("Import finished.")
-            }
-            key("translation.snapshot_retrieved") {
-                pl("Tłumaczenia wczytane.")
-                en("Translations loaded.")
-            }
-            key("translation.languages_retrieved") {
-                pl("Języki wczytane.")
-                en("Languages loaded.")
-            }
-            key("translation.keys_retrieved") {
-                pl("Klucze wczytane.")
-                en("Keys loaded.")
-            }
-            key("translation.key_retrieved") {
-                pl("Klucz wczytany.")
-                en("Key loaded.")
-            }
-            key("translation.value_updated") {
-                pl("Tłumaczenie zapisane.")
-                en("Translation saved.")
-            }
-            key("translation.override_cleared") {
-                pl("Przywrócono wartość domyślną.")
-                en("Reverted to the shipped default.")
-            }
-            key("translation.catalogue_registered") {
-                pl("Katalog zarejestrowany.")
-                en("Catalogue registered.")
-            }
             key("admin.tabs.roles") {
                 pl("Role")
                 en("Roles")

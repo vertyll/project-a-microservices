@@ -1,6 +1,6 @@
 package com.vertyll.veds.notification.infrastructure.kafka.producer
 
-import com.vertyll.veds.mail.mail.MailRequestedEvent
+import com.vertyll.veds.mail.mail.MailRequestedCommand
 import com.vertyll.veds.notification.application.port.outbound.MailRequestPort
 import com.vertyll.veds.notification.domain.model.NotificationType
 import com.vertyll.veds.notification.infrastructure.kafka.NotificationKafkaTopics
@@ -25,7 +25,7 @@ internal class KafkaMailRequestAdapter(
     ) {
         val eventId = Events.newId()
         val event =
-            MailRequestedEvent
+            MailRequestedCommand
                 .newBuilder()
                 .setEventId(eventId)
                 .setTimestamp(Events.now())

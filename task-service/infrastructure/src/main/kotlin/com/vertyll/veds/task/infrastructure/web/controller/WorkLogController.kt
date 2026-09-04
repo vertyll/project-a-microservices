@@ -1,6 +1,5 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
@@ -40,13 +39,6 @@ internal class WorkLogController(
     private val workLogCommands: WorkLogCommandUseCase,
     private val workLogQueries: WorkLogQueryUseCase,
 ) {
-    private companion object {
-        private const val ENTRIES_RETRIEVED = "task.work_log.list_retrieved"
-        private const val ENTRY_ADDED = "task.work_log.added"
-        private const val ENTRY_UPDATED = "task.work_log.updated"
-        private const val ENTRY_DELETED = "task.work_log.deleted"
-    }
-
     @GetMapping("/{taskId}/worklog")
     @Operation(summary = "List work logged against a task")
     fun getEntries(
@@ -55,13 +47,13 @@ internal class WorkLogController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "ALL") visibility: String,
-    ): ResponseEntity<ApiResponse<WorkLogPageResponse>> {
+    ): ResponseEntity<WorkLogPageResponse> {
         val chosen =
             WorkLogVisibility.fromString(visibility)
                 ?: throw ApiException(TaskError.INVALID_WORK_LOG_VISIBILITY, mapOf("visibility" to visibility))
         val entries =
             workLogQueries.getEntries(taskId, CurrentUser.idOf(jwt), chosen, PageRequest(page = page, size = size))
-        return ApiResponse.buildResponse(entries, ENTRIES_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(entries)
     }
 
     @PostMapping("/{taskId}/worklog")
@@ -71,9 +63,9 @@ internal class WorkLogController(
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: LogWorkRequest,
-    ): ResponseEntity<ApiResponse<WorkLogEntryResponse>> {
+    ): ResponseEntity<WorkLogEntryResponse> {
         val entry = workLogCommands.logWork(taskId, request.toCommand(), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(entry, ENTRY_ADDED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(entry)
     }
 
     @PutMapping("/worklog/{entryId}")
@@ -84,7 +76,7 @@ internal class WorkLogController(
         @Valid @RequestBody
         request: UpdateWorkLogRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<WorkLogEntryResponse>> {
+    ): ResponseEntity<WorkLogEntryResponse> {
         val entry =
             workLogCommands.editEntry(
                 entryId = entryId,
@@ -92,7 +84,7 @@ internal class WorkLogController(
                 actor = CurrentUser.actorOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(entry, ENTRY_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(entry)
     }
 
     @DeleteMapping("/worklog/{entryId}")
@@ -100,8 +92,8 @@ internal class WorkLogController(
     fun deleteEntry(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable entryId: UUID,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         workLogCommands.deleteEntry(entryId, CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(null, ENTRY_DELETED, HttpStatus.NO_CONTENT)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

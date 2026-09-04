@@ -7,7 +7,6 @@ import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectStatusRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectStatusRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -35,27 +34,20 @@ internal class ProjectStatusController(
     private val statusServiceCommands: ProjectStatusCommandUseCase,
     private val statusServiceQueries: ProjectStatusQueryUseCase,
 ) {
-    private companion object {
-        private const val STATUSES_RETRIEVED = "Statuses retrieved successfully"
-        private const val STATUS_CREATED = "Status created successfully"
-        private const val STATUS_UPDATED = "Status updated successfully"
-        private const val STATUS_DELETED = "Status deleted successfully"
-    }
-
     @GetMapping
     @Operation(summary = "List statuses of a project")
     fun getStatuses(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<List<ProjectStatusResponse>>> {
+    ): ResponseEntity<List<ProjectStatusResponse>> {
         val statuses =
             statusServiceQueries.getStatuses(
                 projectId = projectId,
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(statuses, STATUSES_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(statuses)
     }
 
     @PostMapping
@@ -66,7 +58,7 @@ internal class ProjectStatusController(
         @Valid @RequestBody
         request: CreateProjectStatusRequest,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<ProjectStatusResponse>> {
+    ): ResponseEntity<ProjectStatusResponse> {
         val status =
             statusServiceCommands.createStatus(
                 projectId = projectId,
@@ -74,7 +66,7 @@ internal class ProjectStatusController(
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(status, STATUS_CREATED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(status)
     }
 
     @PutMapping("/{statusId}")
@@ -88,7 +80,7 @@ internal class ProjectStatusController(
         request: UpdateProjectStatusRequest,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<ProjectStatusResponse>> {
+    ): ResponseEntity<ProjectStatusResponse> {
         val status =
             statusServiceCommands.updateStatus(
                 projectId = projectId,
@@ -98,7 +90,7 @@ internal class ProjectStatusController(
                 language = CurrentUser.languageOf(acceptLanguage),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(status, STATUS_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(status)
     }
 
     @DeleteMapping("/{statusId}")
@@ -107,8 +99,8 @@ internal class ProjectStatusController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @PathVariable statusId: UUID,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         statusServiceCommands.deleteStatus(projectId, statusId, CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(null, STATUS_DELETED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 }

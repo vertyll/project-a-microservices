@@ -1,6 +1,7 @@
 {
   "type": "record",
-  "name": "MailRequestedEvent",
+  "name": "MailRequestedCommand",
+  "doc": "A request to send one mail. A command, not a fact: the sender decides the template and the recipient, and mail-service carries it out. The contract therefore belongs to mail-service, the consumer, as docs/events.md explains.",
   "namespace": "com.vertyll.veds.mail.mail",
   "fields": [
     {

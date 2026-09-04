@@ -1,12 +1,12 @@
 package com.vertyll.veds.apigateway.controller
 
-import com.vertyll.veds.apigateway.infrastructure.response.ApiResponse
 import com.vertyll.veds.apigateway.security.AuthTransactionCookies
 import com.vertyll.veds.apigateway.security.Pkce
 import com.vertyll.veds.apigateway.session.KeycloakTokenClient
 import com.vertyll.veds.apigateway.session.SessionCookies
 import com.vertyll.veds.apigateway.session.SessionStore
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
+import com.vertyll.veds.shared.web.error.Problems
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -40,9 +40,7 @@ internal class AuthProxyController(
     private companion object {
         private val log = LoggerFactory.getLogger(AuthProxyController::class.java)
 
-        private const val MSG_SESSION_ACTIVE = "auth.session_active"
         private const val MSG_NO_SESSION = "auth.no_session"
-        private const val MSG_LOGOUT_SUCCESS = "auth.logout_successful"
 
         private const val ERROR_PARAM = "error"
         private const val ERR_STATE_MISMATCH = "state_mismatch"
@@ -139,7 +137,7 @@ internal class AuthProxyController(
     }
 
     @GetMapping("/session")
-    fun session(exchange: ServerWebExchange): Mono<ResponseEntity<ApiResponse<SessionResponse>>> {
+    fun session(exchange: ServerWebExchange): Mono<ResponseEntity<Any>> {
         val sessionId =
             sessionCookies.read(exchange)
                 ?: return Mono.just(noSession())
@@ -147,15 +145,12 @@ internal class AuthProxyController(
         return sessionStore
             .find(sessionId)
             .map { session ->
-                ApiResponse.buildResponse(
-                    data =
-                        SessionResponse(
-                            userId = session.subject,
-                            email = session.email,
-                            roles = session.roles,
-                        ),
-                    message = MSG_SESSION_ACTIVE,
-                    status = HttpStatus.OK,
+                ResponseEntity.ok(
+                    SessionResponse(
+                        userId = session.subject,
+                        email = session.email,
+                        roles = session.roles,
+                    ) as Any,
                 )
             }.switchIfEmpty(Mono.fromCallable { noSession() })
     }
@@ -165,7 +160,7 @@ internal class AuthProxyController(
      */
     @Suppress("kotlin:S6508")
     @PostMapping("/logout")
-    fun logout(exchange: ServerWebExchange): Mono<ResponseEntity<ApiResponse<Void>>> {
+    fun logout(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
         val sessionId = sessionCookies.read(exchange)
         sessionCookies.clear(exchange)
 
@@ -182,20 +177,13 @@ internal class AuthProxyController(
             }
     }
 
-    private fun noSession(): ResponseEntity<ApiResponse<SessionResponse>> =
-        ApiResponse.buildResponse(
-            data = null,
-            message = MSG_NO_SESSION,
-            status = HttpStatus.UNAUTHORIZED,
-        )
+    private fun noSession(): ResponseEntity<Any> =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(Problems.of(HttpStatus.UNAUTHORIZED, MSG_NO_SESSION))
 
     @Suppress("kotlin:S6508")
-    private fun loggedOut(): ResponseEntity<ApiResponse<Void>> =
-        ApiResponse.buildResponse(
-            data = null,
-            message = MSG_LOGOUT_SUCCESS,
-            status = HttpStatus.NO_CONTENT,
-        )
+    private fun loggedOut(): ResponseEntity<Void> = ResponseEntity.noContent().build()
 
     private fun redirectToApp(error: String?): ResponseEntity<Void> {
         val target =

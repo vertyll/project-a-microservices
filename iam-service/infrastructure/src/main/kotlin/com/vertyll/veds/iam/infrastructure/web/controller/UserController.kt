@@ -7,7 +7,6 @@ import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -34,12 +33,6 @@ internal class UserController(
     private val userServiceCommands: UserCommandUseCase,
     private val userServiceQueries: UserQueryUseCase,
 ) {
-    private companion object {
-        private const val USER_RETRIEVED_SUCCESSFULLY = "User retrieved successfully"
-        private const val USERS_RETRIEVED_SUCCESSFULLY = "Users retrieved successfully"
-        private const val PROFILE_UPDATED_SUCCESSFULLY = "Profile updated successfully"
-    }
-
     @GetMapping
     @PreAuthorize("@authz.has('USERS_VIEW')")
     @Operation(summary = "Get all users")
@@ -47,9 +40,9 @@ internal class UserController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) searchTerm: String?,
-    ): ResponseEntity<ApiResponse<PageResult<UserResponse>>> {
+    ): ResponseEntity<PageResult<UserResponse>> {
         val users = userServiceQueries.searchUsers(searchTerm.orEmpty(), PageRequest(page = page, size = size))
-        return ApiResponse.buildResponse(users, USERS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok(users)
     }
 
     @PreAuthorize("@authz.has('USERS_VIEW')")
@@ -57,10 +50,10 @@ internal class UserController(
     @Operation(summary = "Get user by ID")
     fun getUserById(
         @PathVariable id: Long,
-    ): ResponseEntity<ApiResponse<UserResponse>> {
+    ): ResponseEntity<UserResponse> {
         val user = userServiceQueries.getUserById(id)
         val etag = ETagUtils.buildWeakETag(user.version)
-        val response = ApiResponse.buildResponse(user, USER_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(user)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -69,10 +62,10 @@ internal class UserController(
     @Operation(summary = "Get user by email")
     fun getUserByEmail(
         @PathVariable email: String,
-    ): ResponseEntity<ApiResponse<UserResponse>> {
+    ): ResponseEntity<UserResponse> {
         val user = userServiceQueries.getUserByEmail(email)
         val etag = ETagUtils.buildWeakETag(user.version)
-        val response = ApiResponse.buildResponse(user, USER_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(user)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -82,12 +75,12 @@ internal class UserController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody request: UpdateProfileRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<UserResponse>> {
+    ): ResponseEntity<UserResponse> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
         val me = userServiceQueries.getUserByKeycloakId(CurrentUser.keycloakIdOf(jwt))
         val user = userServiceCommands.updateProfile(me.id, request.toCommand(), version)
         val etag = ETagUtils.buildWeakETag(user.version)
-        val response = ApiResponse.buildResponse(user, PROFILE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(user)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 
@@ -98,11 +91,11 @@ internal class UserController(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateProfileRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<UserResponse>> {
+    ): ResponseEntity<UserResponse> {
         val version = ETagUtils.parseIfMatchToVersion(ifMatch)
         val user = userServiceCommands.updateProfile(id, request.toCommand(), version)
         val etag = ETagUtils.buildWeakETag(user.version)
-        val response = ApiResponse.buildResponse(user, PROFILE_UPDATED_SUCCESSFULLY, HttpStatus.OK)
+        val response = ResponseEntity.ok(user)
         return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
     }
 }

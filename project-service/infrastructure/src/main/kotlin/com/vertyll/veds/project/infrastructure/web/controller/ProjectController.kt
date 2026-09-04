@@ -12,7 +12,6 @@ import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -42,11 +41,6 @@ internal class ProjectController(
     private val projectServiceQueries: ProjectQueryUseCase,
 ) {
     private companion object {
-        private const val PROJECT_CREATED = "Project created successfully"
-        private const val PROJECT_UPDATED = "Project updated successfully"
-        private const val PROJECT_RETRIEVED = "Project retrieved successfully"
-        private const val PROJECTS_RETRIEVED = "Projects retrieved successfully"
-        private const val PROJECT_ARCHIVED = "Project archived successfully"
         private const val DEFAULT_PAGE_SIZE = "20"
     }
 
@@ -63,7 +57,7 @@ internal class ProjectController(
         @RequestParam(defaultValue = "true") sortDescending: Boolean,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) size: Int,
-    ): ResponseEntity<ApiResponse<PagedResponse<ProjectListItemResponse>>> {
+    ): ResponseEntity<PagedResponse<ProjectListItemResponse>> {
         val actorId = CurrentUser.idOf(jwt)
         val params =
             ProjectSearchParams(
@@ -77,7 +71,7 @@ internal class ProjectController(
                 size = size,
             )
         val projects = projectServiceQueries.searchProjects(params, actorId)
-        return ApiResponse.buildResponse(projects, PROJECTS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(projects)
     }
 
     @PostMapping
@@ -86,9 +80,9 @@ internal class ProjectController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: CreateProjectRequest,
-    ): ResponseEntity<ApiResponse<ProjectResponse>> {
+    ): ResponseEntity<ProjectResponse> {
         val project = projectServiceCommands.createProject(request.toCommand(), CurrentUser.identityOf(jwt).toActor())
-        return ApiResponse.buildResponse(project, PROJECT_CREATED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(project)
     }
 
     @GetMapping("/{projectId}")
@@ -96,9 +90,9 @@ internal class ProjectController(
     fun getProject(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
-    ): ResponseEntity<ApiResponse<ProjectResponse>> {
+    ): ResponseEntity<ProjectResponse> {
         val project = projectServiceQueries.getProject(projectId, CurrentUser.idOf(jwt))
-        return withETag(project, project.version, PROJECT_RETRIEVED)
+        return withETag(project, project.version)
     }
 
     @GetMapping("/{projectId}/details")
@@ -107,14 +101,14 @@ internal class ProjectController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<ProjectDetailsResponse>> {
+    ): ResponseEntity<ProjectDetailsResponse> {
         val details =
             projectServiceQueries.getProjectDetails(
                 projectId = projectId,
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(details, PROJECT_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(details)
     }
 
     @PutMapping("/{projectId}")
@@ -125,7 +119,7 @@ internal class ProjectController(
         @Valid @RequestBody
         request: UpdateProjectRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<ProjectResponse>> {
+    ): ResponseEntity<ProjectResponse> {
         val project =
             projectServiceCommands.updateProject(
                 projectId = projectId,
@@ -133,7 +127,7 @@ internal class ProjectController(
                 actorId = CurrentUser.idOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return withETag(project, project.version, PROJECT_UPDATED)
+        return withETag(project, project.version)
     }
 
     @DeleteMapping("/{projectId}")
@@ -142,22 +136,20 @@ internal class ProjectController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         projectServiceCommands.archiveProject(
             projectId = projectId,
             actorId = CurrentUser.idOf(jwt),
             version = ETagUtils.parseIfMatchToVersion(ifMatch),
         )
-        return ApiResponse.buildResponse(null, PROJECT_ARCHIVED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
-    private fun <T> withETag(
+    private fun <T : Any> withETag(
         body: T,
         version: Long?,
-        message: String,
-    ): ResponseEntity<ApiResponse<T>> {
-        val response = ApiResponse.buildResponse(body, message, HttpStatus.OK)
-        val etag = ETagUtils.buildWeakETag(version) ?: return response
-        return ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body)
+    ): ResponseEntity<T> {
+        val etag = ETagUtils.buildWeakETag(version) ?: return ResponseEntity.ok(body)
+        return ResponseEntity.ok().eTag(etag).body(body)
     }
 }

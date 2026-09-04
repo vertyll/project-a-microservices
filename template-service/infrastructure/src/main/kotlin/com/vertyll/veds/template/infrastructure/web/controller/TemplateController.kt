@@ -1,6 +1,5 @@
 package com.vertyll.veds.template.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.template.application.dto.TemplateResponse
 import com.vertyll.veds.template.application.port.inbound.command.TemplateCommandUseCase
 import com.vertyll.veds.template.infrastructure.web.dto.CreateTemplateRequest
@@ -21,12 +20,8 @@ internal class TemplateController(
     fun create(
         @Valid @RequestBody
         request: CreateTemplateRequest,
-    ): ResponseEntity<ApiResponse<TemplateResponse>> {
+    ): ResponseEntity<TemplateResponse> {
         val template = templateCommands.processTemplateWithSaga(request.toCommand())
-        return ApiResponse.buildResponse(
-            data = TemplateResponse.from(template),
-            message = "Template processed successfully",
-            status = HttpStatus.CREATED,
-        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(TemplateResponse.from(template))
     }
 }

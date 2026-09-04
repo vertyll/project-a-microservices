@@ -50,29 +50,5 @@ internal class TranslationCatalogueConfig {
                 pl("Nie wskazano powiadomień.")
                 en("No notifications were given.")
             }
-            key("notification.list_retrieved") {
-                pl("Powiadomienia wczytane.")
-                en("Notifications loaded.")
-            }
-            key("notification.unread_count_retrieved") {
-                pl("Liczba nieprzeczytanych wczytana.")
-                en("Unread count loaded.")
-            }
-            key("notification.marked_read") {
-                pl("Oznaczono jako przeczytane.")
-                en("Marked as read.")
-            }
-            key("notification.dismissed") {
-                pl("Powiadomienia usunięte.")
-                en("Notifications dismissed.")
-            }
-            key("notification.settings_retrieved") {
-                pl("Ustawienia wczytane.")
-                en("Settings loaded.")
-            }
-            key("notification.settings_updated") {
-                pl("Ustawienia zapisane.")
-                en("Settings saved.")
-            }
         }
 }

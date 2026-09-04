@@ -5,10 +5,8 @@ import com.vertyll.veds.project.application.port.inbound.command.ProjectMembersh
 import com.vertyll.veds.project.application.port.inbound.query.ProjectMembershipQueryUseCase
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -26,23 +24,19 @@ internal class ProjectUserRoleController(
     private val membershipServiceCommands: ProjectMembershipCommandUseCase,
     private val membershipServiceQueries: ProjectMembershipQueryUseCase,
 ) {
-    private companion object {
-        private const val MEMBERS_RETRIEVED = "Project members retrieved successfully"
-    }
-
     @GetMapping("/project/{projectId}")
     @Operation(summary = "List members of a project (legacy path)")
     fun getMembers(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<List<ProjectMemberResponse>>> {
+    ): ResponseEntity<List<ProjectMemberResponse>> {
         val members =
             membershipServiceQueries.getMembers(
                 projectId = projectId,
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(members, MEMBERS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(members)
     }
 }

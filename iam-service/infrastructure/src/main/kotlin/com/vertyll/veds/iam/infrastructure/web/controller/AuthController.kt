@@ -5,6 +5,7 @@ import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
+import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangeEmailRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangePasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
@@ -12,12 +13,11 @@ import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.sharederror.ApiException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
@@ -39,56 +39,41 @@ internal class AuthController(
     private val userServiceQueries: UserQueryUseCase,
     private val sharedConfigProperties: SharedKeycloakProperties,
 ) {
-    private companion object {
-        private const val ACCOUNT_ACTIVATED_SUCCESSFULLY = "Account activated successfully"
-        private const val USER_REGISTERED_SUCCESSFULLY = "User registered successfully"
-        private const val MESSAGE_NOT_AUTHENTICATED = "Not authenticated"
-        private const val ACTIVATION_EMAIL_SENT = "Activation email sent. Please check your inbox."
-        private const val PASSWORD_RESET_INSTRUCTIONS_SENT_TO_EMAIL = "Password reset instructions sent to email"
-        private const val PASSWORD_RESET_SUCCESSFULLY = "Password reset successfully"
-        private const val EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL = "Email change instructions sent to email"
-        private const val EMAIL_CHANGED_SUCCESSFULLY = "Email changed successfully"
-        private const val PASSWORD_CHANGE_CONFIRMATION_SENT = "Password change confirmation sent to email"
-        private const val PASSWORD_CHANGED_SUCCESSFULLY = "Password changed successfully"
-        private const val USER_DETAILS_RETRIEVED_SUCCESSFULLY = "User details retrieved successfully"
-        private const val PERMISSIONS_RETRIEVED_SUCCESSFULLY = "Permissions retrieved successfully"
-    }
-
     @PostMapping("/register")
     @Operation(summary = "Register new user")
     fun register(
         @RequestBody @Valid
         request: RegisterRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.register(request.toCommand())
-        return ApiResponse.buildResponse(null, USER_REGISTERED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/activate")
     @Operation(summary = "Activate user account with activation code")
     fun activateAccount(
         @RequestParam token: String,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.activateAccount(token)
-        return ApiResponse.buildResponse(null, ACCOUNT_ACTIVATED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/resend-activation")
     @Operation(summary = "Resend activation email")
     fun resendActivationEmail(
         @RequestParam email: String,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.resendActivationEmail(email)
-        return ApiResponse.buildResponse(null, ACTIVATION_EMAIL_SENT, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/reset-password-request")
     @Operation(summary = "Request password reset for a forgotten password")
     fun requestPasswordReset(
         @RequestParam email: String,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.sendPasswordResetRequest(email)
-        return ApiResponse.buildResponse(null, PASSWORD_RESET_INSTRUCTIONS_SENT_TO_EMAIL, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/confirm-reset-password")
@@ -97,9 +82,9 @@ internal class AuthController(
         @RequestParam token: String,
         @RequestBody @Valid
         request: ResetPasswordRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.resetPassword(token, request.toCommand())
-        return ApiResponse.buildResponse(null, PASSWORD_RESET_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/change-email-request")
@@ -108,19 +93,19 @@ internal class AuthController(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody @Valid
         request: ChangeEmailRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         val email = CurrentUser.emailOf(jwt)
         authServiceCommands.requestEmailChange(email, request.toCommand())
-        return ApiResponse.buildResponse(null, EMAIL_CHANGE_INSTRUCTIONS_SEND_TO_EMAIL, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/confirm-email-change")
     @Operation(summary = "Confirm email change using token")
     fun confirmEmailChange(
         @RequestParam token: String,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.confirmEmailChange(token)
-        return ApiResponse.buildResponse(null, EMAIL_CHANGED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/change-password-request")
@@ -129,10 +114,10 @@ internal class AuthController(
         @AuthenticationPrincipal jwt: Jwt,
         @RequestBody @Valid
         request: ChangePasswordRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         val email = CurrentUser.emailOf(jwt)
         authServiceCommands.changePassword(email, request.toCommand())
-        return ApiResponse.buildResponse(null, PASSWORD_CHANGE_CONFIRMATION_SENT, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/confirm-password-change")
@@ -141,9 +126,9 @@ internal class AuthController(
         @RequestParam token: String,
         @RequestBody @Valid
         request: ConfirmPasswordChangeRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.confirmPasswordChange(token, request.newPassword)
-        return ApiResponse.buildResponse(null, PASSWORD_CHANGED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/set-new-password")
@@ -152,41 +137,36 @@ internal class AuthController(
         @RequestParam tokenId: Long,
         @RequestBody @Valid
         request: ResetPasswordRequest,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         authServiceCommands.setNewPassword(tokenId, request.toCommand())
-        return ApiResponse.buildResponse(null, PASSWORD_CHANGED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping("/me")
     @Operation(summary = "Get the signed-in person's profile")
     fun getCurrentUser(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<UserResponse>> {
-        if (jwt == null) {
-            return ApiResponse.buildResponse(null, MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
-        }
+    ): ResponseEntity<UserResponse> {
+        if (jwt == null) throw ApiException(IamError.NOT_AUTHENTICATED)
 
         val keycloakId = CurrentUser.keycloakIdOf(jwt)
         provisionCurrentUser.provision(CurrentUser.identityOf(jwt))
 
         val user = userServiceQueries.getUserByKeycloakId(keycloakId)
-        val etag = ETagUtils.buildWeakETag(user.version)
-        val response = ApiResponse.buildResponse(user, USER_DETAILS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
-        return if (etag != null) ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body) else response
+        val etag = ETagUtils.buildWeakETag(user.version) ?: return ResponseEntity.ok(user)
+        return ResponseEntity.ok().eTag(etag).body(user)
     }
 
     @GetMapping("/me/permissions")
     @Operation(summary = "Get current user permissions from local database")
     fun getCurrentUserPermissions(
         @AuthenticationPrincipal jwt: Jwt?,
-    ): ResponseEntity<ApiResponse<List<String>>> {
-        if (jwt == null) {
-            return ApiResponse.buildResponse(emptyList(), MESSAGE_NOT_AUTHENTICATED, HttpStatus.UNAUTHORIZED)
-        }
+    ): ResponseEntity<List<String>> {
+        if (jwt == null) throw ApiException(IamError.NOT_AUTHENTICATED)
 
         val keycloakId = UUID.fromString(jwt.subject)
         val permissions = authServiceQueries.getUserPermissions(keycloakId)
 
-        return ApiResponse.buildResponse(permissions, PERMISSIONS_RETRIEVED_SUCCESSFULLY, HttpStatus.OK)
+        return ResponseEntity.ok(permissions)
     }
 }

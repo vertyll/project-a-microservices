@@ -27,6 +27,7 @@ spring-boot-configuration-processor = { module = "org.springframework.boot:sprin
 swagger-core-models = { module = "io.swagger.core.v3:swagger-models", version.ref = "swagger" }
 
 # Kotlin
+jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 kotlin-stdlib-jdk8 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8" }
 kotlin-logging = { module = "io.github.oshai:kotlin-logging", version.ref = "kotlin-logging" }

@@ -4,7 +4,7 @@ import java.util.UUID
 
 @Suppress("kotlin:S6517")
 interface AuthEventPublisherPort {
-    fun sendMailRequestedEvent(
+    fun requestMail(
         to: String,
         subject: String,
         templateName: String,

@@ -38,30 +38,6 @@ internal class TranslationCatalogueConfig {
                 pl("Przesyłanie nie zostało zakończone.")
                 en("The upload did not finish.")
             }
-            key("file.upload_requested") {
-                pl("Można rozpocząć przesyłanie.")
-                en("Ready to upload.")
-            }
-            key("file.upload_confirmed") {
-                pl("Plik przesłany.")
-                en("File uploaded.")
-            }
-            key("file.attached") {
-                pl("Plik dołączony.")
-                en("File attached.")
-            }
-            key("file.retrieved") {
-                pl("Plik wczytany.")
-                en("File loaded.")
-            }
-            key("file.deleted") {
-                pl("Plik usunięty.")
-                en("File deleted.")
-            }
-            key("file.download_ready") {
-                pl("Link do pobrania gotowy.")
-                en("Download link ready.")
-            }
             key("validation.file.name_required") {
                 pl("Nazwa pliku jest wymagana.")
                 en("A file name is required.")

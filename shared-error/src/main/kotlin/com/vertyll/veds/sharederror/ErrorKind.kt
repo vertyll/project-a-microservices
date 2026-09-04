@@ -10,6 +10,7 @@ package com.vertyll.veds.sharederror
  */
 enum class ErrorKind {
     NOT_FOUND,
+    UNAUTHENTICATED,
     ACCESS_DENIED,
     CONFLICT,
     INVALID,

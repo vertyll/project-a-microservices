@@ -14,6 +14,10 @@ internal class TranslationCatalogueConfig {
                 pl("Nie znaleziono szablonu wiadomości.")
                 en("Mail template not found.")
             }
+            key("mail.template.unknown") {
+                pl("Nieznana nazwa szablonu wiadomości.")
+                en("Unknown message template name.")
+            }
             key("mail.template.render_failed") {
                 pl("Nie udało się wygenerować wiadomości.")
                 en("The message could not be rendered.")

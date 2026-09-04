@@ -1,6 +1,5 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.translation.application.command.ClearOverrideCommand
 import com.vertyll.veds.translation.application.command.OverrideTranslationCommand
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -39,10 +37,6 @@ internal class TranslationAdminController(
     private val queries: TranslationQueryUseCase,
 ) {
     private companion object {
-        private const val KEYS_RETRIEVED = "translation.keys_retrieved"
-        private const val KEY_RETRIEVED = "translation.key_retrieved"
-        private const val VALUE_UPDATED = "translation.value_updated"
-        private const val OVERRIDE_CLEARED = "translation.override_cleared"
         private const val DEFAULT_PAGE_SIZE = "50"
     }
 
@@ -55,17 +49,16 @@ internal class TranslationAdminController(
         @RequestParam(defaultValue = "false") onlyMissing: Boolean,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) size: Int,
-    ): ResponseEntity<ApiResponse<PagedResponse<TranslationKeyDetailsResponse>>> {
+    ): ResponseEntity<PagedResponse<TranslationKeyDetailsResponse>> {
         val keys = queries.searchKeys(searchTerm, sourceService, onlyMissing, page, size)
-        return ApiResponse.buildResponse(keys, KEYS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(keys)
     }
 
     @GetMapping("/keys/{key}")
     @Operation(summary = "Get one key with every language")
     fun keyDetails(
         @PathVariable key: String,
-    ): ResponseEntity<ApiResponse<TranslationKeyDetailsResponse>> =
-        ApiResponse.buildResponse(queries.keyDetails(key), KEY_RETRIEVED, HttpStatus.OK)
+    ): ResponseEntity<TranslationKeyDetailsResponse> = ResponseEntity.ok(queries.keyDetails(key))
 
     @PreAuthorize("@authz.has('TRANSLATIONS_EDIT')")
     @PutMapping("/keys/{key}/languages/{language}")
@@ -77,14 +70,14 @@ internal class TranslationAdminController(
         @Valid @RequestBody
         request: OverrideTranslationRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<TranslationValueResponse>> {
+    ): ResponseEntity<TranslationValueResponse> {
         val value =
             commands.override(
                 command = OverrideTranslationCommand(key = key, language = language, value = request.value),
                 editor = CurrentUser.idOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(value, VALUE_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(value)
     }
 
     @PreAuthorize("@authz.has('TRANSLATIONS_EDIT')")
@@ -94,12 +87,12 @@ internal class TranslationAdminController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable key: String,
         @PathVariable language: String,
-    ): ResponseEntity<ApiResponse<TranslationValueResponse>> {
+    ): ResponseEntity<TranslationValueResponse> {
         val value =
             commands.clearOverride(
                 command = ClearOverrideCommand(key = key, language = language),
                 editor = CurrentUser.idOf(jwt),
             )
-        return ApiResponse.buildResponse(value, OVERRIDE_CLEARED, HttpStatus.OK)
+        return ResponseEntity.ok(value)
     }
 }

@@ -1,7 +1,7 @@
 package com.vertyll.veds.apigateway.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vertyll.veds.apigateway.infrastructure.response.ApiResponse
+import com.vertyll.veds.shared.web.error.Problems
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
@@ -14,7 +14,10 @@ import reactor.core.publisher.Mono
 internal class JsonAuthenticationEntryPoint(
     private val objectMapper: ObjectMapper,
 ) : ServerAuthenticationEntryPoint {
-    @Suppress("kotlin:S6508")
+    private companion object {
+        private const val NOT_AUTHENTICATED = "common.not_authenticated"
+    }
+
     override fun commence(
         exchange: ServerWebExchange,
         e: AuthenticationException,
@@ -24,17 +27,16 @@ internal class JsonAuthenticationEntryPoint(
             if (response.isCommitted) return@defer Mono.empty()
 
             response.statusCode = HttpStatus.UNAUTHORIZED
-            response.headers.contentType = MediaType.APPLICATION_JSON
+            response.headers.contentType = MediaType.APPLICATION_PROBLEM_JSON
 
-            val apiResponse =
-                ApiResponse.of(
-                    data = null,
-                    message = "Unauthorized: ${e.message}",
+            val problem =
+                Problems.of(
+                    status = HttpStatus.UNAUTHORIZED,
+                    code = NOT_AUTHENTICATED,
+                    instance = exchange.request.path.value(),
                 )
 
-            val bytes = objectMapper.writeValueAsBytes(apiResponse)
-            val buffer = response.bufferFactory().wrap(bytes)
-
+            val buffer = response.bufferFactory().wrap(objectMapper.writeValueAsBytes(problem))
             response.writeWith(Mono.just(buffer))
         }
 }

@@ -4,10 +4,8 @@ import com.vertyll.veds.project.application.dto.ProjectTypeResponse
 import com.vertyll.veds.project.application.port.inbound.query.ProjectTypeQueryUseCase
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,17 +20,13 @@ import java.util.UUID
 internal class ProjectTypeController(
     private val typeServiceQueries: ProjectTypeQueryUseCase,
 ) {
-    private companion object {
-        private const val TYPES_RETRIEVED = "Project types retrieved successfully"
-    }
-
     @GetMapping
     @Operation(summary = "List all active project types")
     fun getTypes(
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<List<ProjectTypeResponse>>> {
+    ): ResponseEntity<List<ProjectTypeResponse>> {
         val types = typeServiceQueries.getAllTypes(CurrentUser.languageOf(acceptLanguage))
-        return ApiResponse.buildResponse(types, TYPES_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(types)
     }
 
     @GetMapping("/{id}")
@@ -40,8 +34,8 @@ internal class ProjectTypeController(
     fun getType(
         @PathVariable id: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<ProjectTypeResponse>> {
+    ): ResponseEntity<ProjectTypeResponse> {
         val type = typeServiceQueries.getTypeById(id, CurrentUser.languageOf(acceptLanguage))
-        return ApiResponse.buildResponse(type, TYPES_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(type)
     }
 }

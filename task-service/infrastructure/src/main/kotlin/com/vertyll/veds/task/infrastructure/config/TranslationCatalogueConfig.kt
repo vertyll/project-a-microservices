@@ -14,10 +14,6 @@ internal class TranslationCatalogueConfig {
                 pl("Nie znaleziono zadania.")
                 en("Task not found.")
             }
-            key("task.archived") {
-                pl("Zadanie jest zarchiwizowane.")
-                en("This task is archived.")
-            }
             key("task.access_denied") {
                 pl("Nie masz uprawnień do tego zadania.")
                 en("You do not have permission for this task.")
@@ -94,65 +90,9 @@ internal class TranslationCatalogueConfig {
                 pl("Treść komentarza jest wymagana.")
                 en("Comment content is required.")
             }
-            key("task.created") {
-                pl("Zadanie zostało utworzone.")
-                en("Task created.")
-            }
-            key("task.updated") {
-                pl("Zadanie zostało zaktualizowane.")
-                en("Task updated.")
-            }
-            key("task.retrieved") {
-                pl("Zadanie wczytane.")
-                en("Task loaded.")
-            }
-            key("task.list_retrieved") {
-                pl("Lista zadań wczytana.")
-                en("Tasks loaded.")
-            }
-            key("task.batch_archived") {
-                pl("Zarchiwizowano wybrane zadania.")
-                en("Selected tasks archived.")
-            }
             key("task.work_logged") {
                 pl("Czas pracy zapisany.")
                 en("Work logged.")
-            }
-            key("task.permissions_retrieved") {
-                pl("Uprawnienia wczytane.")
-                en("Permissions loaded.")
-            }
-            key("task.comment.added") {
-                pl("Komentarz dodany.")
-                en("Comment added.")
-            }
-            key("task.comment.updated") {
-                pl("Komentarz zaktualizowany.")
-                en("Comment updated.")
-            }
-            key("task.comment.deleted") {
-                pl("Komentarz usunięty.")
-                en("Comment deleted.")
-            }
-            key("task.comment.list_retrieved") {
-                pl("Komentarze wczytane.")
-                en("Comments loaded.")
-            }
-            key("task.work_log.added") {
-                pl("Czas pracy zapisany.")
-                en("Work logged.")
-            }
-            key("task.work_log.updated") {
-                pl("Wpis czasu pracy zaktualizowany.")
-                en("Work log entry updated.")
-            }
-            key("task.work_log.deleted") {
-                pl("Wpis czasu pracy usunięty.")
-                en("Work log entry deleted.")
-            }
-            key("task.work_log.list_retrieved") {
-                pl("Czas pracy wczytany.")
-                en("Work log loaded.")
             }
         }
 }

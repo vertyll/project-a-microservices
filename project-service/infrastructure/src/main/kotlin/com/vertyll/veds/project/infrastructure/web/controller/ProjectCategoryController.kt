@@ -7,7 +7,6 @@ import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectCategoryRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectCategoryRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -35,27 +34,20 @@ internal class ProjectCategoryController(
     private val categoryServiceCommands: ProjectCategoryCommandUseCase,
     private val categoryServiceQueries: ProjectCategoryQueryUseCase,
 ) {
-    private companion object {
-        private const val CATEGORIES_RETRIEVED = "Categories retrieved successfully"
-        private const val CATEGORY_CREATED = "Category created successfully"
-        private const val CATEGORY_UPDATED = "Category updated successfully"
-        private const val CATEGORY_DELETED = "Category deleted successfully"
-    }
-
     @GetMapping
     @Operation(summary = "List categories of a project")
     fun getCategories(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<List<ProjectCategoryResponse>>> {
+    ): ResponseEntity<List<ProjectCategoryResponse>> {
         val categories =
             categoryServiceQueries.getCategories(
                 projectId = projectId,
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(categories, CATEGORIES_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(categories)
     }
 
     @PostMapping
@@ -66,7 +58,7 @@ internal class ProjectCategoryController(
         @Valid @RequestBody
         request: CreateProjectCategoryRequest,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<ProjectCategoryResponse>> {
+    ): ResponseEntity<ProjectCategoryResponse> {
         val category =
             categoryServiceCommands.createCategory(
                 projectId = projectId,
@@ -74,7 +66,7 @@ internal class ProjectCategoryController(
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(category, CATEGORY_CREATED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
     @PutMapping("/{categoryId}")
@@ -88,7 +80,7 @@ internal class ProjectCategoryController(
         request: UpdateProjectCategoryRequest,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<ProjectCategoryResponse>> {
+    ): ResponseEntity<ProjectCategoryResponse> {
         val category =
             categoryServiceCommands.updateCategory(
                 projectId = projectId,
@@ -98,7 +90,7 @@ internal class ProjectCategoryController(
                 language = CurrentUser.languageOf(acceptLanguage),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return ApiResponse.buildResponse(category, CATEGORY_UPDATED, HttpStatus.OK)
+        return ResponseEntity.ok(category)
     }
 
     @DeleteMapping("/{categoryId}")
@@ -107,8 +99,8 @@ internal class ProjectCategoryController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
         @PathVariable categoryId: UUID,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         categoryServiceCommands.deleteCategory(projectId, categoryId, CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(null, CATEGORY_DELETED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 }

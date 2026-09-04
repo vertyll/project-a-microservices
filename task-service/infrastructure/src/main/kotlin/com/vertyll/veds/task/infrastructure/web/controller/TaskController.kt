@@ -1,6 +1,5 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
-import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.PagedResponse
 import com.vertyll.veds.task.application.dto.TaskDetailsResponse
@@ -48,13 +47,6 @@ internal class TaskController(
     private val taskQueries: TaskQueryUseCase,
 ) {
     private companion object {
-        private const val TASK_CREATED = "task.created"
-        private const val TASK_UPDATED = "task.updated"
-        private const val TASK_RETRIEVED = "task.retrieved"
-        private const val TASKS_RETRIEVED = "task.list_retrieved"
-        private const val TASK_ARCHIVED = "task.archived"
-        private const val TASKS_ARCHIVED = "task.batch_archived"
-        private const val PERMISSIONS_RETRIEVED = "task.permissions_retrieved"
         private const val DEFAULT_PAGE_SIZE = "25"
     }
 
@@ -75,7 +67,7 @@ internal class TaskController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) size: Int,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<PagedResponse<TaskListItemResponse>>> {
+    ): ResponseEntity<PagedResponse<TaskListItemResponse>> {
         val params =
             TaskSearchParams(
                 searchTerm = searchTerm,
@@ -96,7 +88,7 @@ internal class TaskController(
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return ApiResponse.buildResponse(tasks, TASKS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(tasks)
     }
 
     @PostMapping("/project/{projectId}")
@@ -106,9 +98,9 @@ internal class TaskController(
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: CreateTaskRequest,
-    ): ResponseEntity<ApiResponse<TaskResponse>> {
+    ): ResponseEntity<TaskResponse> {
         val task = taskCommands.createTask(request.toCommand(projectId), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(task, TASK_CREATED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(task)
     }
 
     @GetMapping("/{taskId}")
@@ -117,14 +109,14 @@ internal class TaskController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable taskId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
-    ): ResponseEntity<ApiResponse<TaskDetailsResponse>> {
+    ): ResponseEntity<TaskDetailsResponse> {
         val details =
             taskQueries.getTaskDetails(
                 taskId = taskId,
                 actorId = CurrentUser.idOf(jwt),
                 language = CurrentUser.languageOf(acceptLanguage),
             )
-        return withETag(details, details.task.version, TASK_RETRIEVED)
+        return withETag(details, details.task.version)
     }
 
     @PutMapping("/{taskId}")
@@ -135,7 +127,7 @@ internal class TaskController(
         @Valid @RequestBody
         request: UpdateTaskRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<TaskResponse>> {
+    ): ResponseEntity<TaskResponse> {
         val task =
             taskCommands.updateTask(
                 taskId = taskId,
@@ -143,7 +135,7 @@ internal class TaskController(
                 actor = CurrentUser.actorOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return withETag(task, task.version, TASK_UPDATED)
+        return withETag(task, task.version)
     }
 
     @PatchMapping("/{taskId}/status")
@@ -154,7 +146,7 @@ internal class TaskController(
         @Valid @RequestBody
         request: ChangeTaskStatusRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<TaskResponse>> {
+    ): ResponseEntity<TaskResponse> {
         val task =
             taskCommands.changeStatus(
                 taskId = taskId,
@@ -162,7 +154,7 @@ internal class TaskController(
                 actor = CurrentUser.actorOf(jwt),
                 version = ETagUtils.parseIfMatchToVersion(ifMatch),
             )
-        return withETag(task, task.version, TASK_UPDATED)
+        return withETag(task, task.version)
     }
 
     @DeleteMapping("/{taskId}")
@@ -171,13 +163,13 @@ internal class TaskController(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable taskId: UUID,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         taskCommands.archiveTask(
             taskId = taskId,
             actor = CurrentUser.actorOf(jwt),
             version = ETagUtils.parseIfMatchToVersion(ifMatch),
         )
-        return ApiResponse.buildResponse(null, TASK_ARCHIVED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 
     @PostMapping("/batch-delete")
@@ -186,9 +178,9 @@ internal class TaskController(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: BatchDeleteTasksRequest,
-    ): ResponseEntity<ApiResponse<Int>> {
+    ): ResponseEntity<Int> {
         val archived = taskCommands.archiveTasks(request.toCommand(), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(archived, TASKS_ARCHIVED, HttpStatus.OK)
+        return ResponseEntity.ok(archived)
     }
 
     @GetMapping("/project/{projectId}/permissions")
@@ -196,18 +188,16 @@ internal class TaskController(
     fun getPermissions(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable projectId: UUID,
-    ): ResponseEntity<ApiResponse<Set<TaskPermission>>> {
+    ): ResponseEntity<Set<TaskPermission>> {
         val permissions = taskQueries.getEffectivePermissions(projectId, CurrentUser.idOf(jwt))
-        return ApiResponse.buildResponse(permissions, PERMISSIONS_RETRIEVED, HttpStatus.OK)
+        return ResponseEntity.ok(permissions)
     }
 
-    private fun <T> withETag(
+    private fun <T : Any> withETag(
         body: T,
         version: Long?,
-        message: String,
-    ): ResponseEntity<ApiResponse<T>> {
-        val response = ApiResponse.buildResponse(body, message, HttpStatus.OK)
-        val etag = ETagUtils.buildWeakETag(version) ?: return response
-        return ResponseEntity.status(HttpStatus.OK).eTag(etag).body(response.body)
+    ): ResponseEntity<T> {
+        val etag = ETagUtils.buildWeakETag(version) ?: return ResponseEntity.ok(body)
+        return ResponseEntity.ok().eTag(etag).body(body)
     }
 }

@@ -10,7 +10,6 @@ import com.vertyll.veds.file.application.port.inbound.query.FileQueryUseCase
 import com.vertyll.veds.file.infrastructure.web.dto.AttachFileRequest
 import com.vertyll.veds.file.infrastructure.web.dto.RequestUploadRequest
 import com.vertyll.veds.file.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -34,24 +33,15 @@ internal class FileController(
     private val commands: FileCommandUseCase,
     private val queries: FileQueryUseCase,
 ) {
-    private companion object {
-        private const val UPLOAD_REQUESTED = "file.upload_requested"
-        private const val UPLOAD_CONFIRMED = "file.upload_confirmed"
-        private const val FILE_ATTACHED = "file.attached"
-        private const val FILE_RETRIEVED = "file.retrieved"
-        private const val FILE_DELETED = "file.deleted"
-        private const val DOWNLOAD_READY = "file.download_ready"
-    }
-
     @PostMapping("/upload-ticket")
     @Operation(summary = "Ask for permission to upload and get a signed URL")
     fun requestUpload(
         @AuthenticationPrincipal jwt: Jwt?,
         @Valid @RequestBody
         request: RequestUploadRequest,
-    ): ResponseEntity<ApiResponse<UploadTicketResponse>> {
+    ): ResponseEntity<UploadTicketResponse> {
         val ticket = commands.requestUpload(request.toCommand(), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(ticket, UPLOAD_REQUESTED, HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED).body(ticket)
     }
 
     @PostMapping("/{fileId}/confirm")
@@ -59,9 +49,9 @@ internal class FileController(
     fun confirmUpload(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable fileId: UUID,
-    ): ResponseEntity<ApiResponse<FileResponse>> {
+    ): ResponseEntity<FileResponse> {
         val file = commands.confirmUpload(ConfirmUploadCommand(fileId), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(file, UPLOAD_CONFIRMED, HttpStatus.OK)
+        return ResponseEntity.ok(file)
     }
 
     @PostMapping("/{fileId}/attach")
@@ -71,9 +61,9 @@ internal class FileController(
         @PathVariable fileId: UUID,
         @Valid @RequestBody
         request: AttachFileRequest,
-    ): ResponseEntity<ApiResponse<FileResponse>> {
+    ): ResponseEntity<FileResponse> {
         val file = commands.attach(AttachFileCommand(fileId, request.scopeId), CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(file, FILE_ATTACHED, HttpStatus.OK)
+        return ResponseEntity.ok(file)
     }
 
     @GetMapping("/{fileId}")
@@ -81,17 +71,16 @@ internal class FileController(
     fun getFile(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable fileId: UUID,
-    ): ResponseEntity<ApiResponse<FileResponse>> =
-        ApiResponse.buildResponse(queries.getFile(fileId, CurrentUser.actorOf(jwt)), FILE_RETRIEVED, HttpStatus.OK)
+    ): ResponseEntity<FileResponse> = ResponseEntity.ok(queries.getFile(fileId, CurrentUser.actorOf(jwt)))
 
     @GetMapping("/{fileId}/download-ticket")
     @Operation(summary = "Get a short-lived URL to download the file")
     fun requestDownload(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable fileId: UUID,
-    ): ResponseEntity<ApiResponse<DownloadTicketResponse>> {
+    ): ResponseEntity<DownloadTicketResponse> {
         val ticket = queries.requestDownload(fileId, CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(ticket, DOWNLOAD_READY, HttpStatus.OK)
+        return ResponseEntity.ok(ticket)
     }
 
     @DeleteMapping("/{fileId}")
@@ -99,8 +88,8 @@ internal class FileController(
     fun delete(
         @AuthenticationPrincipal jwt: Jwt?,
         @PathVariable fileId: UUID,
-    ): ResponseEntity<ApiResponse<Any>> {
+    ): ResponseEntity<Any> {
         commands.delete(fileId, CurrentUser.actorOf(jwt))
-        return ApiResponse.buildResponse(null, FILE_DELETED, HttpStatus.OK)
+        return ResponseEntity.ok().build()
     }
 }

@@ -126,7 +126,7 @@ class AuthCommandService(
                     ),
             )
 
-            authEventPublisher.sendMailRequestedEvent(
+            authEventPublisher.requestMail(
                 to = savedUser.email,
                 subject = SUBJECT_ACTIVATE_ACCOUNT,
                 templateName = EmailTemplate.ACTIVATE_ACCOUNT.name,
@@ -140,7 +140,7 @@ class AuthCommandService(
 
             sagaProcessPort.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT,
+                stepName = SagaStepNames.REQUEST_MAIL,
                 status = SagaStepStatus.COMPLETED,
             )
 
@@ -199,7 +199,7 @@ class AuthCommandService(
                     ),
             )
 
-            authEventPublisher.sendMailRequestedEvent(
+            authEventPublisher.requestMail(
                 to = user.email,
                 subject = SUBJECT_ACTIVATE_ACCOUNT,
                 templateName = EmailTemplate.ACTIVATE_ACCOUNT.name,
@@ -213,7 +213,7 @@ class AuthCommandService(
 
             sagaProcessPort.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT,
+                stepName = SagaStepNames.REQUEST_MAIL,
                 status = SagaStepStatus.COMPLETED,
             )
 
@@ -256,7 +256,7 @@ class AuthCommandService(
                     ),
             )
 
-            authEventPublisher.sendMailRequestedEvent(
+            authEventPublisher.requestMail(
                 to = user.email,
                 subject = SUBJECT_PASSWORD_RESET_REQUEST,
                 templateName = EmailTemplate.RESET_PASSWORD.name,
@@ -270,7 +270,7 @@ class AuthCommandService(
 
             sagaProcessPort.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT,
+                stepName = SagaStepNames.REQUEST_MAIL,
                 status = SagaStepStatus.COMPLETED,
             )
 
@@ -347,7 +347,7 @@ class AuthCommandService(
                     ),
             )
 
-            authEventPublisher.sendMailRequestedEvent(
+            authEventPublisher.requestMail(
                 to = request.newEmail,
                 subject = SUBJECT_CONFIRM_EMAIL_CHANGE,
                 templateName = EmailTemplate.CHANGE_EMAIL.name,
@@ -361,7 +361,7 @@ class AuthCommandService(
 
             sagaProcessPort.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT,
+                stepName = SagaStepNames.REQUEST_MAIL,
                 status = SagaStepStatus.COMPLETED,
             )
 
@@ -457,7 +457,7 @@ class AuthCommandService(
                     ),
             )
 
-            authEventPublisher.sendMailRequestedEvent(
+            authEventPublisher.requestMail(
                 to = user.email,
                 subject = SUBJECT_CONFIRM_PASSWORD_CHANGE,
                 templateName = EmailTemplate.SET_NEW_PASSWORD.name,
@@ -471,7 +471,7 @@ class AuthCommandService(
 
             sagaProcessPort.recordSagaStep(
                 sagaId = saga.id,
-                stepName = SagaStepNames.PUBLISH_MAIL_REQUESTED_EVENT,
+                stepName = SagaStepNames.REQUEST_MAIL,
                 status = SagaStepStatus.COMPLETED,
             )
 

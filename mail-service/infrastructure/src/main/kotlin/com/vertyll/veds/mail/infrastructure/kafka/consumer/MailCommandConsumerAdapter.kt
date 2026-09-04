@@ -2,7 +2,7 @@ package com.vertyll.veds.mail.infrastructure.kafka.consumer
 
 import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.infrastructure.kafka.MailKafkaTopics
-import com.vertyll.veds.mail.mail.MailRequestedEvent
+import com.vertyll.veds.mail.mail.MailRequestedCommand
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
 import com.vertyll.veds.shared.messaging.kafka.ProcessedEventGuard
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-internal class MailEventConsumerAdapter(
+internal class MailCommandConsumerAdapter(
     private val avroPayloadDeserializer: AvroPayloadDeserializer,
     private val emailSagaService: EmailSagaUseCase,
     private val processedEventGuard: ProcessedEventGuard,
@@ -38,7 +38,7 @@ internal class MailEventConsumerAdapter(
         }
         try {
             logger.info("Received {} message: key={}", MailKafkaTopics.MAIL_REQUESTED, record.key())
-            val event = avroPayloadDeserializer.deserialize(MailKafkaTopics.MAIL_REQUESTED, payload) as MailRequestedEvent
+            val event = avroPayloadDeserializer.deserialize(MailKafkaTopics.MAIL_REQUESTED, payload) as MailRequestedCommand
             emailSagaService.sendEmailWithSaga(
                 to = event.to,
                 subject = event.subject,
