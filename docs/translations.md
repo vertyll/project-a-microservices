@@ -56,8 +56,13 @@ val catalogue = translations("project-service") {
 }
 ```
 
-At start-up the service registers this with `translation-service`. Registration is additive:
-it inserts new keys and refreshes shipped defaults, and **never touches an override**.
+At start-up the service registers this with `translation-service`. Registration runs off the
+start-up thread and retries every `veds.translation.client.registration-retry-interval` until it is
+accepted, so boot order does not matter: a key that never registered renders as the key itself to
+every reader, which is too visible a failure to leave until the next restart.
+
+Registration is additive: it inserts new keys and refreshes shipped defaults, and **never touches
+an override**.
 
 That is why `default_value` and `override_value` are two columns. One column written by both sides would mean every
 redeploy silently reverts somebody's correction — the single most likely way an editable-translations feature turns into
