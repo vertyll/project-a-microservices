@@ -36,7 +36,7 @@ internal class TaskCommentController(
     @GetMapping("/{taskId}/comments")
     @Operation(summary = "List comments on a task")
     fun getComments(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
     ): ResponseEntity<List<TaskCommentResponse>> {
         val comments = commentQueries.getComments(taskId, CurrentUser.idOf(jwt))
@@ -46,7 +46,7 @@ internal class TaskCommentController(
     @PostMapping("/{taskId}/comments")
     @Operation(summary = "Add a comment to a task")
     fun addComment(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: CreateCommentRequest,
@@ -58,7 +58,7 @@ internal class TaskCommentController(
     @PutMapping("/comments/{commentId}")
     @Operation(summary = "Edit a comment")
     fun editComment(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable commentId: UUID,
         @Valid @RequestBody
         request: UpdateCommentRequest,
@@ -77,7 +77,7 @@ internal class TaskCommentController(
     @DeleteMapping("/comments/{commentId}")
     @Operation(summary = "Delete a comment")
     fun deleteComment(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable commentId: UUID,
     ): ResponseEntity<Any> {
         commentCommands.deleteComment(commentId, CurrentUser.actorOf(jwt))

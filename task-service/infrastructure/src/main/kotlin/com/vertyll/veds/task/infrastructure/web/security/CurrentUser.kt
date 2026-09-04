@@ -13,9 +13,8 @@ internal object CurrentUser {
     private const val FAMILY_NAME_CLAIM = "family_name"
     private const val CLAIM_PARAM = "claim"
 
-    fun actorOf(jwt: Jwt?): Actor {
-        val token = jwt ?: throw ApiException(TaskError.NOT_AUTHENTICATED)
-        val subject = token.subject ?: throw claimMissing("sub")
+    fun actorOf(jwt: Jwt): Actor {
+        val subject = jwt.subject ?: throw claimMissing("sub")
 
         val id =
             try {
@@ -29,13 +28,13 @@ internal object CurrentUser {
 
         return Actor(
             id = id,
-            email = token.getClaimAsString(EMAIL_CLAIM) ?: throw claimMissing(EMAIL_CLAIM),
-            firstName = token.getClaimAsString(GIVEN_NAME_CLAIM),
-            lastName = token.getClaimAsString(FAMILY_NAME_CLAIM),
+            email = jwt.getClaimAsString(EMAIL_CLAIM) ?: throw claimMissing(EMAIL_CLAIM),
+            firstName = jwt.getClaimAsString(GIVEN_NAME_CLAIM),
+            lastName = jwt.getClaimAsString(FAMILY_NAME_CLAIM),
         )
     }
 
-    fun idOf(jwt: Jwt?): UUID = actorOf(jwt).id
+    fun idOf(jwt: Jwt): UUID = actorOf(jwt).id
 
     fun languageOf(acceptLanguage: String?): LanguageTag {
         if (acceptLanguage.isNullOrBlank()) {

@@ -39,11 +39,10 @@ class TranslationExportService(
         }
     }
 
-    override fun exportHeaders(language: String): List<String> {
-        val tag = LanguageTag.parse(language) ?: LanguageTag.of("en")
-        val resolver = MessageResolver(snapshotSource(tag))
+    override fun exportHeaders(language: LanguageTag): List<String> {
+        val resolver = MessageResolver(snapshotSource(language))
 
-        val fixed = HEADER_KEYS.map { resolver.resolve(it, tag.value) }
+        val fixed = HEADER_KEYS.map { resolver.resolve(it, language.value) }
         val languageColumns = languageRepository.findAll().map { it.tag.value }
         return fixed + languageColumns
     }

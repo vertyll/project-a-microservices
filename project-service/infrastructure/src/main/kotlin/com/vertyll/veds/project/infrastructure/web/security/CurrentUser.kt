@@ -14,9 +14,8 @@ internal object CurrentUser {
     private const val CLAIM_PARAM = "claim"
     private const val LANGUAGE_PARAM = "language"
 
-    fun identityOf(jwt: Jwt?): ActorIdentity {
-        val token = jwt ?: throw ApiException(ProjectError.NOT_AUTHENTICATED)
-        val subject = token.subject ?: throw claimMissing("sub")
+    fun identityOf(jwt: Jwt): ActorIdentity {
+        val subject = jwt.subject ?: throw claimMissing("sub")
         val id =
             try {
                 UUID.fromString(subject)
@@ -29,15 +28,15 @@ internal object CurrentUser {
 
         return ActorIdentity(
             id = id,
-            email = token.getClaimAsString(EMAIL_CLAIM) ?: throw claimMissing(EMAIL_CLAIM),
-            firstName = token.getClaimAsString(GIVEN_NAME_CLAIM),
-            lastName = token.getClaimAsString(FAMILY_NAME_CLAIM),
+            email = jwt.getClaimAsString(EMAIL_CLAIM) ?: throw claimMissing(EMAIL_CLAIM),
+            firstName = jwt.getClaimAsString(GIVEN_NAME_CLAIM),
+            lastName = jwt.getClaimAsString(FAMILY_NAME_CLAIM),
         )
     }
 
-    fun idOf(jwt: Jwt?): UUID = identityOf(jwt).id
+    fun idOf(jwt: Jwt): UUID = identityOf(jwt).id
 
-    fun emailOf(jwt: Jwt?): String = identityOf(jwt).email
+    fun emailOf(jwt: Jwt): String = identityOf(jwt).email
 
     fun languageOf(acceptLanguage: String?): LanguageTag {
         if (acceptLanguage.isNullOrBlank()) {

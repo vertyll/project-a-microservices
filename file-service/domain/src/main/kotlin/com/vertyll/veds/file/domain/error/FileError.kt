@@ -14,6 +14,5 @@ enum class FileError(
     FILE_TOO_LARGE("file.too_large", ErrorKind.INVALID),
     UPLOAD_NOT_PENDING("file.upload_not_pending", ErrorKind.CONFLICT),
     OBJECT_MISSING_IN_STORAGE("file.object_missing_in_storage", ErrorKind.CONFLICT),
-    NOT_AUTHENTICATED("common.not_authenticated", ErrorKind.ACCESS_DENIED),
     TOKEN_CLAIM_MISSING("common.token_claim_missing", ErrorKind.ACCESS_DENIED),
 }

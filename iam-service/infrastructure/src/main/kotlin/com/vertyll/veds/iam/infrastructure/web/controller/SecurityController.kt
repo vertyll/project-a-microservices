@@ -24,7 +24,7 @@ internal class SecurityController(
     @GetMapping
     @Operation(summary = "Get the caller's second-factor status")
     fun getSettings(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<SecuritySettingsResponse> {
         val settings = securityQueries.getSecuritySettings(CurrentUser.keycloakIdOf(jwt))
         return ResponseEntity.ok(settings)
@@ -33,7 +33,7 @@ internal class SecurityController(
     @DeleteMapping("/two-factor")
     @Operation(summary = "Turn the caller's second factor off")
     fun disableTwoFactor(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<SecuritySettingsResponse> {
         val settings = securityCommands.disableTwoFactor(CurrentUser.keycloakIdOf(jwt))
         return ResponseEntity.ok(settings)

@@ -31,7 +31,7 @@ internal class ProjectInvitationController(
     @PostMapping("/{projectId}/invitations")
     @Operation(summary = "Invite a user to a project")
     fun invite(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: InviteMemberRequest,
@@ -43,7 +43,7 @@ internal class ProjectInvitationController(
     @GetMapping("/invitations/me")
     @Operation(summary = "List the current user's pending invitations")
     fun getMyInvitations(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<List<ProjectInvitationResponse>> {
         val invitations = invitationServiceQueries.getMyInvitations(CurrentUser.emailOf(jwt))
         return ResponseEntity.ok(invitations)
@@ -52,7 +52,7 @@ internal class ProjectInvitationController(
     @PostMapping("/invitations/accept")
     @Operation(summary = "Accept an invitation")
     fun accept(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: RespondToInvitationRequest,
     ): ResponseEntity<ProjectInvitationResponse> {
@@ -67,7 +67,7 @@ internal class ProjectInvitationController(
     @PostMapping("/invitations/reject")
     @Operation(summary = "Reject an invitation")
     fun reject(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: RespondToInvitationRequest,
     ): ResponseEntity<ProjectInvitationResponse> {

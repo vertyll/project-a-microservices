@@ -72,7 +72,7 @@ internal class UserController(
     @PutMapping("/me")
     @Operation(summary = "Update your own profile")
     fun updateOwnProfile(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody request: UpdateProfileRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<UserResponse> {

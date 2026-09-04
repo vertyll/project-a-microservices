@@ -25,7 +25,7 @@ internal class ProjectUserRoleController(
     @GetMapping("/project/{projectId}")
     @Operation(summary = "List members of a project (legacy path)")
     fun getMembers(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<List<ProjectMemberResponse>> {

@@ -10,10 +10,9 @@ internal object CurrentUser {
     private const val CLAIM_PARAM = "claim"
     private const val EMAIL_CLAIM = "email"
 
-    fun actorOf(jwt: Jwt?): Actor {
-        val token = jwt ?: throw ApiException(FileError.NOT_AUTHENTICATED)
+    fun actorOf(jwt: Jwt): Actor {
         val subject =
-            token.subject ?: throw ApiException(FileError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to "sub"))
+            jwt.subject ?: throw ApiException(FileError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to "sub"))
 
         val id =
             try {
@@ -28,7 +27,7 @@ internal object CurrentUser {
         return Actor(
             id = id,
             email =
-                token.getClaimAsString(EMAIL_CLAIM)
+                jwt.getClaimAsString(EMAIL_CLAIM)
                     ?: throw ApiException(FileError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to EMAIL_CLAIM)),
         )
     }

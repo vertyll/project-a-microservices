@@ -34,7 +34,7 @@ internal class ProjectMemberController(
     @GetMapping
     @Operation(summary = "List members of a project")
     fun getMembers(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<List<ProjectMemberResponse>> {
@@ -50,7 +50,7 @@ internal class ProjectMemberController(
     @GetMapping("/me/permissions")
     @Operation(summary = "Get the current user's effective permissions in a project")
     fun getMyPermissions(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
     ): ResponseEntity<Set<String>> {
         val permissions = membershipServiceQueries.getEffectivePermissions(projectId, CurrentUser.idOf(jwt))
@@ -61,7 +61,7 @@ internal class ProjectMemberController(
     @Operation(summary = "Change a member's project role")
     @Suppress("LongParameterList")
     fun updateMemberRole(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable memberId: UUID,
         @Valid @RequestBody
@@ -84,7 +84,7 @@ internal class ProjectMemberController(
     @DeleteMapping("/{memberId}")
     @Operation(summary = "Remove a member from a project")
     fun removeMember(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable memberId: UUID,
     ): ResponseEntity<Any> {

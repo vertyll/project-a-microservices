@@ -54,7 +54,7 @@ internal class TaskController(
     @Operation(summary = "List tasks in a project")
     @Suppress("LongParameterList")
     fun getTasks(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestParam(required = false) searchTerm: String?,
         @RequestParam(required = false) statusId: UUID?,
@@ -94,7 +94,7 @@ internal class TaskController(
     @PostMapping("/project/{projectId}")
     @Operation(summary = "Create a task in a project")
     fun createTask(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: CreateTaskRequest,
@@ -106,7 +106,7 @@ internal class TaskController(
     @GetMapping("/{taskId}")
     @Operation(summary = "Get a task with comments, labels and the caller's permissions")
     fun getTask(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<TaskDetailsResponse> {
@@ -122,7 +122,7 @@ internal class TaskController(
     @PutMapping("/{taskId}")
     @Operation(summary = "Update a task")
     fun updateTask(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: UpdateTaskRequest,
@@ -141,7 +141,7 @@ internal class TaskController(
     @PatchMapping("/{taskId}/status")
     @Operation(summary = "Move a task to another status")
     fun changeStatus(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: ChangeTaskStatusRequest,
@@ -160,7 +160,7 @@ internal class TaskController(
     @DeleteMapping("/{taskId}")
     @Operation(summary = "Archive a task")
     fun archiveTask(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<Any> {
@@ -175,7 +175,7 @@ internal class TaskController(
     @PostMapping("/batch-delete")
     @Operation(summary = "Archive several tasks at once")
     fun archiveTasks(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: BatchDeleteTasksRequest,
     ): ResponseEntity<Int> {
@@ -186,7 +186,7 @@ internal class TaskController(
     @GetMapping("/project/{projectId}/permissions")
     @Operation(summary = "Get the caller's effective task permissions in a project")
     fun getPermissions(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
     ): ResponseEntity<Set<TaskPermission>> {
         val permissions = taskQueries.getEffectivePermissions(projectId, CurrentUser.idOf(jwt))

@@ -48,7 +48,7 @@ internal class ProjectController(
     @Operation(summary = "List projects visible to the current user")
     @Suppress("LongParameterList")
     fun getProjects(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @RequestParam(required = false) searchTerm: String?,
         @RequestParam(required = false) typeId: UUID?,
         @RequestParam(defaultValue = "true") onlyActive: Boolean,
@@ -77,7 +77,7 @@ internal class ProjectController(
     @PostMapping
     @Operation(summary = "Create a new project")
     fun createProject(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: CreateProjectRequest,
     ): ResponseEntity<ProjectResponse> {
@@ -88,7 +88,7 @@ internal class ProjectController(
     @GetMapping("/{projectId}")
     @Operation(summary = "Get a project by id")
     fun getProject(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
     ): ResponseEntity<ProjectResponse> {
         val project = projectServiceQueries.getProject(projectId, CurrentUser.idOf(jwt))
@@ -98,7 +98,7 @@ internal class ProjectController(
     @GetMapping("/{projectId}/details")
     @Operation(summary = "Get a project with members, categories, statuses and the caller's permissions")
     fun getProjectDetails(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<ProjectDetailsResponse> {
@@ -114,7 +114,7 @@ internal class ProjectController(
     @PutMapping("/{projectId}")
     @Operation(summary = "Update a project")
     fun updateProject(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: UpdateProjectRequest,
@@ -133,7 +133,7 @@ internal class ProjectController(
     @DeleteMapping("/{projectId}")
     @Operation(summary = "Archive a project")
     fun archiveProject(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,
     ): ResponseEntity<Any> {

@@ -27,6 +27,5 @@ enum class TaskError(
     VERSION_MISMATCH("common.version_mismatch", ErrorKind.PRECONDITION_FAILED),
     LANGUAGE_NOT_SUPPLIED("common.language_not_supplied", ErrorKind.INVALID),
     LANGUAGE_NOT_SUPPORTED("common.language_not_supported", ErrorKind.INVALID),
-    NOT_AUTHENTICATED("common.not_authenticated", ErrorKind.ACCESS_DENIED),
     TOKEN_CLAIM_MISSING("common.token_claim_missing", ErrorKind.ACCESS_DENIED),
 }

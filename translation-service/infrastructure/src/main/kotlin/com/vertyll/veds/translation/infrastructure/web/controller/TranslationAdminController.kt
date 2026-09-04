@@ -64,7 +64,7 @@ internal class TranslationAdminController(
     @PutMapping("/keys/{key}/languages/{language}")
     @Operation(summary = "Set the translation of one key in one language")
     fun override(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable key: String,
         @PathVariable language: String,
         @Valid @RequestBody
@@ -84,7 +84,7 @@ internal class TranslationAdminController(
     @DeleteMapping("/keys/{key}/languages/{language}")
     @Operation(summary = "Drop an override and fall back to the shipped default")
     fun clearOverride(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable key: String,
         @PathVariable language: String,
     ): ResponseEntity<TranslationValueResponse> {

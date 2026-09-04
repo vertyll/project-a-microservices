@@ -33,6 +33,5 @@ enum class IamError(
     DEFAULT_ROLE_NOT_CONFIGURED("iam.role.default_not_configured", ErrorKind.MISCONFIGURED),
 
     VERSION_MISMATCH("common.version_mismatch", ErrorKind.PRECONDITION_FAILED),
-    NOT_AUTHENTICATED("common.not_authenticated", ErrorKind.UNAUTHENTICATED),
     TOKEN_CLAIM_MISSING("common.token_claim_missing", ErrorKind.ACCESS_DENIED),
 }

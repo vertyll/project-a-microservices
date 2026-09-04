@@ -42,10 +42,10 @@ internal class TranslationSpreadsheetController(
     @GetMapping("/export")
     @Operation(summary = "Download the whole catalogue as a spreadsheet")
     fun export(
-        @RequestHeader(LanguageHeader.NAME, required = false) language: String?,
+        @RequestHeader(LanguageHeader.NAME) language: String,
     ): ResponseEntity<ByteArray> {
         val languages = queries.languages().map { it.tag }
-        val headers = exports.exportHeaders(language ?: languages.firstOrNull().orEmpty())
+        val headers = exports.exportHeaders(CurrentUser.languageOf(language))
         val file = spreadsheet.write(headers, languages, exports.exportRows())
 
         return ResponseEntity
@@ -65,7 +65,7 @@ internal class TranslationSpreadsheetController(
     @PostMapping("/import", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     @Operation(summary = "Apply translations from a spreadsheet")
     fun import(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @RequestParam("file") file: MultipartFile,
     ): ResponseEntity<ImportReportResponse> {
         val languages = queries.languages().map { it.tag }

@@ -37,7 +37,7 @@ internal class ProjectCategoryController(
     @GetMapping
     @Operation(summary = "List categories of a project")
     fun getCategories(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<List<ProjectCategoryResponse>> {
@@ -53,7 +53,7 @@ internal class ProjectCategoryController(
     @PostMapping
     @Operation(summary = "Create a category in a project")
     fun createCategory(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: CreateProjectCategoryRequest,
@@ -73,7 +73,7 @@ internal class ProjectCategoryController(
     @Operation(summary = "Update a category")
     @Suppress("LongParameterList")
     fun updateCategory(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable categoryId: UUID,
         @Valid @RequestBody
@@ -96,7 +96,7 @@ internal class ProjectCategoryController(
     @DeleteMapping("/{categoryId}")
     @Operation(summary = "Delete a category")
     fun deleteCategory(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable categoryId: UUID,
     ): ResponseEntity<Any> {

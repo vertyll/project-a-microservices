@@ -36,7 +36,7 @@ internal class FileController(
     @PostMapping("/upload-ticket")
     @Operation(summary = "Ask for permission to upload and get a signed URL")
     fun requestUpload(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: RequestUploadRequest,
     ): ResponseEntity<UploadTicketResponse> {
@@ -47,7 +47,7 @@ internal class FileController(
     @PostMapping("/{fileId}/confirm")
     @Operation(summary = "Confirm that the upload completed")
     fun confirmUpload(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable fileId: UUID,
     ): ResponseEntity<FileResponse> {
         val file = commands.confirmUpload(ConfirmUploadCommand(fileId), CurrentUser.actorOf(jwt))
@@ -57,7 +57,7 @@ internal class FileController(
     @PostMapping("/{fileId}/attach")
     @Operation(summary = "Bind a confirmed file to the aggregate that owns it")
     fun attach(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable fileId: UUID,
         @Valid @RequestBody
         request: AttachFileRequest,
@@ -69,14 +69,14 @@ internal class FileController(
     @GetMapping("/{fileId}")
     @Operation(summary = "Get a file's metadata")
     fun getFile(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable fileId: UUID,
     ): ResponseEntity<FileResponse> = ResponseEntity.ok(queries.getFile(fileId, CurrentUser.actorOf(jwt)))
 
     @GetMapping("/{fileId}/download-ticket")
     @Operation(summary = "Get a short-lived URL to download the file")
     fun requestDownload(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable fileId: UUID,
     ): ResponseEntity<DownloadTicketResponse> {
         val ticket = queries.requestDownload(fileId, CurrentUser.actorOf(jwt))
@@ -86,7 +86,7 @@ internal class FileController(
     @DeleteMapping("/{fileId}")
     @Operation(summary = "Delete a file")
     fun delete(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable fileId: UUID,
     ): ResponseEntity<Any> {
         commands.delete(fileId, CurrentUser.actorOf(jwt))

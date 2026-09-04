@@ -8,10 +8,9 @@ import java.util.UUID
 internal object CurrentUser {
     private const val CLAIM_PARAM = "claim"
 
-    fun idOf(jwt: Jwt?): UUID {
-        val token = jwt ?: throw ApiException(NotificationError.NOT_AUTHENTICATED)
+    fun idOf(jwt: Jwt): UUID {
         val subject =
-            token.subject
+            jwt.subject
                 ?: throw ApiException(NotificationError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to "sub"))
 
         return try {

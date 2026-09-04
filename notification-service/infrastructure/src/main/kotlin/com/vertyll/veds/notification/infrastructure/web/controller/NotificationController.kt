@@ -44,7 +44,7 @@ internal class NotificationController(
     @Operation(summary = "List the caller's notifications")
     @Suppress("LongParameterList")
     fun list(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @RequestParam(defaultValue = "false") onlyUnread: Boolean,
         @RequestParam(required = false) projectId: UUID?,
         @RequestParam(required = false) type: NotificationType?,
@@ -66,7 +66,7 @@ internal class NotificationController(
     @GetMapping("/unread-count")
     @Operation(summary = "Count the caller's unread notifications")
     fun unreadCount(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<UnreadCountResponse> {
         val unread = queries.unreadCount(CurrentUser.idOf(jwt))
         return ResponseEntity.ok(UnreadCountResponse(unread))
@@ -75,7 +75,7 @@ internal class NotificationController(
     @PostMapping("/mark-read")
     @Operation(summary = "Mark notifications as read")
     fun markRead(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: MarkReadRequest,
     ): ResponseEntity<Int> {
@@ -86,7 +86,7 @@ internal class NotificationController(
     @PostMapping("/mark-all-read")
     @Operation(summary = "Mark every notification as read")
     fun markAllRead(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<Int> {
         val changed = commands.markAllRead(CurrentUser.idOf(jwt))
         return ResponseEntity.ok(changed)
@@ -95,7 +95,7 @@ internal class NotificationController(
     @PostMapping("/dismiss")
     @Operation(summary = "Dismiss notifications so they leave the list")
     fun dismiss(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: DismissNotificationsRequest,
     ): ResponseEntity<Int> {
@@ -106,7 +106,7 @@ internal class NotificationController(
     @PostMapping("/dismiss-all")
     @Operation(summary = "Dismiss every notification")
     fun dismissAll(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<Int> {
         val dismissed = commands.dismissAll(CurrentUser.idOf(jwt))
         return ResponseEntity.ok(dismissed)
@@ -115,7 +115,7 @@ internal class NotificationController(
     @GetMapping("/settings")
     @Operation(summary = "Get the caller's delivery settings")
     fun getSettings(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<NotificationSettingsResponse> {
         val settings = queries.getSettings(CurrentUser.idOf(jwt))
         return ResponseEntity.ok(settings)
@@ -124,7 +124,7 @@ internal class NotificationController(
     @PutMapping("/settings")
     @Operation(summary = "Update the caller's delivery settings")
     fun updateSettings(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @Valid @RequestBody
         request: UpdateSettingsRequest,
         @RequestHeader(HttpHeaders.IF_MATCH, required = false) ifMatch: String?,

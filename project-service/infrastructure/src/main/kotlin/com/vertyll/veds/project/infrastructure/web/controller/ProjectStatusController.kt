@@ -37,7 +37,7 @@ internal class ProjectStatusController(
     @GetMapping
     @Operation(summary = "List statuses of a project")
     fun getStatuses(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @RequestHeader(LanguageHeader.NAME, required = false) acceptLanguage: String?,
     ): ResponseEntity<List<ProjectStatusResponse>> {
@@ -53,7 +53,7 @@ internal class ProjectStatusController(
     @PostMapping
     @Operation(summary = "Create a status in a project")
     fun createStatus(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @Valid @RequestBody
         request: CreateProjectStatusRequest,
@@ -73,7 +73,7 @@ internal class ProjectStatusController(
     @Operation(summary = "Update a status")
     @Suppress("LongParameterList")
     fun updateStatus(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable statusId: UUID,
         @Valid @RequestBody
@@ -96,7 +96,7 @@ internal class ProjectStatusController(
     @DeleteMapping("/{statusId}")
     @Operation(summary = "Delete a status")
     fun deleteStatus(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable projectId: UUID,
         @PathVariable statusId: UUID,
     ): ResponseEntity<Any> {

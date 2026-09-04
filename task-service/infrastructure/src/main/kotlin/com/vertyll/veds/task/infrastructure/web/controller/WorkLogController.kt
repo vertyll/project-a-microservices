@@ -42,7 +42,7 @@ internal class WorkLogController(
     @GetMapping("/{taskId}/worklog")
     @Operation(summary = "List work logged against a task")
     fun getEntries(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
@@ -59,7 +59,7 @@ internal class WorkLogController(
     @PostMapping("/{taskId}/worklog")
     @Operation(summary = "Log work against a task")
     fun logWork(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable taskId: UUID,
         @Valid @RequestBody
         request: LogWorkRequest,
@@ -71,7 +71,7 @@ internal class WorkLogController(
     @PutMapping("/worklog/{entryId}")
     @Operation(summary = "Edit a work log entry")
     fun editEntry(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable entryId: UUID,
         @Valid @RequestBody
         request: UpdateWorkLogRequest,
@@ -90,7 +90,7 @@ internal class WorkLogController(
     @DeleteMapping("/worklog/{entryId}")
     @Operation(summary = "Delete a work log entry")
     fun deleteEntry(
-        @AuthenticationPrincipal jwt: Jwt?,
+        @AuthenticationPrincipal jwt: Jwt,
         @PathVariable entryId: UUID,
     ): ResponseEntity<Any> {
         workLogCommands.deleteEntry(entryId, CurrentUser.actorOf(jwt))
