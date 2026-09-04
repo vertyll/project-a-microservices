@@ -7,7 +7,7 @@
 -- The id is a VARCHAR rather than a generated key because an aggregate needs its identity before
 -- the transaction commits, so the outbox event it produces can reference it.
 
-CREATE TABLE IF NOT EXISTS template (
+CREATE TABLE template (
     id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     payload TEXT NOT NULL,
@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS template (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_template_status ON template (status);
+CREATE INDEX idx_template_status ON template (status);

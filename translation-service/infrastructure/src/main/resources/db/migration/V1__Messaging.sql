@@ -1,7 +1,7 @@
 -- The idempotent-receiver ledger. This service consumes one event and publishes
 -- none, so it carries the inbox and no outbox. Claimed in the handler's
 -- transaction, so a failed handler leaves nothing claimed.
-CREATE TABLE IF NOT EXISTS processed_event (
+CREATE TABLE processed_event (
     id BIGSERIAL PRIMARY KEY,
     event_id VARCHAR(255) NOT NULL,
     consumer_group VARCHAR(255) NOT NULL,
@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS processed_event (
 
     CONSTRAINT uk_processed_event_event_id_consumer UNIQUE (event_id, consumer_group)
 );
-CREATE INDEX IF NOT EXISTS idx_processed_event_processed_at ON processed_event (processed_at);
+CREATE INDEX idx_processed_event_processed_at ON processed_event (processed_at);

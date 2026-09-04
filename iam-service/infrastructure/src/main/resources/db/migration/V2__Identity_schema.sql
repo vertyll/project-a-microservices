@@ -11,7 +11,7 @@
 
 -- ===============
 -- The person: profile only, joined to Keycloak by keycloak_id
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE "user" (
     id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -26,34 +26,55 @@ CREATE TABLE IF NOT EXISTS "user" (
 
     CONSTRAINT uk_user_email UNIQUE (email)
 );
-CREATE INDEX IF NOT EXISTS idx_user_created_at ON "user" (created_at);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_user_keycloak_id ON "user" (keycloak_id);
+CREATE INDEX idx_user_created_at ON "user" (created_at);
+CREATE UNIQUE INDEX idx_user_keycloak_id ON "user" (keycloak_id);
 
 -- ===============
 -- Authorization: roles, the permissions they grant, and who holds them
-CREATE TABLE IF NOT EXISTS role (
+-- unrestricted is a role that holds everything its modules offer, now and after they
+-- grow. Stored as a flag rather than as a full set of rows, so a module shipped
+-- tomorrow is covered the day it registers instead of when somebody remembers to tick
+-- it. scope says where the role can be held: a GLOBAL role is held platform-wide and
+-- lands in the Keycloak token; a PROJECT role is held inside one project and is
+-- assigned by project-service.
+CREATE TABLE role (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     version BIGINT NULL,
+    unrestricted BOOLEAN NOT NULL DEFAULT FALSE,
+    scope VARCHAR(16) NOT NULL DEFAULT 'GLOBAL',
 
     CONSTRAINT uk_role_name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS permission (
+CREATE INDEX idx_role_scope ON role (scope);
+
+-- module is the module that enforces the permission. Services register their own
+-- catalogue at start-up, so it is written by them and never by hand; it is what lets
+-- the administration panel group permissions without knowing in advance which modules
+-- exist. scope says where the permission can be held — against a project membership
+-- or against the platform, never both: granting a project role the right to edit
+-- users, or a platform role the right to comment on a task nobody assigned them, is
+-- not a decision an administrator should be able to make by accident.
+CREATE TABLE permission (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     version BIGINT NULL,
+    module VARCHAR(64) NOT NULL DEFAULT 'admin',
+    scope VARCHAR(16) NOT NULL DEFAULT 'PROJECT',
 
     CONSTRAINT uk_permission_name UNIQUE (name)
 );
 
-CREATE TABLE IF NOT EXISTS user_role_mapping (
+CREATE INDEX idx_permission_module ON permission (module);
+
+CREATE TABLE user_role_mapping (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
 
@@ -62,7 +83,7 @@ CREATE TABLE IF NOT EXISTS user_role_mapping (
     CONSTRAINT fk_user_role_mapping_role FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS role_permission_mapping (
+CREATE TABLE role_permission_mapping (
     role_id BIGINT NOT NULL,
     permission_id BIGINT NOT NULL,
 
@@ -70,11 +91,11 @@ CREATE TABLE IF NOT EXISTS role_permission_mapping (
     CONSTRAINT fk_role_permission_mapping_role FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE,
     CONSTRAINT fk_role_permission_mapping_permission FOREIGN KEY (permission_id) REFERENCES permission(id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_role_permission_mapping_permission ON role_permission_mapping (permission_id);
+CREATE INDEX idx_role_permission_mapping_permission ON role_permission_mapping (permission_id);
 
 -- ===============
 -- Single-use tokens for activation, e-mail change and password reset
-CREATE TABLE IF NOT EXISTS verification_token (
+CREATE TABLE verification_token (
     id BIGSERIAL PRIMARY KEY,
     token VARCHAR(1024) NOT NULL,
     username VARCHAR(255) NOT NULL,
@@ -89,4 +110,4 @@ CREATE TABLE IF NOT EXISTS verification_token (
 
     CONSTRAINT uk_verification_token_token UNIQUE (token)
 );
-CREATE INDEX IF NOT EXISTS idx_verification_token_username ON verification_token (username);
+CREATE INDEX idx_verification_token_username ON verification_token (username);

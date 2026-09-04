@@ -8,7 +8,7 @@
 -- claimed in the consuming handler's transaction, so a failed handler leaves nothing claimed and
 -- the redelivery is a real retry.
 
-CREATE TABLE IF NOT EXISTS kafka_outbox (
+CREATE TABLE kafka_outbox (
     id BIGSERIAL PRIMARY KEY,
     event_id VARCHAR(255) NOT NULL,
     topic VARCHAR(255) NOT NULL,
@@ -25,13 +25,13 @@ CREATE TABLE IF NOT EXISTS kafka_outbox (
 
     CONSTRAINT uk_kafka_outbox_event_id UNIQUE (event_id)
 );
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_created_at ON kafka_outbox (created_at);
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_topic ON kafka_outbox (topic);
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_last_retry_at ON kafka_outbox (last_retry_at);
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_dispatch ON kafka_outbox (status, retry_count, last_retry_at);
-CREATE INDEX IF NOT EXISTS idx_kafka_outbox_processed_at ON kafka_outbox (processed_at);
+CREATE INDEX idx_kafka_outbox_created_at ON kafka_outbox (created_at);
+CREATE INDEX idx_kafka_outbox_topic ON kafka_outbox (topic);
+CREATE INDEX idx_kafka_outbox_last_retry_at ON kafka_outbox (last_retry_at);
+CREATE INDEX idx_kafka_outbox_dispatch ON kafka_outbox (status, retry_count, last_retry_at);
+CREATE INDEX idx_kafka_outbox_processed_at ON kafka_outbox (processed_at);
 
-CREATE TABLE IF NOT EXISTS processed_event (
+CREATE TABLE processed_event (
     id BIGSERIAL PRIMARY KEY,
     event_id VARCHAR(255) NOT NULL,
     consumer_group VARCHAR(255) NOT NULL,
@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS processed_event (
 
     CONSTRAINT uk_processed_event_event_id_consumer UNIQUE (event_id, consumer_group)
 );
-CREATE INDEX IF NOT EXISTS idx_processed_event_processed_at ON processed_event (processed_at);
+CREATE INDEX idx_processed_event_processed_at ON processed_event (processed_at);
 
-CREATE TABLE IF NOT EXISTS saga (
+CREATE TABLE saga (
     id VARCHAR(255) PRIMARY KEY,
     type VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL,
@@ -52,11 +52,11 @@ CREATE TABLE IF NOT EXISTS saga (
     updated_at TIMESTAMP NOT NULL,
     version BIGINT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_saga_status ON saga (status);
-CREATE INDEX IF NOT EXISTS idx_saga_type ON saga (type);
-CREATE INDEX IF NOT EXISTS idx_saga_started_at ON saga (started_at);
+CREATE INDEX idx_saga_status ON saga (status);
+CREATE INDEX idx_saga_type ON saga (type);
+CREATE INDEX idx_saga_started_at ON saga (started_at);
 
-CREATE TABLE IF NOT EXISTS saga_step (
+CREATE TABLE saga_step (
     id BIGSERIAL PRIMARY KEY,
     saga_id VARCHAR(255) NOT NULL,
     step_name VARCHAR(255) NOT NULL,
@@ -71,4 +71,4 @@ CREATE TABLE IF NOT EXISTS saga_step (
     CONSTRAINT uk_saga_step UNIQUE (saga_id, step_name),
     CONSTRAINT fk_saga_step_saga FOREIGN KEY (saga_id) REFERENCES saga(id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_saga_step_status ON saga_step (status);
+CREATE INDEX idx_saga_step_status ON saga_step (status);

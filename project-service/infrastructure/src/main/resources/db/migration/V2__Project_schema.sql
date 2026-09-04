@@ -10,7 +10,7 @@
 
 -- ===============
 -- Reference data: project types
-CREATE TABLE IF NOT EXISTS project_type (
+CREATE TABLE project_type (
     id UUID PRIMARY KEY,
     code VARCHAR(32) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS project_type (
     version BIGINT
 );
 
-CREATE TABLE IF NOT EXISTS project_type_translation (
+CREATE TABLE project_type_translation (
     project_type_id UUID NOT NULL REFERENCES project_type (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -29,22 +29,27 @@ CREATE TABLE IF NOT EXISTS project_type_translation (
 
 -- ===============
 -- Reference data: project roles and the permissions they grant
-CREATE TABLE IF NOT EXISTS project_role (
+-- A role code is not one of a fixed three: an administrator creates project-scoped
+-- roles in iam and this context learns them from role-permissions-changed. The
+-- unrestricted flag covers the role that holds everything, including permissions
+-- no module has registered yet.
+CREATE TABLE project_role (
     id UUID PRIMARY KEY,
-    code VARCHAR(32) NOT NULL UNIQUE,
+    code VARCHAR(64) NOT NULL UNIQUE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    version BIGINT
+    version BIGINT,
+    unrestricted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE IF NOT EXISTS project_role_permission (
+CREATE TABLE project_role_permission (
     project_role_id UUID NOT NULL REFERENCES project_role (id) ON DELETE CASCADE,
-    permission VARCHAR(64) NOT NULL,
+    permission VARCHAR(128) NOT NULL,
     CONSTRAINT uq_project_role_permission UNIQUE (project_role_id, permission)
 );
 
-CREATE TABLE IF NOT EXISTS project_role_translation (
+CREATE TABLE project_role_translation (
     project_role_id UUID NOT NULL REFERENCES project_role (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -54,7 +59,7 @@ CREATE TABLE IF NOT EXISTS project_role_translation (
 
 -- ===============
 -- Aggregate root
-CREATE TABLE IF NOT EXISTS project (
+CREATE TABLE project (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -65,16 +70,17 @@ CREATE TABLE IF NOT EXISTS project (
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
-    version BIGINT
+    version BIGINT,
+    hidden_work_log_enabled BOOLEAN NOT NULL DEFAULT FALSE
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_owner_id ON project (owner_id);
-CREATE INDEX IF NOT EXISTS idx_project_type_id ON project (type_id);
-CREATE INDEX IF NOT EXISTS idx_project_is_active ON project (is_active);
+CREATE INDEX idx_project_owner_id ON project (owner_id);
+CREATE INDEX idx_project_type_id ON project (type_id);
+CREATE INDEX idx_project_is_active ON project (is_active);
 
 -- ===============
 -- Per-project categories
-CREATE TABLE IF NOT EXISTS project_category (
+CREATE TABLE project_category (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES project (id) ON DELETE CASCADE,
     color VARCHAR(32) NOT NULL,
@@ -84,9 +90,9 @@ CREATE TABLE IF NOT EXISTS project_category (
     version BIGINT
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_category_project_id ON project_category (project_id);
+CREATE INDEX idx_project_category_project_id ON project_category (project_id);
 
-CREATE TABLE IF NOT EXISTS project_category_translation (
+CREATE TABLE project_category_translation (
     project_category_id UUID NOT NULL REFERENCES project_category (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -96,7 +102,7 @@ CREATE TABLE IF NOT EXISTS project_category_translation (
 
 -- ===============
 -- Per-project workflow statuses
-CREATE TABLE IF NOT EXISTS project_status (
+CREATE TABLE project_status (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES project (id) ON DELETE CASCADE,
     color VARCHAR(32) NOT NULL,
@@ -106,9 +112,9 @@ CREATE TABLE IF NOT EXISTS project_status (
     version BIGINT
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_status_project_id ON project_status (project_id);
+CREATE INDEX idx_project_status_project_id ON project_status (project_id);
 
-CREATE TABLE IF NOT EXISTS project_status_translation (
+CREATE TABLE project_status_translation (
     project_status_id UUID NOT NULL REFERENCES project_status (id) ON DELETE CASCADE,
     language VARCHAR(8) NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -118,7 +124,7 @@ CREATE TABLE IF NOT EXISTS project_status_translation (
 
 -- ===============
 -- Membership: which user holds which role in which project
-CREATE TABLE IF NOT EXISTS project_member (
+CREATE TABLE project_member (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES project (id) ON DELETE CASCADE,
     user_id UUID NOT NULL,
@@ -128,11 +134,11 @@ CREATE TABLE IF NOT EXISTS project_member (
     CONSTRAINT uq_project_member_project_user UNIQUE (project_id, user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_member_user_id ON project_member (user_id);
+CREATE INDEX idx_project_member_user_id ON project_member (user_id);
 
 -- ===============
 -- Invitations awaiting a decision
-CREATE TABLE IF NOT EXISTS project_invitation (
+CREATE TABLE project_invitation (
     id UUID PRIMARY KEY,
     project_id UUID NOT NULL REFERENCES project (id) ON DELETE CASCADE,
     invitee_email VARCHAR(255) NOT NULL,
@@ -146,9 +152,9 @@ CREATE TABLE IF NOT EXISTS project_invitation (
     version BIGINT
 );
 
-CREATE INDEX IF NOT EXISTS idx_project_invitation_project_id ON project_invitation (project_id);
-CREATE INDEX IF NOT EXISTS idx_project_invitation_email ON project_invitation (invitee_email);
-CREATE INDEX IF NOT EXISTS idx_project_invitation_status ON project_invitation (status);
+CREATE INDEX idx_project_invitation_project_id ON project_invitation (project_id);
+CREATE INDEX idx_project_invitation_email ON project_invitation (invitee_email);
+CREATE INDEX idx_project_invitation_status ON project_invitation (status);
 
 -- Only one pending invitation per project and e-mail. Enforced as a partial
 -- unique index rather than in application code, so a double-submit cannot
@@ -160,7 +166,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_project_invitation_pending
 -- ===============
 -- Local read model of users, projected from IAM integration events.
 -- Never written by this service's own use cases.
-CREATE TABLE IF NOT EXISTS user_ref (
+CREATE TABLE user_ref (
     user_id UUID PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     first_name VARCHAR(255),
@@ -169,4 +175,4 @@ CREATE TABLE IF NOT EXISTS user_ref (
     updated_at TIMESTAMP NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_ref_email ON user_ref (email);
+CREATE INDEX idx_user_ref_email ON user_ref (email);

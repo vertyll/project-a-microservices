@@ -4,7 +4,7 @@
 -- is the record that decides whether an upload was allowed, and — after a
 -- deleted — remembers which object still has to be removed.
 
-CREATE TABLE IF NOT EXISTS stored_file (
+CREATE TABLE stored_file (
     id UUID PRIMARY KEY,
     -- Unique: a key identifies exactly one object, and two records pointing at
     -- the same one would make deletion ambiguous.
@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS stored_file (
     CONSTRAINT chk_stored_file_size CHECK (size_bytes > 0)
 );
 
-CREATE INDEX IF NOT EXISTS idx_stored_file_owner ON stored_file (owner_id);
-CREATE INDEX IF NOT EXISTS idx_stored_file_scope ON stored_file (scope_id);
+CREATE INDEX idx_stored_file_owner ON stored_file (owner_id);
+CREATE INDEX idx_stored_file_scope ON stored_file (scope_id);
 
 -- Both sweeps scan by status: abandoned uploads and objects awaiting removal.
-CREATE INDEX IF NOT EXISTS idx_stored_file_status ON stored_file (status, created_at);
+CREATE INDEX idx_stored_file_status ON stored_file (status, created_at);
