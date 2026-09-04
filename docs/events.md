@@ -17,7 +17,7 @@ mail-service even though mail-service never produces it.
 | `role-permissions-changed` | iam-service     | project, task, translation, mail |
 | `project-created`          | project-service | task                             |
 | `project-updated`          | project-service | task                             |
-| `project-archived`         | project-service | task, notification               |
+| `project-archived`         | project-service | task                             |
 | `project-member-invited`   | project-service | notification                     |
 | `project-member-joined`    | project-service | task, notification               |
 | `project-member-removed`   | project-service | task                             |

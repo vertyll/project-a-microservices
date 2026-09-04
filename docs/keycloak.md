@@ -52,7 +52,10 @@ Browser (SPA)              API Gateway (BFF)                Keycloak            
    redirects to Keycloak with `code_challenge = S256(code_verifier)`.
 2. **`GET /auth/callback`** — gateway verifies `state`, exchanges the code as a *confidential*
    client (client secret **and** PKCE verifier), and opens a server-side session.
-3. **`GET /auth/session`** — the SPA's bootstrap call: "am I logged in, and as whom?". Returns id, e-mail and roles.
+3. **`GET /auth/session`** — the SPA's bootstrap call: "am I logged in, and as whom?". Returns id, e-mail and
+   roles, or **`204`** when nobody is. Not being signed in is an answer, not a refusal: a `401` here would be
+   indistinguishable from the session store being unreachable, and the SPA would sign the person out over a
+   network blip.
    Never a token.
 4. **`POST /auth/logout`** — revokes the refresh token at Keycloak and deletes the session.
 

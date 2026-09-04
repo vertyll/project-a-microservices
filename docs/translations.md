@@ -183,7 +183,7 @@ select — so `ngx-translate-messageformat-compiler` is registered as the `Trans
 ```typescript
 forkJoin({
   ui: this.http.get<Catalogue>(`./i18n/${language}.json`),
-  backend: this.http.get<ApiResponse<BackendCatalogue>>(`${environment.apiUrl}/translations/${language}`),
+  backend: this.http.get<BackendCatalogue>(`${environment.apiUrl}/translations/${language}`),
 })
 ```
 
