@@ -49,13 +49,13 @@ it — means a producer change at the moment a consumer is already waiting.
 | `saga-compensation-iam`          | iam-service          |
 | `saga-compensation-mail`         | mail-service         |
 | `saga-compensation-project`      | project-service      |
-| `saga-compensation-task`         | task-service         |
-| `saga-compensation-notification` | notification-service |
 
 Internal to one service: a compensation event is how a saga undoes its own steps, never a message another context reacts
 to. See [Eventual Consistency](./eventual-consistency.md).
 
-`translation-service` and `file-service` have no compensation topic — neither takes part in a distributed flow.
+`task-service`, `notification-service`, `translation-service` and `file-service` have no compensation topic — none of
+them starts a saga or owns a step of one. They react to events other contexts publish, and a consumer has nothing to
+undo: re-reading the event is the recovery.
 
 ## Conventions that hold for all of them
 
