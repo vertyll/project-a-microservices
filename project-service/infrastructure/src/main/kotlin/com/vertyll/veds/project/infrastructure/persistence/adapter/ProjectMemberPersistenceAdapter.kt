@@ -6,7 +6,6 @@ import com.vertyll.veds.project.infrastructure.persistence.entity.ProjectMemberJ
 import com.vertyll.veds.project.infrastructure.persistence.repository.ProjectMemberJpaRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 @Component
@@ -33,9 +32,6 @@ internal class ProjectMemberPersistenceAdapter(
     }
 
     override fun delete(id: UUID) = repository.deleteById(id)
-
-    @Transactional
-    override fun deleteAllByProjectId(projectId: UUID) = repository.deleteAllByProjectId(projectId)
 }
 
 private fun ProjectMember.toJpaEntity() =

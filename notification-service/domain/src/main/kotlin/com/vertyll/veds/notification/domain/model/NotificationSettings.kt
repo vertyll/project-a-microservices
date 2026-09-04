@@ -23,8 +23,6 @@ data class NotificationSettings(
 
     fun enableEmail(type: NotificationType): NotificationSettings = copy(emailEnabledTypes = emailEnabledTypes + type)
 
-    fun disableEmail(type: NotificationType): NotificationSettings = copy(emailEnabledTypes = emailEnabledTypes - type)
-
     companion object {
         val DEFAULT_EMAIL_TYPES: Set<NotificationType> =
             setOf(NotificationType.PROJECT_INVITATION, NotificationType.TASK_ASSIGNED)

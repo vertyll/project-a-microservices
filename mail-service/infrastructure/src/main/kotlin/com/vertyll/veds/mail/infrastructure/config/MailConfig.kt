@@ -1,6 +1,5 @@
 package com.vertyll.veds.mail.infrastructure.config
 
-import com.vertyll.veds.mail.infrastructure.config.MailProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

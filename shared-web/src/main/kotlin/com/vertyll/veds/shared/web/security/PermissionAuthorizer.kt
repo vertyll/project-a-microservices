@@ -19,9 +19,7 @@ class PermissionAuthorizer(
 ) {
     fun has(permission: String): Boolean {
         val roles = currentRoles()
-        if (roles.isEmpty() || source == null) return false
-
-        return source.isUnrestricted(roles) || permission in source.forRoles(roles)
+        return !(roles.isEmpty() || source == null) && (source.isUnrestricted(roles) || permission in source.forRoles(roles))
     }
 
     private fun currentRoles(): Set<String> =

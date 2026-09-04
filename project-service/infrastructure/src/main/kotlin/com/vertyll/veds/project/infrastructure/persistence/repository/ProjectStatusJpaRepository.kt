@@ -8,6 +8,4 @@ import java.util.UUID
 @Repository
 internal interface ProjectStatusJpaRepository : JpaRepository<ProjectStatusJpaEntity, UUID> {
     fun findAllByProjectId(projectId: UUID): List<ProjectStatusJpaEntity>
-
-    fun deleteAllByProjectId(projectId: UUID)
 }

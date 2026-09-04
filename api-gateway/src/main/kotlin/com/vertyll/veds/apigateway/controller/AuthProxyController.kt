@@ -6,7 +6,6 @@ import com.vertyll.veds.apigateway.session.KeycloakTokenClient
 import com.vertyll.veds.apigateway.session.SessionCookies
 import com.vertyll.veds.apigateway.session.SessionStore
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
-import com.vertyll.veds.shared.web.error.Problems
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -40,8 +39,6 @@ internal class AuthProxyController(
     private companion object {
         private val log = LoggerFactory.getLogger(AuthProxyController::class.java)
 
-        private const val MSG_NO_SESSION = "auth.no_session"
-
         private const val ERROR_PARAM = "error"
         private const val ERR_STATE_MISMATCH = "state_mismatch"
         private const val ERR_MISSING_VERIFIER = "missing_code_verifier"
@@ -60,6 +57,7 @@ internal class AuthProxyController(
         val roles: List<String>,
     )
 
+    @Suppress("kotlin:S6508")
     @GetMapping("/authorize")
     fun authorize(
         exchange: ServerWebExchange,
@@ -97,6 +95,7 @@ internal class AuthProxyController(
     // including ones that change credentials.
     private fun allowedAction(kcAction: String?): String? = kcAction?.takeIf { it in ALLOWED_KC_ACTIONS }
 
+    @Suppress("kotlin:S6508")
     @GetMapping("/callback")
     fun callback(
         @RequestParam(required = false) code: String?,
@@ -136,11 +135,18 @@ internal class AuthProxyController(
             }
     }
 
+    /**
+     * Who is signed in, or nothing.
+     *
+     * Nobody being signed in is an answer, not a refusal: the caller asked a question
+     * and got one, so this is `204`, not `401`. A `401` here would be indistinguishable
+     * from the session store being unreachable, and the front end would sign the person
+     * out over a network blip.
+     */
+    @Suppress("kotlin:S6508")
     @GetMapping("/session")
-    fun session(exchange: ServerWebExchange): Mono<ResponseEntity<Any>> {
-        val sessionId =
-            sessionCookies.read(exchange)
-                ?: return Mono.just(noSession())
+    fun session(exchange: ServerWebExchange): Mono<ResponseEntity<SessionResponse>> {
+        val sessionId = sessionCookies.read(exchange) ?: return Mono.just(noSession())
 
         return sessionStore
             .find(sessionId)
@@ -150,7 +156,7 @@ internal class AuthProxyController(
                         userId = session.subject,
                         email = session.email,
                         roles = session.roles,
-                    ) as Any,
+                    ),
                 )
             }.switchIfEmpty(Mono.fromCallable { noSession() })
     }
@@ -177,14 +183,13 @@ internal class AuthProxyController(
             }
     }
 
-    private fun noSession(): ResponseEntity<Any> =
-        ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body(Problems.of(HttpStatus.UNAUTHORIZED, MSG_NO_SESSION))
+    @Suppress("kotlin:S6508")
+    private fun noSession(): ResponseEntity<SessionResponse> = ResponseEntity.noContent().build()
 
     @Suppress("kotlin:S6508")
     private fun loggedOut(): ResponseEntity<Void> = ResponseEntity.noContent().build()
 
+    @Suppress("kotlin:S6508")
     private fun redirectToApp(error: String?): ResponseEntity<Void> {
         val target =
             UriComponentsBuilder

@@ -6,7 +6,6 @@ internal object NotificationKafkaTopics {
     object Consumed {
         const val PROJECT_MEMBER_INVITED = "project-member-invited"
         const val PROJECT_MEMBER_JOINED = "project-member-joined"
-        const val PROJECT_ARCHIVED = "project-archived"
 
         const val TASK_CREATED = "task-created"
         const val TASK_ASSIGNED = "task-assigned"

@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClient
  */
 @Component
 class TranslationCatalogueRegistrarAdapter(
-    private val properties: TranslationClientProperties,
+    properties: TranslationClientProperties,
 ) : TranslationCatalogueRegistrar {
     private val client: RestClient = RestClient.builder().baseUrl(properties.baseUrl).build()
 

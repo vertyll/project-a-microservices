@@ -9,9 +9,4 @@ enum class NotificationType(
     TASK_ASSIGNED("notification.task_assigned"),
     TASK_STATUS_CHANGED("notification.task_status_changed"),
     TASK_COMMENT_ADDED("notification.task_comment_added"),
-    ;
-
-    companion object {
-        fun fromKey(key: String): NotificationType? = entries.firstOrNull { it.key == key }
-    }
 }

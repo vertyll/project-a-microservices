@@ -15,6 +15,4 @@ data class Template(
     val updatedAt: Instant = Instant.now(),
 ) {
     fun markProcessed(): Template = copy(status = TemplateStatus.PROCESSED, updatedAt = Instant.now())
-
-    fun markFailed(): Template = copy(status = TemplateStatus.FAILED, updatedAt = Instant.now())
 }

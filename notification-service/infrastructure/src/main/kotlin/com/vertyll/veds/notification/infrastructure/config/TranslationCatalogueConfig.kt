@@ -14,14 +14,6 @@ internal class TranslationCatalogueConfig {
                 pl("Nie znaleziono powiadomienia.")
                 en("Notification not found.")
             }
-            key("notification.not_the_recipient") {
-                pl("To powiadomienie nie jest Twoje.")
-                en("This notification is not yours.")
-            }
-            key("notification.recipient_unknown") {
-                pl("Nie znamy odbiorcy.")
-                en("The recipient is unknown.")
-            }
             key("notification.project_invitation") {
                 pl("Zaproszenie do projektu {projectName}.")
                 en("You have been invited to {projectName}.")

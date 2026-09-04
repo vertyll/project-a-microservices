@@ -1,8 +1,6 @@
 package com.vertyll.veds.shared.saga.engine.persistence
 
 import com.vertyll.veds.shared.saga.SagaStatus
-import com.vertyll.veds.shared.saga.engine.persistence.BaseSaga
-import com.vertyll.veds.shared.saga.engine.persistence.SagaRepositoryPort
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.NoRepositoryBean
 import java.time.Instant

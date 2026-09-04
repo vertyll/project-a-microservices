@@ -12,7 +12,6 @@ import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
-import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.sharederror.ApiException
 import io.swagger.v3.oas.annotations.Operation
@@ -37,7 +36,6 @@ internal class AuthController(
     private val authServiceQueries: AuthQueryUseCase,
     private val provisionCurrentUser: ProvisionCurrentUserUseCase,
     private val userServiceQueries: UserQueryUseCase,
-    private val sharedConfigProperties: SharedKeycloakProperties,
 ) {
     @PostMapping("/register")
     @Operation(summary = "Register new user")

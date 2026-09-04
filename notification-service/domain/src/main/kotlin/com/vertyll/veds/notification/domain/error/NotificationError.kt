@@ -8,8 +8,6 @@ enum class NotificationError(
     override val kind: ErrorKind,
 ) : DomainError {
     NOTIFICATION_NOT_FOUND("notification.not_found", ErrorKind.NOT_FOUND),
-    NOT_THE_RECIPIENT("notification.not_the_recipient", ErrorKind.ACCESS_DENIED),
-    RECIPIENT_UNKNOWN("notification.recipient_unknown", ErrorKind.NOT_FOUND),
 
     VERSION_MISMATCH("common.version_mismatch", ErrorKind.PRECONDITION_FAILED),
     NOT_AUTHENTICATED("common.not_authenticated", ErrorKind.ACCESS_DENIED),

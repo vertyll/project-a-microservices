@@ -46,7 +46,6 @@ object TaskAccessPolicy {
         userId: UUID,
     ): Boolean {
         task.accessRoleId ?: return true
-        if (task.wasCreatedBy(userId) || task.isAssignedTo(userId)) return true
-        return role?.grants(TaskPermission.VIEW_RESTRICTED_TASKS) == true
+        return task.wasCreatedBy(userId) || task.isAssignedTo(userId) || role?.grants(TaskPermission.VIEW_RESTRICTED_TASKS) == true
     }
 }

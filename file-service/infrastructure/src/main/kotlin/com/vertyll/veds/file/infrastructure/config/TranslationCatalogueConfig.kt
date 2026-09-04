@@ -18,10 +18,6 @@ internal class TranslationCatalogueConfig {
                 pl("Plik nie jest jeszcze dostępny.")
                 en("This file is not available yet.")
             }
-            key("file.access_denied") {
-                pl("Brak dostępu do tego pliku.")
-                en("You do not have access to this file.")
-            }
             key("file.content_type_not_allowed") {
                 pl("Ten typ pliku nie jest dozwolony tutaj.")
                 en("This file type is not allowed here.")

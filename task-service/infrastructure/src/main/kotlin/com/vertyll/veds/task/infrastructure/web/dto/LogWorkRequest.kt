@@ -8,6 +8,11 @@ import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
 
+/**
+ * A request body, not a JPA model: `workedOn` is nullable so a missing field binds and the
+ * validator refuses it with the catalogue key, rather than Jackson failing with its own
+ * message. `toCommand` runs only after `@Valid` has passed.
+ */
 data class LogWorkRequest(
     @field:Positive(message = "validation.task.work_log.minutes_positive")
     @field:Max(value = WorkLogEntry.MAX_MINUTES_PER_ENTRY.toLong(), message = "validation.task.work_log.minutes_too_large")

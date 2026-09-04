@@ -54,10 +54,6 @@ internal class TranslationCatalogueConfig {
                 pl("Klucz należy do usługi {owner}.")
                 en("This key belongs to {owner}.")
             }
-            key("translation.key.not_managed") {
-                pl("Tego klucza nie można edytować.")
-                en("This key cannot be edited.")
-            }
             key("translation.language.not_found") {
                 pl("Nie znaleziono języka {language}.")
                 en("Language {language} not found.")

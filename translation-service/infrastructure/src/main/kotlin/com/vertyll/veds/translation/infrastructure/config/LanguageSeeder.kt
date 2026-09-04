@@ -6,10 +6,19 @@ import com.vertyll.veds.translation.domain.repository.LanguageRepository
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * Seeds the languages the installation supports.
+ *
+ * Ordered ahead of [OwnCatalogueRegistrationRunner] because a catalogue's defaults are
+ * per language: registering one before the languages exist writes the keys and drops
+ * every value, and the next start sees the keys already there and never repairs them.
+ */
 @Component
+@Order(1)
 internal class LanguageSeeder(
     private val languageRepository: LanguageRepository,
 ) : ApplicationRunner {

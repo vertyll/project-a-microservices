@@ -17,7 +17,6 @@ spring:
 
 veds:
   translation:
-    supported-languages: pl,en
     client:
       base-url: http://localhost:1
 

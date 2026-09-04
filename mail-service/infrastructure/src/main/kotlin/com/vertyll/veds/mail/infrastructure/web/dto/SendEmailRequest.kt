@@ -1,6 +1,5 @@
 package com.vertyll.veds.mail.infrastructure.web.dto
 
-import com.vertyll.veds.mail.application.command.SendEmailCommand
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 
@@ -14,12 +13,4 @@ data class SendEmailRequest(
     val templateName: String,
     val variables: Map<String, String> = emptyMap(),
     val replyTo: String? = null,
-) {
-    fun toCommand(): SendEmailCommand =
-        SendEmailCommand(
-            to = to,
-            subject = subject,
-            templateName = templateName,
-            replyTo = replyTo,
-        )
-}
+)

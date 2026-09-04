@@ -30,6 +30,13 @@ internal class TaskPersistenceAdapter(
     override fun findAllByIds(ids: Collection<UUID>): List<Task> =
         if (ids.isEmpty()) emptyList() else repository.findAllById(ids).map { it.toDomain() }
 
+    /**
+     * The two interpolated fragments are fixed literals: `order` comes from an exhaustive
+     * `when` over [TaskSortField], and `buildWhere` appends only constant text. Every value
+     * the caller supplies is bound as a named parameter in `applyCriteria`, so nothing the
+     * caller writes reaches the query text.
+     */
+    @Suppress("SqlSourceToSinkFlow")
     override fun search(
         criteria: TaskSearchCriteria,
         pageRequest: PageRequest,

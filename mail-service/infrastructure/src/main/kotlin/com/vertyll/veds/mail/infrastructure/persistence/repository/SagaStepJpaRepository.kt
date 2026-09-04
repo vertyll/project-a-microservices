@@ -1,7 +1,6 @@
 package com.vertyll.veds.mail.infrastructure.persistence.repository
 
 import com.vertyll.veds.mail.infrastructure.persistence.entity.SagaStepJpaEntity
-import com.vertyll.veds.shared.saga.SagaStepStatus
 import com.vertyll.veds.shared.saga.engine.persistence.BaseSagaStepRepository
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
@@ -16,12 +15,4 @@ internal interface SagaStepJpaRepository :
         sagaId: String,
         stepName: String,
     ): List<SagaStepJpaEntity>
-
-    fun findBySagaIdAndStepNameAndStatus(
-        sagaId: String,
-        stepName: String,
-        status: SagaStepStatus,
-    ): List<SagaStepJpaEntity>
-
-    fun findBySagaIdOrderByCreatedAtDesc(sagaId: String): List<SagaStepJpaEntity>
 }

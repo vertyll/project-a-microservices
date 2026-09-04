@@ -140,10 +140,6 @@ internal class InMemoryMemberRepository : ProjectMemberRepository {
     override fun delete(id: UUID) {
         stored.removeAll { it.id == id }
     }
-
-    override fun deleteAllByProjectId(projectId: UUID) {
-        stored.removeAll { it.projectId == projectId }
-    }
 }
 
 internal class InMemoryRoleRepository : ProjectRoleRepository {

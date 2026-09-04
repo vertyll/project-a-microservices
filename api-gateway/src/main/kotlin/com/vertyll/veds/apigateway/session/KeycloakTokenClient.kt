@@ -55,6 +55,7 @@ internal class KeycloakTokenClient(
                 .with("refresh_token", refreshToken),
         )
 
+    @Suppress("kotlin:S6508")
     fun revoke(refreshToken: String): Mono<Void> =
         client
             .post()

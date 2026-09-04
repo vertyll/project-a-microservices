@@ -32,7 +32,7 @@ class KeycloakJwtUtilsTest {
     }
 
     /**
-     * The next four lock in fail-closed behaviour. A token the converter cannot read must grant
+     * The next four lock in fail-closed behavior. A token the converter cannot read must grant
      * nothing: granting a default role, or throwing and letting a caller catch it, would both turn
      * a malformed token into access.
      */

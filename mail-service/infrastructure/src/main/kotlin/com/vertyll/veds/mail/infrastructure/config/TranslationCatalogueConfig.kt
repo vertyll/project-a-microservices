@@ -10,29 +10,9 @@ internal class TranslationCatalogueConfig {
     @Bean
     fun mailTranslationCatalogue(): TranslationCatalogue =
         translations("mail-service") {
-            key("mail.template.not_found") {
-                pl("Nie znaleziono szablonu wiadomości.")
-                en("Mail template not found.")
-            }
             key("mail.template.unknown") {
                 pl("Nieznana nazwa szablonu wiadomości.")
                 en("Unknown message template name.")
-            }
-            key("mail.template.render_failed") {
-                pl("Nie udało się wygenerować wiadomości.")
-                en("The message could not be rendered.")
-            }
-            key("mail.delivery.failed") {
-                pl("Nie udało się wysłać wiadomości.")
-                en("The message could not be delivered.")
-            }
-            key("mail.log.not_found") {
-                pl("Nie znaleziono wpisu w dzienniku wysyłki.")
-                en("Mail log entry not found.")
-            }
-            key("mail.batch.empty") {
-                pl("Lista odbiorców jest pusta.")
-                en("The recipient list is empty.")
             }
             key("validation.mail.recipients_required") {
                 pl("Wymagany jest co najmniej jeden odbiorca.")

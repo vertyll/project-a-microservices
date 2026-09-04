@@ -1,6 +1,5 @@
 package com.vertyll.veds.mail.infrastructure.web.dto
 
-import com.vertyll.veds.mail.application.command.SendBatchEmailCommand
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
 
@@ -14,12 +13,4 @@ data class SendBatchEmailRequest(
     val commonVariables: Map<String, String> = emptyMap(),
     val specificVariables: Map<String, Map<String, String>> = emptyMap(),
     val replyTo: String? = null,
-) {
-    fun toCommand(): SendBatchEmailCommand =
-        SendBatchEmailCommand(
-            recipients = recipients,
-            subject = subject,
-            templateName = templateName,
-            replyTo = replyTo,
-        )
-}
+)

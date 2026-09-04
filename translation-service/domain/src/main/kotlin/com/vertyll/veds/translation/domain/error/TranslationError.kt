@@ -9,7 +9,6 @@ enum class TranslationError(
 ) : DomainError {
     KEY_NOT_FOUND("translation.key.not_found", ErrorKind.NOT_FOUND),
     KEY_OWNED_BY_ANOTHER_SERVICE("translation.key.owned_by_another_service", ErrorKind.CONFLICT),
-    KEY_NOT_MANAGED("translation.key.not_managed", ErrorKind.CONFLICT),
 
     LANGUAGE_NOT_FOUND("translation.language.not_found", ErrorKind.NOT_FOUND),
 

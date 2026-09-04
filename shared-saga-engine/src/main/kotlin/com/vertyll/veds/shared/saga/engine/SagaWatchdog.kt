@@ -3,7 +3,6 @@ package com.vertyll.veds.shared.saga.engine
 import com.vertyll.veds.shared.saga.Saga
 import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.shared.saga.SagaStep
-import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.persistence.SagaRepositoryPort
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled

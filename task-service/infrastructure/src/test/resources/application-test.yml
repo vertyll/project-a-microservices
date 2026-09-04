@@ -20,7 +20,6 @@ veds:
     client:
       base-url: http://localhost:1
   translation:
-    supported-languages: pl,en
     client:
       base-url: http://localhost:1
 

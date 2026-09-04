@@ -77,7 +77,7 @@ class ErrorHttpStatusMapperTest {
  *
  * They land there only because Spring registers [ProblemDetailJacksonMixin] on the
  * mapper — a plain `ObjectMapper` nests them under `properties` and emits a null
- * `detail`, which is not a problem document. Anything serialising a
+ * `detail`, which is not a problem document. Anything serializing a
  * [org.springframework.http.ProblemDetail] by hand, as the gateway's authentication
  * entry point does, has to use the container's mapper for the same reason.
  */

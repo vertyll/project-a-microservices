@@ -1,6 +1,7 @@
 package com.vertyll.veds.notification.infrastructure.config
 
 import com.vertyll.veds.shared.web.security.KeycloakJwtAuthenticationConverter
+import com.vertyll.veds.shared.web.security.ProblemAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
@@ -14,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableMethodSecurity
 internal class SecurityConfig(
     private val keycloakJwtAuthenticationConverter: KeycloakJwtAuthenticationConverter,
+    private val problemAuthenticationEntryPoint: ProblemAuthenticationEntryPoint,
 ) {
     private companion object {
         private val PUBLIC_ENDPOINTS =
@@ -41,9 +43,11 @@ internal class SecurityConfig(
                     .authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { jwt ->
-                    jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
-                }
+                oauth2
+                    .authenticationEntryPoint(problemAuthenticationEntryPoint)
+                    .jwt { jwt ->
+                        jwt.jwtAuthenticationConverter(keycloakJwtAuthenticationConverter)
+                    }
             }
 
         return http.build()

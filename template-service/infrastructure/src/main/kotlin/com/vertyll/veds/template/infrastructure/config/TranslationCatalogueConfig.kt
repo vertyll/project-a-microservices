@@ -14,17 +14,5 @@ internal class TranslationCatalogueConfig {
                 pl("Nie znaleziono zasobu.")
                 en("Resource not found.")
             }
-            key("template.access_denied") {
-                pl("Brak uprawnień do tej operacji.")
-                en("You do not have permission to do this.")
-            }
-            key("template.already_exists") {
-                pl("Zasób już istnieje.")
-                en("This resource already exists.")
-            }
-            key("template.misconfigured") {
-                pl("Usługa jest nieprawidłowo skonfigurowana.")
-                en("The service is misconfigured.")
-            }
         }
 }

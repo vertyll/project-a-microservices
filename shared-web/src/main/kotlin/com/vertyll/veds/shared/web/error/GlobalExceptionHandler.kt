@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -115,11 +116,28 @@ class GlobalExceptionHandler {
         return validationProblem(emptyMap(), request)
     }
 
+    /**
+     * The last resort, and deliberately not the first.
+     *
+     * This advice runs ahead of Boot's so the handlers above win, which means Spring's
+     * own failures arrive here too. Those already carry the status they deserve — an
+     * unknown path is a `404`, not a `500` — and their document is Spring's to build,
+     * so it is passed through untouched. Only what nothing recognised is a `500`.
+     *
+     * Such a document carries no `code`: that member names a key in a service's error
+     * catalogue, and a request rejected before it reached the application has no entry
+     * in one. A client reads `status` for these, which is what it means.
+     */
     @ExceptionHandler(Exception::class)
     fun handleUnexpected(
         ex: Exception,
         request: WebRequest,
     ): ProblemDetail {
+        if (ex is ErrorResponse) {
+            log.debug("Rejected by the framework: {} {}", ex.statusCode, ex.javaClass.simpleName)
+            return ex.body
+        }
+
         log.error("Unhandled exception", ex)
 
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR, request)
@@ -128,7 +146,13 @@ class GlobalExceptionHandler {
     private fun validationProblem(
         fields: Map<String, String>,
         request: WebRequest,
-    ): ProblemDetail = problem(HttpStatus.BAD_REQUEST, VALIDATION_FAILED, request, mapOf("fields" to fields))
+    ): ProblemDetail =
+        problem(
+            status = HttpStatus.BAD_REQUEST,
+            code = VALIDATION_FAILED,
+            request = request,
+            properties = if (fields.isEmpty()) emptyMap() else mapOf("fields" to fields),
+        )
 
     private fun problem(
         status: HttpStatus,

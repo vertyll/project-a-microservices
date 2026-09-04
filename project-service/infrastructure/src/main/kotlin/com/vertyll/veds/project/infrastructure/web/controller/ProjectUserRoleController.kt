@@ -1,7 +1,6 @@
 package com.vertyll.veds.project.infrastructure.web.controller
 
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
-import com.vertyll.veds.project.application.port.inbound.command.ProjectMembershipCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectMembershipQueryUseCase
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
@@ -21,7 +20,6 @@ import java.util.UUID
 @RequestMapping("/project-user-roles")
 @Tag(name = "Project members", description = "Legacy membership route kept for the Angular client")
 internal class ProjectUserRoleController(
-    private val membershipServiceCommands: ProjectMembershipCommandUseCase,
     private val membershipServiceQueries: ProjectMembershipQueryUseCase,
 ) {
     @GetMapping("/project/{projectId}")

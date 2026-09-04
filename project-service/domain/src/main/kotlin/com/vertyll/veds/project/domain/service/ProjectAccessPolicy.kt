@@ -18,9 +18,9 @@ object ProjectAccessPolicy {
 
     fun evaluate(request: AccessRequest): AccessDecision {
         for (rule in RULES) {
-            when (val decision = rule.evaluate(request)) {
-                is AccessDecision.Deny -> return decision
-                is AccessDecision.Permit -> return decision
+            return when (val decision = rule.evaluate(request)) {
+                is AccessDecision.Deny -> decision
+                is AccessDecision.Permit -> decision
                 null -> continue
             }
         }
@@ -59,17 +59,17 @@ object ProjectAccessPolicy {
     ): Set<String> {
         val own = ProjectPermission.entries.filter { permits(project, userId, member, role, it).isPermitted }
         val mine = own.mapTo(mutableSetOf()) { it.name }
-        if (!isGrantedByMembership(project, userId, member, role)) return mine
+        if (role == null || !isGrantedByMembership(project, userId, member, role)) return mine
 
-        return mine + role!!.permissions
+        return mine + role.permissions
     }
 
     private fun isGrantedByMembership(
         project: Project,
         userId: UUID,
         member: ProjectMember?,
-        role: ProjectRole?,
-    ): Boolean = role != null && role.isActive && permits(project, userId, member, role, ProjectPermission.VIEW_PROJECT).isPermitted
+        role: ProjectRole,
+    ): Boolean = role.isActive && permits(project, userId, member, role, ProjectPermission.VIEW_PROJECT).isPermitted
 }
 
 internal fun interface AccessRule {

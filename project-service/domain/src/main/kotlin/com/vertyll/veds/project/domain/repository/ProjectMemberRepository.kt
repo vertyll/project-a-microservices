@@ -20,6 +20,4 @@ interface ProjectMemberRepository {
     fun countByProjectIds(projectIds: Collection<UUID>): Map<UUID, Int>
 
     fun delete(id: UUID)
-
-    fun deleteAllByProjectId(projectId: UUID)
 }

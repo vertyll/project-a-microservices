@@ -12,9 +12,4 @@ enum class SagaTypes(
 
     PASSWORD_CHANGE("PasswordChange"),
     PASSWORD_RESET("PasswordReset"),
-    ;
-
-    companion object {
-        fun fromString(value: String): SagaTypes? = entries.find { it.value == value }
-    }
 }

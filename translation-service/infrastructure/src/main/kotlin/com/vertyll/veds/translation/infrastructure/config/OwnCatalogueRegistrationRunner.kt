@@ -7,9 +7,12 @@ import com.vertyll.veds.translation.application.port.inbound.command.Translation
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 
+/** Runs after [LanguageSeeder]: a catalogue's defaults cannot be stored before its languages exist. */
 @Component
+@Order(2)
 internal class OwnCatalogueRegistrationRunner(
     private val catalogues: List<TranslationCatalogue>,
     private val commands: TranslationCommandUseCase,

@@ -32,7 +32,7 @@ internal class OutboxDispatchTest {
             sent += message
             val topic = message.headers[KafkaHeaders.TOPIC] as String
             return CompletableFuture.completedFuture(
-                SendResult<String, ByteArray>(
+                SendResult(
                     ProducerRecord(topic, "key", byteArrayOf()),
                     RecordMetadata(TopicPartition(topic, 0), 0L, 0, 0L, 0, 0),
                 ),

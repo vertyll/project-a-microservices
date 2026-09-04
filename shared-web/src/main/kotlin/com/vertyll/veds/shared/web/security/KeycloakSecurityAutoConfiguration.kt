@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.oauth2.jwt.Jwt
+import tools.jackson.databind.ObjectMapper
 
 /**
  * Autoconfiguration that provides Keycloak JWT converters for both
@@ -35,6 +36,17 @@ internal class KeycloakSecurityAutoConfiguration {
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     fun permissionAuthorizer(source: ObjectProvider<RolePermissionsSource>): PermissionAuthorizer =
         PermissionAuthorizer(source.getIfAvailable())
+
+    /**
+     * Makes an unauthenticated request answer in the same shape as every other
+     * refusal. A service opts in by naming it in its `oauth2ResourceServer`
+     * configuration.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    fun problemAuthenticationEntryPoint(objectMapper: ObjectMapper): ProblemAuthenticationEntryPoint =
+        ProblemAuthenticationEntryPoint(objectMapper)
 
     /** Reactive-stack JWT → `Mono<AbstractAuthenticationToken>` converter bean. */
     @Bean

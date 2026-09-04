@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 internal class PermissionCatalogueController(
     private val catalogue: PermissionCatalogueUseCase,
 ) {
+    @Suppress("kotlin:S6508")
     @PostMapping("/catalogue")
     @Operation(summary = "Register the permissions a module declares")
     fun register(

@@ -7,7 +7,6 @@ import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.shared.saga.SagaStep
 import com.vertyll.veds.shared.saga.SagaStepStatus
 import com.vertyll.veds.shared.saga.SagaTypeValue
-import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.persistence.SagaRepositoryPort
 import com.vertyll.veds.shared.saga.engine.persistence.SagaStepRepositoryPort
 import org.slf4j.Logger

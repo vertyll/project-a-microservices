@@ -19,7 +19,14 @@ class KeycloakJwtAuthenticationConverterTest {
             gatewayClientSecret = "",
             rolesClaimPath = "realm_access.roles",
             oauth = SharedKeycloakProperties.OAuthProperties("http://localhost:8080/auth/callback", "http://localhost:4200"),
-            cookie = SharedKeycloakProperties.CookieProperties("KEYCLOAK_REFRESH_TOKEN", true, false, "Strict", "/"),
+            cookie =
+                SharedKeycloakProperties.CookieProperties(
+                    "KEYCLOAK_REFRESH_TOKEN",
+                    httpOnly = true,
+                    secure = false,
+                    sameSite = "Strict",
+                    path = "/",
+                ),
         )
 
     private val converter = KeycloakJwtAuthenticationConverter(properties)

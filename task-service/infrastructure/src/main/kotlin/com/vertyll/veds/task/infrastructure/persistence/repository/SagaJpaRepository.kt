@@ -5,7 +5,6 @@ import com.vertyll.veds.shared.saga.engine.persistence.BaseSagaRepository
 import com.vertyll.veds.task.infrastructure.persistence.entity.SagaJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.time.Instant
 
 @Repository
 internal interface SagaJpaRepository :
@@ -14,10 +13,5 @@ internal interface SagaJpaRepository :
     override fun findByTypeAndStatus(
         type: String,
         status: SagaStatus,
-    ): List<SagaJpaEntity>
-
-    fun findByStatusAndUpdatedAtBefore(
-        status: SagaStatus,
-        updatedAt: Instant,
     ): List<SagaJpaEntity>
 }

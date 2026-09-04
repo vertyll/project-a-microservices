@@ -7,9 +7,4 @@ enum class SagaTypes(
 ) : SagaTypeValue {
     PROJECT_INVITATION("ProjectInvitation"),
     PROJECT_ARCHIVAL("ProjectArchival"),
-    ;
-
-    companion object {
-        fun fromString(value: String): SagaTypes? = entries.find { it.value == value }
-    }
 }

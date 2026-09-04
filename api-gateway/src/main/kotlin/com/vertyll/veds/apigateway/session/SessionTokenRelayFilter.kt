@@ -98,7 +98,7 @@ internal class SessionTokenRelayFilter(
             .switchIfEmpty(
                 Mono.defer {
                     logger.debug("Refresh failed for session, dropping it: {}", failure.message)
-                    sessionStore.delete(sessionId).then(Mono.empty<AuthSession>())
+                    sessionStore.delete(sessionId).then(Mono.empty())
                 },
             )
 

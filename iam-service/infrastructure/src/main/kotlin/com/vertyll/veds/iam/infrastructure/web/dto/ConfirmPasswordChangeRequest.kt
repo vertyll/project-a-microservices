@@ -1,6 +1,5 @@
 package com.vertyll.veds.iam.infrastructure.web.dto
 
-import com.vertyll.veds.iam.application.command.ConfirmPasswordChangeCommand
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
@@ -13,9 +12,4 @@ data class ConfirmPasswordChangeRequest(
         message = "validation.iam.password_complexity",
     )
     val newPassword: String = "",
-) {
-    fun toCommand(): ConfirmPasswordChangeCommand =
-        ConfirmPasswordChangeCommand(
-            newPassword = newPassword,
-        )
-}
+)

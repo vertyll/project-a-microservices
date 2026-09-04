@@ -30,8 +30,6 @@ internal interface ProjectMemberJpaRepository : JpaRepository<ProjectMemberJpaEn
     fun countByProjectIds(
         @Param("projectIds") projectIds: Collection<UUID>,
     ): List<ProjectMemberCountProjection>
-
-    fun deleteAllByProjectId(projectId: UUID)
 }
 
 internal interface ProjectMemberCountProjection {

@@ -15,8 +15,6 @@ data class VerificationToken(
     val updatedAt: Instant = Instant.now(),
     val version: Long? = null,
 ) {
-    fun isTokenType(type: TokenTypes): Boolean = this.tokenType == type.value
-
     fun markUsed(): VerificationToken =
         copy(
             used = true,

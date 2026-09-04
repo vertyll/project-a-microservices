@@ -33,11 +33,14 @@ internal object CurrentUser {
             ?: throw ApiException(IamError.TOKEN_CLAIM_MISSING, mapOf(CLAIM_PARAM to EMAIL_CLAIM))
     }
 
-    fun identityOf(jwt: Jwt?): AuthenticatedIdentity =
-        AuthenticatedIdentity(
-            keycloakId = keycloakIdOf(jwt),
-            email = emailOf(jwt),
-            firstName = jwt?.getClaimAsString(GIVEN_NAME_CLAIM) ?: "",
-            lastName = jwt?.getClaimAsString(FAMILY_NAME_CLAIM) ?: "",
+    fun identityOf(jwt: Jwt?): AuthenticatedIdentity {
+        val token = jwt ?: throw ApiException(IamError.NOT_AUTHENTICATED)
+
+        return AuthenticatedIdentity(
+            keycloakId = keycloakIdOf(token),
+            email = emailOf(token),
+            firstName = token.getClaimAsString(GIVEN_NAME_CLAIM).orEmpty(),
+            lastName = token.getClaimAsString(FAMILY_NAME_CLAIM).orEmpty(),
         )
+    }
 }

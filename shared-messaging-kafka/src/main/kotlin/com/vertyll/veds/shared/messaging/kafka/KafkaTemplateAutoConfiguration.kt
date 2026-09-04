@@ -155,6 +155,7 @@ internal class KafkaTemplateAutoConfiguration {
         kafkaErrorHandler: CommonErrorHandler,
     ): ConcurrentKafkaListenerContainerFactory<String, ByteArray> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, ByteArray>()
+        @Suppress("UsePropertyAccessSyntax")
         factory.setConsumerFactory(consumerFactory)
         factory.setCommonErrorHandler(kafkaErrorHandler)
         return factory
