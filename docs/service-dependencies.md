@@ -34,7 +34,7 @@ only when some consumer takes it without the rest.
 | `shared-translation`        | none      | 7        | Key-declaration DSL and the ICU message renderer                              |
 | `shared-web`                | Spring    | **9**    | Keycloak JWT converters (servlet + reactive), ETag/optimistic-locking helpers |
 | `shared-messaging-kafka`    | Spring    | 7        | Transactional outbox, idempotent consumption, Avro serialisation              |
-| `shared-saga-engine`        | Spring    | 6        | Saga orchestration, compensation, watchdog, JPA base entities                 |
+| `shared-saga-engine`        | Spring    | 6        | One service's local saga: state machine, compensation, watchdog, JPA entities |
 | `shared-translation-client` | Spring    | 7        | Start-up registration of a service's translation keys                         |
 
 `shared-saga-api` exists because the application layer of six services speaks saga vocabulary and must never see a

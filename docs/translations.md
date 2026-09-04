@@ -139,16 +139,16 @@ other fails to register. The prefix removes the collision instead of resolving i
 
 Outgoing mail is English, and nothing in the translation machinery touches it.
 
-| Part            | Where it comes from                                             |
-|-----------------|-----------------------------------------------------------------|
-| Body            | a Thymeleaf template in `mail-service/…/resources/templates`    |
-| Subject         | a literal at the producer, chosen per message type              |
-| Template choice | `templateName` on `MailRequestedEvent`, an `EmailTemplate` name |
+| Part            | Where it comes from                                               |
+|-----------------|-------------------------------------------------------------------|
+| Body            | a Thymeleaf template in `mail-service/…/resources/templates`      |
+| Subject         | a literal at the producer, chosen per message type                |
+| Template choice | `templateName` on `MailRequestedCommand`, an `EmailTemplate` name |
 
 `mail-service` registers its own catalogue, but only for the error keys its API returns. It resolves nothing for the
 messages it sends.
 
-The reason is that no language is available at the point of sending. `MailRequestedEvent` carries no language, a
+The reason is that no language is available at the point of sending. `MailRequestedCommand` carries no language, a
 recipient record carries no preference, and the one case that needs mail most — inviting somebody who has no account
 yet — has no user to ask. A translated subject needs all three: a field on the event, a preference on the recipient with
 a configured default behind it, and resolution in `mail-service`, which already has `shared-translation-client` on its

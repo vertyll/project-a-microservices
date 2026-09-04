@@ -70,7 +70,7 @@ Anything that is merely *interesting* goes in a README instead.
 | `shared-translation`        | Translation key DSL, ICU renderer, pattern validation                                 | ICU4J                            |
 | `shared-web`                | Keycloak JWT converters, ETag and optimistic-locking helpers                          | Spring Security                  |
 | `shared-messaging-kafka`    | Outbox, idempotent consumption, Avro serialisation                                    | Spring, Kafka, JPA               |
-| `shared-saga-engine`        | Saga orchestration, compensation, watchdog, JPA base entities                         | `shared-saga-api`, Spring, JPA   |
+| `shared-saga-engine`        | One service's local saga: state machine, compensation, watchdog, JPA entities         | `shared-saga-api`, Spring, JPA   |
 | `shared-translation-client` | Start-up registration of a service's translation keys                                 | `shared-translation`, Spring Web |
 
 The framework-free modules exist so that a service's **application layer can reference saga statuses without putting
@@ -162,7 +162,7 @@ Responsible for user profile management, authorization, and account operations.
 | **Admin Integration** | Uses Keycloak Admin API via a service account for user provisioning and role sync.                                           |
 | **Database Stores**   | Stores user profile data, role definitions, permissions, verification tokens, and local saga state for distributed flows.    |
 | **Endpoints**         | Provides endpoints for registration, profile management, and role administration.                                            |
-| **Outbound Events**   | Publishes events (e.g., `MailRequestedEvent`) to Kafka through the `AuthEventPublisherPort` outbound port.                   |
+| **Outbound messages** | Publishes its own events, and sends the `MailRequestedCommand`, through the `AuthEventPublisherPort` outbound port.          |
 | **Saga Compensation** | Consumes mail feedback events and runs compensation logic via `AuthCompensationService` based on decoded Avro tagged unions. |
 
 ### Mail Service
@@ -172,7 +172,7 @@ Responsible for sending emails based on Thymeleaf templates.
 | Feature                 | Details                                                                                                           |
 |-------------------------|-------------------------------------------------------------------------------------------------------------------|
 | **Database Stores**     | Stores email logs, delivery status, and local saga state.                                                         |
-| **Inbound Events**      | Consumes `MailRequestedEvent` events from other services via `MailEventConsumer`.                                 |
+| **Inbound messages**    | Carries out the `MailRequestedCommand` other services send, via `MailCommandConsumerAdapter`.                     |
 | **Outbound Events**     | Publishes `MailSentEvent` or `MailFailedEvent` back through the Transactional Outbox.                             |
 | **Templates Supported** | Supports various email templates like welcome, password reset, account activation, and email change confirmation. |
 | **Architecture Role**   | Acts as a reactive choreography participant that decouples email sending logic from the SMTP provider.            |

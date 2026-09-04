@@ -2,12 +2,12 @@
 
 Users, roles, permissions and the account lifecycle.
 
-| Property  | Value                                                       |
-|-----------|-------------------------------------------------------------|
-| Port      | 8082                                                        |
-| Database  | 5432                                                        |
-| Publishes | `user-registered`, `user-profile-updated`, `mail-requested` |
-| Consumes  | `mail-sent`, `mail-failed`                                  |
+| Property  | Value                                                                         |
+|-----------|-------------------------------------------------------------------------------|
+| Port      | 8082                                                                          |
+| Database  | 5432                                                                          |
+| Publishes | `user-registered`, `user-profile-updated`; sends the `mail-requested` command |
+| Consumes  | `mail-sent`, `mail-failed`                                                    |
 
 ## Permissions belong to roles
 

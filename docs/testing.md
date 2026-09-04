@@ -38,6 +38,19 @@ It injects both addresses into the `test` profile, so no test resource points at
 takes a fresh consumer group per run, so one run never replays another's offsets, and shortens the saga timeouts
 enough that a watchdog test does not wait on the production cooldown.
 
+Collaborators arrive through the test class's constructor, never an `@Autowired` field, which is
+what keeps a test honest about how many things it needs. Spring resolves those parameters only
+when the module carries `spring.test.constructor.autowire.mode = all` in
+`junit-platform.properties` — its default is `ANNOTATED`, and without the file it declines to
+resolve them at all, so every test in the module fails before the context is even asked for.
+
+The `test` profile is a full profile, not a patch: a property the service requires has to be set
+there as well. It gets an unroutable value — `http://localhost:1` for the authz and translation
+clients — so a test that unintentionally calls out fails loudly instead of reaching a real
+service. A property left unset surfaces as a bean-creation failure at context start, and only
+under `-PintegrationTests`, which is why `./gradlew build` stays green while the service cannot
+boot.
+
 The outbox and the saga engine are the two things most worth testing here, and neither can be meaningfully exercised
 against mocks: the outbox exists *because* Kafka does not join the database transaction, so a test with both faked
 proves nothing about the property it protects.

@@ -1,6 +1,6 @@
 # shared-saga-engine
 
-Saga orchestration: the engine, compensation, the watchdog, and the JPA flavor of the saga
+One service's own saga: the local state machine, compensation, the watchdog, and the JPA flavor of the saga
 ports (`BaseSaga`, `BaseSagaStep`, `BaseSagaRepository`).
 
 Depends on [`shared-saga-api`](../shared-saga-api/README.md) for its vocabulary and on

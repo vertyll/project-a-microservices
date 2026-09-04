@@ -12,8 +12,8 @@ See [Shared Modules](../docs/shared-modules.md) for how this module relates to t
 
 | Area                                                  | Why it is not per service                                                                                 |
 |-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| Transactional outbox, dispatcher, `BaseOutbox`        | The atomicity guarantee is the same everywhere; a second implementation is a second place to get it wrong |
-| Consumer deduplication, `BaseProcessedEvent`          | Exactly-once handling is a property of the transport, not of any one domain                               |
+| Transactional outbox, dispatcher, `OutboxEntity`      | The atomicity guarantee is the same everywhere; a second implementation is a second place to get it wrong |
+| Consumer deduplication, `ProcessedEventEntity`        | Exactly-once handling is a property of the transport, not of any one domain                               |
 | Avro serializer, deserializer, Schema Registry wiring | Wire format, not domain                                                                                   |
 
 Anything that encodes a *decision about a domain* does not belong here. The temptation is to

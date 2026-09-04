@@ -24,8 +24,15 @@ saga and progresses by reacting to domain events on Kafka.
 
 Both the **Saga** and **Transactional Outbox** patterns are built on top of database-agnostic ports — the saga ports in
 `shared-saga-engine`, the outbox ports in `shared-messaging-kafka`. To introduce a different storage (MongoDB,
-PostgreSQL, …), you only implement the ports against the new technology; the engines (which ship JPA flavors like
-`BaseSaga`, `BaseSagaStep`, `BaseOutbox`, etc.) do not change.
+PostgreSQL, …), you only implement the ports against the new technology; the engines do not change.
+
+The JPA flavor is shared, not copied. `shared-messaging-kafka` owns one `OutboxEntity`, one
+`ProcessedEventEntity`, their repositories and the adapters that bind them to the ports. Every
+service maps that one pair onto its own `kafka_outbox` and `processed_event` tables, created by
+its own migration — the table is per-database, the mapping is not. A service states which halves
+it carries by naming the packages in `@EntityScan` and `@EnableJpaRepositories`; one that
+publishes nothing scans the inbox alone and excludes the outbox beans, as `translation-service`
+does.
 
 | Contract                                            | Purpose                                                                                                                        |
 |-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -116,17 +123,19 @@ Begins local saga `USER_REGISTRATION`. Records steps:
 1. `CREATE_USER`
 2. `PUBLISH_USER_REGISTERED_EVENT`
 3. `CREATE_VERIFICATION_TOKEN`
-4. `PUBLISH_MAIL_REQUESTED_EVENT`
+4. `REQUEST_MAIL`
 
-Transitions to `AWAITING_RESPONSE`. Inserts `MailRequestedEvent` into the outbox (same JDBC tx, no dual-write).
+Transitions to `AWAITING_RESPONSE`. Inserts `MailRequestedCommand` into the outbox (same JDBC tx, no dual-write).
 
 ### Phase 2 — Publish (Outbox Poller)
 
-Publishes the Avro-serialized `MailRequestedEvent` to Kafka.
+Publishes the Avro-serialized `MailRequestedCommand` to Kafka. It is a command, not a fact — iam-service
+decides the template and the recipient — which is why its contract belongs to mail-service, the consumer. See
+[Event Catalogue](./events.md).
 
 ### Phase 3 — Process (`mail-service`)
 
-Consumes event (`MailEventConsumer`), claims via `ProcessedEventGuard`. Begins local saga `EMAIL_SENDING`, performs
+Consumes event (`MailCommandConsumer`), claims via `ProcessedEventGuard`. Begins local saga `EMAIL_SENDING`, performs
 `SEND_EMAIL`, completes saga. Inserts `MailSentEvent` (or `MailFailedEvent`) into its outbox.
 
 ### Phase 4 — Feedback (`iam-service`)
@@ -151,6 +160,6 @@ for idempotency.
 
 | Event                                 | Publisher      | Consumer       | Details                                                                                                                                                                                                                                                                                                                                               |
 |---------------------------------------|----------------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `MailRequestedEvent`                  | `iam-service`  | `mail-service` | Published via `AuthEventPublisherPort` / `KafkaAuthEventPublisherAdapter`. Consumed by `MailEventConsumer`.                                                                                                                                                                                                                                           |
+| `MailRequestedCommand`                | `iam-service`  | `mail-service` | Published via `AuthEventPublisherPort` / `KafkaAuthEventPublisherAdapter`. Consumed by `MailCommandConsumer`.                                                                                                                                                                                                                                         |
 | `MailSentEvent`<br/>`MailFailedEvent` | `mail-service` | `iam-service`  | Published through the Transactional Outbox. Consumed by `MailFeedbackConsumer` to advance or fail the originating saga.                                                                                                                                                                                                                               |
 | Compensation Actions                  | `iam-service`  | `iam-service`  | Published to internal `saga-compensation-iam` topic as an Avro **tagged union** (`DeleteUserAction`, `DeleteVerificationTokenAction`, etc.). Decoded by `AvroAuthCompensationCommandTranslator` (ACL) into a typed `sealed interface AuthCompensationCommand`. Handled via compile-time exhaustive `when` (no stringly-typed discriminator or `Map`). |

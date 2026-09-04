@@ -6,13 +6,13 @@ with `newId()` and `now()` lives here.
 
 ## Event taxonomy in this monorepo
 
-| Category                                                                                      | Where it lives                                                                                                               | Carrier                                                 |
-|-----------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
-| **Integration events** – cross-service contracts (e.g. `MailRequestedEvent`, `MailSentEvent`) | `contracts/<service>/<topic>/v<n>/*.avsc` → generated `SpecificRecord` in each consumer/producer                             | Kafka topic (Avro + Schema Registry, binary)            |
-| **Saga compensation events** – per-service contract for choreography rollback                 | `contracts/<service>/saga-compensation/v1/saga-compensation.avsc`                                                            | Kafka topic `saga-compensation-<service>`               |
-| **Outbox messages** – internal transactional record                                           | `shared-messaging-kafka/.../kafka/entity/BaseOutbox.kt` + per-service `OutboxJpaEntity`                                       | PostgreSQL → relayed to Kafka by `KafkaOutboxProcessor` |
-| **Domain events** (true DDD sense, in-process)                                                | _Not used yet._ Would live inside each service's `domain/` package and be dispatched via Spring `ApplicationEventPublisher`. | JVM in-process only                                     |
-| **Application events** (Spring lifecycle, `@EventListener`)                                   | Per-service `infrastructure/config` if/when needed                                                                           | Spring `ApplicationEventPublisher`                      |
+| Category                                                                                        | Where it lives                                                                                                               | Carrier                                                 |
+|-------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| **Integration events** – cross-service contracts (e.g. `MailRequestedCommand`, `MailSentEvent`) | `contracts/<service>/<topic>/v<n>/*.avsc` → generated `SpecificRecord` in each consumer/producer                             | Kafka topic (Avro + Schema Registry, binary)            |
+| **Saga compensation events** – per-service contract for choreography rollback                   | `contracts/<service>/saga-compensation/v1/saga-compensation.avsc`                                                            | Kafka topic `saga-compensation-<service>`               |
+| **Outbox messages** – internal transactional record                                             | `shared-messaging-kafka/.../kafka/persistence/outbox/OutboxEntity.kt`, mapped by every service                               | PostgreSQL → relayed to Kafka by `KafkaOutboxProcessor` |
+| **Domain events** (true DDD sense, in-process)                                                  | _Not used yet._ Would live inside each service's `domain/` package and be dispatched via Spring `ApplicationEventPublisher`. | JVM in-process only                                     |
+| **Application events** (Spring lifecycle, `@EventListener`)                                     | Per-service `infrastructure/config` if/when needed                                                                           | Spring `ApplicationEventPublisher`                      |
 
 ## Why no shared marker interface?
 
@@ -21,7 +21,7 @@ with `newId()` and `now()` lives here.
    require either a build-time post-processor or handwritten wrappers — both
    defeat the point of code generation.
 2. **`shared-messaging-kafka` must not know any business event** (no
-   `MailRequestedEvent` here). A shared `DomainEvent` interface carrying
+   `MailRequestedCommand` here). A shared `DomainEvent` interface carrying
    `@JsonTypeInfo` would be Jackson polymorphism, which the Avro wire format
    has no use for.
 3. **Outbox payloads are opaque bytes** (`ByteArray`) framed by Confluent's

@@ -31,17 +31,18 @@ Kotlin standard library only. Safe to name from an application layer.
 
 | Module               | Responsibility                                                                                 |
 |----------------------|------------------------------------------------------------------------------------------------|
-| `shared-saga-api`    | The saga vocabulary: `Saga`, `SagaStep`, `SagaStatus`, `SagaStepStatus`, `SagaTypeValue`       |
+| `shared-saga-api`    | The saga vocabulary, plus `SagaProcessPort` and the `SagaSnapshot` an application service sees |
 | `shared-translation` | The key-declaration DSL, the ICU renderer and pattern validation (ICU4J is its one dependency) |
 | `shared-authz`       | The permission-declaration DSL, role scopes, and the projection port every service implements  |
+| `shared-error`       | `DomainError` and `ApiException`: the contract each service's error catalogue implements       |
 
 ### Spring
 
 | Module                      | Responsibility                                                                                              |
 |-----------------------------|-------------------------------------------------------------------------------------------------------------|
-| `shared-web`                | Keycloak JWT converters (servlet and reactive), ETag and optimistic-locking helpers, shared config defaults |
-| `shared-messaging-kafka`    | Transactional outbox, consumer deduplication, Avro serialisation and Schema Registry wiring                 |
-| `shared-saga-engine`        | Saga orchestration, compensation, the watchdog, and the JPA flavour of the saga ports                       |
+| `shared-web`                | Keycloak JWT converters (servlet and reactive), the error-to-HTTP mapping, ETag helpers, config defaults    |
+| `shared-messaging-kafka`    | Transactional outbox and inbox — contract, JPA mapping and adapters — plus Avro and Schema Registry wiring  |
+| `shared-saga-engine`        | One service's local saga: the state machine, compensation, the watchdog, and the JPA flavour of its ports   |
 | `shared-translation-client` | Start-up registration of a service's translation keys with `translation-service`                            |
 | `shared-authz-client`       | Start-up registration of a service's permission catalogue with `iam-service`                                |
 | `shared-archunit`           | The architecture rules every service is checked against, as executable tests                                |
@@ -61,49 +62,61 @@ graph TD
     trc[shared-translation-client]
     az[shared-authz]:::pure
     azc[shared-authz-client]
+    err[shared-error]:::pure
 
     eng --> api
     eng --> msg
     trc --> tr
     azc --> az
     web --> az
+    web --> err
 
     classDef pure fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
 ```
 
-`shared-messaging-kafka` depends on no other shared module. `shared-web` takes one:
-`shared-authz`, for the `@authz.has('…')` guard every servlet service writes. It stays
-framework-free and adds nothing the reactive gateway cannot carry — `shared-web` is the
-only library the gateway takes, so anything heavier added to it is added to the gateway too.
+`shared-messaging-kafka` depends on no other shared module. `shared-web` takes two:
+`shared-authz`, for the `@authz.has('…')` guard every servlet service writes, and `shared-error`,
+whose `DomainError` the single `@RestControllerAdvice` turns into a status and a body. Both stay
+framework-free and add nothing the reactive gateway cannot carry — `shared-web` is the only
+library the gateway takes, so anything heavier added to it is added to the gateway too.
 
 ## Who takes what
 
-| Service                                          | Takes                                                                                               |
-|--------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| api-gateway                                      | `shared-web`                                                                                        |
-| translation-service                              | `shared-web`, `shared-translation`, `shared-authz`, `shared-authz-client`, `shared-messaging-kafka` |
-| file-service                                     | `shared-web`, `shared-translation-client`, `shared-messaging-kafka`                                 |
-| iam, mail, project, task, notification, template | all six                                                                                             |
+Every service takes the same four: `shared-web`, `shared-error`, `shared-translation` and
+`shared-messaging-kafka`, plus `shared-archunit` on the test classpath. What differs is the rest.
 
-Two of these are worth reading as evidence that the boundaries are real rather than decorative:
+| Service                                | Beyond those four                                                    |
+|----------------------------------------|----------------------------------------------------------------------|
+| api-gateway                            | none — and none of the four either, only `shared-web`                |
+| translation-service                    | `shared-authz`, `shared-authz-client`                                |
+| file-service                           | `shared-translation-client`                                          |
+| notification-service, template-service | `shared-translation-client`, `shared-saga-api`, `shared-saga-engine` |
+| iam-service                            | the three above plus `shared-authz`                                  |
+| mail, project, task                    | everything                                                           |
+
+Three of these are worth reading as evidence that the boundaries are real rather than decorative:
 
 - **api-gateway takes one module.** It is reactive and has no database, and all it needs from
   the shared code is a JWT converter. A library that also carried JPA would force it to disable
   Hibernate autoconfiguration to start at all.
 - **file-service takes the outbox but not the saga engine.** It publishes events and
   orchestrates nothing, so it carries outbox tables and no saga tables.
+- **iam-service takes `shared-authz` but not `shared-authz-client`.** The client registers a
+  catalogue *with* iam; iam is the registry and reads its own.
 
 ## Writing a new service: what do I take?
 
 Answer three questions. `template-service` is the worked example — it takes all six.
 
 1. **Does it serve HTTP and authenticate callers?** Take `shared-web`. Every service does, including the gateway.
-2. **Does it publish or consume integration events?** Take `shared-messaging-kafka`, and copy the outbox and
-   processed-event tables from an existing service's first migration. If the answer is no, take neither — and do not
-   create those tables — `translation-service` publishes nothing and therefore has none.
-3. **Does it orchestrate a multiservice workflow that can fail halfway?** Take `shared-saga-engine` (which pulls
-   `shared-saga-api` for you) and add the saga tables. Publishing an event is not orchestration: `file-service`
-   publishes and takes no saga engine.
+2. **Does it publish or consume integration events?** Take `shared-messaging-kafka`, copy the `kafka_outbox` and
+   `processed_event` tables from an existing service's first migration, and name the matching packages in
+   `@EntityScan` and `@EnableJpaRepositories` — the mapping and the adapters come from the module, only the tables
+   are yours. Consuming without publishing takes the inbox half alone: `translation-service` creates no
+   `kafka_outbox` and excludes the outbox beans from its component scan.
+3. **Does it take part in a multiservice workflow that can fail halfway?** Take `shared-saga-engine` (which pulls
+   `shared-saga-api` for you) and add the saga tables — the engine tracks this service's own steps, and nobody's
+   else. Publishing an event is not taking part: `file-service` publishes and takes no saga engine.
 
 If the service declares translation keys, add `shared-translation-client`; the DSL itself arrives with it.
 
@@ -124,6 +137,13 @@ its own `settings.gradle.kts` and version catalogue, the root `settings.gradle.k
 `documentedLibraries` list in the root `build.gradle.kts`, and a `shared-*-checks.yml`
 workflow. Services that consume it need it in their `settings.gradle.kts`, their build file and
 their `Dockerfile`.
+
+The `Dockerfile` and the workflow `paths:` list take the **transitive** closure, not the direct
+dependencies. A composite build fails at settings evaluation when an included build's directory
+is absent, so a service that copies `shared-web` must copy everything `shared-web` includes —
+otherwise the image stops building even though the service names none of it. The same closure
+decides the `paths:` triggers: a workflow that does not fire on a dependency's change does not
+report a failure, it reports nothing.
 
 ## API documentation
 
