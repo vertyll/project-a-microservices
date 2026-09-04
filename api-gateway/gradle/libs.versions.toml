@@ -29,7 +29,6 @@ spring-cloud-starter-circuitbreaker-reactor-resilience4j = { module = "org.sprin
 spring-cloud-starter-loadbalancer = { module = "org.springframework.cloud:spring-cloud-starter-loadbalancer" }
 
 # Kafka
-springframework-kafka = { module = "org.springframework.kafka:spring-kafka" }
 springframework-kafka-test = { module = "org.springframework.kafka:spring-kafka-test" }
 
 # Jackson
