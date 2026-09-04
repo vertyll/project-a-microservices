@@ -5,7 +5,6 @@ plugins {
 dependencies {
     implementation(project(":notification-domain"))
     implementation("com.vertyll.veds:shared-error")
-    implementation("com.vertyll.veds:shared-saga-api")
 
     testImplementation(libs.bundles.test.unit)
     testRuntimeOnly(libs.junit.platform.launcher)

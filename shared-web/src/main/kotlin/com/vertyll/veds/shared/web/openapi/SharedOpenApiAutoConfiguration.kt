@@ -31,6 +31,11 @@ internal class SharedOpenApiAutoConfiguration {
         private const val FALLBACK_NAME = "veds-service"
     }
 
+    /**
+     * `spring.application.name` reaches Kotlin as a platform type, so the analyzer reads the
+     * second elvis as dead. It is not: a service that sets no name gets [FALLBACK_NAME].
+     */
+    @Suppress("kotlin:S6619")
     @Bean
     @ConditionalOnMissingBean
     fun sharedOpenApi(

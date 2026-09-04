@@ -2,7 +2,6 @@ package com.vertyll.veds.task.infrastructure.config
 
 import com.vertyll.veds.task.application.port.inbound.FileProjectionUseCase
 import com.vertyll.veds.task.application.port.inbound.ProjectProjectionUseCase
-import com.vertyll.veds.task.application.port.inbound.TaskCompensationUseCase
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.command.WorkLogCommandUseCase
@@ -14,7 +13,6 @@ import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.application.service.FileProjectionService
 import com.vertyll.veds.task.application.service.ProjectProjectionService
 import com.vertyll.veds.task.application.service.TaskAuthorizationService
-import com.vertyll.veds.task.application.service.TaskCompensationService
 import com.vertyll.veds.task.application.service.TaskReferenceValidator
 import com.vertyll.veds.task.application.service.command.TaskCommandService
 import com.vertyll.veds.task.application.service.command.TaskCommentCommandService
@@ -69,20 +67,6 @@ internal class ApplicationBeansConfig {
                 projectDirectory,
                 taskRepository,
                 Slf4jUseCaseLogger(ProjectProjectionService::class.java),
-            ),
-            NO_METHODS,
-        )
-
-    @Bean
-    fun taskCompensationUseCase(
-        transactions: TransactionalUseCaseFactory,
-        taskRepository: TaskRepository,
-    ): TaskCompensationUseCase =
-        transactions.wrap(
-            TaskCompensationUseCase::class.java,
-            TaskCompensationService(
-                taskRepository,
-                Slf4jUseCaseLogger(TaskCompensationService::class.java),
             ),
             NO_METHODS,
         )

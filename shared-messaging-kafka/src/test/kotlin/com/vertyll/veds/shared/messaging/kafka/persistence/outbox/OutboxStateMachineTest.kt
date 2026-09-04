@@ -60,7 +60,7 @@ class OutboxStateMachineTest {
     }
 
     /**
-     * A failed publish goes back to PENDING — that is what makes the poller pick it up again. The
+     * A failed publishing goes back to PENDING — that is what makes the poller pick it up again. The
      * attempt counter and the timestamp are what stop it from being retried immediately and
      * forever.
      */

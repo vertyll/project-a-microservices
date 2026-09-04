@@ -29,7 +29,6 @@ dependencies {
     implementation("com.vertyll.veds:shared-authz-client")
     implementation("com.vertyll.veds:shared-translation")
     implementation("com.vertyll.veds:shared-translation-client")
-    implementation("com.vertyll.veds:shared-saga-engine")
     implementation("com.vertyll.veds:shared-messaging-kafka")
     implementation("com.vertyll.veds:iam-contracts")
     implementation("com.vertyll.veds:file-contracts")

@@ -8,14 +8,12 @@ WORKDIR /app
 # Copy the shared libraries first: each is a composite build included by the
 # service, so every one of them has to exist before Gradle configures - a
 # missing one fails the build outright, test-only libraries included.
-COPY shared-saga-api/ ./shared-saga-api/
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
 COPY shared-authz/ ./shared-authz/
 COPY shared-error/ ./shared-error/
 COPY shared-translation-client/ ./shared-translation-client/
 COPY shared-authz-client/ ./shared-authz-client/
-COPY shared-saga-engine/ ./shared-saga-engine/
 COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 COPY shared-archunit/ ./shared-archunit/
 

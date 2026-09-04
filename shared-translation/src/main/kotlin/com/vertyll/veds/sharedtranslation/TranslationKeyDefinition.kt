@@ -5,7 +5,7 @@ package com.vertyll.veds.sharedtranslation
  *
  * @property defaultValues what the owning service ships. Seeded as
  *           `default_value` and never allowed to overwrite an administrator's
- *           edit — the two are separate columns precisely so that a redeploy
+ *           edit — the two are separate columns precisely so that a redeployment
  *           cannot undo somebody's correction.
  */
 data class TranslationKeyDefinition(

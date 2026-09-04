@@ -13,9 +13,4 @@ enum class SagaStepNames(
     VERIFY_CURRENT_PASSWORD("VerifyCurrentPassword"),
     UPDATE_PASSWORD("UpdatePassword"),
     UPDATE_EMAIL("UpdateEmail"),
-    ;
-
-    companion object {
-        const val COMPENSATION_PREFIX = "Compensate"
-    }
 }

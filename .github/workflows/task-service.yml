@@ -9,12 +9,10 @@ on:
       - main
     paths:
       - "task-service/**"
-      - "shared-saga-api/**"
       - "shared-web/**"
       - "shared-error/**"
       - "shared-archunit/**"
       - "shared-translation-client/**"
-      - "shared-saga-engine/**"
       - "shared-messaging-kafka/**"
       - "task-contracts/**"
       - "project-contracts/**"

@@ -69,7 +69,7 @@ class FileCommandService(
                     ).copy(id = fileId),
             )
 
-        val presigned = storage.presignUpload(objectKey, command.contentType, command.scope.maxSizeBytes)
+        val presigned = storage.presignUpload(objectKey, command.contentType)
 
         return UploadTicketResponse(
             fileId = file.id,
@@ -92,6 +92,14 @@ class FileCommandService(
         val actualSize =
             storage.sizeOf(file.objectKey)
                 ?: throw ApiException(FileError.OBJECT_MISSING_IN_STORAGE, mapOf("fileId" to file.id.toString()))
+
+        if (!file.scope.permitsSize(actualSize)) {
+            storage.delete(file.objectKey)
+            throw ApiException(
+                FileError.FILE_TOO_LARGE,
+                mapOf("maxBytes" to file.scope.maxSizeBytes, "actualBytes" to actualSize),
+            )
+        }
 
         val confirmed = fileRepository.save(file.confirmed(actualSize))
         eventPublisher.publishFileConfirmed(confirmed.id, confirmed.scope, confirmed.scopeId, confirmed.ownerId)

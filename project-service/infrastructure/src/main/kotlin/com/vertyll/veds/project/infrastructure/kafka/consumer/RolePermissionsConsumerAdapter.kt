@@ -57,7 +57,7 @@ internal class RolePermissionsConsumerAdapter(
             return
         }
 
-        val granted = event.permissions.mapTo(mutableSetOf()) { it.toString() }
+        val granted = event.permissions.mapTo(mutableSetOf()) { it.toString() }.toSet()
 
         roleRepository.save(
             existing

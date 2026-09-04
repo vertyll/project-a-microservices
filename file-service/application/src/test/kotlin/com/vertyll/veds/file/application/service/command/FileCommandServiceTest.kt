@@ -60,7 +60,6 @@ class FileCommandServiceTest {
             override fun presignUpload(
                 objectKey: String,
                 contentType: String,
-                maxSizeBytes: Long,
             ): PresignedUrl = PresignedUrl("https://store.example/$objectKey", Instant.now().plusSeconds(900))
 
             override fun presignDownload(
@@ -71,8 +70,12 @@ class FileCommandServiceTest {
 
             override fun sizeOf(objectKey: String): Long? = storedSize
 
-            override fun delete(objectKey: String) = Unit
+            override fun delete(objectKey: String) {
+                deleted += objectKey
+            }
         }
+
+    private val deleted = mutableListOf<String>()
 
     private val publisher =
         object : FileEventPublisherPort {
@@ -156,6 +159,23 @@ class FileCommandServiceTest {
         service.confirmUpload(ConfirmUploadCommand(ticket.fileId), actor)
 
         assertEquals(4_242, files.getValue(ticket.fileId).sizeBytes)
+    }
+
+    /**
+     * A presigned `PUT` carries no size limit, so the declared size is a promise the client
+     * can break. Confirming is where the promise is checked, and an object that broke it is
+     * removed rather than recorded.
+     */
+    @Test
+    fun `an upload larger than its scope allows is refused and the object removed`() {
+        val ticket = requestAvatar(declaredSize = 1_000)
+        storedSize = FileScope.USER_AVATAR.maxSizeBytes + 1
+
+        val failure = assertFailsWith<ApiException> { service.confirmUpload(ConfirmUploadCommand(ticket.fileId), actor) }
+
+        assertEquals(FileError.FILE_TOO_LARGE, failure.error)
+        assertEquals(listOf(files.getValue(ticket.fileId).objectKey), deleted)
+        assertEquals(UploadStatus.PENDING, files.getValue(ticket.fileId).status, "the record is not confirmed")
     }
 
     @Test

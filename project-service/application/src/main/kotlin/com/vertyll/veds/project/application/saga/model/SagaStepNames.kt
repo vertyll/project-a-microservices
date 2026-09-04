@@ -9,9 +9,4 @@ enum class SagaStepNames(
     REQUEST_INVITATION_MAIL("RequestInvitationMail"),
     ARCHIVE_PROJECT("ArchiveProject"),
     PUBLISH_PROJECT_ARCHIVED("PublishProjectArchived"),
-    ;
-
-    companion object {
-        const val COMPENSATION_PREFIX = "Compensate"
-    }
 }

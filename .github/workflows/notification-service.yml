@@ -9,12 +9,10 @@ on:
       - main
     paths:
       - "notification-service/**"
-      - "shared-saga-api/**"
       - "shared-web/**"
       - "shared-error/**"
       - "shared-archunit/**"
       - "shared-translation-client/**"
-      - "shared-saga-engine/**"
       - "shared-messaging-kafka/**"
       - "notification-contracts/**"
       - "project-contracts/**"
@@ -22,7 +20,6 @@ on:
       - "mail-contracts/**"
       - "iam-contracts/**"
       - "contracts/**"
-      - "shared-authz/**"
       - "shared-translation/**"
       - ".github/workflows/notification-service.yml"
       - ".github/workflows/quality-checks.yml"

@@ -10,9 +10,4 @@ enum class SagaStepNames(
     RECORD_EMAIL_LOG("RecordEmailLog"),
     TEMPLATE_UPDATE("TemplateUpdate"),
     TEMPLATE_DELETE("TemplateDelete"),
-    ;
-
-    companion object {
-        const val COMPENSATION_PREFIX = "Compensate"
-    }
 }

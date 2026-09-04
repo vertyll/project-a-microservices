@@ -42,7 +42,7 @@ internal class InMemoryOutboxRepository : OutboxRepositoryPort {
 
     /**
      * The status each save committed, in order. A row is mutated in place — as a managed JPA entity
-     * is — so reading `saved` afterwards only ever shows the final state; the intermediate
+     * is — so reading `saved` afterward only ever shows the final state; the intermediate
      * transitions have to be captured as they happen.
      */
     val transitions = mutableListOf<Pair<String, OutboxStatus>>()

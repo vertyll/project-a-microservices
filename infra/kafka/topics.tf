@@ -20,20 +20,16 @@ locals {
     "project-status-changed",
     "saga-compensation-project",
 
-    # task bounded context
+    # task bounded context — no saga: it starts none and compensates none
     "task-created",
     "task-assigned",
     "task-status-changed",
     "task-archived",
     "task-comment-added",
-    "saga-compensation-task",
 
-    # notification bounded context
-    #
-    # No integration events of its own: notification-service is a pure consumer
-    # that turns other contexts' events into notifications. The only thing it
-    # publishes is `mail-requested`, whose contract belongs to mail-service.
-    "saga-compensation-notification",
+    # notification bounded context — no topics of its own: notification-service is
+    # a pure consumer that turns other contexts' events into notifications, and the
+    # only thing it publishes is `mail-requested`, whose contract belongs to mail-service.
 
     # file bounded context — no saga: it takes part in no distributed flow
     "file-confirmed",

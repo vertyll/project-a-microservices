@@ -26,7 +26,6 @@ internal class S3ObjectStorageAdapter(
     override fun presignUpload(
         objectKey: String,
         contentType: String,
-        maxSizeBytes: Long,
     ): PresignedUrl {
         val putRequest =
             PutObjectRequest

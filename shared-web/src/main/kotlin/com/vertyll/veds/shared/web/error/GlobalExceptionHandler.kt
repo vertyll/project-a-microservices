@@ -122,7 +122,7 @@ class GlobalExceptionHandler {
      * This advice runs ahead of Boot's so the handlers above win, which means Spring's
      * own failures arrive here too. Those already carry the status they deserve — an
      * unknown path is a `404`, not a `500` — and their document is Spring's to build,
-     * so it is passed through untouched. Only what nothing recognised is a `500`.
+     * so it is passed through untouched. Only what nothing recognized is a `500`.
      *
      * Such a document carries no `code`: that member names a key in a service's error
      * catalogue, and a request rejected before it reached the application has no entry
