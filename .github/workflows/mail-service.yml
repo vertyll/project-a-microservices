@@ -11,6 +11,7 @@ on:
       - "mail-service/**"
       - "shared-saga-api/**"
       - "shared-web/**"
+      - "shared-error/**"
       - "shared-archunit/**"
       - "shared-translation-client/**"
       - "shared-saga-engine/**"
@@ -21,6 +22,7 @@ on:
       - "contracts/iam-service/mail-requested/**"
       - "shared-authz/**"
       - "shared-authz-client/**"
+      - "shared-translation/**"
       - ".github/workflows/mail-service.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:

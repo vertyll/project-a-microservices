@@ -1,7 +1,7 @@
 package com.vertyll.veds.iam.infrastructure.config
 
-import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.infrastructure.persistence.repository.SagaJpaRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStatus
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration

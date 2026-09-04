@@ -3,12 +3,12 @@ package com.vertyll.veds.file.application.service.query
 import com.vertyll.veds.file.application.dto.Actor
 import com.vertyll.veds.file.application.dto.DownloadTicketResponse
 import com.vertyll.veds.file.application.dto.FileResponse
-import com.vertyll.veds.file.application.exception.ApiException
 import com.vertyll.veds.file.application.port.inbound.query.FileQueryUseCase
 import com.vertyll.veds.file.application.port.outbound.ObjectStoragePort
 import com.vertyll.veds.file.domain.error.FileError
 import com.vertyll.veds.file.domain.model.StoredFile
 import com.vertyll.veds.file.domain.repository.StoredFileRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class FileQueryService(

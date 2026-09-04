@@ -86,9 +86,10 @@ data class DocumentedLibrary(
 
 val documentedLibraries =
     listOf(
-        DocumentedLibrary("shared-saga-api", "The saga vocabulary spoken by the application layers", true),
+        DocumentedLibrary("shared-saga-api", "The saga vocabulary and the port an application service drives it through", true),
         DocumentedLibrary("shared-translation", "Translation key DSL and the ICU message renderer", true),
         DocumentedLibrary("shared-authz", "Permission catalogue DSL, role scopes and the projection port", true),
+        DocumentedLibrary("shared-error", "The error contract every service's catalogue implements", true),
         DocumentedLibrary("shared-web", "Keycloak authentication, HTTP concurrency helpers and shared configuration", false),
         DocumentedLibrary("shared-messaging-kafka", "Transactional outbox, idempotent consumption and Avro over Kafka", false),
         DocumentedLibrary("shared-saga-engine", "Saga orchestration, compensation and the JPA flavour of its ports", false),

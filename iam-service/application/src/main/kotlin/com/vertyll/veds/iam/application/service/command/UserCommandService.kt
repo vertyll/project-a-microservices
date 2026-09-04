@@ -2,13 +2,13 @@ package com.vertyll.veds.iam.application.service.command
 
 import com.vertyll.veds.iam.application.command.UpdateProfileCommand
 import com.vertyll.veds.iam.application.dto.UserResponse
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.mapper.UserResponseMapper
 import com.vertyll.veds.iam.application.port.inbound.command.UserCommandUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.VersionGuard
 import com.vertyll.veds.iam.domain.repository.UserRepository
+import com.vertyll.veds.sharederror.ApiException
 
 class UserCommandService(
     private val userRepository: UserRepository,

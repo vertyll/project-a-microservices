@@ -7,7 +7,6 @@ import com.vertyll.veds.notification.application.command.RetireNotificationsComm
 import com.vertyll.veds.notification.application.command.UpdateSettingsCommand
 import com.vertyll.veds.notification.application.dto.NotificationResponse
 import com.vertyll.veds.notification.application.dto.NotificationSettingsResponse
-import com.vertyll.veds.notification.application.exception.ApiException
 import com.vertyll.veds.notification.application.port.inbound.command.NotificationCommandUseCase
 import com.vertyll.veds.notification.application.port.outbound.MailRequestPort
 import com.vertyll.veds.notification.application.port.outbound.NotificationPushPort
@@ -20,6 +19,7 @@ import com.vertyll.veds.notification.domain.model.VersionGuard
 import com.vertyll.veds.notification.domain.repository.NotificationRepository
 import com.vertyll.veds.notification.domain.repository.NotificationSettingsRepository
 import com.vertyll.veds.notification.domain.repository.RecipientDirectoryRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 @Suppress("LongParameterList")

@@ -2,10 +2,10 @@ package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.ENGLISH
 import com.vertyll.veds.project.application.POLISH
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.translation
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -3,7 +3,6 @@ package com.vertyll.veds.iam.application.service.command
 import com.vertyll.veds.iam.application.command.CreateRoleCommand
 import com.vertyll.veds.iam.application.command.UpdateRoleCommand
 import com.vertyll.veds.iam.application.dto.RoleResponse
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.mapper.RoleResponseMapper
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
@@ -17,6 +16,7 @@ import com.vertyll.veds.iam.domain.model.VersionGuard
 import com.vertyll.veds.iam.domain.repository.PermissionRepository
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
+import com.vertyll.veds.sharederror.ApiException
 
 class RoleCommandService(
     private val roleRepository: RoleRepository,

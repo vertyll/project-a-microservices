@@ -10,6 +10,7 @@ on:
     paths:
       - "translation-service/**"
       - "shared-web/**"
+      - "shared-error/**"
       - "shared-archunit/**"
       - "shared-translation/**"
       - "shared-authz/**"

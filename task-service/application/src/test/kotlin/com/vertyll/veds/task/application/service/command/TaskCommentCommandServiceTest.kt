@@ -2,6 +2,7 @@
 
 package com.vertyll.veds.task.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.InMemoryCommentRepository
 import com.vertyll.veds.task.application.InMemoryProjectDirectory
 import com.vertyll.veds.task.application.InMemoryRolePermissions
@@ -11,7 +12,6 @@ import com.vertyll.veds.task.application.RecordingTaskEventPublisher
 import com.vertyll.veds.task.application.command.CreateCommentCommand
 import com.vertyll.veds.task.application.command.UpdateCommentCommand
 import com.vertyll.veds.task.application.dto.Actor
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.membership
 import com.vertyll.veds.task.application.projectRef
 import com.vertyll.veds.task.application.service.TaskAuthorizationService

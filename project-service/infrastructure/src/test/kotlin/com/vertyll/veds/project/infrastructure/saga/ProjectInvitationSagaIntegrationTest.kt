@@ -8,12 +8,12 @@ import com.vertyll.veds.project.application.dto.Actor
 import com.vertyll.veds.project.application.port.inbound.MailFeedbackUseCase
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.command.ProjectInvitationCommandUseCase
-import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.domain.model.InvitationStatus
 import com.vertyll.veds.project.domain.repository.ProjectInvitationRepository
 import com.vertyll.veds.project.infrastructure.IntegrationTestBase
 import com.vertyll.veds.project.infrastructure.kafka.ProjectKafkaTopics
-import com.vertyll.veds.project.infrastructure.persistence.repository.OutboxJpaRepository
+import com.vertyll.veds.shared.messaging.kafka.persistence.outbox.OutboxRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ internal class ProjectInvitationSagaIntegrationTest(
     private val projectCommands: ProjectCommandUseCase,
     private val invitationCommands: ProjectInvitationCommandUseCase,
     private val invitationRepository: ProjectInvitationRepository,
-    private val outboxRepository: OutboxJpaRepository,
+    private val outboxRepository: OutboxRepository,
     private val mailFeedback: MailFeedbackUseCase,
     private val sagaProcess: SagaProcessPort,
 ) : IntegrationTestBase() {
@@ -96,7 +96,7 @@ internal class ProjectInvitationSagaIntegrationTest(
             error = "550 mailbox unavailable",
         )
 
-        val saga = sagaProcess.findSagaDomainById(sagaId)
+        val saga = sagaProcess.findSagaById(sagaId)
         assertNotNull(saga)
         assertTrue(
             saga.status in setOf(SagaStatus.COMPENSATING, SagaStatus.COMPENSATED, SagaStatus.FAILED),
@@ -119,7 +119,7 @@ internal class ProjectInvitationSagaIntegrationTest(
 
         mailFeedback.handleMailSent(sagaId, "delivered@example.com")
 
-        val saga = sagaProcess.findSagaDomainById(sagaId)
+        val saga = sagaProcess.findSagaById(sagaId)
         assertNotNull(saga)
         assertEquals(
             SagaStatus.COMPLETED,
@@ -146,10 +146,10 @@ internal class ProjectInvitationSagaIntegrationTest(
         val sagaId = openSagaId()
 
         mailFeedback.handleMailSent(sagaId, DUPLICATE_EXAMPLE_COM)
-        val afterFirst = sagaProcess.findSagaDomainById(sagaId)?.status
+        val afterFirst = sagaProcess.findSagaById(sagaId)?.status
 
         mailFeedback.handleMailSent(sagaId, DUPLICATE_EXAMPLE_COM)
-        val afterSecond = sagaProcess.findSagaDomainById(sagaId)?.status
+        val afterSecond = sagaProcess.findSagaById(sagaId)?.status
 
         assertEquals(afterFirst, afterSecond, "at-least-once delivery must not move a settled saga")
 

@@ -1,8 +1,8 @@
 package com.vertyll.veds.iam.infrastructure.web.security
 
 import com.vertyll.veds.iam.application.dto.AuthenticatedIdentity
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.domain.error.IamError
+import com.vertyll.veds.sharederror.ApiException
 import org.springframework.security.oauth2.jwt.Jwt
 import java.util.UUID
 

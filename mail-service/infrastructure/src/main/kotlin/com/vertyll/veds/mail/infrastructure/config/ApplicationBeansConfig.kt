@@ -5,7 +5,6 @@ import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.application.port.outbound.MailFeedbackEventPublisherPort
 import com.vertyll.veds.mail.application.port.outbound.MailSenderPort
-import com.vertyll.veds.mail.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.mail.application.port.outbound.TemplateRendererPort
 import com.vertyll.veds.mail.application.service.EmailBatchService
 import com.vertyll.veds.mail.application.service.EmailSagaService
@@ -14,6 +13,7 @@ import com.vertyll.veds.mail.domain.model.SenderAddress
 import com.vertyll.veds.mail.domain.repository.EmailLogRepository
 import com.vertyll.veds.mail.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.mail.infrastructure.transaction.TransactionalUseCaseFactory
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

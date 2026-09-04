@@ -1,6 +1,6 @@
 package com.vertyll.veds.translation.infrastructure.web.security
 
-import com.vertyll.veds.translation.application.exception.ApiException
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.translation.domain.error.TranslationError
 import org.springframework.security.oauth2.jwt.Jwt
 import java.util.UUID

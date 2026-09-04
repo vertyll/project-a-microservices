@@ -1,11 +1,11 @@
 package com.vertyll.veds.task.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.command.CreateCommentCommand
 import com.vertyll.veds.task.application.command.UpdateCommentCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.dto.TaskUserView
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskEventPublisherPort
 import com.vertyll.veds.task.application.service.TaskAuthorizationService

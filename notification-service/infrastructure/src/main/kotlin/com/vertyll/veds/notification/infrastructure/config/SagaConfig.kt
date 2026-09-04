@@ -15,6 +15,7 @@ import com.vertyll.veds.notification.infrastructure.saga.NotificationSagaEntityF
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadDeserializer
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.engine.CompensationCommandDeserializer
 import com.vertyll.veds.shared.saga.engine.CompensationCommandHandler
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
@@ -24,6 +25,7 @@ import com.vertyll.veds.shared.saga.engine.SagaCompensationEngine
 import com.vertyll.veds.shared.saga.engine.SagaCompensationRunner
 import com.vertyll.veds.shared.saga.engine.SagaCompensationTopic
 import com.vertyll.veds.shared.saga.engine.SagaEngine
+import com.vertyll.veds.shared.saga.engine.SagaProcessAdapter
 import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import org.springframework.context.annotation.Bean
@@ -78,6 +80,9 @@ internal class SagaConfig {
             entityFactory = NotificationSagaEntityFactory(),
             compensationRunner = compensationRunner,
         )
+
+    @Bean
+    fun notificationSagaProcessPort(engine: SagaEngine<SagaJpaEntity, SagaStepJpaEntity>): SagaProcessPort = SagaProcessAdapter(engine)
 
     @Bean
     fun notificationSagaCompensationEngine(

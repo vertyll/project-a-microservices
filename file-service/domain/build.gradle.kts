@@ -13,6 +13,7 @@ dependencyManagement {
     }
 }
 dependencies {
+    implementation("com.vertyll.veds:shared-error")
     implementation(libs.kotlin.stdlib.jdk8)
 
     testImplementation(libs.bundles.test.unit)

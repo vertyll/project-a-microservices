@@ -22,9 +22,13 @@ import org.springframework.kafka.annotation.EnableKafka
 )
 @EnableJpaRepositories(
     "com.vertyll.veds.iam.infrastructure.persistence.repository",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.outbox",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.inbox",
 )
 @EntityScan(
     "com.vertyll.veds.iam.infrastructure.persistence.entity",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.outbox",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.inbox",
 )
 @EnableKafka
 @EnableConfigurationProperties(TranslationClientProperties::class)

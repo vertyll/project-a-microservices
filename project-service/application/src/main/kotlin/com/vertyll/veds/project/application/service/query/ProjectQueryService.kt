@@ -7,7 +7,6 @@ import com.vertyll.veds.project.application.dto.ProjectListItemResponse
 import com.vertyll.veds.project.application.dto.ProjectResponse
 import com.vertyll.veds.project.application.dto.ProjectSearchParams
 import com.vertyll.veds.project.application.dto.ProjectTypeResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.query.ProjectQueryUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectQueryPort
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -17,6 +16,7 @@ import com.vertyll.veds.project.domain.model.PageRequest
 import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.ProjectSearchCriteria
 import com.vertyll.veds.project.domain.repository.ProjectTypeRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectQueryService(

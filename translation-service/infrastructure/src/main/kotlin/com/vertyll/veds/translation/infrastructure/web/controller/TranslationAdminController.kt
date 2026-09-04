@@ -1,5 +1,6 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.translation.application.command.ClearOverrideCommand
 import com.vertyll.veds.translation.application.command.OverrideTranslationCommand
@@ -8,7 +9,6 @@ import com.vertyll.veds.translation.application.dto.TranslationKeyDetailsRespons
 import com.vertyll.veds.translation.application.dto.TranslationValueResponse
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationQueryUseCase
-import com.vertyll.veds.translation.infrastructure.response.ApiResponse
 import com.vertyll.veds.translation.infrastructure.web.dto.OverrideTranslationRequest
 import com.vertyll.veds.translation.infrastructure.web.security.CurrentUser
 import io.swagger.v3.oas.annotations.Operation

@@ -2,13 +2,13 @@ package com.vertyll.veds.mail.application.service
 
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.application.port.outbound.MailFeedbackEventPublisherPort
-import com.vertyll.veds.mail.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.mail.application.port.outbound.UseCaseLogger
-import com.vertyll.veds.mail.application.saga.model.Saga
-import com.vertyll.veds.mail.application.saga.model.SagaStepNames
-import com.vertyll.veds.mail.application.saga.model.SagaTypes
 import com.vertyll.veds.mail.domain.model.EmailTemplate
+import com.vertyll.veds.shared.saga.SagaProcessPort
+import com.vertyll.veds.shared.saga.SagaSnapshot
+import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaTypeValue
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -25,16 +25,16 @@ class EmailSagaServiceTest {
     private val saga =
         object : SagaProcessPort {
             override fun startSaga(
-                sagaType: SagaTypes,
+                sagaType: SagaTypeValue,
                 payload: Map<String, Any?>,
-            ): Saga {
+            ): SagaSnapshot {
                 sagaTrail += "start(${sagaType.value})"
-                return Saga(id = "mail-saga-1", type = sagaType.value, payload = payload.toString())
+                return SagaSnapshot(id = "mail-saga-1", type = sagaType.value, status = SagaStatus.STARTED, payload = payload.toString())
             }
 
             override fun recordSagaStep(
                 sagaId: String,
-                stepName: SagaStepNames,
+                stepName: SagaTypeValue,
                 status: SagaStepStatus,
                 payload: Map<String, Any?>,
             ) {
@@ -56,7 +56,7 @@ class EmailSagaServiceTest {
                 sagaTrail += "awaiting"
             }
 
-            override fun findSagaDomainById(sagaId: String): Saga? = null
+            override fun findSagaById(sagaId: String): SagaSnapshot? = null
         }
 
     private val emails =

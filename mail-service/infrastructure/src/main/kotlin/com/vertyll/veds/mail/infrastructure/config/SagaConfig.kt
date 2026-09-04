@@ -10,12 +10,14 @@ import com.vertyll.veds.mail.infrastructure.saga.MailSagaCompensator
 import com.vertyll.veds.mail.infrastructure.saga.MailSagaEntityFactory
 import com.vertyll.veds.shared.messaging.avro.AvroPayloadSerializer
 import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.engine.CompensationEventSerializer
 import com.vertyll.veds.shared.saga.engine.DefaultSagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensationContext
 import com.vertyll.veds.shared.saga.engine.SagaCompensationRunner
 import com.vertyll.veds.shared.saga.engine.SagaCompensationTopic
 import com.vertyll.veds.shared.saga.engine.SagaEngine
+import com.vertyll.veds.shared.saga.engine.SagaProcessAdapter
 import com.vertyll.veds.shared.saga.engine.SagaProperties
 import com.vertyll.veds.shared.saga.engine.SagaWatchdog
 import org.springframework.context.annotation.Bean
@@ -70,6 +72,9 @@ internal class SagaConfig {
             entityFactory = MailSagaEntityFactory(),
             compensationRunner = compensationRunner,
         )
+
+    @Bean
+    fun mailSagaProcessPort(engine: SagaEngine<SagaJpaEntity, SagaStepJpaEntity>): SagaProcessPort = SagaProcessAdapter(engine)
 
     @Bean
     fun mailCompensationEventSerializer(

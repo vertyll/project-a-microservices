@@ -11,12 +11,12 @@ import com.vertyll.veds.iam.application.command.ChangeEmailCommand
 import com.vertyll.veds.iam.application.command.ChangePasswordCommand
 import com.vertyll.veds.iam.application.command.RegisterCommand
 import com.vertyll.veds.iam.application.command.ResetPasswordCommand
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.role
 import com.vertyll.veds.iam.application.user
 import com.vertyll.veds.iam.application.verificationToken
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.TokenTypes
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit

@@ -1,5 +1,6 @@
 package com.vertyll.veds.translation.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.sharedtranslation.IcuPatternValidator
 import com.vertyll.veds.translation.application.command.ClearOverrideCommand
 import com.vertyll.veds.translation.application.command.ImportTranslationsCommand
@@ -9,7 +10,6 @@ import com.vertyll.veds.translation.application.dto.ImportReportResponse
 import com.vertyll.veds.translation.application.dto.MissingTranslationResponse
 import com.vertyll.veds.translation.application.dto.RejectedPatternResponse
 import com.vertyll.veds.translation.application.dto.TranslationValueResponse
-import com.vertyll.veds.translation.application.exception.ApiException
 import com.vertyll.veds.translation.application.mapper.TranslationValueMapper
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
 import com.vertyll.veds.translation.application.port.outbound.UseCaseLogger

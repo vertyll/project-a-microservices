@@ -16,7 +16,6 @@ import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.application.port.outbound.RolePermissionsEventPublisherPort
-import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.service.AuthCompensationService
 import com.vertyll.veds.iam.application.service.MailFeedbackService
 import com.vertyll.veds.iam.application.service.command.AuthCommandService
@@ -36,6 +35,7 @@ import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
 import com.vertyll.veds.iam.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.iam.infrastructure.transaction.TransactionalUseCaseFactory
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

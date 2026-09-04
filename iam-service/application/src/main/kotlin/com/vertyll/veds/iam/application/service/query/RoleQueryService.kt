@@ -1,13 +1,13 @@
 package com.vertyll.veds.iam.application.service.query
 
 import com.vertyll.veds.iam.application.dto.RoleResponse
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.mapper.RoleResponseMapper
 import com.vertyll.veds.iam.application.port.inbound.query.RoleQueryUseCase
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
+import com.vertyll.veds.sharederror.ApiException
 
 class RoleQueryService(
     private val roleRepository: RoleRepository,

@@ -1,13 +1,13 @@
 package com.vertyll.veds.iam.application.service.query
 
 import com.vertyll.veds.iam.application.dto.UserResponse
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.mapper.UserResponseMapper
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.domain.repository.UserRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class UserQueryService(

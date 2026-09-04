@@ -7,10 +7,10 @@ import com.vertyll.veds.file.application.dto.FileResponse
 import com.vertyll.veds.file.application.dto.UploadTicketResponse
 import com.vertyll.veds.file.application.port.inbound.command.FileCommandUseCase
 import com.vertyll.veds.file.application.port.inbound.query.FileQueryUseCase
-import com.vertyll.veds.file.infrastructure.response.ApiResponse
 import com.vertyll.veds.file.infrastructure.web.dto.AttachFileRequest
 import com.vertyll.veds.file.infrastructure.web.dto.RequestUploadRequest
 import com.vertyll.veds.file.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

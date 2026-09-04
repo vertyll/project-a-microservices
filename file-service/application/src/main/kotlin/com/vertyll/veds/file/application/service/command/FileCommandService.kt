@@ -8,7 +8,6 @@ import com.vertyll.veds.file.application.command.RequestUploadCommand
 import com.vertyll.veds.file.application.dto.Actor
 import com.vertyll.veds.file.application.dto.FileResponse
 import com.vertyll.veds.file.application.dto.UploadTicketResponse
-import com.vertyll.veds.file.application.exception.ApiException
 import com.vertyll.veds.file.application.port.inbound.command.FileCommandUseCase
 import com.vertyll.veds.file.application.port.outbound.FileEventPublisherPort
 import com.vertyll.veds.file.application.port.outbound.ObjectStoragePort
@@ -17,6 +16,7 @@ import com.vertyll.veds.file.domain.error.FileError
 import com.vertyll.veds.file.domain.model.StoredFile
 import com.vertyll.veds.file.domain.model.UploadStatus
 import com.vertyll.veds.file.domain.repository.StoredFileRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID

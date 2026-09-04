@@ -1,11 +1,11 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.translation.application.command.ImportTranslationsCommand
 import com.vertyll.veds.translation.application.dto.ImportReportResponse
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationExportUseCase
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationQueryUseCase
-import com.vertyll.veds.translation.infrastructure.response.ApiResponse
 import com.vertyll.veds.translation.infrastructure.spreadsheet.TranslationSpreadsheet
 import com.vertyll.veds.translation.infrastructure.web.LanguageHeader
 import com.vertyll.veds.translation.infrastructure.web.security.CurrentUser

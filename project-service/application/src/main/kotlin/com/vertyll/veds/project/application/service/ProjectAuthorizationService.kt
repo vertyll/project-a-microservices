@@ -1,6 +1,5 @@
 package com.vertyll.veds.project.application.service
 
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.Project
 import com.vertyll.veds.project.domain.model.ProjectPermission
@@ -9,6 +8,7 @@ import com.vertyll.veds.project.domain.repository.ProjectRepository
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
 import com.vertyll.veds.project.domain.service.AccessDecision
 import com.vertyll.veds.project.domain.service.ProjectAccessPolicy
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectAuthorizationService(

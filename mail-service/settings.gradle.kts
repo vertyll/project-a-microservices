@@ -7,6 +7,7 @@ project(":application").name = "mail-application"
 project(":infrastructure").name = "mail-infrastructure"
 
 includeBuild("../shared-saga-api")
+includeBuild("../shared-error")
 includeBuild("../shared-web")
 includeBuild("../shared-archunit")
 includeBuild("../shared-translation")

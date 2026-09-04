@@ -3,9 +3,9 @@ package com.vertyll.veds.project.infrastructure.web.controller
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.application.port.inbound.command.ProjectMembershipCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectMembershipQueryUseCase
-import com.vertyll.veds.project.infrastructure.response.ApiResponse
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus

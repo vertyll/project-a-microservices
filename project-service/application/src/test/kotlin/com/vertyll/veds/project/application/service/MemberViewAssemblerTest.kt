@@ -5,12 +5,12 @@ package com.vertyll.veds.project.application.service
 import com.vertyll.veds.project.application.ENGLISH
 import com.vertyll.veds.project.application.InMemoryRoleRepository
 import com.vertyll.veds.project.application.InMemoryUserDirectory
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.role
 import com.vertyll.veds.project.application.userRef
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.ProjectMember
 import com.vertyll.veds.project.domain.model.ProjectRoleCode
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals

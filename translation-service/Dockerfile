@@ -13,6 +13,7 @@ WORKDIR /app
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
 COPY shared-authz/ ./shared-authz/
+COPY shared-error/ ./shared-error/
 COPY shared-authz-client/ ./shared-authz-client/
 COPY shared-messaging-kafka/ ./shared-messaging-kafka/
 COPY shared-archunit/ ./shared-archunit/

@@ -1,9 +1,9 @@
 package com.vertyll.veds.project.application.service
 
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.outbound.SupportedLanguagesPort
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.Translation
+import com.vertyll.veds.sharederror.ApiException
 
 class TranslationCompletenessValidator(
     private val supportedLanguages: SupportedLanguagesPort,

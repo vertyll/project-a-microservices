@@ -5,9 +5,9 @@ import com.vertyll.veds.iam.application.port.inbound.command.UserCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
-import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

@@ -1,8 +1,8 @@
 package com.vertyll.veds.project.infrastructure.config
 
 import com.vertyll.veds.project.application.port.inbound.command.ProjectInvitationCommandUseCase
-import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.infrastructure.persistence.repository.SagaJpaRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStatus
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration

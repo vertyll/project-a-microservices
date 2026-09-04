@@ -3,11 +3,11 @@ package com.vertyll.veds.mail.application.service
 import com.vertyll.veds.mail.application.port.inbound.EmailSagaUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.application.port.outbound.MailFeedbackEventPublisherPort
-import com.vertyll.veds.mail.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.mail.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.mail.application.saga.model.SagaStepNames
 import com.vertyll.veds.mail.application.saga.model.SagaTypes
 import com.vertyll.veds.mail.domain.model.EmailTemplate
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStepStatus
 
 class EmailSagaService(

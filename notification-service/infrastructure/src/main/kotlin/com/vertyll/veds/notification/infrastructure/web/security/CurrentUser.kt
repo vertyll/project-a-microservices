@@ -1,7 +1,7 @@
 package com.vertyll.veds.notification.infrastructure.web.security
 
-import com.vertyll.veds.notification.application.exception.ApiException
 import com.vertyll.veds.notification.domain.error.NotificationError
+import com.vertyll.veds.sharederror.ApiException
 import org.springframework.security.oauth2.jwt.Jwt
 import java.util.UUID
 

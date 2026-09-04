@@ -1,10 +1,10 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.TaskCommentQueryUseCase
-import com.vertyll.veds.task.infrastructure.response.ApiResponse
 import com.vertyll.veds.task.infrastructure.web.dto.CreateCommentRequest
 import com.vertyll.veds.task.infrastructure.web.dto.UpdateCommentRequest
 import com.vertyll.veds.task.infrastructure.web.security.CurrentUser

@@ -6,6 +6,7 @@ project(":domain").name = "translation-domain"
 project(":application").name = "translation-application"
 project(":infrastructure").name = "translation-infrastructure"
 
+includeBuild("../shared-error")
 includeBuild("../shared-web")
 includeBuild("../shared-archunit")
 includeBuild("../shared-translation")

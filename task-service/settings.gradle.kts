@@ -9,6 +9,7 @@ project(":infrastructure").name = "task-infrastructure"
 includeBuild("../shared-saga-api")
 includeBuild("../shared-web")
 includeBuild("../shared-archunit")
+includeBuild("../shared-error")
 includeBuild("../shared-authz")
 includeBuild("../shared-authz-client")
 includeBuild("../shared-translation")

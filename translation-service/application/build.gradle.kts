@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation("com.vertyll.veds:shared-error")
     implementation(project(":translation-domain"))
     implementation("com.vertyll.veds:shared-translation")
 

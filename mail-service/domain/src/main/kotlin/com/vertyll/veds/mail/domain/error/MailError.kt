@@ -1,9 +1,12 @@
 package com.vertyll.veds.mail.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class MailError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     TEMPLATE_NOT_FOUND("mail.template.not_found", ErrorKind.NOT_FOUND),
     TEMPLATE_RENDER_FAILED("mail.template.render_failed", ErrorKind.MISCONFIGURED),
     DELIVERY_FAILED("mail.delivery.failed", ErrorKind.MISCONFIGURED),

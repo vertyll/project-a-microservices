@@ -1,8 +1,8 @@
 package com.vertyll.veds.translation.infrastructure.spreadsheet
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.translation.application.command.ImportedTranslationCommand
 import com.vertyll.veds.translation.application.dto.ExportRowResponse
-import com.vertyll.veds.translation.application.exception.ApiException
 import com.vertyll.veds.translation.domain.error.TranslationError
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory

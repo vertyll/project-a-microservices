@@ -4,6 +4,7 @@ plugins {
 
 dependencies {
     implementation(project(":iam-domain"))
+    implementation("com.vertyll.veds:shared-error")
     implementation("com.vertyll.veds:shared-saga-api")
 
     testImplementation(libs.bundles.test.unit)

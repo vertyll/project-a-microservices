@@ -2,12 +2,12 @@ package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.application.dto.ProjectRoleResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.ProjectMember
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
 import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
+import com.vertyll.veds.sharederror.ApiException
 
 class MemberViewAssembler(
     private val roleRepository: ProjectRoleRepository,

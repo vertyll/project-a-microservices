@@ -1,8 +1,8 @@
 package com.vertyll.veds.project.application.service
 
 import com.vertyll.veds.project.application.port.inbound.MailFeedbackUseCase
-import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.application.port.outbound.UseCaseLogger
+import com.vertyll.veds.shared.saga.SagaProcessPort
 
 class MailFeedbackService(
     private val sagaProcessPort: SagaProcessPort,
@@ -16,7 +16,7 @@ class MailFeedbackService(
             logger.debug("MailSent without sagaId - skipping saga step recording")
             return
         }
-        val saga = sagaProcessPort.findSagaDomainById(sagaId)
+        val saga = sagaProcessPort.findSagaById(sagaId)
         if (saga == null) {
             logger.debug("Saga '{}' not owned by project-service - ignoring MailSentEvent", sagaId)
             return
@@ -34,7 +34,7 @@ class MailFeedbackService(
             logger.debug("MailFailed without sagaId - skipping saga failure")
             return
         }
-        val saga = sagaProcessPort.findSagaDomainById(sagaId)
+        val saga = sagaProcessPort.findSagaById(sagaId)
         if (saga == null) {
             logger.debug("Saga '{}' not owned by project-service - ignoring MailFailedEvent", sagaId)
             return

@@ -4,14 +4,15 @@ import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessage
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxMessageFactory
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxRepositoryPort
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
-import com.vertyll.veds.shared.messaging.kafka.entity.BaseOutbox
+import com.vertyll.veds.shared.messaging.kafka.persistence.outbox.OutboxEntity
 import java.time.Instant
 
 /**
- * A row that behaves exactly like a persisted one: the transitions come from [BaseOutbox] itself,
- * so a test can never pass against a state machine the services do not actually use.
+ * A row that behaves exactly like a persisted one, because it is one: the transitions come from
+ * [OutboxEntity] itself, so a test can never pass against a state machine the services do not
+ * actually use.
  */
-internal class TestOutboxMessage(
+internal fun testOutboxMessage(
     id: Long? = null,
     eventId: String = "event-1",
     topic: String = "project-created",
@@ -20,16 +21,16 @@ internal class TestOutboxMessage(
     status: OutboxStatus = OutboxStatus.PENDING,
     retryCount: Int = 0,
     sagaId: String? = null,
-) : BaseOutbox(
-        id = id,
-        eventId = eventId,
-        topic = topic,
-        key = key,
-        payload = payload,
-        status = status,
-        retryCount = retryCount,
-        sagaId = sagaId,
-    )
+) = OutboxEntity(
+    id = id,
+    eventId = eventId,
+    topic = topic,
+    key = key,
+    payload = payload,
+    status = status,
+    retryCount = retryCount,
+    sagaId = sagaId,
+)
 
 /**
  * Selection is deliberately explicit rather than a re-implementation of the SQL: which rows are
@@ -80,7 +81,7 @@ internal class TestOutboxMessageFactory : OutboxMessageFactory {
         sagaId: String?,
         eventId: String?,
     ): OutboxMessage =
-        TestOutboxMessage(
+        testOutboxMessage(
             eventId = eventId ?: "generated-${counter++}",
             topic = topic,
             key = key,

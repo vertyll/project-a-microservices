@@ -1,9 +1,9 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.translation.application.dto.LanguageResponse
 import com.vertyll.veds.translation.application.dto.TranslationSnapshotResponse
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationQueryUseCase
-import com.vertyll.veds.translation.infrastructure.response.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.CacheControl

@@ -2,7 +2,6 @@ package com.vertyll.veds.project.application.service.command
 
 import com.vertyll.veds.project.application.command.UpdateMemberRoleCommand
 import com.vertyll.veds.project.application.dto.ProjectMemberResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectMembershipCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.service.MemberViewAssembler
@@ -14,6 +13,7 @@ import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.VersionGuard
 import com.vertyll.veds.project.domain.repository.ProjectMemberRepository
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectMembershipCommandService(

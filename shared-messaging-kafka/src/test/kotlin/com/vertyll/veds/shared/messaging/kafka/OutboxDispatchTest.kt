@@ -1,6 +1,7 @@
 package com.vertyll.veds.shared.messaging.kafka
 
 import com.vertyll.veds.shared.messaging.kafka.contract.OutboxStatus
+import com.vertyll.veds.shared.messaging.kafka.persistence.outbox.OutboxEntity
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.clients.producer.RecordMetadata
 import org.apache.kafka.common.TopicPartition
@@ -51,7 +52,7 @@ internal class OutboxDispatchTest {
             dispatchTx = OutboxDispatchTx(repository),
         )
 
-    private fun givenClaimable(vararg messages: TestOutboxMessage) {
+    private fun givenClaimable(vararg messages: OutboxEntity) {
         repository.claimable = messages.toList()
     }
 
@@ -66,7 +67,7 @@ internal class OutboxDispatchTest {
     /** Claiming first is what stops a second instance of the service publishing the same row. */
     @Test
     fun `a claimed row is marked in flight before it is published`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1"))
+        givenClaimable(testOutboxMessage(eventId = "e-1"))
 
         processor.pollAndDispatch()
 
@@ -79,7 +80,7 @@ internal class OutboxDispatchTest {
     @Test
     fun `the published message carries the row's topic, key and payload`() {
         givenClaimable(
-            TestOutboxMessage(eventId = "e-1", topic = "project-created", key = "project-9", payload = byteArrayOf(4, 2)),
+            testOutboxMessage(eventId = "e-1", topic = "project-created", key = "project-9", payload = byteArrayOf(4, 2)),
         )
 
         processor.pollAndDispatch()
@@ -93,7 +94,7 @@ internal class OutboxDispatchTest {
     /** Consumers deduplicate on this header — without it an at-least-once delivery becomes a duplicate. */
     @Test
     fun `the event id travels with the message`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1"))
+        givenClaimable(testOutboxMessage(eventId = "e-1"))
 
         processor.pollAndDispatch()
 
@@ -102,7 +103,7 @@ internal class OutboxDispatchTest {
 
     @Test
     fun `a published row is completed and not offered again`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1"))
+        givenClaimable(testOutboxMessage(eventId = "e-1"))
 
         processor.pollAndDispatch()
 
@@ -112,9 +113,9 @@ internal class OutboxDispatchTest {
     @Test
     fun `the whole claimed batch is published`() {
         givenClaimable(
-            TestOutboxMessage(eventId = "e-1"),
-            TestOutboxMessage(eventId = "e-2"),
-            TestOutboxMessage(eventId = "e-3"),
+            testOutboxMessage(eventId = "e-1"),
+            testOutboxMessage(eventId = "e-2"),
+            testOutboxMessage(eventId = "e-3"),
         )
 
         processor.pollAndDispatch()
@@ -128,7 +129,7 @@ internal class OutboxDispatchTest {
      */
     @Test
     fun `a refused publish is queued for another attempt`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1"))
+        givenClaimable(testOutboxMessage(eventId = "e-1"))
         failWith = IllegalStateException("broker unavailable")
 
         processor.pollAndDispatch()
@@ -145,7 +146,7 @@ internal class OutboxDispatchTest {
      */
     @Test
     fun `a message that exhausts its attempts is dead-lettered`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1", retryCount = properties.maxRetries - 1))
+        givenClaimable(testOutboxMessage(eventId = "e-1", retryCount = properties.maxRetries - 1))
         failWith = IllegalStateException("still unavailable")
 
         processor.pollAndDispatch()
@@ -155,7 +156,7 @@ internal class OutboxDispatchTest {
 
     @Test
     fun `a message one attempt short of the limit is still retried`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1", retryCount = properties.maxRetries - 2))
+        givenClaimable(testOutboxMessage(eventId = "e-1", retryCount = properties.maxRetries - 2))
         failWith = IllegalStateException("still unavailable")
 
         processor.pollAndDispatch()
@@ -166,7 +167,7 @@ internal class OutboxDispatchTest {
     /** One undeliverable row must not hold up the rest of the batch behind it. */
     @Test
     fun `a failure does not abandon the rest of the batch`() {
-        givenClaimable(TestOutboxMessage(eventId = "e-1"), TestOutboxMessage(eventId = "e-2"))
+        givenClaimable(testOutboxMessage(eventId = "e-1"), testOutboxMessage(eventId = "e-2"))
         failWith = IllegalStateException("broker unavailable")
 
         processor.pollAndDispatch()
@@ -177,7 +178,7 @@ internal class OutboxDispatchTest {
 
     @Test
     fun `no more than a batch is claimed at once`() {
-        givenClaimable(*(1..10).map { TestOutboxMessage(eventId = "e-$it") }.toTypedArray())
+        givenClaimable(*(1..10).map { testOutboxMessage(eventId = "e-$it") }.toTypedArray())
 
         KafkaOutboxProcessor(
             outboxRepository = repository,

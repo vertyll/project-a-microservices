@@ -3,6 +3,7 @@ package com.vertyll.veds.translation
 import com.vertyll.veds.shared.authz.client.AuthzClientProperties
 import com.vertyll.veds.shared.messaging.kafka.KafkaOutboxProcessor
 import com.vertyll.veds.shared.messaging.kafka.OutboxDispatchTx
+import com.vertyll.veds.shared.messaging.kafka.persistence.outbox.OutboxJpaAdapter
 import com.vertyll.veds.shared.web.config.SharedConfigAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -27,15 +28,17 @@ import org.springframework.kafka.annotation.EnableKafka
     excludeFilters = [
         ComponentScan.Filter(
             type = FilterType.ASSIGNABLE_TYPE,
-            classes = [KafkaOutboxProcessor::class, OutboxDispatchTx::class],
+            classes = [KafkaOutboxProcessor::class, OutboxDispatchTx::class, OutboxJpaAdapter::class],
         ),
     ],
 )
 @EnableJpaRepositories(
     "com.vertyll.veds.translation.infrastructure.persistence.repository",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.inbox",
 )
 @EntityScan(
     "com.vertyll.veds.translation.infrastructure.persistence.entity",
+    "com.vertyll.veds.shared.messaging.kafka.persistence.inbox",
 )
 @EnableKafka
 @EnableConfigurationProperties(AuthzClientProperties::class)

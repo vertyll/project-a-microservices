@@ -16,6 +16,9 @@ spring:
       schema.registry.url: mock://project-service-test
 
 veds:
+  authz:
+    client:
+      base-url: http://localhost:1
   translation:
     supported-languages: pl,en
     client:

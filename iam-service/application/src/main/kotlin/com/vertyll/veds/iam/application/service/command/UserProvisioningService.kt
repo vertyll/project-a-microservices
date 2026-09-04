@@ -1,7 +1,6 @@
 package com.vertyll.veds.iam.application.service.command
 
 import com.vertyll.veds.iam.application.dto.AuthenticatedIdentity
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.domain.error.IamError
@@ -9,6 +8,7 @@ import com.vertyll.veds.iam.domain.model.RoleType
 import com.vertyll.veds.iam.domain.model.User
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
+import com.vertyll.veds.sharederror.ApiException
 
 class UserProvisioningService(
     private val userRepository: UserRepository,

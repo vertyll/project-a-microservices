@@ -3,10 +3,10 @@ package com.vertyll.veds.project.infrastructure.web.controller
 import com.vertyll.veds.project.application.dto.ProjectInvitationResponse
 import com.vertyll.veds.project.application.port.inbound.command.ProjectInvitationCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectInvitationQueryUseCase
-import com.vertyll.veds.project.infrastructure.response.ApiResponse
 import com.vertyll.veds.project.infrastructure.web.dto.InviteMemberRequest
 import com.vertyll.veds.project.infrastructure.web.dto.RespondToInvitationRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

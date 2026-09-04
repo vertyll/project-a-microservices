@@ -1,9 +1,9 @@
 package com.vertyll.veds.project.infrastructure.web.security
 
 import com.vertyll.veds.project.application.dto.Actor
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
+import com.vertyll.veds.sharederror.ApiException
 import org.springframework.security.oauth2.jwt.Jwt
 import java.util.UUID
 

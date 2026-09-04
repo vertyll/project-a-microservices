@@ -1,9 +1,12 @@
 package com.vertyll.veds.iam.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class IamError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     USER_NOT_FOUND("iam.user.not_found", ErrorKind.NOT_FOUND),
     USER_VERSION_MISMATCH("iam.user.version_mismatch", ErrorKind.PRECONDITION_FAILED),
     EMAIL_NOT_CHANGEABLE("iam.user.email_not_changeable", ErrorKind.CONFLICT),

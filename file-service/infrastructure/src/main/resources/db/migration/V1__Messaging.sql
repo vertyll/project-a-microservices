@@ -1,7 +1,7 @@
 -- Transactional outbox and idempotent-receiver ledger.
 --
--- Written by the shared messaging module, not by this service's domain: the shape is It's and a
--- clone copies it verbatim. See docs/eventual-consistency.md.
+-- Written by the shared messaging module, not by this service's domain: the shape is theirs and
+-- a clone copies it verbatim. See docs/eventual-consistency.md.
 --
 -- No saga tables: this service orchestrates nothing. It emits file-confirmed and file-deleted so
 -- other contexts can drop references to files that no longer exist, and consumes nothing.

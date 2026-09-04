@@ -1,9 +1,9 @@
 package com.vertyll.veds.iam.application.service
 
 import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
-import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.iam.application.saga.model.SagaTypes
+import com.vertyll.veds.shared.saga.SagaProcessPort
 
 class MailFeedbackService(
     private val sagaProcessPort: SagaProcessPort,
@@ -27,7 +27,7 @@ class MailFeedbackService(
         }
         logger.info("MailSentEvent for saga: {} (to: {})", sagaId, to)
 
-        val saga = sagaProcessPort.findSagaDomainById(sagaId)
+        val saga = sagaProcessPort.findSagaById(sagaId)
         if (saga == null) {
             logger.warn("Saga '{}' not found — skipping MailSentEvent", sagaId)
             return

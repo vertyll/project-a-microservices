@@ -1,6 +1,6 @@
 package com.vertyll.veds.task.application.service
 
-import com.vertyll.veds.task.application.exception.ApiException
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.ProjectMembershipRef
 import com.vertyll.veds.task.domain.model.ProjectRef

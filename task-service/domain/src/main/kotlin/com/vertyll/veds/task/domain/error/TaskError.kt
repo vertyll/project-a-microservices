@@ -1,9 +1,12 @@
 package com.vertyll.veds.task.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class TaskError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     TASK_NOT_FOUND("task.not_found", ErrorKind.NOT_FOUND),
     TASK_ARCHIVED("task.archived", ErrorKind.CONFLICT),
     TASK_ACCESS_DENIED("task.access_denied", ErrorKind.ACCESS_DENIED),

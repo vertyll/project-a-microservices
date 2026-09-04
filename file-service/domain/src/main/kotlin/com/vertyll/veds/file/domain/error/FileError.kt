@@ -1,9 +1,12 @@
 package com.vertyll.veds.file.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class FileError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     FILE_NOT_FOUND("file.not_found", ErrorKind.NOT_FOUND),
     FILE_NOT_AVAILABLE("file.not_available", ErrorKind.CONFLICT),
     FILE_ACCESS_DENIED("file.access_denied", ErrorKind.ACCESS_DENIED),

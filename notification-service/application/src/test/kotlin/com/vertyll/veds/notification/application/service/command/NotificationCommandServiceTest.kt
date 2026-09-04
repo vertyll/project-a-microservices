@@ -13,12 +13,12 @@ import com.vertyll.veds.notification.application.command.MarkReadCommand
 import com.vertyll.veds.notification.application.command.RaiseNotificationCommand
 import com.vertyll.veds.notification.application.command.RetireNotificationsCommand
 import com.vertyll.veds.notification.application.command.UpdateSettingsCommand
-import com.vertyll.veds.notification.application.exception.ApiException
 import com.vertyll.veds.notification.domain.error.NotificationError
 import com.vertyll.veds.notification.domain.model.Notification
 import com.vertyll.veds.notification.domain.model.NotificationSettings
 import com.vertyll.veds.notification.domain.model.NotificationType
 import com.vertyll.veds.notification.domain.model.RecipientRef
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals

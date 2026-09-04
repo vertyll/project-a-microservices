@@ -8,9 +8,9 @@ import com.vertyll.veds.mail.application.port.inbound.EmailBatchUseCase
 import com.vertyll.veds.mail.application.port.inbound.EmailUseCase
 import com.vertyll.veds.mail.domain.model.EmailTemplate
 import com.vertyll.veds.mail.domain.model.PageResult
-import com.vertyll.veds.mail.infrastructure.response.ApiResponse
 import com.vertyll.veds.mail.infrastructure.web.dto.SendBatchEmailRequest
 import com.vertyll.veds.mail.infrastructure.web.dto.SendEmailRequest
+import com.vertyll.veds.shared.web.http.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

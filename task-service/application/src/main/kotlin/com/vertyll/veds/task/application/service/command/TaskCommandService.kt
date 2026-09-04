@@ -1,12 +1,12 @@
 package com.vertyll.veds.task.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.command.BatchDeleteTasksCommand
 import com.vertyll.veds.task.application.command.ChangeTaskStatusCommand
 import com.vertyll.veds.task.application.command.CreateTaskCommand
 import com.vertyll.veds.task.application.command.UpdateTaskCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.dto.TaskResponse
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommandUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskEventPublisherPort
 import com.vertyll.veds.task.application.service.TaskAuthorizationService

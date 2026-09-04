@@ -1,7 +1,7 @@
 package com.vertyll.veds.task.infrastructure.web.security
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.dto.Actor
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.LanguageTag
 import org.springframework.security.oauth2.jwt.Jwt

@@ -6,11 +6,11 @@ import com.vertyll.veds.iam.application.InMemoryRoleRepository
 import com.vertyll.veds.iam.application.InMemoryUserRepository
 import com.vertyll.veds.iam.application.RecordingAuthEventPublisher
 import com.vertyll.veds.iam.application.dto.AuthenticatedIdentity
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.Role
 import com.vertyll.veds.iam.domain.model.RoleType
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

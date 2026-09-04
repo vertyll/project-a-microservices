@@ -1,9 +1,9 @@
 package com.vertyll.veds.template.application.service.command
 
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStepStatus
 import com.vertyll.veds.template.application.command.CreateTemplateCommand
 import com.vertyll.veds.template.application.port.inbound.command.TemplateCommandUseCase
-import com.vertyll.veds.template.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.template.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.template.application.saga.model.SagaStepNames
 import com.vertyll.veds.template.application.saga.model.SagaTypes

@@ -11,7 +11,6 @@ import com.vertyll.veds.project.application.POLISH
 import com.vertyll.veds.project.application.RecordingEventPublisher
 import com.vertyll.veds.project.application.command.CreateCategoryCommand
 import com.vertyll.veds.project.application.command.UpdateCategoryCommand
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.project
 import com.vertyll.veds.project.application.role
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -23,6 +22,7 @@ import com.vertyll.veds.project.domain.model.ProjectMember
 import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.ProjectRoleCode
 import com.vertyll.veds.project.domain.model.Translation
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals

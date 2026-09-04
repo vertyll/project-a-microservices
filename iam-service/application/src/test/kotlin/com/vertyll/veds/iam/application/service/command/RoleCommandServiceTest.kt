@@ -7,12 +7,12 @@ import com.vertyll.veds.iam.application.InMemoryUserRepository
 import com.vertyll.veds.iam.application.RecordingRolePermissionsPublisher
 import com.vertyll.veds.iam.application.command.CreateRoleCommand
 import com.vertyll.veds.iam.application.command.UpdateRoleCommand
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.permission
 import com.vertyll.veds.iam.application.role
 import com.vertyll.veds.iam.application.user
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.RoleScope
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

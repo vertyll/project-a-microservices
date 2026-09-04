@@ -3,7 +3,7 @@ package com.vertyll.veds.iam.infrastructure.web.controller
 import com.vertyll.veds.iam.application.dto.PermissionModuleResponse
 import com.vertyll.veds.iam.application.dto.PermissionResponse
 import com.vertyll.veds.iam.application.port.inbound.query.PermissionQueryUseCase
-import com.vertyll.veds.iam.infrastructure.response.ApiResponse
+import com.vertyll.veds.shared.web.http.ApiResponse
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus

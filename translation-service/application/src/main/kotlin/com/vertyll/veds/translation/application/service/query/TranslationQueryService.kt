@@ -1,11 +1,11 @@
 package com.vertyll.veds.translation.application.service.query
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.translation.application.dto.LanguageResponse
 import com.vertyll.veds.translation.application.dto.PagedResponse
 import com.vertyll.veds.translation.application.dto.PaginationMeta
 import com.vertyll.veds.translation.application.dto.TranslationKeyDetailsResponse
 import com.vertyll.veds.translation.application.dto.TranslationSnapshotResponse
-import com.vertyll.veds.translation.application.exception.ApiException
 import com.vertyll.veds.translation.application.mapper.TranslationValueMapper
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationQueryUseCase
 import com.vertyll.veds.translation.domain.error.TranslationError

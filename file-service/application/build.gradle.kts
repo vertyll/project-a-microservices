@@ -3,6 +3,7 @@ plugins {
 }
 
 dependencies {
+    implementation("com.vertyll.veds:shared-error")
     implementation(project(":file-domain"))
 
     testImplementation(libs.bundles.test.unit)

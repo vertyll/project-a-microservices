@@ -1,5 +1,6 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import com.vertyll.veds.task.application.dto.PagedResponse
 import com.vertyll.veds.task.application.dto.TaskDetailsResponse
@@ -11,7 +12,6 @@ import com.vertyll.veds.task.application.port.inbound.query.TaskQueryUseCase
 import com.vertyll.veds.task.domain.model.TaskPermission
 import com.vertyll.veds.task.domain.model.TaskPriority
 import com.vertyll.veds.task.domain.model.TaskSortField
-import com.vertyll.veds.task.infrastructure.response.ApiResponse
 import com.vertyll.veds.task.infrastructure.web.LanguageHeader
 import com.vertyll.veds.task.infrastructure.web.dto.BatchDeleteTasksRequest
 import com.vertyll.veds.task.infrastructure.web.dto.ChangeTaskStatusRequest

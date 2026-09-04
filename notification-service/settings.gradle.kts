@@ -7,6 +7,7 @@ project(":application").name = "notification-application"
 project(":infrastructure").name = "notification-infrastructure"
 
 includeBuild("../shared-saga-api")
+includeBuild("../shared-error")
 includeBuild("../shared-web")
 includeBuild("../shared-archunit")
 includeBuild("../shared-translation")

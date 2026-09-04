@@ -1,5 +1,6 @@
 package com.vertyll.veds.task.application.service.query
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.dto.PagedResponse
 import com.vertyll.veds.task.application.dto.PaginationMeta
 import com.vertyll.veds.task.application.dto.TaskCategoryView
@@ -8,7 +9,6 @@ import com.vertyll.veds.task.application.dto.TaskListItemResponse
 import com.vertyll.veds.task.application.dto.TaskResponse
 import com.vertyll.veds.task.application.dto.TaskSearchParams
 import com.vertyll.veds.task.application.dto.TaskUserView
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.query.TaskQueryUseCase
 import com.vertyll.veds.task.application.port.outbound.TaskQueryPort
 import com.vertyll.veds.task.application.service.TaskAuthorizationService

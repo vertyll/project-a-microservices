@@ -1,8 +1,8 @@
 package com.vertyll.veds.file.infrastructure.web.security
 
 import com.vertyll.veds.file.application.dto.Actor
-import com.vertyll.veds.file.application.exception.ApiException
 import com.vertyll.veds.file.domain.error.FileError
+import com.vertyll.veds.sharederror.ApiException
 import org.springframework.security.oauth2.jwt.Jwt
 import java.util.UUID
 

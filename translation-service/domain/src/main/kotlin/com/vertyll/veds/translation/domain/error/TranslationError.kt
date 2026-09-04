@@ -1,9 +1,12 @@
 package com.vertyll.veds.translation.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class TranslationError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     KEY_NOT_FOUND("translation.key.not_found", ErrorKind.NOT_FOUND),
     KEY_OWNED_BY_ANOTHER_SERVICE("translation.key.owned_by_another_service", ErrorKind.CONFLICT),
     KEY_NOT_MANAGED("translation.key.not_managed", ErrorKind.CONFLICT),

@@ -3,7 +3,6 @@ package com.vertyll.veds.project.application.service.command
 import com.vertyll.veds.project.application.command.CreateCategoryCommand
 import com.vertyll.veds.project.application.command.UpdateCategoryCommand
 import com.vertyll.veds.project.application.dto.ProjectCategoryResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCategoryCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -14,6 +13,7 @@ import com.vertyll.veds.project.domain.model.ProjectCategory
 import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.VersionGuard
 import com.vertyll.veds.project.domain.repository.ProjectCategoryRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectCategoryCommandService(

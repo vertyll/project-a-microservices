@@ -1,9 +1,12 @@
 package com.vertyll.veds.notification.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class NotificationError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     NOTIFICATION_NOT_FOUND("notification.not_found", ErrorKind.NOT_FOUND),
     NOT_THE_RECIPIENT("notification.not_the_recipient", ErrorKind.ACCESS_DENIED),
     RECIPIENT_UNKNOWN("notification.recipient_unknown", ErrorKind.NOT_FOUND),

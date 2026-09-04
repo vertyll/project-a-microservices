@@ -3,11 +3,11 @@ package com.vertyll.veds.project.infrastructure.web.controller
 import com.vertyll.veds.project.application.dto.ProjectCategoryResponse
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCategoryCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectCategoryQueryUseCase
-import com.vertyll.veds.project.infrastructure.response.ApiResponse
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectCategoryRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectCategoryRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

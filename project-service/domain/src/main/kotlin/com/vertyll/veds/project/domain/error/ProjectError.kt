@@ -1,9 +1,12 @@
 package com.vertyll.veds.project.domain.error
 
+import com.vertyll.veds.sharederror.DomainError
+import com.vertyll.veds.sharederror.ErrorKind
+
 enum class ProjectError(
-    val key: String,
-    val kind: ErrorKind,
-) {
+    override val key: String,
+    override val kind: ErrorKind,
+) : DomainError {
     PROJECT_NOT_FOUND("project.not_found", ErrorKind.NOT_FOUND),
     PROJECT_ACCESS_DENIED("project.access_denied", ErrorKind.ACCESS_DENIED),
     PROJECT_ARCHIVED("project.archived", ErrorKind.CONFLICT),

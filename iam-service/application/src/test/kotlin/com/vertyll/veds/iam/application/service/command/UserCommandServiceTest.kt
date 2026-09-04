@@ -5,9 +5,9 @@ package com.vertyll.veds.iam.application.service.command
 import com.vertyll.veds.iam.application.InMemoryUserRepository
 import com.vertyll.veds.iam.application.RecordingAuthEventPublisher
 import com.vertyll.veds.iam.application.command.UpdateProfileCommand
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.user
 import com.vertyll.veds.iam.domain.error.IamError
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.test.assertEquals

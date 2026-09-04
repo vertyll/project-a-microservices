@@ -16,7 +16,6 @@ import com.vertyll.veds.project.application.port.inbound.query.ProjectStatusQuer
 import com.vertyll.veds.project.application.port.inbound.query.ProjectTypeQueryUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.port.outbound.ProjectQueryPort
-import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.application.port.outbound.SupportedLanguagesPort
 import com.vertyll.veds.project.application.service.MailFeedbackService
 import com.vertyll.veds.project.application.service.MemberViewAssembler
@@ -45,6 +44,7 @@ import com.vertyll.veds.project.domain.repository.ProjectTypeRepository
 import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
 import com.vertyll.veds.project.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.project.infrastructure.transaction.TransactionalUseCaseFactory
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

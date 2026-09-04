@@ -1,9 +1,9 @@
 package com.vertyll.veds.template.infrastructure.config
 
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.template.application.port.inbound.TemplateCompensationUseCase
 import com.vertyll.veds.template.application.port.inbound.command.TemplateCommandUseCase
 import com.vertyll.veds.template.application.port.inbound.query.TemplateQueryUseCase
-import com.vertyll.veds.template.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.template.application.service.TemplateCompensationService
 import com.vertyll.veds.template.application.service.command.TemplateCommandService
 import com.vertyll.veds.template.application.service.query.TemplateQueryService

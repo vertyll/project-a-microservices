@@ -3,15 +3,15 @@ package com.vertyll.veds.iam.infrastructure.web.controller
 import com.vertyll.veds.iam.application.command.CreateRoleCommand
 import com.vertyll.veds.iam.application.command.UpdateRoleCommand
 import com.vertyll.veds.iam.application.dto.RoleResponse
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.RoleQueryUseCase
 import com.vertyll.veds.iam.domain.error.IamError
 import com.vertyll.veds.iam.domain.model.RoleScope
-import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.CreateRoleRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateRoleRequest
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.sharederror.ApiException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid

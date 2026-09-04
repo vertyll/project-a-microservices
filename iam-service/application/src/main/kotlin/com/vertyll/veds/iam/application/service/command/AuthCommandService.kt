@@ -4,11 +4,9 @@ import com.vertyll.veds.iam.application.command.ChangeEmailCommand
 import com.vertyll.veds.iam.application.command.ChangePasswordCommand
 import com.vertyll.veds.iam.application.command.RegisterCommand
 import com.vertyll.veds.iam.application.command.ResetPasswordCommand
-import com.vertyll.veds.iam.application.exception.ApiException
 import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
-import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
 import com.vertyll.veds.iam.application.saga.model.SagaStepNames
 import com.vertyll.veds.iam.application.saga.model.SagaTypes
@@ -20,7 +18,9 @@ import com.vertyll.veds.iam.domain.model.VerificationToken
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
 import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.sharederror.ApiException
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID

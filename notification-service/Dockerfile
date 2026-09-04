@@ -11,6 +11,8 @@ WORKDIR /app
 COPY shared-saga-api/ ./shared-saga-api/
 COPY shared-translation/ ./shared-translation/
 COPY shared-web/ ./shared-web/
+COPY shared-authz/ ./shared-authz/
+COPY shared-error/ ./shared-error/
 COPY shared-translation-client/ ./shared-translation-client/
 COPY shared-saga-engine/ ./shared-saga-engine/
 COPY shared-messaging-kafka/ ./shared-messaging-kafka/

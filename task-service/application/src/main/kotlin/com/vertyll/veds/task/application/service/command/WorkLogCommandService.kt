@@ -1,11 +1,11 @@
 package com.vertyll.veds.task.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.command.LogWorkCommand
 import com.vertyll.veds.task.application.command.UpdateWorkLogCommand
 import com.vertyll.veds.task.application.dto.Actor
 import com.vertyll.veds.task.application.dto.TaskUserView
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.command.WorkLogCommandUseCase
 import com.vertyll.veds.task.application.service.TaskAuthorizationService
 import com.vertyll.veds.task.domain.error.TaskError

@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "shared-translation-client/**"
+      - "shared-translation/**"
       - ".github/workflows/shared-translation-client-checks.yml"
       - ".github/workflows/quality-checks.yml"
   pull_request:
@@ -13,6 +14,7 @@ on:
       - main
     paths:
       - "shared-translation-client/**"
+      - "shared-translation/**"
       - ".github/workflows/shared-translation-client-checks.yml"
       - ".github/workflows/quality-checks.yml"
   workflow_dispatch:

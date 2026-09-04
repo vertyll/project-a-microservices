@@ -3,11 +3,11 @@ package com.vertyll.veds.project.infrastructure.web.controller
 import com.vertyll.veds.project.application.dto.ProjectStatusResponse
 import com.vertyll.veds.project.application.port.inbound.command.ProjectStatusCommandUseCase
 import com.vertyll.veds.project.application.port.inbound.query.ProjectStatusQueryUseCase
-import com.vertyll.veds.project.infrastructure.response.ApiResponse
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectStatusRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectStatusRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

@@ -5,11 +5,7 @@ package com.vertyll.veds.iam.application
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.application.port.outbound.RolePermissionsEventPublisherPort
-import com.vertyll.veds.iam.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.iam.application.port.outbound.UseCaseLogger
-import com.vertyll.veds.iam.application.saga.model.Saga
-import com.vertyll.veds.iam.application.saga.model.SagaStepNames
-import com.vertyll.veds.iam.application.saga.model.SagaTypes
 import com.vertyll.veds.iam.domain.model.PageRequest
 import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.domain.model.Permission
@@ -21,7 +17,11 @@ import com.vertyll.veds.iam.domain.repository.PermissionRepository
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
 import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
+import com.vertyll.veds.shared.saga.SagaSnapshot
+import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaTypeValue
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -341,14 +341,14 @@ internal class RecordingAuthEventPublisher : AuthEventPublisherPort {
 
 internal class RecordingSagaProcess : SagaProcessPort {
     val trail = mutableListOf<String>()
-    private val sagas = linkedMapOf<String, Saga>()
+    private val sagas = linkedMapOf<String, SagaSnapshot>()
     private var counter = 0
 
     override fun startSaga(
-        sagaType: SagaTypes,
+        sagaType: SagaTypeValue,
         payload: Map<String, Any?>,
-    ): Saga =
-        Saga(id = "saga-${++counter}", type = sagaType.value, payload = payload.toString())
+    ): SagaSnapshot =
+        SagaSnapshot(id = "saga-${++counter}", type = sagaType.value, status = SagaStatus.STARTED, payload = payload.toString())
             .also {
                 sagas[it.id] = it
                 trail += "start(${sagaType.value})"
@@ -356,7 +356,7 @@ internal class RecordingSagaProcess : SagaProcessPort {
 
     override fun recordSagaStep(
         sagaId: String,
-        stepName: SagaStepNames,
+        stepName: SagaTypeValue,
         status: SagaStepStatus,
         payload: Map<String, Any?>,
     ) {
@@ -378,7 +378,7 @@ internal class RecordingSagaProcess : SagaProcessPort {
         trail += "awaiting"
     }
 
-    override fun findSagaDomainById(sagaId: String) = sagas[sagaId]
+    override fun findSagaById(sagaId: String) = sagas[sagaId]
 }
 
 internal object SilentLogger : UseCaseLogger {

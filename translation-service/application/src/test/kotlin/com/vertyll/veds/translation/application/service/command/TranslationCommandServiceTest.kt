@@ -2,6 +2,7 @@
 
 package com.vertyll.veds.translation.application.service.command
 
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.translation.application.ENGLISH
 import com.vertyll.veds.translation.application.InMemoryKeyRepository
 import com.vertyll.veds.translation.application.InMemoryLanguageRepository
@@ -16,7 +17,6 @@ import com.vertyll.veds.translation.application.command.ImportTranslationsComman
 import com.vertyll.veds.translation.application.command.ImportedTranslationCommand
 import com.vertyll.veds.translation.application.command.OverrideTranslationCommand
 import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
-import com.vertyll.veds.translation.application.exception.ApiException
 import com.vertyll.veds.translation.domain.error.TranslationError
 import com.vertyll.veds.translation.domain.model.Language
 import com.vertyll.veds.translation.domain.model.TranslationKey

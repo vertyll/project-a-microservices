@@ -1,9 +1,9 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.translation.application.command.CatalogueEntryCommand
 import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
-import com.vertyll.veds.translation.infrastructure.response.ApiResponse
 import com.vertyll.veds.translation.infrastructure.web.dto.RegisterCatalogueRequest
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

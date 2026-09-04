@@ -1,11 +1,11 @@
 package com.vertyll.veds.project.application.service.query
 
 import com.vertyll.veds.project.application.dto.ProjectRoleResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.query.ProjectRoleQueryUseCase
 import com.vertyll.veds.project.domain.error.ProjectError
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectRoleQueryService(

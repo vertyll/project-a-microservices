@@ -12,7 +12,6 @@ import com.vertyll.veds.project.application.RecordingSagaProcess
 import com.vertyll.veds.project.application.SilentLogger
 import com.vertyll.veds.project.application.actor
 import com.vertyll.veds.project.application.command.InviteMemberCommand
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.project
 import com.vertyll.veds.project.application.role
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -21,6 +20,7 @@ import com.vertyll.veds.project.domain.model.InvitationStatus
 import com.vertyll.veds.project.domain.model.ProjectInvitation
 import com.vertyll.veds.project.domain.model.ProjectMember
 import com.vertyll.veds.project.domain.model.ProjectRoleCode
+import com.vertyll.veds.sharederror.ApiException
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit

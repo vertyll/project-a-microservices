@@ -5,7 +5,6 @@ import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
-import com.vertyll.veds.iam.infrastructure.response.ApiResponse
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangeEmailRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ChangePasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ConfirmPasswordChangeRequest
@@ -13,6 +12,7 @@ import com.vertyll.veds.iam.infrastructure.web.dto.RegisterRequest
 import com.vertyll.veds.iam.infrastructure.web.dto.ResetPasswordRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

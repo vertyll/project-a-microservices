@@ -3,11 +3,7 @@
 package com.vertyll.veds.project.application
 
 import com.vertyll.veds.project.application.dto.Actor
-import com.vertyll.veds.project.application.port.outbound.SagaProcessPort
 import com.vertyll.veds.project.application.port.outbound.UseCaseLogger
-import com.vertyll.veds.project.application.saga.model.Saga
-import com.vertyll.veds.project.application.saga.model.SagaStepNames
-import com.vertyll.veds.project.application.saga.model.SagaTypes
 import com.vertyll.veds.project.domain.model.InvitationStatus
 import com.vertyll.veds.project.domain.model.LanguageTag
 import com.vertyll.veds.project.domain.model.PageRequest
@@ -33,7 +29,11 @@ import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
 import com.vertyll.veds.project.domain.repository.ProjectStatusRepository
 import com.vertyll.veds.project.domain.repository.ProjectTypeRepository
 import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
+import com.vertyll.veds.shared.saga.SagaProcessPort
+import com.vertyll.veds.shared.saga.SagaSnapshot
+import com.vertyll.veds.shared.saga.SagaStatus
 import com.vertyll.veds.shared.saga.SagaStepStatus
+import com.vertyll.veds.shared.saga.SagaTypeValue
 import java.time.Instant
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
@@ -223,13 +223,13 @@ internal class InMemoryInvitationRepository : ProjectInvitationRepository {
 
 internal class RecordingSagaProcess : SagaProcessPort {
     val trail = mutableListOf<String>()
-    var started: Saga? = null
+    var started: SagaSnapshot? = null
 
     override fun startSaga(
-        sagaType: SagaTypes,
+        sagaType: SagaTypeValue,
         payload: Map<String, Any?>,
-    ): Saga =
-        Saga(id = "saga-1", type = sagaType.value, payload = payload.toString())
+    ): SagaSnapshot =
+        SagaSnapshot(id = "saga-1", type = sagaType.value, status = SagaStatus.STARTED, payload = payload.toString())
             .also {
                 started = it
                 trail += "start(${sagaType.value})"
@@ -237,7 +237,7 @@ internal class RecordingSagaProcess : SagaProcessPort {
 
     override fun recordSagaStep(
         sagaId: String,
-        stepName: SagaStepNames,
+        stepName: SagaTypeValue,
         status: SagaStepStatus,
         payload: Map<String, Any?>,
     ) {
@@ -259,7 +259,7 @@ internal class RecordingSagaProcess : SagaProcessPort {
         trail += "awaiting"
     }
 
-    override fun findSagaDomainById(sagaId: String) = started
+    override fun findSagaById(sagaId: String) = started
 }
 
 internal object SilentLogger : UseCaseLogger {

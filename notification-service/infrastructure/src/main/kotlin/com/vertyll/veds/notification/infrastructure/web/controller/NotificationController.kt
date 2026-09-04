@@ -7,11 +7,11 @@ import com.vertyll.veds.notification.application.dto.UnreadCountResponse
 import com.vertyll.veds.notification.application.port.inbound.command.NotificationCommandUseCase
 import com.vertyll.veds.notification.application.port.inbound.query.NotificationQueryUseCase
 import com.vertyll.veds.notification.domain.model.NotificationType
-import com.vertyll.veds.notification.infrastructure.response.ApiResponse
 import com.vertyll.veds.notification.infrastructure.web.dto.DismissNotificationsRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.MarkReadRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.UpdateSettingsRequest
 import com.vertyll.veds.notification.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag

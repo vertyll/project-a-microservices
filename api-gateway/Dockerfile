@@ -7,6 +7,8 @@ WORKDIR /app
 
 # Copy the shared libraries this service includes as composite builds.
 COPY shared-web/ ./shared-web/
+COPY shared-authz/ ./shared-authz/
+COPY shared-error/ ./shared-error/
 
 # Copy the service code
 COPY api-gateway/ ./api-gateway/

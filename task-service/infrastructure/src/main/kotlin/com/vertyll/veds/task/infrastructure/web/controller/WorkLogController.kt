@@ -1,15 +1,15 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.http.ApiResponse
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
 import com.vertyll.veds.task.application.dto.WorkLogPageResponse
-import com.vertyll.veds.task.application.exception.ApiException
 import com.vertyll.veds.task.application.port.inbound.command.WorkLogCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.WorkLogQueryUseCase
 import com.vertyll.veds.task.domain.error.TaskError
 import com.vertyll.veds.task.domain.model.PageRequest
 import com.vertyll.veds.task.domain.model.WorkLogVisibility
-import com.vertyll.veds.task.infrastructure.response.ApiResponse
 import com.vertyll.veds.task.infrastructure.web.dto.LogWorkRequest
 import com.vertyll.veds.task.infrastructure.web.dto.UpdateWorkLogRequest
 import com.vertyll.veds.task.infrastructure.web.security.CurrentUser

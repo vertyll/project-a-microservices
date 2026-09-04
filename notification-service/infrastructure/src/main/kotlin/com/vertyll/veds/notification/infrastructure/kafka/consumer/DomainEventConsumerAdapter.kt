@@ -55,7 +55,7 @@ internal class DomainEventConsumerAdapter(
                 projectId = UUID.fromString(event.projectId),
                 subjectId = UUID.fromString(event.invitationId),
                 fallbackEmail = event.inviteeEmail,
-                originSagaId = event.sagaId?.toString(),
+                originSagaId = event.sagaId,
             ),
         )
     }

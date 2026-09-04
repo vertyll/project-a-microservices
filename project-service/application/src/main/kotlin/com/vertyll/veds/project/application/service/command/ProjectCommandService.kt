@@ -4,7 +4,6 @@ import com.vertyll.veds.project.application.command.CreateProjectCommand
 import com.vertyll.veds.project.application.command.UpdateProjectCommand
 import com.vertyll.veds.project.application.dto.Actor
 import com.vertyll.veds.project.application.dto.ProjectResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -19,6 +18,7 @@ import com.vertyll.veds.project.domain.repository.ProjectRepository
 import com.vertyll.veds.project.domain.repository.ProjectRoleRepository
 import com.vertyll.veds.project.domain.repository.ProjectTypeRepository
 import com.vertyll.veds.project.domain.repository.UserDirectoryRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 @Suppress("LongParameterList")

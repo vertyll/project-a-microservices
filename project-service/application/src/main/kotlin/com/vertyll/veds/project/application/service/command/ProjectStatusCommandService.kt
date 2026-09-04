@@ -3,7 +3,6 @@ package com.vertyll.veds.project.application.service.command
 import com.vertyll.veds.project.application.command.CreateStatusCommand
 import com.vertyll.veds.project.application.command.UpdateStatusCommand
 import com.vertyll.veds.project.application.dto.ProjectStatusResponse
-import com.vertyll.veds.project.application.exception.ApiException
 import com.vertyll.veds.project.application.port.inbound.command.ProjectStatusCommandUseCase
 import com.vertyll.veds.project.application.port.outbound.ProjectEventPublisherPort
 import com.vertyll.veds.project.application.service.ProjectAuthorizationService
@@ -14,6 +13,7 @@ import com.vertyll.veds.project.domain.model.ProjectPermission
 import com.vertyll.veds.project.domain.model.ProjectStatus
 import com.vertyll.veds.project.domain.model.VersionGuard
 import com.vertyll.veds.project.domain.repository.ProjectStatusRepository
+import com.vertyll.veds.sharederror.ApiException
 import java.util.UUID
 
 class ProjectStatusCommandService(

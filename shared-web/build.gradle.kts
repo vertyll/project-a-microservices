@@ -60,6 +60,7 @@ dependencies {
 
     // --- Security, part of this module's public surface ---
     api("com.vertyll.veds:shared-authz")
+    api("com.vertyll.veds:shared-error")
     api(libs.bundles.web.api)
     api(libs.springframework.tx)
 
