@@ -14,7 +14,6 @@ class EmailBatchServiceTest {
         object : EmailUseCase {
             override fun sendEmail(
                 to: String,
-                subject: String,
                 template: EmailTemplate,
                 variables: Map<String, String>,
                 replyTo: String?,
@@ -34,8 +33,7 @@ class EmailBatchServiceTest {
         specific: Map<String, Map<String, String>> = emptyMap(),
     ) = service.processEmailBatch(
         recipients = recipients,
-        subject = "Welcome",
-        template = EmailTemplate.WELCOME_EMAIL,
+        template = EmailTemplate.PROJECT_INVITATION,
         commonVariables = common,
         specificVariables = specific,
         replyTo = null,

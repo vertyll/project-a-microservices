@@ -1,6 +1,6 @@
--- Transactional outbox, idempotent-receiver ledger and saga log.
+-- Transactional outbox and idempotent-receiver ledger.
 --
--- Written by the shared messaging and saga modules, not by this service's domain: the shape is
+-- Written by the shared messaging module, not by this service's domain: the shape is
 -- theirs and a clone copies it verbatim. See docs/eventual-consistency.md.
 --
 -- kafka_outbox is written in the same transaction as the business change that produced the
@@ -40,35 +40,3 @@ CREATE TABLE processed_event (
     CONSTRAINT uk_processed_event_event_id_consumer UNIQUE (event_id, consumer_group)
 );
 CREATE INDEX idx_processed_event_processed_at ON processed_event (processed_at);
-
-CREATE TABLE saga (
-    id VARCHAR(255) PRIMARY KEY,
-    type VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    payload TEXT NOT NULL,
-    last_error TEXT NULL,
-    started_at TIMESTAMP NOT NULL,
-    completed_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NOT NULL,
-    version BIGINT NULL
-);
-CREATE INDEX idx_saga_status ON saga (status);
-CREATE INDEX idx_saga_type ON saga (type);
-CREATE INDEX idx_saga_started_at ON saga (started_at);
-
-CREATE TABLE saga_step (
-    id BIGSERIAL PRIMARY KEY,
-    saga_id VARCHAR(255) NOT NULL,
-    step_name VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    payload TEXT NULL,
-    error_message TEXT NULL,
-    created_at TIMESTAMP NOT NULL,
-    completed_at TIMESTAMP NULL,
-    compensation_step_id BIGINT NULL,
-    version BIGINT NULL,
-
-    CONSTRAINT uk_saga_step UNIQUE (saga_id, step_name),
-    CONSTRAINT fk_saga_step_saga FOREIGN KEY (saga_id) REFERENCES saga(id) ON DELETE CASCADE
-);
-CREATE INDEX idx_saga_step_status ON saga_step (status);

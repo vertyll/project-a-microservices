@@ -69,7 +69,7 @@ class PermissionCatalogueService(
                 roleRepository.save(
                     Role.create(
                         name = declaration.name,
-                        description = "Ships with the platform",
+                        description = "iam.role.shipped.description",
                         permissions = permissionRepository.findAllByNames(declaration.permissions).toSet(),
                         scope = declaration.scope,
                     ),

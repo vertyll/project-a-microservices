@@ -26,17 +26,17 @@ internal class ReferenceDataInitializer(
             mapOf(
                 ProjectRoleCode.MANAGER to
                     setOf(
-                        Translation(LanguageTag.of("pl"), "Menedzer", "Zarzadza projektem, czlonkami i zadaniami"),
+                        Translation(LanguageTag.of("pl"), "Menedżer", "Zarządza projektem, członkami i zadaniami"),
                         Translation(LanguageTag.of("en"), "Manager", "Manages the project, its members and tasks"),
                     ),
                 ProjectRoleCode.MEMBER to
                     setOf(
-                        Translation(LanguageTag.of("pl"), "Czlonek", "Pracuje nad zadaniami w projekcie"),
+                        Translation(LanguageTag.of("pl"), "Członek", "Pracuje nad zadaniami w projekcie"),
                         Translation(LanguageTag.of("en"), "Member", "Works on tasks within the project"),
                     ),
                 ProjectRoleCode.CLIENT to
                     setOf(
-                        Translation(LanguageTag.of("pl"), "Klient", "Podglada postep projektu"),
+                        Translation(LanguageTag.of("pl"), "Klient", "Podgląda postęp projektu"),
                         Translation(LanguageTag.of("en"), "Client", "Follows the progress of the project"),
                     ),
             )
@@ -45,12 +45,12 @@ internal class ReferenceDataInitializer(
             mapOf(
                 ProjectTypeCode.TICKETS to
                     setOf(
-                        Translation(LanguageTag.of("pl"), "Zgloszenia", "Projekt oparty na zgloszeniach"),
+                        Translation(LanguageTag.of("pl"), "Zgłoszenia", "Projekt oparty na zgłoszeniach"),
                         Translation(LanguageTag.of("en"), "Tickets", "Ticket-driven project"),
                     ),
                 ProjectTypeCode.BACKLOG to
                     setOf(
-                        Translation(LanguageTag.of("pl"), "Backlog", "Projekt oparty na backlogu zadan"),
+                        Translation(LanguageTag.of("pl"), "Backlog", "Projekt oparty na backlogu zadań"),
                         Translation(LanguageTag.of("en"), "Backlog", "Backlog-driven project"),
                     ),
             )

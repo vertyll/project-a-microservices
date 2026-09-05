@@ -7,7 +7,6 @@ import com.vertyll.veds.mail.domain.model.PageResult
 interface EmailUseCase {
     fun sendEmail(
         to: String,
-        subject: String,
         template: EmailTemplate,
         variables: Map<String, String>,
         replyTo: String? = null,

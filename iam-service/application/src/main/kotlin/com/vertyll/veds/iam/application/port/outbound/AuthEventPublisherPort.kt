@@ -6,9 +6,9 @@ import java.util.UUID
 interface AuthEventPublisherPort {
     fun requestMail(
         to: String,
-        subject: String,
         templateName: String,
         variables: Map<String, String>,
+        language: String,
         replyTo: String? = null,
         priority: Int = 0,
         sagaId: String? = null,

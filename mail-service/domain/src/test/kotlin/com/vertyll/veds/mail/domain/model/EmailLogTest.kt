@@ -10,7 +10,7 @@ class EmailLogTest {
         EmailLog(
             recipient = "ada@example.com",
             subject = "Activate your account",
-            templateName = EmailTemplate.ACTIVATE_ACCOUNT.templateName,
+            templateName = EmailTemplate.PROJECT_INVITATION.templateName,
         )
 
     @Test

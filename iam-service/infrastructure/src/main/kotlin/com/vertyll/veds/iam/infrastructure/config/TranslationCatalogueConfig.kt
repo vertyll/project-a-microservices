@@ -154,5 +154,17 @@ internal class TranslationCatalogueConfig {
                 pl("Nie udało się utworzyć konta.")
                 en("The account could not be created.")
             }
+            key("iam.role.user.description") {
+                pl("Standardowy użytkownik aplikacji")
+                en("Standard application user")
+            }
+            key("iam.role.admin.description") {
+                pl("Administrator aplikacji")
+                en("Application administrator")
+            }
+            key("iam.role.shipped.description") {
+                pl("Rola dostarczona z platformą")
+                en("Ships with the platform")
+            }
         }
 }

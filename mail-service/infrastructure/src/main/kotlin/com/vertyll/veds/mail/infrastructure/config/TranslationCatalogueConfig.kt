@@ -22,10 +22,6 @@ internal class TranslationCatalogueConfig {
                 pl("Adres odbiorcy jest wymagany.")
                 en("The recipient address is required.")
             }
-            key("validation.mail.subject_required") {
-                pl("Temat jest wymagany.")
-                en("A subject is required.")
-            }
             key("validation.mail.template_name_required") {
                 pl("Nazwa szablonu jest wymagana.")
                 en("A template name is required.")

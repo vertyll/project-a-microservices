@@ -46,7 +46,6 @@ internal class EmailController(
         val success =
             emailService.sendEmail(
                 to = request.to,
-                subject = request.subject,
                 template = template,
                 variables = request.variables,
                 replyTo = request.replyTo,
@@ -72,7 +71,6 @@ internal class EmailController(
         val results =
             emailBatchService.processEmailBatch(
                 recipients = request.recipients,
-                subject = request.subject,
                 template = template,
                 commonVariables = request.commonVariables,
                 specificVariables = request.specificVariables,

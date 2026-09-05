@@ -29,11 +29,12 @@ class EmailService(
 
     override fun sendEmail(
         to: String,
-        subject: String,
         template: EmailTemplate,
         variables: Map<String, String>,
         replyTo: String?,
     ): Boolean {
+        val subject = template.subject
+
         try {
             logger.info(LOG_SENDING_EMAIL, to, subject)
 

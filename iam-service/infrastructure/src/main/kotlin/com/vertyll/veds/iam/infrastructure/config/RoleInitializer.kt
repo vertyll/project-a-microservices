@@ -20,8 +20,8 @@ internal class RoleInitializer(
 
         private val ROLE_DESCRIPTIONS =
             mapOf(
-                RoleType.USER to "Standard application user",
-                RoleType.ADMIN to "Application administrator",
+                RoleType.USER to "iam.role.user.description",
+                RoleType.ADMIN to "iam.role.admin.description",
             )
     }
 

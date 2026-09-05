@@ -41,7 +41,6 @@ internal class MailCommandConsumerAdapter(
             val event = avroPayloadDeserializer.deserialize(MailKafkaTopics.MAIL_REQUESTED, payload) as MailRequestedCommand
             emailSagaService.sendEmailWithSaga(
                 to = event.to,
-                subject = event.subject,
                 templateName = event.templateName,
                 variables = event.variables,
                 replyTo = event.replyTo,

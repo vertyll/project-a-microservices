@@ -19,7 +19,6 @@ internal class RecipientDirectoryPersistenceAdapter(
                     userId = recipient.userId,
                     email = recipient.email,
                     displayName = recipient.displayName,
-                    locale = recipient.locale,
                     updatedAt = recipient.updatedAt,
                 ),
             ).toDomain()
@@ -34,6 +33,5 @@ private fun RecipientRefJpaEntity.toDomain() =
         userId = userId,
         email = email,
         displayName = displayName,
-        locale = locale,
         updatedAt = updatedAt,
     )

@@ -63,7 +63,6 @@ class EmailSagaServiceTest {
         object : EmailUseCase {
             override fun sendEmail(
                 to: String,
-                subject: String,
                 template: EmailTemplate,
                 variables: Map<String, String>,
                 replyTo: String?,
@@ -125,12 +124,11 @@ class EmailSagaServiceTest {
     private val service = EmailSagaService(saga, emails, publisher, logger)
 
     private fun send(
-        templateName: String = EmailTemplate.ACTIVATE_ACCOUNT.templateName,
+        templateName: String = EmailTemplate.PROJECT_INVITATION.templateName,
         originSagaId: String? = "origin-saga",
         originalEventId: String? = "event-1",
     ) = service.sendEmailWithSaga(
         to = "ada@example.com",
-        subject = "Activate your account",
         templateName = templateName,
         variables = mapOf("firstName" to "Ada"),
         replyTo = null,

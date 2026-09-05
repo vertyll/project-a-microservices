@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotEmpty
 data class SendBatchEmailRequest(
     @field:NotEmpty(message = "validation.mail.recipients_required")
     val recipients: List<String>,
-    @field:NotBlank(message = "validation.mail.subject_required")
-    val subject: String,
     @field:NotBlank(message = "validation.mail.template_name_required")
     val templateName: String,
     val commonVariables: Map<String, String> = emptyMap(),

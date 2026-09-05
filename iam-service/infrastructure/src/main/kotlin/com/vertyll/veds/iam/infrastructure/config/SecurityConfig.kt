@@ -17,20 +17,6 @@ internal class SecurityConfig(
     private val keycloakJwtAuthenticationConverter: KeycloakJwtAuthenticationConverter,
     private val problemAuthenticationEntryPoint: ProblemAuthenticationEntryPoint,
 ) {
-    companion object {
-        private val PUBLIC_AUTH_ENDPOINTS =
-            arrayOf(
-                "/auth/register",
-                "/auth/activate",
-                "/auth/reset-password-request",
-                "/auth/confirm-reset-password",
-                "/auth/resend-activation",
-                "/auth/confirm-email-change",
-                "/auth/confirm-password-change",
-                "/auth/set-new-password",
-            )
-    }
-
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
@@ -48,8 +34,6 @@ internal class SecurityConfig(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                     ).permitAll()
-                    .requestMatchers(*PUBLIC_AUTH_ENDPOINTS)
-                    .permitAll()
                     .anyRequest()
                     .authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

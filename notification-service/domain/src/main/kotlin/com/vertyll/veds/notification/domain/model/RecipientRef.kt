@@ -7,6 +7,5 @@ data class RecipientRef(
     val userId: UUID,
     val email: String,
     val displayName: String? = null,
-    val locale: String? = null,
     val updatedAt: Instant = Instant.now(),
 )

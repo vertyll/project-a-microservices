@@ -20,11 +20,6 @@ internal class SecurityConfig(
     companion object {
         private val PUBLIC_AUTH_ENDPOINTS =
             arrayOf(
-                "/auth/register",
-                "/auth/activate",
-                "/auth/reset-password-request",
-                "/auth/confirm-reset-password",
-                "/auth/resend-activation",
                 "/auth/authorize",
                 "/auth/callback",
                 "/auth/session",
@@ -45,11 +40,6 @@ internal class SecurityConfig(
             arrayOf(
                 "/auth/me",
                 "/auth/me/permissions",
-                "/auth/change-password-request",
-                "/auth/change-email-request",
-                "/auth/confirm-email-change",
-                "/auth/confirm-password-change",
-                "/auth/set-new-password",
             )
 
         private val ROLE_ADMIN_ENDPOINTS =

@@ -18,7 +18,6 @@ class EmailSagaService(
 ) : EmailSagaUseCase {
     override fun sendEmailWithSaga(
         to: String,
-        subject: String,
         templateName: String,
         variables: Map<String, String>,
         replyTo: String?,
@@ -27,6 +26,7 @@ class EmailSagaService(
     ): Boolean {
         val template = EmailTemplate.fromTemplateName(templateName)
         if (template == null) {
+            val subject = templateName
             logger.error("Invalid template name: {}. Email will not be sent.", templateName)
             if (originSagaId != null) {
                 mailFeedbackPublisher.publishMailFailed(
@@ -39,6 +39,8 @@ class EmailSagaService(
             }
             return false
         }
+
+        val subject = template.subject
 
         val sagaId =
             sagaProcess
@@ -64,7 +66,7 @@ class EmailSagaService(
                 payload = mapOf("templateName" to templateName, "variables" to variables),
             )
 
-            val success = emailService.sendEmail(to, subject, template, variables, replyTo)
+            val success = emailService.sendEmail(to, template, variables, replyTo)
 
             val status = if (success) SagaStepStatus.COMPLETED else SagaStepStatus.FAILED
             val stepPayload =

@@ -59,7 +59,6 @@ CREATE TABLE recipient_ref (
     user_id UUID PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     display_name VARCHAR(255),
-    locale VARCHAR(8),
     updated_at TIMESTAMP NOT NULL
 );
 

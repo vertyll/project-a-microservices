@@ -93,21 +93,3 @@ CREATE TABLE role_permission_mapping (
 );
 CREATE INDEX idx_role_permission_mapping_permission ON role_permission_mapping (permission_id);
 
--- ===============
--- Single-use tokens for activation, e-mail change and password reset
-CREATE TABLE verification_token (
-    id BIGSERIAL PRIMARY KEY,
-    token VARCHAR(1024) NOT NULL,
-    username VARCHAR(255) NOT NULL,
-    expiry_date TIMESTAMP NOT NULL,
-    used BOOLEAN NOT NULL DEFAULT FALSE,
-    token_type VARCHAR(255) NOT NULL,
-    additional_data TEXT NULL,
-    saga_id VARCHAR(255) NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    version BIGINT NULL,
-
-    CONSTRAINT uk_verification_token_token UNIQUE (token)
-);
-CREATE INDEX idx_verification_token_username ON verification_token (username);

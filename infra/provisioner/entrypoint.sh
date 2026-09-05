@@ -44,7 +44,7 @@ import_if_missing() {
         terraform import -input=false "$addr" "$topic" >/dev/null 2>&1 || true
     fi
 }
-for topic in mail-requested mail-sent mail-failed saga-compensation-iam saga-compensation-mail; do
+for topic in mail-requested mail-sent mail-failed saga-compensation-mail; do
     import_if_missing "kafka_topic.business[\"${topic}\"]" "${topic}"
     import_if_missing "kafka_topic.dlt[\"${topic}\"]" "${topic}-dlt"
 done

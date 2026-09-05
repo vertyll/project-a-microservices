@@ -12,18 +12,9 @@ import com.vertyll.veds.iam.domain.model.Permission
 import com.vertyll.veds.iam.domain.model.Role
 import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.domain.model.User
-import com.vertyll.veds.iam.domain.model.VerificationToken
 import com.vertyll.veds.iam.domain.repository.PermissionRepository
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
-import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
-import com.vertyll.veds.shared.saga.SagaProcessPort
-import com.vertyll.veds.shared.saga.SagaSnapshot
-import com.vertyll.veds.shared.saga.SagaStatus
-import com.vertyll.veds.shared.saga.SagaStepStatus
-import com.vertyll.veds.shared.saga.SagaTypeValue
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -50,26 +41,6 @@ internal fun permission(
     scope: RoleScope = RoleScope.PROJECT,
     description: String? = null,
 ) = Permission(id = id, name = name, module = module, scope = scope, description = description)
-
-internal fun verificationToken(
-    id: Long = 1L,
-    token: String = "token-1",
-    username: String = "ada@example.com",
-    tokenType: String,
-    used: Boolean = false,
-    expiryDate: Instant = Instant.now().plus(24, ChronoUnit.HOURS),
-    additionalData: String? = null,
-    sagaId: String? = null,
-) = VerificationToken(
-    id = id,
-    token = token,
-    username = username,
-    expiryDate = expiryDate,
-    used = used,
-    tokenType = tokenType,
-    additionalData = additionalData,
-    sagaId = sagaId,
-)
 
 internal class InMemoryUserRepository : UserRepository {
     val stored = linkedMapOf<Long, User>()
@@ -196,39 +167,6 @@ internal class RecordingRolePermissionsPublisher : RolePermissionsEventPublisher
     }
 }
 
-internal class InMemoryVerificationTokenRepository : VerificationTokenRepository {
-    val stored = linkedMapOf<Long, VerificationToken>()
-    private var nextId = 1L
-
-    fun given(vararg tokens: VerificationToken) = tokens.forEach { stored[it.id!!] = it }
-
-    override fun save(verificationToken: VerificationToken): VerificationToken {
-        val withId = verificationToken.id?.let { verificationToken } ?: verificationToken.copy(id = nextId++)
-        stored[withId.id!!] = withId
-        return withId
-    }
-
-    override fun findById(id: Long) = stored[id]
-
-    override fun findByToken(token: String) = stored.values.firstOrNull { it.token == token }
-
-    override fun findByUsernameAndTokenType(
-        username: String,
-        tokenType: String,
-    ) = stored.values.firstOrNull { it.username == username && it.tokenType == tokenType }
-
-    override fun findAllByUsernameAndTokenType(
-        username: String,
-        tokenType: String,
-    ) = stored.values.filter { it.username == username && it.tokenType == tokenType }
-
-    override fun findByAdditionalData(additionalData: String) = stored.values.firstOrNull { it.additionalData == additionalData }
-
-    override fun deleteById(id: Long) {
-        stored.remove(id)
-    }
-}
-
 internal class FakeIdentityProvider : IdentityProviderPort {
     val calls = mutableListOf<String>()
     var createUserFails: Exception? = null
@@ -309,9 +247,9 @@ internal class RecordingAuthEventPublisher : AuthEventPublisherPort {
 
     override fun requestMail(
         to: String,
-        subject: String,
         templateName: String,
         variables: Map<String, String>,
+        language: String,
         replyTo: String?,
         priority: Int,
         sagaId: String?,
@@ -337,48 +275,6 @@ internal class RecordingAuthEventPublisher : AuthEventPublisherPort {
     ) {
         published += "UserProfileUpdated($email)"
     }
-}
-
-internal class RecordingSagaProcess : SagaProcessPort {
-    val trail = mutableListOf<String>()
-    private val sagas = linkedMapOf<String, SagaSnapshot>()
-    private var counter = 0
-
-    override fun startSaga(
-        sagaType: SagaTypeValue,
-        payload: Map<String, Any?>,
-    ): SagaSnapshot =
-        SagaSnapshot(id = "saga-${++counter}", type = sagaType.value, status = SagaStatus.STARTED, payload = payload.toString())
-            .also {
-                sagas[it.id] = it
-                trail += "start(${sagaType.value})"
-            }
-
-    override fun recordSagaStep(
-        sagaId: String,
-        stepName: SagaTypeValue,
-        status: SagaStepStatus,
-        payload: Map<String, Any?>,
-    ) {
-        trail += "step(${stepName.value},$status)"
-    }
-
-    override fun markSagaCompleted(sagaId: String) {
-        trail += "completed"
-    }
-
-    override fun markSagaFailed(
-        sagaId: String,
-        errorMessage: String,
-    ) {
-        trail += "failed($errorMessage)"
-    }
-
-    override fun markAwaitingResponse(sagaId: String) {
-        trail += "awaiting"
-    }
-
-    override fun findSagaById(sagaId: String) = sagas[sagaId]
 }
 
 internal object SilentLogger : UseCaseLogger {

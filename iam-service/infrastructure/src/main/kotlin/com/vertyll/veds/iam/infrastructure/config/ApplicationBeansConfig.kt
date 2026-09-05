@@ -1,8 +1,5 @@
 package com.vertyll.veds.iam.infrastructure.config
 
-import com.vertyll.veds.iam.application.port.inbound.AuthCompensationUseCase
-import com.vertyll.veds.iam.application.port.inbound.MailFeedbackUseCase
-import com.vertyll.veds.iam.application.port.inbound.command.AuthCommandUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.PermissionCatalogueUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.ProvisionCurrentUserUseCase
 import com.vertyll.veds.iam.application.port.inbound.command.RoleCommandUseCase
@@ -16,9 +13,6 @@ import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.application.port.outbound.AuthEventPublisherPort
 import com.vertyll.veds.iam.application.port.outbound.IdentityProviderPort
 import com.vertyll.veds.iam.application.port.outbound.RolePermissionsEventPublisherPort
-import com.vertyll.veds.iam.application.service.AuthCompensationService
-import com.vertyll.veds.iam.application.service.MailFeedbackService
-import com.vertyll.veds.iam.application.service.command.AuthCommandService
 import com.vertyll.veds.iam.application.service.command.PermissionCatalogueService
 import com.vertyll.veds.iam.application.service.command.RoleCommandService
 import com.vertyll.veds.iam.application.service.command.SecurityCommandService
@@ -32,10 +26,7 @@ import com.vertyll.veds.iam.application.service.query.UserQueryService
 import com.vertyll.veds.iam.domain.repository.PermissionRepository
 import com.vertyll.veds.iam.domain.repository.RoleRepository
 import com.vertyll.veds.iam.domain.repository.UserRepository
-import com.vertyll.veds.iam.domain.repository.VerificationTokenRepository
-import com.vertyll.veds.iam.infrastructure.logging.Slf4jUseCaseLogger
 import com.vertyll.veds.iam.infrastructure.transaction.TransactionalUseCaseFactory
-import com.vertyll.veds.shared.saga.SagaProcessPort
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -46,62 +37,6 @@ internal class ApplicationBeansConfig {
         private val ALL_METHODS: (String) -> Boolean = { true }
         private val NO_METHODS: (String) -> Boolean = { false }
     }
-
-    @Bean
-    fun authCompensationUseCase(
-        transactions: TransactionalUseCaseFactory,
-        userRepository: UserRepository,
-        verificationTokenRepository: VerificationTokenRepository,
-        identityProvider: IdentityProviderPort,
-    ): AuthCompensationUseCase =
-        transactions.wrap(
-            AuthCompensationUseCase::class.java,
-            AuthCompensationService(
-                userRepository,
-                verificationTokenRepository,
-                identityProvider,
-                Slf4jUseCaseLogger(AuthCompensationService::class.java),
-            ),
-            NO_METHODS,
-        )
-
-    @Bean
-    fun mailFeedbackUseCase(
-        transactions: TransactionalUseCaseFactory,
-        sagaProcessPort: SagaProcessPort,
-    ): MailFeedbackUseCase =
-        transactions.wrap(
-            MailFeedbackUseCase::class.java,
-            MailFeedbackService(
-                sagaProcessPort,
-                Slf4jUseCaseLogger(MailFeedbackService::class.java),
-            ),
-            NO_METHODS,
-        )
-
-    @Bean
-    fun authCommandUseCase(
-        transactions: TransactionalUseCaseFactory,
-        verificationTokenRepository: VerificationTokenRepository,
-        userRepository: UserRepository,
-        roleRepository: RoleRepository,
-        identityProvider: IdentityProviderPort,
-        authEventPublisher: AuthEventPublisherPort,
-        sagaProcessPort: SagaProcessPort,
-    ): AuthCommandUseCase =
-        transactions.wrap(
-            AuthCommandUseCase::class.java,
-            AuthCommandService(
-                verificationTokenRepository,
-                userRepository,
-                roleRepository,
-                identityProvider,
-                authEventPublisher,
-                sagaProcessPort,
-                Slf4jUseCaseLogger(AuthCommandService::class.java),
-            ),
-            NO_METHODS,
-        )
 
     @Bean
     fun roleCommandUseCase(

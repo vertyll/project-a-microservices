@@ -7,8 +7,6 @@ data class SendEmailRequest(
     @field:NotBlank(message = "validation.mail.recipient_email_required")
     @field:Email(message = "validation.iam.email_invalid")
     val to: String,
-    @field:NotBlank(message = "validation.mail.subject_required")
-    val subject: String,
     @field:NotBlank(message = "validation.mail.template_name_required")
     val templateName: String,
     val variables: Map<String, String> = emptyMap(),

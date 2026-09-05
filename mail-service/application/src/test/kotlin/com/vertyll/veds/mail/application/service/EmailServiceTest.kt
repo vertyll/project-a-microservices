@@ -96,7 +96,7 @@ class EmailServiceTest {
 
     @Test
     fun `records a sent message with the moment it left`() {
-        val sent = service().sendEmail(A_EXAMPLE_COM, SUBJECT, template, emptyMap(), null)
+        val sent = service().sendEmail(A_EXAMPLE_COM, template, emptyMap(), null)
 
         assertTrue(sent)
         assertEquals(1, saved.size)
@@ -109,7 +109,6 @@ class EmailServiceTest {
         val sent =
             service(mailSender = sender(failWith = IllegalStateException(SMTP_REFUSED))).sendEmail(
                 A_EXAMPLE_COM,
-                SUBJECT,
                 template,
                 emptyMap(),
                 null,
@@ -122,7 +121,6 @@ class EmailServiceTest {
     fun `records a failed attempt with its reason and no send time`() {
         service(mailSender = sender(failWith = IllegalStateException(SMTP_REFUSED))).sendEmail(
             A_EXAMPLE_COM,
-            SUBJECT,
             template,
             emptyMap(),
             null,
@@ -136,7 +134,7 @@ class EmailServiceTest {
 
     @Test
     fun `truncates a long variable so the log entry still fits its column`() {
-        service().sendEmail(A_EXAMPLE_COM, SUBJECT, template, mapOf("body" to "x".repeat(200)), null)
+        service().sendEmail(A_EXAMPLE_COM, template, mapOf("body" to "x".repeat(200)), null)
 
         val stored = saved.single().variables
         assertNotNull(stored)
@@ -146,12 +144,11 @@ class EmailServiceTest {
 
     @Test
     fun `stores no variables when there are none`() {
-        service().sendEmail(A_EXAMPLE_COM, SUBJECT, template, emptyMap(), null)
+        service().sendEmail(A_EXAMPLE_COM, template, emptyMap(), null)
 
         assertNull(saved.single().variables)
     }
 }
 
 private const val A_EXAMPLE_COM = "a@example.com"
-private const val SUBJECT = "Subject"
 private const val SMTP_REFUSED = "SMTP refused"

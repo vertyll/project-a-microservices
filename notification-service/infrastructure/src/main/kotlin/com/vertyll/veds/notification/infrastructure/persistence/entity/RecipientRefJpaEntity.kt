@@ -21,8 +21,6 @@ internal class RecipientRefJpaEntity(
     var email: String,
     @Column(name = "display_name")
     var displayName: String? = null,
-    @Column(name = "locale", length = 8)
-    var locale: String? = null,
     @Column(name = "updated_at", nullable = false)
     var updatedAt: Instant = Instant.now(),
 )

@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "MailRequestedCommand",
-  "doc": "A request to send one mail. A command, not a fact: the sender decides the template and the recipient, and mail-service carries it out. The contract therefore belongs to mail-service, the consumer, as docs/events.md explains.",
+  "doc": "Command asking mail-service to deliver a message. Owned by mail-service, not by any producer: it defines what the consumer accepts, and several services now produce it (iam-service for account mail, notification-service for notification mail).",
   "namespace": "com.vertyll.veds.mail.mail",
   "fields": [
     {
@@ -17,10 +17,6 @@
     },
     {
       "name": "to",
-      "type": "string"
-    },
-    {
-      "name": "subject",
       "type": "string"
     },
     {
@@ -55,6 +51,5 @@
       ],
       "default": null
     }
-  ],
-  "doc": "Command asking mail-service to deliver a message. Owned by mail-service, not by any producer: it defines what the consumer accepts, and several services now produce it (iam-service for account mail, notification-service for notification mail)."
+  ]
 }

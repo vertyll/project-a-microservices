@@ -9,7 +9,6 @@ class EmailBatchService(
 ) : EmailBatchUseCase {
     override fun processEmailBatch(
         recipients: List<String>,
-        subject: String,
         template: EmailTemplate,
         commonVariables: Map<String, String>,
         specificVariables: Map<String, Map<String, String>>,
@@ -19,7 +18,7 @@ class EmailBatchService(
         for (recipient in recipients) {
             val variables = commonVariables.toMutableMap()
             specificVariables[recipient]?.let { variables.putAll(it) }
-            val success = emailService.sendEmail(recipient, subject, template, variables, replyTo)
+            val success = emailService.sendEmail(recipient, template, variables, replyTo)
             results[recipient] = success
         }
         return results

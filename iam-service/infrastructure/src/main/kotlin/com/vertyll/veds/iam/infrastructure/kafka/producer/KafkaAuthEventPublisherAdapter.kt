@@ -21,9 +21,9 @@ internal class KafkaAuthEventPublisherAdapter(
 
     override fun requestMail(
         to: String,
-        subject: String,
         templateName: String,
         variables: Map<String, String>,
+        language: String,
         replyTo: String?,
         priority: Int,
         sagaId: String?,
@@ -35,7 +35,6 @@ internal class KafkaAuthEventPublisherAdapter(
                 .setEventId(eventId)
                 .setTimestamp(Events.now())
                 .setTo(to)
-                .setSubject(subject)
                 .setTemplateName(templateName)
                 .setVariables(variables)
                 .setReplyTo(replyTo)
