@@ -1,6 +1,6 @@
 # Shared Modules
 
-Six libraries are shared across the services. This page is the canonical answer to "what is in
+The libraries shared across the services. This page is the canonical answer to "what is in
 which, and why is it separate".
 
 ## The two rules

@@ -96,7 +96,7 @@ val id: UUID = Uuid.generateV7().toJavaUuid()
 
 **The application generates them, not the database.** The business write and the event announcing it commit together,
 and that event carries the identifier — so it has to exist before the row does. A sequence hands the value back only
-after the `INSERT`, and would be unique inside one of the seven databases anyway.
+after the `INSERT`, and would be unique inside a single service's database anyway.
 
 **Version 7, not 4.** A fully random UUIDv4 scatters inserts across the primary key's B-tree, splitting pages and
 bloating the index. A v7 puts a millisecond timestamp in the high 48 bits, so fresh keys land at the end of the index
