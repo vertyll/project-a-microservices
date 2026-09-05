@@ -74,6 +74,20 @@ unit test cannot see, because both are rejected by the database rather than by t
 
 The assignee fixture in the second is therefore load-bearing: a task with no assignees exercises none of it.
 
+### Why the problem document is pinned twice
+
+`shared-web` unit-tests how the document is built; `ProblemDetailContractTest` pins that Spring
+still serializes it that way once the whole chain — advice, message converter, Jackson mixin — is
+in play. That chain is where a problem document quietly turns back into `{ "properties": { … } }`
+on an upgrade, and only a request over the real HTTP stack with the container's own `ObjectMapper`
+would notice.
+
+Two answers are pinned there because Spring's defaults are wrong for this contract: an
+unauthenticated request would carry `WWW-Authenticate` and an empty body, so the entry point fills
+the body in rather than making a caller special-case one status; and an unknown path stays a `404`
+rather than becoming a `500`, which would report a defect in the service for a request the caller
+got wrong.
+
 ## The architecture check
 
 `./gradlew checkHexagonalDependencies` fails if a framework appears on the application layer's resolved
