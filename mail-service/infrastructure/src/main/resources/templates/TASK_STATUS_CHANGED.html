@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{_layout :: page('Task status changed', ~{::content})}">
-<body>
-<div th:fragment="content" th:remove="tag">
-    <p style="margin:0;color:#374151;font-size:15px;">A task you follow has changed status.</p>
-</div>
-</body>
+<!doctype html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{_layout :: page('Task status changed', ~{::content})}"
+>
+  <body>
+    <div th:fragment="content" th:remove="tag">
+      <p style="margin: 0; color: #374151; font-size: 15px">A task you follow has changed status.</p>
+    </div>
+  </body>
 </html>

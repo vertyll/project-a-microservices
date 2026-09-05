@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{_layout :: page('New comment', ~{::content})}">
-<body>
-<div th:fragment="content" th:remove="tag">
-    <p style="margin:0;color:#374151;font-size:15px;">Someone commented on a task you follow.</p>
-</div>
-</body>
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{_layout :: page('New comment', ~{::content})}">
+  <body>
+    <div th:fragment="content" th:remove="tag">
+      <p style="margin: 0; color: #374151; font-size: 15px">Someone commented on a task you follow.</p>
+    </div>
+  </body>
 </html>

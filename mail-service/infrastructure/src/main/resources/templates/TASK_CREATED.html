@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{_layout :: page('New task', ~{::content})}">
-<body>
-<div th:fragment="content" th:remove="tag">
-    <p style="margin:0;color:#374151;font-size:15px;">A new task was created in a project you take part in.</p>
-</div>
-</body>
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{_layout :: page('New task', ~{::content})}">
+  <body>
+    <div th:fragment="content" th:remove="tag">
+      <p style="margin: 0; color: #374151; font-size: 15px">A new task was created in a project you take part in.</p>
+    </div>
+  </body>
 </html>
