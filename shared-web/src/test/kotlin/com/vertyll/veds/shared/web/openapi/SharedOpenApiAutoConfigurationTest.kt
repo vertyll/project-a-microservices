@@ -14,7 +14,7 @@ class SharedOpenApiAutoConfigurationTest {
 
     /**
      * Left to spring doc's defaults every service publishes a document called `OpenAPI definition`,
-     * so eight of them cannot be told apart in a browser tab or a generated client.
+     * so no two of them can be told apart in a browser tab or a generated client.
      */
     @Test
     fun `names the document after the service when nothing is configured`() {
