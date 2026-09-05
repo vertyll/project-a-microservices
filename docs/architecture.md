@@ -56,7 +56,7 @@ Each service documents its own decisions in its `README.md`; this page covers wh
 | `ObjectStorageConfig`                   | Removing path-style access breaks against Garage                                                     |
 | `OutboxJpaRepository` lock hint         | Dropping `lock.timeout = -2` loses `SKIP LOCKED`, so outbox dispatchers block on each other          |
 | `IdentityProviderPort.removeCredential` | Allowing a password to be removed locks the account out with no way back                             |
-| `MailFeedbackService` saga types        | Completing them on mail delivery skips the user confirmation the saga is waiting for                 |
+| `MailFeedbackService` saga types        | An invitation completed on delivery skips the answer the saga is waiting for, and joins nobody       |
 | `KeycloakIdentityProviderAdapter`       | Parsing a missing `Location` header yields a UUID error naming neither cause nor account             |
 | `Uuid.generateV7()` in an aggregate     | Swapping it for `Uuid.random()` or `UUID.randomUUID()` silently returns a v4 and fragments the index |
 
