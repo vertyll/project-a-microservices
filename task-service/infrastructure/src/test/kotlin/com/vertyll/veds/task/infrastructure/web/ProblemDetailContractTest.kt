@@ -15,15 +15,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
 
-/**
- * What a caller actually receives, over the real HTTP stack and the container's own
- * `ObjectMapper`.
- *
- * The unit test in `shared-web` pins how the document is built; this pins that Spring
- * still serializes it that way once the whole chain — advice, message converter,
- * Jackson mixin — is in play. That chain is exactly where a problem document quietly
- * turns back into `{ "properties": { … } }` on an upgrade.
- */
 @AutoConfigureMockMvc
 internal class ProblemDetailContractTest(
     private val mockMvc: MockMvc,
@@ -64,11 +55,6 @@ internal class ProblemDetailContractTest(
             .andExpect(jsonPath("$.fields.priceEstimation").value("validation.task.estimation_negative"))
     }
 
-    /**
-     * Spring answers an unauthenticated request with `WWW-Authenticate` and an empty
-     * body unless told otherwise. A caller that reads `code` would then have to
-     * special-case one status, so the entry point fills the body in.
-     */
     @Test
     fun `an unauthenticated caller is refused in the same shape`() {
         mockMvc
@@ -81,11 +67,6 @@ internal class ProblemDetailContractTest(
             .andExpect(jsonPath("$.properties").doesNotExist())
     }
 
-    /**
-     * The catch-all advice runs first so the handlers above win, which puts Spring's own
-     * failures through it too. An unknown path is a `404`; turning it into a `500` would
-     * report a defect in the service for a request the caller got wrong.
-     */
     @Test
     fun `a path nothing serves is a 404, not a 500`() {
         mockMvc
@@ -93,7 +74,6 @@ internal class ProblemDetailContractTest(
             .andExpect(status().isNotFound)
     }
 
-    /** `fields` is absent rather than empty, the way `params` is: an empty member says nothing. */
     @Test
     fun `an unreadable body is refused without inventing an empty field list`() {
         mockMvc
@@ -107,7 +87,6 @@ internal class ProblemDetailContractTest(
             .andExpect(jsonPath("$.fields").doesNotExist())
     }
 
-    /** A success carries the payload and nothing around it — no `data`, no `message`, no `timestamp`. */
     @Test
     fun `a success is the payload itself`() {
         mockMvc

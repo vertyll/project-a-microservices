@@ -161,11 +161,6 @@ class FileCommandServiceTest {
         assertEquals(4_242, files.getValue(ticket.fileId).sizeBytes)
     }
 
-    /**
-     * A presigned `PUT` carries no size limit, so the declared size is a promise the client
-     * can break. Confirming is where the promise is checked, and an object that broke it is
-     * removed rather than recorded.
-     */
     @Test
     fun `an upload larger than its scope allows is refused and the object removed`() {
         val ticket = requestAvatar(declaredSize = 1_000)
