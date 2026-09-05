@@ -108,7 +108,7 @@ opts in at the top. The annotation is deliberately per file rather than a compil
 dependency where it is used.
 
 **A secret is the one thing that must not be a v7.** `AuthCommandService.generateRandomToken` stays on a random v4:
-an activation or reset token must be unguessable and must not disclose when it was issued. Ordering buys nothing there
+a secret must be unguessable and must not disclose when it was issued. Ordering buys nothing there
 because the value is never a key.
 
 **Sequences are still right where the key never leaves its table.** `kafka_outbox`, `processed_event` and `saga_step`
@@ -160,22 +160,21 @@ Responsible for user profile management, authorization, and account operations.
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------|
 | **Authentication**    | Fully delegated to Keycloak via the `IdentityProviderPort` outbound port.                                                    |
 | **Admin Integration** | Uses Keycloak Admin API via a service account for user provisioning and role sync.                                           |
-| **Database Stores**   | Stores user profile data, role definitions, permissions, verification tokens, and local saga state for distributed flows.    |
-| **Endpoints**         | Provides endpoints for registration, profile management, and role administration.                                            |
-| **Outbound messages** | Publishes its own events, and sends the `MailRequestedCommand`, through the `AuthEventPublisherPort` outbound port.          |
-| **Saga Compensation** | Consumes mail feedback events and runs compensation logic via `AuthCompensationService` based on decoded Avro tagged unions. |
+| **Database Stores**   | User profiles, role definitions and permissions. No credentials, no verification tokens, no saga log.                        |
+| **Endpoints**         | The signed-in person's profile and permissions, plus user and role administration. Registration belongs to Keycloak.         |
+| **Outbound messages** | Publishes `user-registered`, `user-profile-updated` and `role-permissions-changed` through `AuthEventPublisherPort`.         |
 
 ### Mail Service
 
 Responsible for sending emails based on Thymeleaf templates.
 
-| Feature                 | Details                                                                                                           |
-|-------------------------|-------------------------------------------------------------------------------------------------------------------|
-| **Database Stores**     | Stores email logs, delivery status, and local saga state.                                                         |
-| **Inbound messages**    | Carries out the `MailRequestedCommand` other services send, via `MailCommandConsumerAdapter`.                     |
-| **Outbound Events**     | Publishes `MailSentEvent` or `MailFailedEvent` back through the Transactional Outbox.                             |
-| **Templates Supported** | Supports various email templates like welcome, password reset, account activation, and email change confirmation. |
-| **Architecture Role**   | Acts as a reactive choreography participant that decouples email sending logic from the SMTP provider.            |
+| Feature                 | Details                                                                                                                            |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| **Database Stores**     | Stores email logs, delivery status, and local saga state.                                                                          |
+| **Inbound messages**    | Carries out the `MailRequestedCommand` other services send, via `MailCommandConsumerAdapter`.                                      |
+| **Outbound Events**     | Publishes `MailSentEvent` or `MailFailedEvent` back through the Transactional Outbox.                                              |
+| **Templates Supported** | Project invitation, new member, and the four task notifications. Identity mail — activation, password reset — belongs to Keycloak. |
+| **Architecture Role**   | Acts as a reactive choreography participant that decouples email sending logic from the SMTP provider.                             |
 
 ### Template Service
 
