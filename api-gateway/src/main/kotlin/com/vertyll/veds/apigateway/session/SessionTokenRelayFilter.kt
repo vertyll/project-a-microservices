@@ -30,9 +30,6 @@ internal class SessionTokenRelayFilter(
         private val EXCLUDED_PREFIXES = listOf("/auth/authorize", "/auth/callback", "/auth/logout", "/auth/session")
     }
 
-    // Must stay a WebFilter at this order, not a Gateway GlobalFilter: those run
-    // inside the routing handler, after Spring Security, so a token injected there
-    // arrives too late and every request is rejected as anonymous.
     override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE
 
     override fun filter(

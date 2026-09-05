@@ -19,14 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
 import java.net.URI
 
-/**
- * BFF (Backend-For-Frontend) controller that proxies authentication requests to Keycloak.
- *
- * Handles:
- * - POST /auth/token — login (username + password → access_token + refresh_token in cookie)
- * - POST /auth/refresh-token — refresh (reads refresh_token from cookie)
- * - POST /auth/logout — logout (invalidates refresh_token, clears cookie)
- */
 @RestController
 @RequestMapping("/auth")
 internal class AuthProxyController(
@@ -86,13 +78,6 @@ internal class AuthProxyController(
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(authorizationUri)).build()
     }
 
-    // Application-Initiated Actions are relayed, not implemented. Configuring a
-    // second factor happens on Keycloak's pages, so no TOTP secret ever reaches
-    // this service, its logs or the browser's JavaScript.
-    //
-    // The value is checked against a fixed set rather than forwarded as given: an
-    // open kc_action would let a caller push any user into any Keycloak flow,
-    // including ones that change credentials.
     private fun allowedAction(kcAction: String?): String? = kcAction?.takeIf { it in ALLOWED_KC_ACTIONS }
 
     @Suppress("kotlin:S6508")
@@ -135,14 +120,6 @@ internal class AuthProxyController(
             }
     }
 
-    /**
-     * Who is signed in, or nothing.
-     *
-     * Nobody being signed in is an answer, not a refusal: the caller asked a question
-     * and got one, so this is `204`, not `401`. A `401` here would be indistinguishable
-     * from the session store being unreachable, and the front end would sign the person
-     * out over a network blip.
-     */
     @Suppress("kotlin:S6508")
     @GetMapping("/session")
     fun session(exchange: ServerWebExchange): Mono<ResponseEntity<SessionResponse>> {
@@ -161,9 +138,6 @@ internal class AuthProxyController(
             }.switchIfEmpty(Mono.fromCallable { noSession() })
     }
 
-    /**
-     * Logout: invalidates the refresh_token in Keycloak and clears the cookie.
-     */
     @Suppress("kotlin:S6508")
     @PostMapping("/logout")
     fun logout(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
