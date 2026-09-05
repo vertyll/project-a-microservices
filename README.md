@@ -80,7 +80,7 @@ reasoning behind the parts that look surprising.
 | Module                                                             |                                                         |
 |--------------------------------------------------------------------|---------------------------------------------------------|
 | [api-gateway](./api-gateway/README.md)                             | Token Handler, session encryption, filter ordering      |
-| [iam-service](./iam-service/README.md)                             | users, roles, permissions, registration saga            |
+| [iam-service](./iam-service/README.md)                             | users, roles, permissions                               |
 | [mail-service](./mail-service/README.md)                           | delivery, and why failure is an event                   |
 | [project-service](./project-service/README.md)                     | projects, membership, the access policy                 |
 | [task-service](./task-service/README.md)                           | tasks, the board query, local projections               |

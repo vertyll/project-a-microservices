@@ -27,11 +27,14 @@ authorization model. Password hashes are not stored here.
 "No such user" and "wrong password" report the **same** error, `iam.auth.invalid_credentials`.
 Telling them apart is a user-enumeration oracle.
 
-## Registration is a saga
+## Registration belongs to Keycloak
 
-Creating a Keycloak identity, storing the user and sending the activation mail cannot be one
-transaction. The saga compensates: a failed mail delivery rolls the account back rather than
-leaving one nobody can activate. See [Eventual Consistency](../docs/eventual-consistency.md).
+Signing up, signing in, resetting a password and changing one all happen on Keycloak's own pages,
+reached through the gateway. This service learns of a person on their first authenticated call and
+provisions them from the token — see [Keycloak](../docs/keycloak.md).
+
+That leaves one answer to every identity question instead of two that can disagree, and no saga:
+there is nothing here to undo when a mail fails, because this service sends none.
 
 ## Second factor
 
