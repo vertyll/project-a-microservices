@@ -32,7 +32,6 @@ Applied in project-service, iam-service and template-service.
 | `ProjectInvitationUseCase` | `ProjectInvitationCommandUseCase` + `…QueryUseCase` |
 | `UserUseCase`              | `UserCommandUseCase` + `UserQueryUseCase`           |
 | `RoleUseCase`              | `RoleCommandUseCase` + `RoleQueryUseCase`           |
-| `AuthUseCase`              | `AuthCommandUseCase` + `AuthQueryUseCase`           |
 | `TemplateSagaUseCase`      | `TemplateCommandUseCase` + `TemplateQueryUseCase`   |
 
 `ProjectTypeUseCase` and `ProjectRoleUseCase` became query-only: adding a type or a role means adding an enum constant,

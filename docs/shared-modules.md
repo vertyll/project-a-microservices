@@ -91,7 +91,7 @@ Every service takes the same four: `shared-web`, `shared-error`, `shared-transla
 | translation-service                    | `shared-authz`, `shared-authz-client`                                |
 | file, task, notification               | `shared-translation-client`                                          |
 | template-service                       | `shared-translation-client`, `shared-saga-api`, `shared-saga-engine` |
-| iam-service                            | the three above plus `shared-authz`                                  |
+| iam-service                            | `shared-translation-client`, `shared-authz`                          |
 | mail, project                          | everything                                                           |
 
 Three of these are worth reading as evidence that the boundaries are real rather than decorative:
@@ -116,9 +116,9 @@ Answer three questions. `template-service` is the worked example — it takes al
    `kafka_outbox` and excludes the outbox beans from its component scan.
 3. **Does it own a step some other service's failure must undo?** Take `shared-saga-engine` (which pulls
    `shared-saga-api` for you) and add the saga tables — the engine tracks this service's own steps, and nobody's
-   else. Producing or consuming events is not owning a step: `file-service` and `task-service` publish and
-   `notification-service` consumes, and none of the three takes the engine. A consumer has nothing to compensate,
-   because re-reading the event is the recovery.
+   else. Producing or consuming events is not owning a step: `file-service` and `task-service` publish,
+   `notification-service` consumes and relays, and `iam-service` does both — none of them takes the engine. A
+   consumer has nothing to compensate, because re-reading the event is the recovery.
 
 If the service declares translation keys, add `shared-translation-client`; the DSL itself arrives with it.
 

@@ -71,6 +71,17 @@ a liability.
 There is no API to create or delete a key. Deleting one would leave the emitting code with nothing to render; creating
 one would produce a key nothing ever asks for.
 
+## E-mail is written in English
+
+Every message this platform sends reads in English, and the wording lives with the template that
+renders it rather than with the service that asked for the message: a producer names *which*
+message to send, and `mail-service` owns how it reads. That is why `mail-requested` carries a
+template name and its variables, and no subject line.
+
+Localisation stops at the screen. The interface — in-app notifications included — is rendered from
+this catalogue in whichever language the reader has selected, carried on every request as `X-Lang`.
+An e-mail has no request and no reader present to ask, so it does not try to guess one.
+
 ### Where `common.*` lives
 
 Declared once, in `translation-service`, not in every service. Registration refuses a key another service already owns —

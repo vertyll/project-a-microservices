@@ -95,7 +95,7 @@ A scheduled job (`@Scheduled`) that times out sagas stuck in `AWAITING_RESPONSE`
 ### Compensation Topic
 
 Follows the convention `SagaCompensationTopic.PREFIX + "<service>"` — each service composes its own neutral topic (e.g.
-`saga-compensation-iam`).
+`saga-compensation-project`).
 
 ### Saga Log Correlation
 
@@ -107,44 +107,45 @@ Service-local `SchedulingConfig` wires `@EnableScheduling` so `KafkaOutboxProces
 
 ---
 
-## Example: User Registration Flow
+## Example: Inviting Somebody to a Project
 
-This example illustrates the choreography between `iam-service` and `mail-service`.
+The saga that spans `project-service` and `mail-service`, by way of `notification-service`.
 
 > [!IMPORTANT]
 >
-> Compensation only exists where effects are reversible. A sent email cannot be un-sent, therefore `mail-service` does
-**not** have a `SagaCompensationService`.
+> Compensation only exists where effects are reversible. A sent e-mail cannot be un-sent, therefore `mail-service`
+> has no compensation of its own.
 
-### Phase 1 — Init (`iam-service`)
+### Phase 1 — Init (`project-service`)
 
-Begins local saga `USER_REGISTRATION`. Records steps:
+Begins local saga `ProjectInvitation` and records `PersistInvitation`. The invitation row and the
+`project-member-invited` event commit together; the event carries the saga id.
 
-1. `CREATE_USER`
-2. `PUBLISH_USER_REGISTERED_EVENT`
-3. `CREATE_VERIFICATION_TOKEN`
-4. `REQUEST_MAIL`
+### Phase 2 — Publish (outbox poller)
 
-Transitions to `AWAITING_RESPONSE`. Inserts `MailRequestedCommand` into the outbox (same JDBC tx, no dual-write).
+Relays the Avro-serialized event to Kafka.
 
-### Phase 2 — Publish (Outbox Poller)
+### Phase 3 — Relay (`notification-service`)
 
-Publishes the Avro-serialized `MailRequestedCommand` to Kafka. It is a command, not a fact — iam-service
-decides the template and the recipient — which is why its contract belongs to mail-service, the consumer. See
-[Event Catalogue](./events.md).
+Claims the event through `ProcessedEventGuard`, raises the in-app notification, and asks for the mail. It runs no
+saga of its own — it copies the saga id through to `mail-requested`, which is the only reason `project-service` can
+recognize the answer later.
 
-### Phase 3 — Process (`mail-service`)
+### Phase 4 — Process (`mail-service`)
 
-Consumes event (`MailCommandConsumer`), claims via `ProcessedEventGuard`. Begins local saga `EMAIL_SENDING`, performs
-`SEND_EMAIL`, completes saga. Inserts `MailSentEvent` (or `MailFailedEvent`) into its outbox.
+Claims the command, begins local saga `EmailSending`, performs `ProcessTemplate` and `SendEmail`, completes the saga
+and writes `mail-sent` (or `mail-failed`) to its outbox, carrying the same saga id back.
 
-### Phase 4 — Feedback (`iam-service`)
+### Phase 5 — Feedback (`project-service`)
 
-Consumes feedback via `MailFeedbackConsumer`.
+Consumes the feedback and matches it by saga id.
 
-- **On `MailSentEvent`** — Calls `markSagaCompleted`.
-- **On `MailFailedEvent`** — Calls `failSaga` → after-commit hook fires `SagaCompensationRunner` → `IamSagaCompensator`
-  publishes to `saga-compensation-iam` → `AuthCompensationService` rolls back Keycloak user, token, etc.
+- **On `mail-sent`** — completes the saga.
+- **On `mail-failed`** — fails it, and the after-commit hook runs `SagaCompensationRunner`, which publishes to
+  `saga-compensation-project`; the invitation is expired rather than left pending on a mail nobody received.
+
+Identity is not part of this: Keycloak owns registration, password reset and the mails that go with them, so no saga
+spans them. See [Keycloak](./keycloak.md).
 
 ---
 
@@ -158,8 +159,8 @@ Services communicate asynchronously through Kafka events. Integration events are
 > All publishing goes through the Outbox (`KafkaOutboxProcessor`); all consumption goes through `ProcessedEventGuard`
 for idempotency.
 
-| Event                                 | Publisher      | Consumer       | Details                                                                                                                                                                                                                                                                                                                                               |
-|---------------------------------------|----------------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `MailRequestedCommand`                | `iam-service`  | `mail-service` | Published via `AuthEventPublisherPort` / `KafkaAuthEventPublisherAdapter`. Consumed by `MailCommandConsumer`.                                                                                                                                                                                                                                         |
-| `MailSentEvent`<br/>`MailFailedEvent` | `mail-service` | `iam-service`  | Published through the Transactional Outbox. Consumed by `MailFeedbackConsumer` to advance or fail the originating saga.                                                                                                                                                                                                                               |
-| Compensation Actions                  | `iam-service`  | `iam-service`  | Published to internal `saga-compensation-iam` topic as an Avro **tagged union** (`DeleteUserAction`, `DeleteVerificationTokenAction`, etc.). Decoded by `AvroAuthCompensationCommandTranslator` (ACL) into a typed `sealed interface AuthCompensationCommand`. Handled via compile-time exhaustive `when` (no stringly-typed discriminator or `Map`). |
+| Event                                 | Publisher              | Consumer          | Details                                                                                                                                                                                                |
+|---------------------------------------|------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `MailRequestedCommand`                | `notification-service` | `mail-service`    | A command, not a fact: the caller names the template and the recipient, and mail-service owns the wording. Its contract therefore belongs to the consumer.                                             |
+| `MailSentEvent`<br/>`MailFailedEvent` | `mail-service`         | `project-service` | Published through the Transactional Outbox, carrying the saga id back so the originating saga can be advanced or failed.                                                                               |
+| Compensation Actions                  | `project-service`      | `project-service` | Published to the internal `saga-compensation-project` topic as an Avro **tagged union**, decoded by an ACL translator into a typed `sealed interface` and handled by a compile-time exhaustive `when`. |
