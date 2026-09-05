@@ -8,7 +8,6 @@ interface AuthEventPublisherPort {
         to: String,
         templateName: String,
         variables: Map<String, String>,
-        language: String,
         replyTo: String? = null,
         priority: Int = 0,
         sagaId: String? = null,

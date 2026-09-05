@@ -23,7 +23,6 @@ internal class KafkaAuthEventPublisherAdapter(
         to: String,
         templateName: String,
         variables: Map<String, String>,
-        language: String,
         replyTo: String?,
         priority: Int,
         sagaId: String?,
