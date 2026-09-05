@@ -40,25 +40,30 @@ Each service documents its own decisions in its `README.md`; this page covers wh
 | A service's own decisions | that service's `README.md`            |
 | Library API contracts     | KDoc, published with `./gradlew docs` |
 
-| Where                                   | What a reasonable edit would break                                                                   |
-|-----------------------------------------|------------------------------------------------------------------------------------------------------|
-| `SessionTokenRelayFilter.getOrder`      | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                         |
-| `ProjectAccessPolicy.RULES`             | Reordering lets an owner edit an archived project                                                    |
-| `TaskAccessPolicy.evaluate`             | Falling back to a default when the projection has no such role grants a role nobody decided on       |
-| `PermissionAuthorizer` with no source   | Falling back to the token's role turns a service with no projection into one that trusts the token   |
-| `TranslationServiceApplication` filters | Dropping the outbox exclusion makes a consume-only service demand outbox tables it never writes      |
-| `RolePermissionsAnnouncer`              | Announcing only on change leaves a service that joined later with an empty projection, granting none |
-| `Permission.scope`                      | Allowing a role to hold either scope grants names the enforcing service will never honour            |
-| `Task.moveTo`                           | "Fixing" the `this` return makes every board drag notify every watcher                               |
-| `TranslationValue.withSeededDefault`    | Merging the two columns makes each redeploy revert administrators' edits                             |
-| `IamError.INVALID_CREDENTIALS`          | Splitting it into two codes is a user-enumeration oracle                                             |
-| `FileCommandService.delete`             | Deleting the object first loses the key on a rollback                                                |
-| `ObjectStorageConfig`                   | Removing path-style access breaks against Garage                                                     |
-| `OutboxJpaRepository` lock hint         | Dropping `lock.timeout = -2` loses `SKIP LOCKED`, so outbox dispatchers block on each other          |
-| `IdentityProviderPort.removeCredential` | Allowing a password to be removed locks the account out with no way back                             |
-| `MailFeedbackService` saga types        | An invitation completed on delivery skips the answer the saga is waiting for, and joins nobody       |
-| `KeycloakIdentityProviderAdapter`       | Parsing a missing `Location` header yields a UUID error naming neither cause nor account             |
-| `Uuid.generateV7()` in an aggregate     | Swapping it for `Uuid.random()` or `UUID.randomUUID()` silently returns a v4 and fragments the index |
+| Where                                   | What a reasonable edit would break                                                                                          |
+|-----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `SessionTokenRelayFilter.getOrder`      | Converting it to a Gateway `GlobalFilter` rejects every request as anonymous                                                |
+| `ProjectAccessPolicy.RULES`             | Reordering lets an owner edit an archived project                                                                           |
+| `TaskAccessPolicy.evaluate`             | Falling back to a default when the projection has no such role grants a role nobody decided on                              |
+| `PermissionAuthorizer` with no source   | Falling back to the token's role turns a service with no projection into one that trusts the token                          |
+| `TranslationServiceApplication` filters | Dropping the outbox exclusion makes a consume-only service demand outbox tables it never writes                             |
+| `RolePermissionsAnnouncer`              | Announcing only on change leaves a service that joined later with an empty projection, granting none                        |
+| `Permission.scope`                      | Allowing a role to hold either scope grants names the enforcing service will never honour                                   |
+| `Task.moveTo`                           | "Fixing" the `this` return makes every board drag notify every watcher                                                      |
+| `TranslationValue.withSeededDefault`    | Merging the two columns makes each redeploy revert administrators' edits                                                    |
+| `FileCommandService.delete`             | Deleting the object first loses the key on a rollback                                                                       |
+| `ObjectStorageConfig`                   | Removing path-style access breaks against Garage                                                                            |
+| `OutboxRepository` lock hint            | Dropping `lock.timeout = -2` loses `SKIP LOCKED`, so outbox dispatchers block on each other                                 |
+| `IdentityProviderPort.removeCredential` | Allowing a password to be removed locks the account out with no way back                                                    |
+| `MailFeedbackService` saga types        | An invitation completed on delivery skips the answer the saga is waiting for, and joins nobody                              |
+| `KeycloakIdentityProviderAdapter`       | Parsing a missing `Location` header yields a UUID error naming neither cause nor account                                    |
+| `Uuid.generateV7()` in an aggregate     | Swapping it for `Uuid.random()` or `UUID.randomUUID()` silently returns a v4 and fragments the index                        |
+| `AuthProxyController` `kc_action`       | Forwarding the value as given lets a caller push any user into any Keycloak flow, credentials included                      |
+| `AuthProxyController.session`           | Answering `401` instead of `204` is indistinguishable from an unreachable session store, and signs the reader out on a blip |
+| `ObjectStoragePort` presigned `PUT`     | A presigned URL is signed over key and content type only, so a size limit written here would not hold                       |
+| `LanguageSeeder` order                  | Registering a catalogue before its languages exist writes the keys, drops every value, and never repairs them               |
+| `LogWorkRequest.workedOn` nullable      | Making it non-null moves the refusal from the catalogue key to Jackson's own message                                        |
+| `EmailTemplate.subject`                 | Moving it to the producer makes a service that only asks for mail write prose about sending it                              |
 
 Anything that is merely *interesting* goes in a README instead.
 
