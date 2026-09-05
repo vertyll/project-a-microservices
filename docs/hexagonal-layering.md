@@ -103,21 +103,12 @@ longer in reach of code that has no business knowing them.
 
 ## Status
 
-| Service                | Framework-free application layer                                         |
-|------------------------|--------------------------------------------------------------------------|
-| `project-service`      | yes                                                                      |
-| `iam-service`          | yes                                                                      |
-| `mail-service`         | yes                                                                      |
-| `template-service`     | yes — so every future service starts this way                            |
-| `task-service`         | **no** — cloned before the refactor; still `@Service` / `@Transactional` |
-| `notification-service` | **no** — same                                                            |
+Every service's application layer is framework-free, and `checkHexagonalDependencies` fails the build if a framework
+reaches its resolved compile classpath. `template-service` carries the shape a new service starts from: the error
+catalogue, the logging port, the transactional decorator, the bean configuration and the CQRS port split.
 
-`task-service` and `notification-service` do not carry the full shape. Re-clone them from `template-service` rather
-than porting by hand: the template carries the error catalogue, the logging port, the transactional decorator, the
-bean configuration and the CQRS port split.
-
-The remaining external imports in every application layer are the three saga contract types plus `java.time` and
-`java.util`.
+What an application layer may import from outside its own service is the framework-free shared modules —
+`shared-saga-api`, `shared-error`, `shared-translation` — plus `java.time`, `java.util` and `kotlin.uuid`.
 
 ## Error catalogues
 

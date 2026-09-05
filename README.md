@@ -56,7 +56,7 @@ explain nearly every "why is this in a separate module?" question the code raise
 
 - [Architecture](./docs/architecture.md) — components and design principles.
 - [Hexagonal Layering](./docs/hexagonal-layering.md) — the dependency rule, how it is enforced, and what it cost.
-- [Shared Modules](./docs/shared-modules.md) — the six shared libraries, what each is responsible for, and the two rules that decide when a new one is justified.
+- [Shared Modules](./docs/shared-modules.md) — what each shared library is responsible for, and the two rules that decide when a new one is justified.
 - [Service Dependencies](./docs/service-dependencies.md) — what each service needs to build and to run.
 - [CQRS](./docs/cqrs.md) — where command/query separation is applied, where it is not, and why.
 
