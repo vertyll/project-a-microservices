@@ -15,11 +15,11 @@ Dependencies point inwards only:
 infrastructure ──► application ──► domain
 ```
 
-| Layer            | May depend on                | Contains                                                   |
-|------------------|------------------------------|------------------------------------------------------------|
-| `domain`         | Kotlin stdlib                | Aggregates, value objects, repository *ports*, policies    |
-| `application`    | `domain`, `shared-saga-api`  | Use cases, commands, response DTOs, inbound/outbound ports |
-| `infrastructure` | everything                   | JPA, Kafka, Avro, web, Spring wiring, adapters             |
+| Layer            | May depend on                               | Contains                                                   |
+|------------------|---------------------------------------------|------------------------------------------------------------|
+| `domain`         | Kotlin stdlib, `shared-error`               | Aggregates, value objects, repository *ports*, policies    |
+| `application`    | `domain` plus the framework-free `shared-*` | Use cases, commands, response DTOs, inbound/outbound ports |
+| `infrastructure` | everything                                  | JPA, Kafka, Avro, web, Spring wiring, adapters             |
 
 `shared-saga-api` is a module holding only the saga vocabulary, with the Kotlin standard library as its single
 dependency. Keeping them out of the Spring-bound modules is what stops an import of a saga status from putting the
@@ -85,15 +85,15 @@ Validation is split, not duplicated:
 `UseCaseLogger` in the application layer, `Slf4jUseCaseLogger` in infrastructure. Arguable — SLF4J is a facade, not a
 framework — but it makes the dependency rule a single sentence with no exceptions, which a build check can enforce.
 
-### Spring's `OptimisticLockingFailureException` → `VersionGuard`
+### The version check is the domain's
 
-The shared helper threw a Spring exception, which would have pulled the framework back in through the back door. The
-check now lives in the domain as `VersionGuard.requireMatch`, and the caller supplies the exception to throw.
+`VersionGuard.requireMatch` lives in the domain and the caller supplies the exception to throw. A shared helper
+throwing Spring's `OptimisticLockingFailureException` would pull the framework back in through the back door.
 
-### Spring Data out of the ports
+### Paging is the domain's
 
-`UserUseCase.getAllUsers` took a `Pageable` and returned a `Page`. Both are now the domain's own `PageRequest` /
-`PageResult`; the conversion happens in the controller. The same applied to `EmailUseCase.getEmailLogs`.
+A use case takes the domain's own `PageRequest` and returns a `PageResult`; the conversion to and from Spring Data's
+`Pageable` / `Page` happens in the controller.
 
 ### Spring configuration out of the use cases
 

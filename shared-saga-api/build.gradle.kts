@@ -28,11 +28,11 @@ configure<JavaPluginExtension> {
 dependencies {
     // Nothing but the Kotlin standard library, deliberately.
     //
-    // These types are the saga vocabulary the application layer of six services
-    // speaks: `Saga`, `SagaStep`, the two status enums and `SagaTypeValue`. That
-    // layer must stay free of frameworks, so this module depends on nothing that
-    // could drag one in. The Spring-bound engine that drives these types lives in
-    // `shared-saga-engine` and depends on this module, never the other way round.
+    // These types are the saga vocabulary spoken by the application layer of every
+    // service that owns a saga step. That layer must stay free of frameworks, so
+    // this module depends on nothing that could drag one in. The Spring-bound
+    // engine driving these types is `shared-saga-engine`, which depends on this
+    // module and never the other way round.
     implementation(libs.kotlin.stdlib.jdk8)
 
     testImplementation(libs.kotlin.test.junit5)
