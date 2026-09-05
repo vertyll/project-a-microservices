@@ -33,21 +33,26 @@ export TF_VAR_ca_cert_file="${KAFKA_CA_CERT_FILE:-}"
 cd /workspace/tf
 terraform init -input=false
 
-# Adopt topics that already exist on the broker but are missing from the
-# state (e.g. state lost or created before the /state backend existed).
-# `terraform import` on a missing topic just fails -> `|| true` lets apply
-# create it; import on an already-managed address is skipped by state check.
-import_if_missing() {
-    local addr="$1" topic="$2"
-    if ! terraform state show "$addr" >/dev/null 2>&1; then
-        echo "  importing pre-existing topic ${topic} into state (${addr})"
-        terraform import -input=false "$addr" "$topic" >/dev/null 2>&1 || true
-    fi
-}
-for topic in mail-requested mail-sent mail-failed saga-compensation-mail; do
-    import_if_missing "kafka_topic.business[\"${topic}\"]" "${topic}"
-    import_if_missing "kafka_topic.dlt[\"${topic}\"]" "${topic}-dlt"
+# Adopt topics the broker already has but the state does not know about. The
+# two diverge whenever topics are deleted or created outside this run - a broker
+# reset leaves the state listing topics that are gone, and any topic created
+# outside Terraform is invisible to it. A plan that says "create" for a topic the
+# broker still holds fails, and one failure fails the whole apply, so every
+# planned creation is offered to `import` first. Import of a topic that really is
+# absent fails harmlessly; apply then creates it.
+terraform plan -input=false -out=/state/plan.tfplan
+
+terraform show -json /state/plan.tfplan | python3 -c '
+import json, sys
+for change in json.load(sys.stdin).get("resource_changes", []):
+    if change["type"] == "kafka_topic" and "create" in change["change"]["actions"]:
+        print(change["address"], change["change"]["after"]["name"])
+' | while read -r addr name; do
+    echo "  adopting pre-existing topic ${name} (${addr})"
+    terraform import -input=false "$addr" "$name" >/dev/null 2>&1 || true
 done
+
+rm -f /state/plan.tfplan
 
 terraform apply -auto-approve -input=false
 
