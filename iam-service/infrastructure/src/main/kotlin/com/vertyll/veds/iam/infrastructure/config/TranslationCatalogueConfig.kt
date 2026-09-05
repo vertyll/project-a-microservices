@@ -18,42 +18,6 @@ internal class TranslationCatalogueConfig {
                 pl("Ktoś zmienił te dane w międzyczasie. Odśwież i spróbuj ponownie.")
                 en("Somebody changed this in the meantime. Refresh and try again.")
             }
-            key("iam.user.email_not_changeable") {
-                pl("Tego adresu e-mail nie można zmienić.")
-                en("This e-mail address cannot be changed.")
-            }
-            key("iam.user.missing_new_email_data") {
-                pl("Brak danych nowego adresu e-mail.")
-                en("The new e-mail address is missing.")
-            }
-            key("iam.auth.invalid_credentials") {
-                pl("Nieprawidłowy e-mail lub hasło.")
-                en("Invalid e-mail or password.")
-            }
-            key("iam.auth.invalid_current_password") {
-                pl("Aktualne hasło jest nieprawidłowe.")
-                en("Your current password is incorrect.")
-            }
-            key("iam.auth.invalid_confirmation_code") {
-                pl("Kod potwierdzający jest nieprawidłowy.")
-                en("The confirmation code is incorrect.")
-            }
-            key("iam.auth.invalid_token") {
-                pl("Link jest nieprawidłowy.")
-                en("This link is not valid.")
-            }
-            key("iam.auth.invalid_token_id") {
-                pl("Link jest nieprawidłowy.")
-                en("This link is not valid.")
-            }
-            key("iam.auth.token_expired_or_used") {
-                pl("Link wygasł lub został już użyty.")
-                en("This link has expired or was already used.")
-            }
-            key("iam.auth.registration_failed") {
-                pl("Nie udało się utworzyć konta.")
-                en("The account could not be created.")
-            }
             key("iam.role.not_found") {
                 pl("Nie znaleziono roli.")
                 en("Role not found.")
