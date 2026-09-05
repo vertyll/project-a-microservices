@@ -2,7 +2,7 @@ package com.vertyll.veds.mail.infrastructure.mail
 
 import com.vertyll.veds.mail.domain.model.EmailTemplate
 import org.junit.jupiter.api.Test
-import org.thymeleaf.TemplateEngine
+import org.thymeleaf.spring6.SpringTemplateEngine
 import org.thymeleaf.templatemode.TemplateMode
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import kotlin.test.assertContains
@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 internal class MailTemplateRenderingTest {
     private val renderer =
         ThymeleafTemplateRendererAdapter(
-            TemplateEngine().apply {
+            SpringTemplateEngine().apply {
                 setTemplateResolver(
                     ClassLoaderTemplateResolver().apply {
                         prefix = "templates/"
@@ -32,15 +32,17 @@ internal class MailTemplateRenderingTest {
         assertContains(html, "You have been invited to join a project on VEDS.")
         assertContains(html, "Weryfikacja")
         assertContains(html, "The VEDS Team")
-        assertFalse(html.contains("th:"), "no unresolved Thymeleaf attribute may reach the recipient")
+        val stray = Regex("""\sth:[a-zA-Z]+=""").findAll(html).map { it.value.trim() }.toList()
+        assertFalse(stray.isNotEmpty(), "unresolved Thymeleaf attributes reached the recipient: $stray")
     }
 
     @Test
-    fun `the font stack survives as CSS rather than as escaped markup`() {
+    fun `the font stack reaches the reader as CSS, not as escaped markup`() {
         val html = renderer.render("TASK_ASSIGNED", emptyMap())
 
         assertContains(html, "font-family")
-        assertFalse(html.contains("&quot;Inter&quot;"), "an entity inside a style attribute would not parse as CSS")
+        val styleBlock = html.substringAfter("<style>", "").substringBefore("</style>")
+        assertFalse(styleBlock.contains("&quot;"), "a mail client does not decode entities inside <style>")
     }
 
     @Test
