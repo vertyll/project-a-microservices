@@ -12,5 +12,6 @@ internal class PermissionCatalogueConfig {
     fun mailPermissionCatalogue(): PermissionCatalogue =
         permissions("mail") {
             permission("MAIL_LOGS_VIEW", "Read the record of what the system sent", RoleScope.GLOBAL)
+            permission("MAIL_SEND", "Send mail through the service", RoleScope.GLOBAL)
         }
 }

@@ -35,6 +35,7 @@ internal class EmailController(
     }
 
     @PostMapping("/send")
+    @PreAuthorize("@authz.has('MAIL_SEND')")
     fun sendEmail(
         @Valid @RequestBody
         request: SendEmailRequest,
@@ -60,6 +61,7 @@ internal class EmailController(
     }
 
     @PostMapping("/send-batch")
+    @PreAuthorize("@authz.has('MAIL_SEND')")
     fun sendBatchEmail(
         @Valid @RequestBody
         request: SendBatchEmailRequest,

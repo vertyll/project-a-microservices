@@ -33,8 +33,6 @@ internal class SecurityConfig(
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                     ).permitAll()
-                    .requestMatchers("/task/**")
-                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

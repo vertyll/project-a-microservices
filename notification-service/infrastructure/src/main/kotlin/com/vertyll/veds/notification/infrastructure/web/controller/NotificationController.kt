@@ -12,6 +12,7 @@ import com.vertyll.veds.notification.infrastructure.web.dto.MarkReadRequest
 import com.vertyll.veds.notification.infrastructure.web.dto.UpdateSettingsRequest
 import com.vertyll.veds.notification.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.ScopedToCaller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -32,6 +33,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/notifications")
 @Tag(name = "Notifications", description = "Notification inbox and delivery settings")
+@ScopedToCaller("CurrentUser.idOf narrows every read and write to the recipient in the token")
 internal class NotificationController(
     private val commands: NotificationCommandUseCase,
     private val queries: NotificationQueryUseCase,

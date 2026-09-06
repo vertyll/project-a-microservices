@@ -7,6 +7,7 @@ import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateMemberRoleRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -27,6 +28,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/projects/{projectId}/users")
 @Tag(name = "Project members", description = "Membership management within a project")
+@AuthorizedInUseCase("ProjectAuthorizationService — membership decides who may change membership")
 internal class ProjectMemberController(
     private val membershipServiceCommands: ProjectMembershipCommandUseCase,
     private val membershipServiceQueries: ProjectMembershipQueryUseCase,

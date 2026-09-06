@@ -8,6 +8,7 @@ import com.vertyll.veds.iam.domain.model.PageResult
 import com.vertyll.veds.iam.infrastructure.web.dto.UpdateProfileRequest
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.ScopedToCaller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -70,6 +71,7 @@ internal class UserController(
     }
 
     @PutMapping("/me")
+    @ScopedToCaller("the Keycloak subject in the token names the profile being changed")
     @Operation(summary = "Update your own profile")
     fun updateOwnProfile(
         @AuthenticationPrincipal jwt: Jwt,

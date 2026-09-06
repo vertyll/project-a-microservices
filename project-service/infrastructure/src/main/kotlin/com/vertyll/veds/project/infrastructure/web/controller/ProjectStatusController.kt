@@ -8,6 +8,7 @@ import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectStatusReques
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectStatusRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -30,6 +31,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/projects/{projectId}/statuses")
 @Tag(name = "Project statuses", description = "Workflow status management within a project")
+@AuthorizedInUseCase("ProjectAuthorizationService — a status is reachable only through its project")
 internal class ProjectStatusController(
     private val statusServiceCommands: ProjectStatusCommandUseCase,
     private val statusServiceQueries: ProjectStatusQueryUseCase,

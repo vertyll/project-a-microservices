@@ -1,6 +1,7 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import com.vertyll.veds.task.application.dto.TaskCommentResponse
 import com.vertyll.veds.task.application.port.inbound.command.TaskCommentCommandUseCase
 import com.vertyll.veds.task.application.port.inbound.query.TaskCommentQueryUseCase
@@ -29,6 +30,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Task comments", description = "Comment management on tasks")
+@AuthorizedInUseCase("TaskAuthorizationService — a comment is reachable only through a task the caller may see")
 internal class TaskCommentController(
     private val commentCommands: TaskCommentCommandUseCase,
     private val commentQueries: TaskCommentQueryUseCase,

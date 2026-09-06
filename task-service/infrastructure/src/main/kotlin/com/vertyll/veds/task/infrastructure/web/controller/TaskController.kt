@@ -1,6 +1,7 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import com.vertyll.veds.task.application.dto.PagedResponse
 import com.vertyll.veds.task.application.dto.TaskDetailsResponse
 import com.vertyll.veds.task.application.dto.TaskListItemResponse
@@ -42,6 +43,7 @@ import java.util.UUID
 @RequestMapping("/tasks")
 @Tag(name = "Tasks", description = "Task management APIs")
 @Suppress("TooManyFunctions")
+@AuthorizedInUseCase("TaskAuthorizationService — the decision needs project membership and the task's own state")
 internal class TaskController(
     private val taskCommands: TaskCommandUseCase,
     private val taskQueries: TaskQueryUseCase,

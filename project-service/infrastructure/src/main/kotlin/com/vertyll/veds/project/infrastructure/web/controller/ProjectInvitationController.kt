@@ -6,6 +6,8 @@ import com.vertyll.veds.project.application.port.inbound.query.ProjectInvitation
 import com.vertyll.veds.project.infrastructure.web.dto.InviteMemberRequest
 import com.vertyll.veds.project.infrastructure.web.dto.RespondToInvitationRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
+import com.vertyll.veds.shared.web.security.ScopedToCaller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -29,6 +31,7 @@ internal class ProjectInvitationController(
     private val invitationServiceQueries: ProjectInvitationQueryUseCase,
 ) {
     @PostMapping("/{projectId}/invitations")
+    @AuthorizedInUseCase("ProjectInvitationCommandService — the invitation and the project decide together")
     @Operation(summary = "Invite a user to a project")
     fun invite(
         @AuthenticationPrincipal jwt: Jwt,
@@ -41,6 +44,7 @@ internal class ProjectInvitationController(
     }
 
     @GetMapping("/invitations/me")
+    @ScopedToCaller("the invitee e-mail comes from the token, so only the caller's own invitations are found")
     @Operation(summary = "List the current user's pending invitations")
     fun getMyInvitations(
         @AuthenticationPrincipal jwt: Jwt,
@@ -50,6 +54,7 @@ internal class ProjectInvitationController(
     }
 
     @PostMapping("/invitations/accept")
+    @AuthorizedInUseCase("ProjectInvitationCommandService — the invitation names its invitee")
     @Operation(summary = "Accept an invitation")
     fun accept(
         @AuthenticationPrincipal jwt: Jwt,
@@ -65,6 +70,7 @@ internal class ProjectInvitationController(
     }
 
     @PostMapping("/invitations/reject")
+    @AuthorizedInUseCase("ProjectInvitationCommandService — the invitation names its invitee")
     @Operation(summary = "Reject an invitation")
     fun reject(
         @AuthenticationPrincipal jwt: Jwt,

@@ -6,6 +6,8 @@ import com.vertyll.veds.apigateway.session.KeycloakTokenClient
 import com.vertyll.veds.apigateway.session.SessionCookies
 import com.vertyll.veds.apigateway.session.SessionStore
 import com.vertyll.veds.shared.web.config.SharedKeycloakProperties
+import com.vertyll.veds.shared.web.security.PublicEndpoint
+import com.vertyll.veds.shared.web.security.ScopedToCaller
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -51,6 +53,7 @@ internal class AuthProxyController(
 
     @Suppress("kotlin:S6508")
     @GetMapping("/authorize")
+    @PublicEndpoint("the start of sign-in: there is no token yet, and this only builds the Keycloak redirect")
     fun authorize(
         exchange: ServerWebExchange,
         @RequestParam(name = "kc_action", required = false) kcAction: String?,
@@ -82,6 +85,7 @@ internal class AuthProxyController(
 
     @Suppress("kotlin:S6508")
     @GetMapping("/callback")
+    @PublicEndpoint("Keycloak redirects the browser back here with a code; the code, not a token, is the credential")
     fun callback(
         @RequestParam(required = false) code: String?,
         @RequestParam(required = false) state: String?,
@@ -122,6 +126,7 @@ internal class AuthProxyController(
 
     @Suppress("kotlin:S6508")
     @GetMapping("/session")
+    @ScopedToCaller("reads the session cookie the caller already holds, and answers 204 when there is none")
     fun session(exchange: ServerWebExchange): Mono<ResponseEntity<SessionResponse>> {
         val sessionId = sessionCookies.read(exchange) ?: return Mono.just(noSession())
 
@@ -140,6 +145,7 @@ internal class AuthProxyController(
 
     @Suppress("kotlin:S6508")
     @PostMapping("/logout")
+    @ScopedToCaller("invalidates the refresh token in the caller's own cookie")
     fun logout(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
         val sessionId = sessionCookies.read(exchange)
         sessionCookies.clear(exchange)

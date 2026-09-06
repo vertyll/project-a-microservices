@@ -28,8 +28,6 @@ internal class SecurityConfig(
                 authorize
                     .requestMatchers("/actuator/**")
                     .permitAll()
-                    .requestMatchers("/template/**")
-                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }

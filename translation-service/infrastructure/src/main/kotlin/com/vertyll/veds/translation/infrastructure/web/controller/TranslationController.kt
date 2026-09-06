@@ -1,5 +1,6 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.security.PublicEndpoint
 import com.vertyll.veds.translation.application.dto.LanguageResponse
 import com.vertyll.veds.translation.application.dto.TranslationSnapshotResponse
 import com.vertyll.veds.translation.application.port.inbound.query.TranslationQueryUseCase
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit
 @RestController
 @RequestMapping("/translations")
 @Tag(name = "Translations", description = "Public translation catalogue")
+@PublicEndpoint("the sign-in screen needs its catalogue before anyone has a token")
 internal class TranslationController(
     private val queries: TranslationQueryUseCase,
 ) {

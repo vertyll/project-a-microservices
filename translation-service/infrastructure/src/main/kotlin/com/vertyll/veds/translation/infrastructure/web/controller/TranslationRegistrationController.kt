@@ -1,5 +1,6 @@
 package com.vertyll.veds.translation.infrastructure.web.controller
 
+import com.vertyll.veds.shared.web.security.PublicEndpoint
 import com.vertyll.veds.translation.application.command.CatalogueEntryCommand
 import com.vertyll.veds.translation.application.command.RegisterCatalogueCommand
 import com.vertyll.veds.translation.application.port.inbound.command.TranslationCommandUseCase
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/internal/translations")
 @Tag(name = "Translation registration", description = "Service-to-service key declaration")
+@PublicEndpoint("service-to-service registration inside the cluster; the gateway routes no /internal path and NetworkPolicy keeps it there")
 internal class TranslationRegistrationController(
     private val commands: TranslationCommandUseCase,
 ) {

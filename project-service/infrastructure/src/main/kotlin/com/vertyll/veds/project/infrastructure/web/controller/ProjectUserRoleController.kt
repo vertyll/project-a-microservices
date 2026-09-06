@@ -4,6 +4,7 @@ import com.vertyll.veds.project.application.dto.ProjectMemberResponse
 import com.vertyll.veds.project.application.port.inbound.query.ProjectMembershipQueryUseCase
 import com.vertyll.veds.project.infrastructure.web.LanguageHeader
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -19,6 +20,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/project-user-roles")
 @Tag(name = "Project members", description = "Legacy membership route kept for the Angular client")
+@AuthorizedInUseCase("ProjectAuthorizationService — the caller must be a member of the project being read")
 internal class ProjectUserRoleController(
     private val membershipServiceQueries: ProjectMembershipQueryUseCase,
 ) {

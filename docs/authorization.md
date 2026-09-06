@@ -138,3 +138,17 @@ A service that enforces no permissions of its own declares no
 `RolePermissionsSource`, and `@authz.has('…')` there refuses everything. That is
 the intended answer, not an oversight: a service cannot honor a permission it
 has no way to evaluate.
+
+
+## The transport layer is role-based, on purpose
+
+`api-gateway` gates routes with `hasRole('ADMIN')` rather than a permission. It owns no
+role-permission projection, and getting one would make a router the owner of a decision it does not
+make; asking iam instead would put a call on the request path. Before routing, the token's realm
+roles are the only thing available, so that is what the gateway uses. The decision that counts is
+taken by the service the request reaches.
+
+A service does not get the same excuse: it holds a projection, so it names a permission. The
+gateway's matchers therefore stop at `authenticated()` for anything a service guards — repeating the
+decision there would hard-code a role in front of one already taken correctly, and lock out a
+second unrestricted role that iam allows.

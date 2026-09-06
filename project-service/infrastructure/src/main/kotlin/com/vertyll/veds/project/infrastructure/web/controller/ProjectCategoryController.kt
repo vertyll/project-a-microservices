@@ -8,6 +8,7 @@ import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectCategoryRequ
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectCategoryRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -30,6 +31,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/projects/{projectId}/categories")
 @Tag(name = "Project categories", description = "Category management within a project")
+@AuthorizedInUseCase("ProjectAuthorizationService — a category is reachable only through its project")
 internal class ProjectCategoryController(
     private val categoryServiceCommands: ProjectCategoryCommandUseCase,
     private val categoryServiceQueries: ProjectCategoryQueryUseCase,

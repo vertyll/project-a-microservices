@@ -1,8 +1,14 @@
 package com.vertyll.veds.shared.archunit
 
+import com.tngtech.archunit.base.DescribedPredicate
 import com.tngtech.archunit.core.domain.JavaClasses
+import com.tngtech.archunit.core.domain.JavaMethod
+import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ArchRule
+import com.tngtech.archunit.lang.ConditionEvents
+import com.tngtech.archunit.lang.SimpleConditionEvent
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
 import com.tngtech.archunit.library.Architectures.layeredArchitecture
 
@@ -18,6 +24,30 @@ import com.tngtech.archunit.library.Architectures.layeredArchitecture
  * A service applies them by extending `VedsArchitectureTest`.
  */
 object VedsArchitectureRules {
+    /** Every way Spring maps a method to an HTTP request. */
+    private val MAPPING_ANNOTATIONS =
+        arrayOf(
+            "org.springframework.web.bind.annotation.RequestMapping",
+            "org.springframework.web.bind.annotation.GetMapping",
+            "org.springframework.web.bind.annotation.PostMapping",
+            "org.springframework.web.bind.annotation.PutMapping",
+            "org.springframework.web.bind.annotation.PatchMapping",
+            "org.springframework.web.bind.annotation.DeleteMapping",
+        )
+
+    /**
+     * The four kinds of authorization decision an endpoint may declare: a named permission, a
+     * refusal the use case takes on the resource's state, a query narrowed to the caller, or no
+     * authentication at all.
+     */
+    private val AUTHORIZATION_ANNOTATIONS =
+        arrayOf(
+            "org.springframework.security.access.prepost.PreAuthorize",
+            "com.vertyll.veds.shared.web.security.AuthorizedInUseCase",
+            "com.vertyll.veds.shared.web.security.ScopedToCaller",
+            "com.vertyll.veds.shared.web.security.PublicEndpoint",
+        )
+
     /** Packages a domain or application class may never touch. */
     private val FRAMEWORK_PACKAGES =
         arrayOf(
@@ -83,6 +113,39 @@ object VedsArchitectureRules {
             .should()
             .resideInAPackage("$base.infrastructure.web..")
             .because("HTTP is one delivery mechanism among several, so it belongs in its own adapter")
+
+    fun everyEndpointDeclaresItsAuthorization(): ArchRule =
+        methods()
+            .that(areMappedToHttp)
+            .should(declareAnAuthorizationDecision)
+            .because(
+                "an endpoint nobody guarded is indistinguishable from one guarded somewhere else, " +
+                    "and the difference only surfaces when a caller reaches what they should not",
+            )
+
+    private val areMappedToHttp =
+        object : DescribedPredicate<JavaMethod>("mapped to an HTTP request") {
+            override fun test(method: JavaMethod): Boolean = MAPPING_ANNOTATIONS.any { method.isAnnotatedWith(it) }
+        }
+
+    private val declareAnAuthorizationDecision =
+        object : ArchCondition<JavaMethod>("declare where their authorization decision is taken") {
+            override fun check(
+                method: JavaMethod,
+                events: ConditionEvents,
+            ) {
+                val declared =
+                    AUTHORIZATION_ANNOTATIONS.any { method.isAnnotatedWith(it) || method.owner.isAnnotatedWith(it) }
+                events.add(
+                    SimpleConditionEvent(
+                        method,
+                        declared,
+                        "${method.fullName} declares no authorization: it carries none of " +
+                            "@PreAuthorize, @AuthorizedInUseCase, @ScopedToCaller or @PublicEndpoint",
+                    ),
+                )
+            }
+        }
 
     fun kafkaOnlyInInfrastructure(base: String): ArchRule =
         noClasses()

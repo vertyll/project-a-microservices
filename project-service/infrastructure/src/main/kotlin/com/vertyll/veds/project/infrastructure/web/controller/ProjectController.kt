@@ -13,6 +13,7 @@ import com.vertyll.veds.project.infrastructure.web.dto.CreateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.dto.UpdateProjectRequest
 import com.vertyll.veds.project.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -36,6 +37,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/projects")
 @Tag(name = "Projects", description = "Project management APIs")
+@AuthorizedInUseCase("ProjectAuthorizationService — the decision needs membership and the project's own state")
 internal class ProjectController(
     private val projectServiceCommands: ProjectCommandUseCase,
     private val projectServiceQueries: ProjectQueryUseCase,

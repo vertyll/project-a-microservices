@@ -6,6 +6,7 @@ import com.vertyll.veds.iam.application.port.inbound.query.AuthQueryUseCase
 import com.vertyll.veds.iam.application.port.inbound.query.UserQueryUseCase
 import com.vertyll.veds.iam.infrastructure.web.security.CurrentUser
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.ScopedToCaller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Who is calling, and what this installation says they may do")
+@ScopedToCaller("the Keycloak subject in the token is the only account this reads or provisions")
 internal class AuthController(
     private val authServiceQueries: AuthQueryUseCase,
     private val provisionCurrentUser: ProvisionCurrentUserUseCase,

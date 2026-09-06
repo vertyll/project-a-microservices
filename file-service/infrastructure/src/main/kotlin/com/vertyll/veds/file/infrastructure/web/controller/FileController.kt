@@ -10,6 +10,7 @@ import com.vertyll.veds.file.application.port.inbound.query.FileQueryUseCase
 import com.vertyll.veds.file.infrastructure.web.dto.AttachFileRequest
 import com.vertyll.veds.file.infrastructure.web.dto.RequestUploadRequest
 import com.vertyll.veds.file.infrastructure.web.security.CurrentUser
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -29,6 +30,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/files")
 @Tag(name = "Files", description = "Upload tickets and file metadata")
+@AuthorizedInUseCase("FileCommandService.requireOwnedFile — a file answers only to the actor that uploaded it")
 internal class FileController(
     private val commands: FileCommandUseCase,
     private val queries: FileQueryUseCase,

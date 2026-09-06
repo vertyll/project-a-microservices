@@ -55,6 +55,10 @@ abstract class VedsArchitectureTest(
     fun controllersLiveInWebAdapter() = VedsArchitectureRules.controllersLiveInWebAdapter(basePackage).check(classes)
 
     @Test
+    @DisplayName("every endpoint declares where its authorization decision is taken")
+    fun everyEndpointDeclaresItsAuthorization() = VedsArchitectureRules.everyEndpointDeclaresItsAuthorization().check(classes)
+
+    @Test
     @DisplayName("only infrastructure talks to Kafka")
     fun onlyInfrastructureTalksToKafka() = VedsArchitectureRules.kafkaOnlyInInfrastructure(basePackage).check(classes)
 

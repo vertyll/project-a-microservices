@@ -51,10 +51,6 @@ internal class SecurityConfig(
 
         private const val PERMISSION_ENDPOINTS = "/permissions/**"
 
-        private val USER_ADMIN_ENDPOINTS =
-            arrayOf(
-                "/users/admin/**",
-            )
         private val USER_ID_ENDPOINT =
             arrayOf(
                 "/users/{id}",
@@ -105,17 +101,15 @@ internal class SecurityConfig(
                     .pathMatchers(*PROTECTED_AUTH_ENDPOINTS)
                     .authenticated()
                     .pathMatchers(*ROLE_ADMIN_ENDPOINTS)
-                    .hasRole("ADMIN")
+                    .authenticated()
                     .pathMatchers(PERMISSION_ENDPOINTS)
-                    .hasRole("ADMIN")
+                    .authenticated()
                     .pathMatchers(ROLE_USER_ENDPOINTS)
                     .authenticated()
-                    .pathMatchers(*USER_ADMIN_ENDPOINTS)
-                    .hasRole("ADMIN")
                     .pathMatchers(*USER_ID_ENDPOINT)
                     .authenticated()
                     .pathMatchers(MAIL_ENDPOINTS)
-                    .hasRole("ADMIN")
+                    .authenticated()
                     .pathMatchers(PUBLIC_TRANSLATION_ENDPOINTS)
                     .permitAll()
                     .pathMatchers(*PROJECT_ENDPOINTS)

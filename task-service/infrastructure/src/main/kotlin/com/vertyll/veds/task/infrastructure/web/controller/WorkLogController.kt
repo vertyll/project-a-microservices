@@ -1,6 +1,7 @@
 package com.vertyll.veds.task.infrastructure.web.controller
 
 import com.vertyll.veds.shared.web.http.ETagUtils
+import com.vertyll.veds.shared.web.security.AuthorizedInUseCase
 import com.vertyll.veds.sharederror.ApiException
 import com.vertyll.veds.task.application.dto.WorkLogEntryResponse
 import com.vertyll.veds.task.application.dto.WorkLogPageResponse
@@ -35,6 +36,7 @@ import java.util.UUID
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Task work log", description = "Time logged against tasks")
+@AuthorizedInUseCase("TaskAuthorizationService — a work log is reachable only through a task the caller may see")
 internal class WorkLogController(
     private val workLogCommands: WorkLogCommandUseCase,
     private val workLogQueries: WorkLogQueryUseCase,

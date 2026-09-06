@@ -4,6 +4,7 @@ import com.vertyll.veds.iam.application.command.RegisterPermissionCatalogueComma
 import com.vertyll.veds.iam.application.port.inbound.command.PermissionCatalogueUseCase
 import com.vertyll.veds.iam.domain.model.RoleScope
 import com.vertyll.veds.iam.infrastructure.web.dto.RegisterPermissionCatalogueRequest
+import com.vertyll.veds.shared.web.security.PublicEndpoint
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/internal/authz")
 @Tag(name = "Permission catalogue", description = "Registration of the permissions a module checks")
+@PublicEndpoint("service-to-service registration inside the cluster; the gateway routes no /internal path and NetworkPolicy keeps it there")
 internal class PermissionCatalogueController(
     private val catalogue: PermissionCatalogueUseCase,
 ) {
