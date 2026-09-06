@@ -114,6 +114,11 @@ class ProjectArchitectureTest : VedsArchitectureTest("com.vertyll.veds.project")
 
 See [shared-archunit](../shared-archunit/README.md) for the full list and the two deliberate exemptions.
 
+Since `everyEndpointDeclaresItsAuthorization`, that check also covers authorization: every method
+Spring maps to an HTTP request must carry `@PreAuthorize`, `@AuthorizedInUseCase`, `@ScopedToCaller`
+or `@PublicEndpoint`. The rule cannot tell whether a decision is *right* — it makes the absence of
+one impossible to miss, which is the failure that hides best.
+
 ## Coverage by service
 
 | Service                | Domain tests                                                       |
